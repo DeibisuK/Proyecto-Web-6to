@@ -1,0 +1,29 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+OSC-Frontend/dist/
+OSC-Frontend/.angular/cache/
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+
+# Others
+OSC-Backend/.env
+OSC-Backend/dist/
+OSC-Backend/coverage/
+OSC-Frontend/coverage/
+OSC-Frontend/.env
