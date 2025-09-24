@@ -1,7 +1,7 @@
-# Proyecto OSC
+# Proyecto OSC (Oro Sports Club)
 
 Este repositorio contiene dos aplicaciones:
-- **OSC-Frontend**: Aplicación web desarrollada con Angular.
+- **OSC-Frontend**: Aplicación web desarrollada con Angular y React (?).
 - **OSC-Backend**: API desarrollada con Node.js y Express.
 
 ## Requisitos previos
@@ -26,22 +26,13 @@ Este repositorio contiene dos aplicaciones:
 
 ## Inicialización del proyecto
 
-### Backend
+### Backend & Frontend
 
-Para iniciar el servidor backend:
+Para iniciar el proyecto en la carpeta raiz que contiene el backend y frontend:
 ```bash
-cd OSC-Backend
 npm start
 ```
 El backend estará disponible en `http://localhost:3000` (puerto por defecto).
-
-### Frontend
-
-Para iniciar el servidor frontend:
-```bash
-cd OSC-Frontend
-npm start
-```
 El frontend estará disponible en `http://localhost:4200`.
 
 ## Scripts útiles
@@ -80,5 +71,3 @@ npm test
 - [Express](https://expressjs.com/)
 
 ---
-
-Modifica este archivo según las necesidades de tu equipo o proyecto.
