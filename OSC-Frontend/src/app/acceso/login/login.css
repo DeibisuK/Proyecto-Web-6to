@@ -1,0 +1,178 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  min-height: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.bienvenida {
+  width: 50%;
+  background: #2a2a2a;
+  color: white;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.bienvenida img {
+  width: 120px;
+  height: auto;
+  margin-bottom: 30px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.bienvenida h3 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: white;
+}
+
+.bienvenida h6 {
+  font-size: 14px;
+  color: white;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  font-weight: normal;
+}
+
+.formulario {
+  width: 50%;
+  padding: 40px 30px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.formulario h2 {
+  color: #00b894;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.formulario h4 {
+  color: #00b894;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.formulario input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.formulario input:focus {
+  outline: none;
+  border-color: #00b894;
+}
+
+.formulario a {
+  color: #f3e62e;
+  text-decoration: none;
+  font-size: 12px;
+  text-align: left;
+  margin-bottom: 25px;
+  text-decoration: underline;
+}
+
+.formulario a:hover {
+  text-decoration: underline;
+}
+
+/* Los Botones */
+.btn-primary {
+  background: #00b894;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 15px;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background: #00a085;
+}
+
+.btn-secondary {
+  background: #1ada90;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #0d7eb3;
+}
+
+.social-text {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  margin: 20px 0 15px;
+}
+
+.social-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-google,
+.btn-facebook {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-google:hover,
+.btn-facebook:hover {
+  background: #f5f5f5;
+}
+
