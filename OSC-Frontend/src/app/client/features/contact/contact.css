@@ -77,9 +77,30 @@
   border-color: #2ECC71;
 }
 
-.form-group input::placeholder,
 .form-group textarea::placeholder {
   color: #BDC3C7;
+}
+
+.char-counter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #7F8C8D;
+}
+
+.char-count {
+  color: #2ECC71;
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.char-counter.warning .char-count {
+  color: #F39C12;
+}
+
+.char-counter.danger .char-count {
+  color: #E74C3C;
 }
 
 .btn-submit {

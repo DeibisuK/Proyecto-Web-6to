@@ -46,6 +46,9 @@
                 name="telefono"
                 [(ngModel)]="contactForm.telefono"
                 placeholder="+1 234 567 890"
+                pattern="[0-9+\-\s\(\)]*"
+                maxlength="15"
+                (input)="validatePhone($event)"
               />
             </div>
 
@@ -74,8 +77,13 @@
               [(ngModel)]="contactForm.mensaje"
               rows="4"
               placeholder="Escribe tu mensaje aquí..."
+              maxlength="500"
+              (input)="updateCharCount()"
               required
             ></textarea>
+            <div class="char-counter" [ngClass]="getCharCounterClass()">
+              <span class="char-count">{{ charCount }}</span>/500 caracteres
+            </div>
           </div>
 
           <button type="submit" class="btn-submit" [disabled]="!contactFormRef.valid">
