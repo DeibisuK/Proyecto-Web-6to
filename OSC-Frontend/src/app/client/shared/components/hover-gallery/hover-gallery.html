@@ -1,0 +1,25 @@
+<section class="hover-gallery-section">
+  <div class="gallery-container">
+    <h2>Nuestras Instalaciones</h2>
+    <p class="gallery-subtitle">Descubre nuestras modernas instalaciones deportivas</p>
+    
+    <div class="pillars-container">
+      <div 
+        *ngFor="let image of images; let i = index" 
+        class="pillar" 
+        [class.active]="hoveredIndex === i"
+        (mouseenter)="hoveredIndex = i"
+        (mouseleave)="hoveredIndex = -1">
+        
+        <img [src]="image.src" [alt]="image.title" class="pillar-image">
+        
+        <div class="pillar-overlay">
+          <div class="pillar-content">
+            <h3>{{ image.title }}</h3>
+            <p>{{ image.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

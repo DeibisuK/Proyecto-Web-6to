@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #F8F9FA;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  color: #2C3E50;
+}
+
+/* Clase para modal abierto - previene scroll del body */
+body.modal-open {
+  overflow: hidden;
+}

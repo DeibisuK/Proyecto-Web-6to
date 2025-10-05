@@ -1,1 +1,107 @@
-<p>navbar works!</p>
+<nav class="navbar-ecommerce">
+  <div class="navbar-container">
+    <!-- Logo alineado verticalmente -->
+    <div class="logo-section">
+      <a class="logo" routerLink="/inicio">
+        <img src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png" alt="Sports Club" />
+      </a>
+    </div>
+
+    <!-- Enlaces de navegación -->
+    <ul class="nav-links">
+      <li><a routerLink="/inicio" routerLinkActive="active-link">
+        <span class="material-icons">home</span> Inicio
+      </a></li>
+      
+      <li class="dropdown" (mouseenter)="toggleDropdown('productos', true)" (mouseleave)="toggleDropdown('productos', false)">
+        <a class="dropdown-toggle">
+          <span class="material-icons">sports</span> Productos
+          <span class="material-icons arrow">expand_more</span>
+        </a>
+        <div class="dropdown-menu" [class.show]="dropdowns.productos">
+          <div class="dropdown-section">
+            <h4>Categorías</h4>
+            <a routerLink="/productos">Ver todos los productos</a>
+          </div>
+        </div>
+      </li>
+
+      <li class="dropdown" (mouseenter)="toggleDropdown('reservas', true)" (mouseleave)="toggleDropdown('reservas', false)">
+        <a class="dropdown-toggle">
+          <span class="material-icons">event</span> Reservas
+          <span class="material-icons arrow">expand_more</span>
+        </a>
+        <div class="dropdown-menu" [class.show]="dropdowns.reservas">
+          <a routerLink="/reservas">Hacer una reserva</a>
+        </div>
+      </li>
+
+      <li><a routerLink="/nosotros" routerLinkActive="active-link">
+        <span class="material-icons">people</span> Nosotros
+      </a></li>
+
+      <li><a routerLink="/contacto" routerLinkActive="active-link">
+        <span class="material-icons">contact_support</span> Contacto
+      </a></li>
+    </ul>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+      <input type="text" placeholder="Buscar productos..." [(ngModel)]="searchTerm">
+      <button type="button" class="search-btn" (click)="onSearch()">
+        <span class="material-icons">search</span>
+      </button>
+    </div>
+
+    <!-- Acciones del usuario -->
+    <div class="user-actions">
+      <button class="cart-btn">
+        <span class="material-icons">shopping_cart</span>
+        <span class="cart-count">3</span>
+      </button>
+
+      <button (click)="abrirLoginModal()" class="user-btn">
+        <span class="material-icons">account_circle</span>
+      </button>
+
+      <button class="hamburger-btn" (click)="toggleSidebar()">
+        <span class="material-icons">menu</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar lateral -->
+<div class="sidebar-overlay" [class.show]="showSidebar" (click)="closeSidebar()"></div>
+<div class="sidebar" [class.show]="showSidebar">
+  <div class="sidebar-header">
+    <h3>Menú adicional</h3>
+    <button class="sidebar-close" (click)="closeSidebar()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <h4>Acerca de nosotros</h4>
+      <a routerLink="/historia" (click)="closeSidebar()">Historia</a>
+      <a routerLink="/mision-y-vision" (click)="closeSidebar()">Misión y Visión</a>
+      <a routerLink="/equipo" (click)="closeSidebar()">Nuestro Equipo</a>
+    </div>
+    <div class="sidebar-section">
+      <h4>Enlaces rápidos</h4>
+      <a routerLink="/productos" (click)="closeSidebar()">Productos</a>
+      <a routerLink="/reservas" (click)="closeSidebar()">Reservas</a>
+      <a routerLink="/contacto" (click)="closeSidebar()">Contacto</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de login -->
+<div *ngIf="mostrarLogin" class="modal-overlay" [class.show]="mostrarLogin" (click)="cerrarLoginModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="cerrarLoginModal()">
+      <span class="material-icons">close</span>
+    </button>
+    <app-login (cerrarModal)="cerrarLoginModal()"></app-login>
+  </div>
+</div>
