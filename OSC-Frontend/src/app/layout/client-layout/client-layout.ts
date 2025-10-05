@@ -5,7 +5,7 @@ import { Navbar } from '../../core/components/navbar/navbar';
 @Component({
   selector: 'app-client-layout',
   standalone: true,
-  imports: [RouterOutlet, Navbar],
+  imports: [],
   templateUrl: './client-layout.html',
   styleUrl: './client-layout.css'
 })

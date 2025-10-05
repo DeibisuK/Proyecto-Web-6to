@@ -12,8 +12,9 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 998;
   font-family: 'Inter', sans-serif;
+  transition: opacity 0.3s ease;
 }
 
 .navbar-container {
@@ -97,6 +98,114 @@
 
 .nav-links .material-icons {
   font-size: 1rem;
+}
+
+/* Estilos del menú móvil */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  display: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.show {
+  display: block;
+}
+
+/* Efecto de oscurecimiento para el navbar cuando el menú está abierto */
+.mobile-menu-overlay.show + .navbar-ecommerce {
+  opacity: 0.8;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 320px;
+  height: 100%;
+  background-color: #2C3E50;
+  z-index: 1001;
+  transition: right 0.3s ease-in-out;
+  padding: 1.5rem;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.mobile-menu.show {
+  right: 0;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.menu-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #ECF0F1;
+}
+
+.close-menu {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #ECF0F1;
+}
+
+.close-menu .material-icons {
+  font-size: 1.8rem;
+}
+
+.menu-section {
+  margin-bottom: 2rem;
+}
+
+.menu-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2ECC71;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.menu-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-section ul li {
+  margin-bottom: 1rem;
+}
+
+.menu-section ul li a {
+  color: #ECF0F1;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+  display: block;
+  padding: 0.5rem 0;
+}
+
+.menu-section ul li a:hover {
+  color: #2ECC71;
+}
+
+.menu-divider {
+  border: none;
+  height: 1px;
+  background-color: rgba(236, 240, 241, 0.1);
+  margin: 1.5rem 0;
 }
 
 /* Botón hamburguesa */

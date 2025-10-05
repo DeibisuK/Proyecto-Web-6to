@@ -4,10 +4,11 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Navbar } from "./core/components/navbar/navbar";
 import { ScrollService } from './core/services/scroll.service';
+import { Footer } from './core/components/footer/footer';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, RouterOutlet, Navbar],
+  imports: [CommonModule, FormsModule, RouterOutlet, Navbar, Footer],
   templateUrl: './app.html',
   styleUrl: './app.css',
   standalone: true

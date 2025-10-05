@@ -3,16 +3,14 @@ import { Home } from './client/features/home/home';
 import { Contact } from './client/features/contact/contact';
 import { Productos } from './client/features/productos/productos';
 import { Reservas } from './client/features/reservas/reservas';
-import { Nosotros } from './client/features/nosotros/nosotros';
-import { MisionVision } from './client/features/nosotros/mision-vision/mision-vision';
-import { Equipo } from './client/features/nosotros/equipo/equipo';
-import { Historia } from './client/features/nosotros/historia/historia';
-import { ArticuloCanchaComponent } from './client/features/articulos/articulo-cancha/articulo-cancha';
-import { ArticuloEstudioComponent } from './client/features/articulos/articulo-estudio/articulo-estudio';
-import { ArticuloPadelComponent } from './client/features/articulos/articulo-padel/articulo-padel';
 import { CanchaFutbolCompletoComponent } from './client/features/articulos/cancha-futbol-completo/cancha-futbol-completo';
 import { EstudioDeportivoCompletoComponent } from './client/features/articulos/estudio-deportivo-completo/estudio-deportivo-completo';
 import { PadelBeneficiosCompletoComponent } from './client/features/articulos/padel-beneficios-completo/padel-beneficios-completo';
+import { Historia } from './client/features/nosotros/historia/historia';
+import { Equipo } from './client/features/nosotros/equipo/equipo';
+import { MisionVision } from './client/features/nosotros/mision-vision/mision-vision';
+import { TiendaPage } from './client/features/shop/pages/tienda-page/tienda-page';
+import { DetalleProducto } from './client/features/shop/components/detalle-producto/detalle-producto';
 
 export const routes: Routes = [
   {
@@ -37,10 +35,18 @@ export const routes: Routes = [
     component: Contact
   },
   {
-    path: 'nosotros', 
-    component: Nosotros
+    path: 'articulos/cancha-futbol', 
+    component: CanchaFutbolCompletoComponent
   },
   {
+    path: 'articulos/estudio-deportivo', 
+    component: EstudioDeportivoCompletoComponent
+  },
+  {
+    path: 'articulos/padel-beneficios', 
+    component: PadelBeneficiosCompletoComponent
+  },
+    {
     path: 'mision-y-vision', 
     component: MisionVision
   },
@@ -53,16 +59,11 @@ export const routes: Routes = [
     component: Equipo
   },
   {
-    path: 'articulos/cancha-futbol', 
-    component: CanchaFutbolCompletoComponent
-  },
-  {
-    path: 'articulos/estudio-deportivo', 
-    component: EstudioDeportivoCompletoComponent
-  },
-  {
-    path: 'articulos/padel-beneficios', 
-    component: PadelBeneficiosCompletoComponent
+    path: 'tienda',
+    children: [
+      { path: '', component: TiendaPage },
+      { path: 'producto/:id', component: DetalleProducto}
+    ]
   },
   {
     path: '**', 

@@ -1,80 +1,75 @@
 <div class="contact-container">
   <section class="contact-section">
     <h1>Contáctanos</h1>
-    <p>¿Tienes alguna pregunta sobre nuestras instalaciones, reservas o productos? Nuestro equipo está aquí para ayudarte. Completa el formulario y nos pondremos en contacto contigo lo antes posible. También puedes visitarnos en cualquiera de nuestras sedes para recibir atención personalizada.</p>
-    
+    <p>
+      ¿Tienes alguna pregunta sobre nuestras instalaciones, reservas o productos? Nuestro equipo
+      está aquí para ayudarte. Completa el formulario y nos pondremos en contacto contigo lo antes
+      posible. También puedes visitarnos en cualquiera de nuestras sedes para recibir atención
+      personalizada.
+    </p>
+
     <div class="contact-content">
       <div class="contact-form">
         <form (ngSubmit)="onSubmit()" #contactFormRef="ngForm">
           <div class="form-row">
             <div class="form-group">
               <label for="nombres">Nombres</label>
-              <input 
-                type="text" 
-                id="nombres" 
+              <input
+                type="text"
+                id="nombres"
                 name="nombres"
                 [(ngModel)]="contactForm.nombres"
                 placeholder="Pepe..."
                 required
-              >
+              />
             </div>
-            
+
             <div class="form-group">
               <label for="email">Email</label>
-              <input 
-                type="email" 
-                id="email" 
+              <input
+                type="email"
+                id="email"
                 name="email"
                 [(ngModel)]="contactForm.email"
                 placeholder="ejemplo@gmail.com"
                 required
-              >
+              />
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="telefono">Teléfono</label>
-              <input 
-                type="tel" 
-                id="telefono" 
+              <input
+                type="tel"
+                id="telefono"
                 name="telefono"
                 [(ngModel)]="contactForm.telefono"
                 placeholder="+1 234 567 890"
-              >
+              />
             </div>
-            
+
             <div class="form-group">
               <label for="sede">Sede</label>
-              <select 
-                id="sede" 
-                name="sede"
-                [(ngModel)]="contactForm.sede"
-                required
-              >
+              <select id="sede" name="sede" [(ngModel)]="contactForm.sede" required>
                 <option value="">Seleccione una sede...</option>
                 <option *ngFor="let sede of sedes" [value]="sede">{{ sede }}</option>
               </select>
             </div>
           </div>
-          
+
           <div class="form-group">
             <label for="tipo">Tipo</label>
-            <select 
-              id="tipo" 
-              name="tipo"
-              [(ngModel)]="contactForm.tipo"
-              required
-            >
+            <select id="tipo" name="tipo" [(ngModel)]="contactForm.tipo" required>
               <option value="">Seleccione un tipo...</option>
               <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label for="mensaje">Mensaje</label>
-            <textarea 
-              id="mensaje" 
+            <textarea
+              id="mensaje"
               name="mensaje"
               [(ngModel)]="contactForm.mensaje"
               rows="4"
@@ -82,32 +77,40 @@
               required
             ></textarea>
           </div>
-          
+
           <button type="submit" class="btn-submit" [disabled]="!contactFormRef.valid">
             Enviar
           </button>
         </form>
       </div>
-      
+
       <div class="contact-info">
         <div class="redes-sociales">
           <div class="logo-section">
-            <img src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png" alt="Sports Club Logo" class="contact-logo">
+            <img
+              src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png"
+              alt="Sports Club Logo"
+              class="contact-logo"
+            />
             <h3>Oro Sports Club</h3>
             <p>Tu destino deportivo favorito</p>
           </div>
-          
+
           <div class="social-links">
             <h4>Síguenos en:</h4>
             <div class="social-icons">
-              <a href="#" class="social-icon twitter">
-                <span class="material-icons">alternate_email</span>
+              <a href="#" class="social-icon facebook">
+          <i class="fab fa-facebook"></i>
               </a>
               <a href="#" class="social-icon instagram">
-                <span class="material-icons">camera_alt</span>
+                <i class="fab fa-instagram"></i>
               </a>
+              <a href="#" class="social-icon twitter">
+                <i class="fab fa-twitter"></i>
+              </a>
+
               <a href="#" class="social-icon youtube">
-                <span class="material-icons">play_circle</span>
+                <i class="fab fa-youtube"></i>
               </a>
             </div>
           </div>

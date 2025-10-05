@@ -5,7 +5,6 @@ import { HoverGalleryComponent } from '../../shared/components/hover-gallery/hov
 
 @Component({
   selector: 'app-home',
-  standalone: true,
   imports: [ArticlesCarouselComponent, Contact, HoverGalleryComponent],
   templateUrl: './home.html',
   styleUrl: './home.css'

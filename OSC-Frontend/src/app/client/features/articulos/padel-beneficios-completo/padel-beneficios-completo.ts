@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-padel-beneficios-completo',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './padel-beneficios-completo.html',
   styleUrls: ['./padel-beneficios-completo.css']

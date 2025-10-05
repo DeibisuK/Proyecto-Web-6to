@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArticuloCanchaComponent } from '../../../features/articulos/articulo-cancha/articulo-cancha';
-import { ArticuloEstudioComponent } from '../../../features/articulos/articulo-estudio/articulo-estudio';
 import { ArticuloPadelComponent } from '../../../features/articulos/articulo-padel/articulo-padel';
+import { ArticuloEstudioComponent } from '../../../features/articulos/articulo-estudio/articulo-estudio';
 
 @Component({
   selector: 'app-articles-carousel',

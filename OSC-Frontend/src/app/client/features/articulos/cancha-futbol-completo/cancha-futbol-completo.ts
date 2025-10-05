@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-cancha-futbol-completo',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './cancha-futbol-completo.html',
   styleUrls: ['./cancha-futbol-completo.css']

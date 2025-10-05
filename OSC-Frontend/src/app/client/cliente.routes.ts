@@ -3,7 +3,6 @@ import { Contact } from "./features/contact/contact";
 import { Home } from "./features/home/home";
 import { Productos } from "./features/productos/productos";
 import { Reservas } from "./features/reservas/reservas";
-import { Nosotros } from "./features/nosotros/nosotros";
 import { MisionVision } from "./features/nosotros/mision-vision/mision-vision";
 import { Equipo } from "./features/nosotros/equipo/equipo";
 import { Historia } from "./features/nosotros/historia/historia";
@@ -23,9 +22,6 @@ export const clienteRoutes: Routes = [
   },
   {
     path: 'contacto', component: Contact
-  },
-  {
-    path: 'nosotros', component: Nosotros
   },
   {
     path: 'mision-y-vision', component: MisionVision

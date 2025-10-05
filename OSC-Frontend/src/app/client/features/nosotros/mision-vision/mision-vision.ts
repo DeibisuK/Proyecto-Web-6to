@@ -1,32 +1,38 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+
+interface Valor {
+  titulo: string;
+  descripcion: string;
+}
 
 @Component({
   selector: 'app-mision-vision',
-  standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="mision-vision-container">
-      <h1>Misión y Visión</h1>
-      <p>Aquí puedes agregar el contenido de misión y visión de tu complejo deportivo...</p>
-    </div>
-  `,
-  styles: [`
-    .mision-vision-container {
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    h1 {
-      color: #2C3E50;
-      margin-bottom: 2rem;
-    }
-    
-    p {
-      color: #7F8C8D;
-      line-height: 1.6;
-    }
-  `]
+  templateUrl: './mision-vision.html',
+  styleUrl: './mision-vision.css'
 })
-export class MisionVision {}
+export class MisionVision {
+valores: Valor[] = [
+    {
+      titulo: 'Excelencia',
+      descripcion: 'Nos esforzamos por brindar el mejor servicio y calidad en cada aspecto de nuestra plataforma.'
+    },
+    {
+      titulo: 'Innovación',
+      descripcion: 'Buscamos constantemente nuevas formas de mejorar y facilitar la experiencia deportiva.'
+    },
+    {
+      titulo: 'Compromiso',
+      descripcion: 'Estamos dedicados a promover el deporte y el bienestar en nuestra comunidad.'
+    },
+    {
+      titulo: 'Integridad',
+      descripcion: 'Actuamos con honestidad y transparencia en todas nuestras operaciones.'
+    },
+    {
+      titulo: 'Pasión',
+      descripcion: 'Amamos el deporte y trabajamos con entusiasmo para servir a nuestra comunidad deportiva.'
+    }
+  ];
+}
