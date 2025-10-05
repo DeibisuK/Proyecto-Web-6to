@@ -26,8 +26,6 @@ export class Navbar implements OnInit {
 
   ngOnInit() {
     console.log('Navbar e-commerce loaded');
-    // Agregar padding-top al body para compensar navbar fijo
-    document.body.style.paddingTop = '105px';
   }
 
   toggleDropdown(dropdown: keyof typeof this.dropdowns, show: boolean) {

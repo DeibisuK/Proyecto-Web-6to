@@ -1,10 +1,10 @@
-<div class="modal-overlay">
+<div class="modal-overlay" [class.closing]="isClosing">
     <div class="modal-content">
-        <button class="modal-close-btn" (click)="cerrarModal.emit()">
+        <button class="modal-close-btn" (click)="cerrar()">
             <span class="material-icons">close</span>
         </button>
         <div class="bienvenida">
-            <img src="https://img.asmedia.epimg.net/resizer/v2/SYYFLFRENJAHBBNRSEVM4CVWS4.jpg?auth=21d9a095a2ff76a12d57547e676d2ef9bf2ee76743bc548a7d70426e5b5b6bc0&width=684" alt="Logo">
+            <img src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png" alt="Logo">
             <h3>¡Hola, Deportista!</h3>
             <h6>Accede para reservar, comprar y disfrutar de tu deporte favorito.</h6>
             <button class="btn-secondary" >Crear cuenta</button>
@@ -27,10 +27,11 @@
             
             <div class="social-buttons">
                 <button class="btn-google">
-                    <span class="material-icons">search</span> Google
+                    <i class="fa-brands fa-google-plus-g"></i> Google
                 </button>
                 <button class="btn-facebook">
-                    <span class="material-icons">facebook</span> Facebook
+                    <i class="fa-brands fa-facebook"></i>
+                    Facebook
                 </button>
             </div>
         </div>

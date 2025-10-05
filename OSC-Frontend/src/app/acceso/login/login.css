@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -13,6 +11,7 @@
   justify-content: center;
   align-items: center;
   font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .modal-content {
@@ -27,6 +26,7 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(46, 204, 113, 0.2);
   position: relative;
+  animation: slideIn 0.3s ease-in-out;
 }
 
 .modal-close-btn {
@@ -35,7 +35,7 @@
   right: 1rem;
   color: #2C3E50;
   background: transparent;
-  border: none;
+  box-shadow: none;
   cursor: pointer;
   z-index: 10;
   transition: all 0.3s ease;
@@ -49,7 +49,7 @@
 
 .modal-close-btn:hover .material-icons {
   color: #4b5d71;
-  transform: scale(1.1);
+  transform: none;
 }
 
 .bienvenida {
@@ -200,42 +200,114 @@
 .social-text {
   text-align: center;
   color: #7F8C8D;
-  font-size: 12px;
-  margin: 20px 0 15px;
-  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+  font-size: 13px;
+}
+
+.social-text::before,
+.social-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #E0E0E0;
 }
 
 .social-buttons {
   display: flex;
+  flex-direction: row;
   gap: 10px;
+  margin-top: 15px;
+  justify-content: center;
 }
 
 .btn-google,
 .btn-facebook {
   flex: 1;
-  padding: 10px;
-  border: 1px solid rgba(46, 204, 113, 0.3);
-  background: #F8F9FA;
-  color: #2C3E50;
+  max-width: 160px;
+  padding: 8px 15px;
+  border: none;
   border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  height: 36px;
+}
+
+.btn-google {
+  background: #DB4437;
+}
+
+.btn-facebook {
+  background: #4267B2;
 }
 
 .btn-google:hover,
 .btn-facebook:hover {
-  background: rgba(46, 204, 113, 0.1);
-  border-color: #2ECC71;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  opacity: 0.9;
 }
 
-.btn-google .material-icons,
+.btn-google i,
+.btn-facebook i {
+  font-size: 18px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-overlay.closing {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+.modal-overlay.closing .modal-content {
+  animation: slideOut 0.3s ease-in-out;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
 .btn-facebook .material-icons {
   font-size: 1rem;
 }

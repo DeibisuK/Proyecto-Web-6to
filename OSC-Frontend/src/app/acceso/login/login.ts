@@ -13,11 +13,19 @@ export class Login {
 
   usuario = '';
   password = '';
+  isClosing = false;
+
+  cerrar() {
+    this.isClosing = true;
+    setTimeout(() => {
+      this.cerrarModal.emit();
+    }, 300); // Esperar a que termine la animación
+  }
 
   login() {
     console.log('Login con:', this.usuario);
     // Si login exitoso:
-    this.cerrarModal.emit();
+    this.cerrar();
   }
 
 
