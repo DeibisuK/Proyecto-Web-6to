@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 import { Producto } from '../models/producto';
 
 interface ItemCarrito {
@@ -74,8 +74,8 @@ export class CarritoService {
   }
 
   obtenerCantidadTotal(): Observable<number> {
-    return new BehaviorSubject(
-      this.items.value.reduce((sum, item) => sum + item.cantidad, 0)
-    ).asObservable();
+    return this.items.pipe(
+      map(items => items.reduce((sum, item) => sum + item.cantidad, 0))
+    );
   }
 }

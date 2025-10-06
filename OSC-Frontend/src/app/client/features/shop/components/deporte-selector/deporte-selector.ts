@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-deporte-selector',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './deporte-selector.html',
   styleUrls: ['./deporte-selector.css']

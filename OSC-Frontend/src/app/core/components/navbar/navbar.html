@@ -101,9 +101,9 @@
 
     <!-- Acciones del usuario -->
     <div class="user-actions">
-      <button class="cart-btn">
+      <button class="cart-btn" (click)="toggleCart()">
         <span class="material-icons">shopping_cart</span>
-        <span class="cart-count">3</span>
+        <span class="cart-count" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
       </button>
 
       <button (click)="abrirLoginModal()" class="user-btn">
@@ -162,5 +162,21 @@
       <span class="material-icons">close</span>
     </button>
     <app-login (cerrarModal)="cerrarLoginModal()"></app-login>
+  </div>
+</div>
+
+<!-- Carrito Sidebar -->
+<div
+  *ngIf="showCart"
+  class="cart-overlay"
+  [class.show]="showCart"
+  (click)="closeCart()"
+>
+  <div class="cart-container" (click)="$event.stopPropagation()">
+    <app-carrito
+      mode="sidebar"
+      [showCloseButton]="true"
+      (closeCart)="closeCart()">
+    </app-carrito>
   </div>
 </div>

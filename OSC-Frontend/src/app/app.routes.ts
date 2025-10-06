@@ -11,6 +11,7 @@ import { Equipo } from './client/features/nosotros/equipo/equipo';
 import { MisionVision } from './client/features/nosotros/mision-vision/mision-vision';
 import { TiendaPage } from './client/features/shop/pages/tienda-page/tienda-page';
 import { DetalleProducto } from './client/features/shop/components/detalle-producto/detalle-producto';
+import { CarritoComponent } from './client/features/shop/components/carrito/carrito';
 
 export const routes: Routes = [
   {
@@ -64,6 +65,9 @@ export const routes: Routes = [
       { path: '', component: TiendaPage },
       { path: 'producto/:id', component: DetalleProducto}
     ]
+  },
+  {
+    path: 'carrito', component: CarritoComponent
   },
   {
     path: '**', 

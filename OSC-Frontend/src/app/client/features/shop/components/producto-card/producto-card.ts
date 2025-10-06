@@ -6,7 +6,6 @@ import { CarritoService } from '../../services/carrito.service';
 
 @Component({
   selector: 'app-producto-card',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './producto-card.html',
   styleUrls: ['./producto-card.css']

@@ -5,7 +5,6 @@ import { FiltrosProducto } from '../../models/filtros-producto.model';
 
 @Component({
   selector: 'app-filtro-panel',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './filtro-panel.html',
   styleUrls: ['./filtro-panel.css']

@@ -7,7 +7,6 @@ import { CarritoService } from '../../services/carrito.service';
 
 @Component({
   selector: 'app-detalle-producto',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './detalle-producto.html',
   styleUrls: ['./detalle-producto.css']
