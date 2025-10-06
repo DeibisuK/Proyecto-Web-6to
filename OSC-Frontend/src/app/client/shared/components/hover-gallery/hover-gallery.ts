@@ -13,24 +13,24 @@ export class HoverGalleryComponent {
   
   images = [
     {
-      src: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      src: 'https://www.deporte.gob.ec/wp-content/uploads/2016/12/20161223CanchaJuncal.jpg',
       title: 'Canchas de Fútbol',
       description: 'Instalaciones profesionales con césped sintético de última generación'
     },
     {
-      src: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      src: 'https://cespedecuador.com/wp-content/uploads/2024/12/Cancha-de-padel-en-Ecuador-con-cesped-sintetico-profesional.jpg',
       title: 'Pistas de Pádel',
       description: 'Modernas pistas con iluminación LED y superficie profesional'
     },
     {
-      src: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      src: 'https://termasvillaelisa.com/wp-content/uploads/2022/03/tenis-1.jpg',
       title: 'Canchas de Tenis',
       description: 'Superficie de arcilla y césped para torneos profesionales'
     },
     {
-      src: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      title: 'Gimnasio Equipado',
-      description: 'Equipamiento de última generación para todos los niveles'
+      src: 'https://www.followupcx.com/wp-content/uploads/2019/03/retail-deportivo.jpg',
+      title: 'Tienda Deportiva',
+      description: 'Equipamiento y accesorios de las mejores marcas'
     }
   ];
 }
