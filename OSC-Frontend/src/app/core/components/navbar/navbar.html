@@ -101,6 +101,10 @@
 
     <!-- Acciones del usuario -->
     <div class="user-actions">
+      <button class="notification-btn">
+        <span class="material-icons">notifications</span>
+      </button>
+
       <button class="cart-btn" (click)="toggleCart()">
         <span class="material-icons">shopping_cart</span>
         <span class="cart-count" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
