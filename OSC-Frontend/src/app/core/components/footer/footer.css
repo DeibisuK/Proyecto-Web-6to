@@ -37,13 +37,12 @@
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  transition: 0.3s;
   gap: 0.5rem;
 }
 
 .footer-section ul li a:hover {
   color: #2ECC71;
-  font-weight: 500;
-  transform: translateX(5px);
 }
 
 .sedes-list .ciudad {
@@ -85,7 +84,6 @@
 
 .social-icons a:hover {
   color: #2ECC71;
-  transform: translateY(-3px);
 }
 
 .footer-divider {
