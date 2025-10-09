@@ -1,73 +1,63 @@
-# Proyecto OSC (Oro Sports Club)
+# Proyecto OSC (Orosports Club)
 
-Este repositorio contiene dos aplicaciones:
-- **OSC-Frontend**: Aplicación web desarrollada con Angular y React (?).
-- **OSC-Backend**: API desarrollada con Node.js y Express.
+Este es el repositorio principal del proyecto Orosports Club, una plataforma web completa para la gestión de un club deportivo.
 
-## Requisitos previos
-
-- Node.js (versión recomendada LTS)
-- npm (gestor de paquetes)
-- Angular CLI (`npm install -g @angular/cli`)
-
-## Instalación
-
-1. Clona el repositorio y accede a la carpeta principal.
-2. Instala las dependencias del frontend:
-   ```bash
-   cd OSC-Frontend
-   npm install
-   ```
-3. Instala las dependencias del backend:
-   ```bash
-   cd ../OSC-Backend
-   npm install
-   ```
-
-## Inicialización del proyecto
-
-### Backend & Frontend
-
-Para iniciar el proyecto en la carpeta raiz que contiene el backend y frontend:
-```bash
-npm start
-```
-El backend estará disponible en `http://localhost:3000` (puerto por defecto).
-El frontend estará disponible en `http://localhost:4200`.
-
-## Scripts útiles
-
-- **Frontend**
-  - `npm start`: Inicia el servidor de desarrollo Angular.
-  - `npm run build`: Compila el proyecto para producción.
-  - `npm test`: Ejecuta pruebas unitarias.
-
-- **Backend**
-  - `npm start`: Inicia el servidor Express.
-
-## Estructura del proyecto
-
-```
-OSC-Frontend/
-  ├── src/
-  ├── angular.json
-  ├── package.json
-OSC-Backend/
-  ├── server.js
-  ├── package.json
-```
-
-## Pruebas
-
-Para ejecutar las pruebas unitarias del frontend:
-```bash
-cd OSC-Frontend
-npm test
-```
-
-## Recursos
-
-- [Angular](https://angular.dev)
-- [Express](https://expressjs.com/)
+El proyecto está dividido en tres componentes principales:
+- **`OSC-Backend`**: Una API RESTful construida con Node.js y Express, siguiendo una arquitectura de microservicios.
+- **`OSC-Frontend-Angular`**: Una aplicación de cliente desarrollada con Angular para la interacción de los usuarios.
+- **`OSC-Frontend-React`**: (Opcional/Alternativo) Una versión del frontend desarrollada con React.
 
 ---
+
+## Backend: API de Microservicios
+
+La API está diseñada como un conjunto de microservicios independientes que se comunican entre sí a través de un API Gateway.
+
+### Microservicios:
+- **API Gateway**: Punto de entrada único para todas las peticiones.
+- **User Service**: Autenticación, gestión de usuarios y roles.
+- **Products Service**: Catálogo de productos, categorías y deportes.
+- **Buy Service**: Lógica de carrito de compras y procesamiento de pedidos.
+- **Court Service**: Gestión y reserva de canchas.
+- **Match Service**: Organización de partidos, equipos y estadísticas.
+
+Para obtener instrucciones detalladas sobre cómo configurar y ejecutar el backend, consulta el archivo `README.md` dentro de la carpeta `OSC-Backend`.
+
+➡️ **[Instrucciones del Backend](./OSC-Backend/README.md)**
+
+---
+
+## Frontend: Aplicaciones de Cliente
+
+### Angular
+
+La aplicación principal para los usuarios está desarrollada con Angular.
+
+#### Instalación y Ejecución (Angular)
+
+1.  **Navega a la carpeta del frontend**:
+    ```bash
+    cd OSC-Frontend-Angular
+    ```
+2.  **Instala las dependencias**:
+    ```bash
+    npm install
+    ```
+3.  **Inicia el servidor de desarrollo**:
+    ```bash
+    npm start
+    ```
+    La aplicación estará disponible en `http://localhost:4200`.
+
+---
+
+## Prerrequisitos Generales
+
+- **Node.js**: Versión 18.x o superior.
+- **npm**: Gestor de paquetes de Node.js.
+- **PostgreSQL**: Base de datos para el backend.
+- **Angular CLI**: `npm install -g @angular/cli` (si vas a trabajar con el frontend de Angular).
+
+---
+
+Este proyecto es parte de un desarrollo académico y está en constante evolución.

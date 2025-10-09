@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm i && npm-run-all --parallel start:api-gateway start:frontend",
-    "start:api-gateway": "cd OSC-Backend/api-gateway && npm run dev",
-    "start:frontend": "cd OSC-Frontend-Angular && npm i && ng serve --open",
+    "start": "npm-run-all --parallel start:backend start:frontend",
+    "start:backend": "node start-backend.js",
+    "start:frontend": "cd OSC-Frontend-Angular && ng serve --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
