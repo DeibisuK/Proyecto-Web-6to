@@ -1,0 +1,118 @@
+.puntos-lealtad-container {
+  padding: 40px;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.puntos-section {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 2px solid #27AE60;
+  margin-bottom: 40px;
+}
+
+h1 {
+  font-size: 32px;
+  color: #27AE60;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.puntos-text {
+  margin-top: 20px;
+}
+
+.puntos-text p {
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-size: 16px;
+  color: #444;
+}
+
+.nota-sistema {
+  font-style: italic;
+  color: #666;
+  font-size: 14px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  margin-top: 30px;
+}
+
+/* Estilos para las tarjetas de navegación */
+.navigation-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.nav-card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  border: 2px solid #27AE60;
+  cursor: pointer;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.nav-card:hover {
+  transform: translateY(-5px);
+  border: 2px solid #27AE60;
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #27AE60;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+}
+
+.card-icon span {
+  color: white;
+  font-size: 24px;
+}
+
+.nav-card h3 {
+  font-size: 20px;
+  color: #27AE60;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.nav-card p {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .puntos-lealtad-container {
+    padding: 20px;
+  }
+
+  .navigation-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .puntos-section {
+    padding: 20px;
+  }
+}
+
+p {
+  color: #7f8c8d;
+  line-height: 1.6;
+}
