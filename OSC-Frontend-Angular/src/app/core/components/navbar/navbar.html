@@ -29,13 +29,15 @@
         </a>
         <div class="dropdown-menu" [class.show]="dropdowns.productos">
           <div class="dropdown-section">
-            <h4>Categorías</h4>
-            <a routerLink="/productos/equipos">Equipos Deportivos</a>
-            <a routerLink="/productos/accesorios">Accesorios</a>
-            <a routerLink="/productos/ropa">Ropa Deportiva</a>
-            <a routerLink="/productos/calzado">Calzado</a>
+            <h4><i class="fas fa-list"></i> Categorías</h4>
+            <a routerLink="/productos/equipos"><i class="fas fa-futbol"></i> Equipos Deportivos</a>
+            <a routerLink="/productos/accesorios"><i class="fas fa-tools"></i> Accesorios</a>
+            <a routerLink="/productos/ropa"><i class="fas fa-tshirt"></i> Ropa Deportiva</a>
+            <a routerLink="/productos/calzado"><i class="fas fa-shoe-prints"></i> Calzado</a>
             <div class="dropdown-divider"></div>
-            <a routerLink="/tienda">Ver todo el catálogo</a>
+            <a routerLink="/tienda"><i class="fas fa-store"></i> Ver todo el catálogo</a>
+            <a routerLink="/tienda/pedidos"><i class="fas fa-box"></i> Mis Pedidos</a>
+            <!-- <a routerLink="/tienda/cupones"><i class="fas fa-ticket-alt"></i> Cupones y Descuentos</a> -->
           </div>
         </div>
       </li>
@@ -51,11 +53,13 @@
         </a>
         <div class="dropdown-menu" [class.show]="dropdowns.reservas">
           <div class="dropdown-section">
-            <h4>Instalaciones</h4>
-            <a routerLink="/reservas/futbol">Canchas de Fútbol</a>
-            <a routerLink="/reservas/padel">Canchas de Pádel</a>
-            <div class="dropdown-divider"></div>
-            <a routerLink="/reservas">Gestionar Reservas</a>
+            <h4><i class="fas fa-calendar-alt"></i> Reservas</h4>
+            <a routerLink="/reservas/nueva"><i class="fas fa-plus-circle"></i> Reservar Cancha</a>
+            <a routerLink="/reservas/mis-reservas"><i class="fas fa-list-alt"></i> Mis Reservas</a>
+            <a routerLink="/reservas/torneos"><i class="fas fa-trophy"></i> Torneos</a>
+            <a routerLink="/reservas/historial"><i class="fas fa-history"></i> Historial</a>
+            <a routerLink="/reservas/equipos"><i class="fas fa-users"></i> Mis Equipos</a>
+            <a routerLink="/reservas/canchas"><i class="fas fa-star"></i> Canchas y Reseñas</a>
           </div>
         </div>
       </li>
@@ -71,15 +75,15 @@
         </a>
         <div class="dropdown-menu" [class.show]="dropdowns.sedes">
           <div class="dropdown-section">
-            <h4>Machala</h4>
-            <a routerLink="/sedes/machala/9-octubre">Sede 9 de Octubre</a>
-            <a routerLink="/sedes/machala/unioro">Sede Unioro</a>
+            <h4><i class="fas fa-map-marker-alt"></i> Machala</h4>
+            <a routerLink="/sedes/machala/9-octubre"><i class="fas fa-building"></i> Sede 9 de Octubre</a>
+            <a routerLink="/sedes/machala/unioro"><i class="fas fa-building"></i> Sede Unioro</a>
             <div class="dropdown-divider"></div>
-            <h4>Guayaquil</h4>
-            <a routerLink="/sedes/guayaquil/urdesa">Sede Urdesa</a>
-            <a routerLink="/sedes/guayaquil/samborondon">Sede Samborondón</a>
+            <h4><i class="fas fa-map-marker-alt"></i> Guayaquil</h4>
+            <a routerLink="/sedes/guayaquil/urdesa"><i class="fas fa-building"></i> Sede Urdesa</a>
+            <a routerLink="/sedes/guayaquil/samborondon"><i class="fas fa-building"></i> Sede Samborondón</a>
             <div class="dropdown-divider"></div>
-            <a routerLink="/sedes">Ver todas las sedes</a>
+            <a routerLink="/sedes"><i class="fas fa-list"></i> Ver todas las sedes</a>
           </div>
         </div>
       </li>
@@ -134,11 +138,11 @@
   <section class="menu-section">
     <h3>ACERCA DE NOSOTROS</h3>
     <ul>
-      <li><a routerLink="/historia" (click)="toggleSidebar()">Historia</a></li>
+      <li><a routerLink="/historia" (click)="toggleSidebar()"><i class="fas fa-history"></i> Historia</a></li>
       <li>
-        <a routerLink="/mision-y-vision" (click)="toggleSidebar()">Misión y Visión</a>
+        <a routerLink="/mision-y-vision" (click)="toggleSidebar()"><i class="fas fa-eye"></i> Misión y Visión</a>
       </li>
-      <li><a routerLink="/nuestro-equipo" (click)="toggleSidebar()">Nuestro Equipo</a></li>
+      <li><a routerLink="/nuestro-equipo" (click)="toggleSidebar()"><i class="fas fa-users"></i> Nuestro Equipo</a></li>
     </ul>
   </section>
 
@@ -147,11 +151,39 @@
   <section class="menu-section">
     <h3>ENLACES RÁPIDOS</h3>
     <ul>
-      <li><a routerLink="/productos" (click)="toggleSidebar()">Productos</a></li>
-      <li><a routerLink="/reservas" (click)="toggleSidebar()">Reservas</a></li>
-      <li><a routerLink="/contacto" (click)="toggleSidebar()">Contacto</a></li>
+      <li><a routerLink="/tienda" (click)="toggleSidebar()"><i class="fas fa-box"></i> Tienda</a></li>
+      <li><a routerLink="/reservas" (click)="toggleSidebar()"><i class="fas fa-calendar-alt"></i> Reservas</a></li>
+      <li><a routerLink="/contacto" (click)="toggleSidebar()"><i class="fas fa-envelope"></i> Contacto</a></li>
+      <li><a routerLink="/torneos" (click)="toggleSidebar()"><i class="fas fa-trophy"></i> Torneos</a></li>
+      <li><a routerLink="/puntos-de-lealtad" (click)="toggleSidebar()"><i class="fas fa-gift"></i> Puntos de Lealtad</a></li>
     </ul>
   </section>
+
+  <!-- Opciones Staff - COMENTADO -->
+  <!--
+  <hr class="menu-divider" />
+  <section class="menu-section" *ngIf="showStaffOptions()">
+    <h3>STAFF</h3>
+    <ul>
+      <li><a routerLink="/staff/canchas" (click)="toggleSidebar()"><i class="fas fa-building"></i> Gestión Canchas</a></li>
+      <li><a routerLink="/arbitro/partidos" (click)="toggleSidebar()"><i class="fas fa-whistle"></i> Gestión Partidos</a></li>
+    </ul>
+  </section>
+  -->
+
+  <!-- Opciones Admin - COMENTADO -->
+  <!--
+  <hr class="menu-divider" />
+  <section class="menu-section" *ngIf="showAdminOptions()">
+    <h3>ADMINISTRACIÓN</h3>
+    <ul>
+      <li><a routerLink="/admin/reportes" (click)="toggleSidebar()"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+      <li><a routerLink="/admin/usuarios" (click)="toggleSidebar()"><i class="fas fa-user-cog"></i> Gestión Usuarios</a></li>
+      <li><a routerLink="/admin/config" (click)="toggleSidebar()"><i class="fas fa-cogs"></i> Configuración</a></li>
+      <li><a routerLink="/admin/anuncios" (click)="toggleSidebar()"><i class="fas fa-bullhorn"></i> Gestión Anuncios</a></li>
+    </ul>
+  </section>
+  -->
 </div>
 
 <!-- Modal de login -->

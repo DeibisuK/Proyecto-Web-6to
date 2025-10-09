@@ -12,6 +12,9 @@ import { MisionVision } from './client/features/nosotros/mision-vision/mision-vi
 import { TiendaPage } from './client/features/shop/pages/tienda-page/tienda-page';
 import { DetalleProducto } from './client/features/shop/components/detalle-producto/detalle-producto';
 import { CarritoComponent } from './client/features/shop/components/carrito/carrito';
+import { PuntosLealtad } from './client/features/puntos-lealtad/puntos-lealtad';
+import { PoliticaDePrivacidad } from './client/features/legal/politica-de-privacidad/politica-de-privacidad';
+import { TerminosYCondiciones } from './client/features/legal/terminos-y-condiciones/terminos-y-condiciones';
 
 export const routes: Routes = [
   {
@@ -56,7 +59,7 @@ export const routes: Routes = [
     component: Historia
   },
   {
-    path: 'equipo', 
+    path: 'nuestro-equipo', 
     component: Equipo
   },
   {
@@ -68,6 +71,15 @@ export const routes: Routes = [
   },
   {
     path: 'carrito', component: CarritoComponent
+  },
+  {
+    path: 'puntos-de-lealtad', component: PuntosLealtad
+  },
+  {
+    path: 'politica-de-privacidad', component: PoliticaDePrivacidad
+  },
+  {
+    path: 'terminos-y-condiciones', component: TerminosYCondiciones
   },
   {
     path: '**', 

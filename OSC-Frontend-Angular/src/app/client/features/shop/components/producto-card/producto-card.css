@@ -46,28 +46,30 @@
 .btn-agregar {
   position: absolute;
   bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
+  right: 1rem;
+  width: 40px;
+  height: 40px;
   background: #2ECC71;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   opacity: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .producto-card:hover .btn-agregar {
-  transform: translateX(-50%) translateY(0);
   opacity: 1;
+  transform: scale(1.1);
 }
 
 .btn-agregar:hover {
   background: #27AE60;
+  transform: scale(1.1);
 }
 
 .producto-info {

@@ -1,16 +1,27 @@
 .deportes-carousel {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.deportes-carousel::-webkit-scrollbar {
+.deportes-carousel h2 {
+  font-size: 1.5rem;
+
+}
+
+.deportes-items {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.deportes-items::-webkit-scrollbar {
   display: none;
 }
 

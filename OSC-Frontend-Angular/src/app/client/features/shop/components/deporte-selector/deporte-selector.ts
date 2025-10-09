@@ -12,9 +12,9 @@ export class DeporteSelector {
   @Output() deporteChange = new EventEmitter<string>();
 
   deportes = [
-    { id: 'futbol', nombre: 'Fútbol', imagen: 'assets/images/deportes/futbol.jpg' },
-    { id: 'padel', nombre: 'Pádel', imagen: 'assets/images/deportes/padel.jpg' },
-    { id: 'tenis', nombre: 'Tenis', imagen: 'assets/images/deportes/tenis.jpg' }
+    { id: 'futbol', nombre: 'Fútbol', imagen: 'https://e0.pxfuel.com/wallpapers/429/476/desktop-wallpaper-football-background-16-9-football.jpg' },
+    { id: 'padel', nombre: 'Pádel', imagen: 'https://media.gq.com.mx/photos/660b0d51a1f2991fdd335050/16:9/w_2560%2Cc_limit/Pa%25CC%2581del_1080225792.jpg' },
+    { id: 'tenis', nombre: 'Tenis', imagen: 'https://album.mediaset.es/eimg/2025/07/08/pelotas-de-tenis-16-9-aspect-ratio-default-0_da39.jpg?w=1200' }
   ];
 
   seleccionarDeporte(id: string) {
