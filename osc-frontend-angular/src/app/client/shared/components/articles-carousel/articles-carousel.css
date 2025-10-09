@@ -1,5 +1,5 @@
 .articles-section {
-  padding: 3rem 2rem;
+  padding: 3rem 3rem;
   background: #F8F9FA;
 }
 
@@ -17,12 +17,14 @@
   max-width: 1200px;
   margin: 0 auto;
   gap: 1rem;
+  padding: 0 1rem;
 }
 
 .carousel-wrapper {
   flex: 1;
   overflow: hidden;
   border-radius: 12px;
+  padding: 1rem 0;
 }
 
 .carousel-track {

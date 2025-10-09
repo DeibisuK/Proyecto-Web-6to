@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 interface Valor {
   titulo: string;
@@ -8,7 +9,7 @@ interface Valor {
 
 @Component({
   selector: 'app-mision-vision',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mision-vision.html',
   styleUrl: './mision-vision.css'
 })
