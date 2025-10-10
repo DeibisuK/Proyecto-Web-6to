@@ -4,7 +4,7 @@ const path = require('path');
 
 const backendPath = path.join(__dirname, 'OSC-Backend');
 const services = fs.readdirSync(backendPath, { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory())
+  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules')
   .map(dirent => dirent.name);
 
 console.log(`Found ${services.length} services: ${services.join(', ')}`);
