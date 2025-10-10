@@ -1,11 +1,11 @@
 import { Routes } from "@angular/router";
 import { Contact } from "./features/contact/contact";
-import { Home } from "./features/home/home";
+import { Home } from "./features/home/pages/home-page/home-page";
 import { Productos } from "./features/productos/productos";
 import { Reservas } from "./features/reservas/reservas";
-import { MisionVision } from "./features/nosotros/mision-vision/mision-vision";
-import { Equipo } from "./features/nosotros/equipo/equipo";
-import { Historia } from "./features/nosotros/historia/historia";
+import { MisionVision } from "./features/informacion/nosotros/mision-vision/mision-vision";
+import { Equipo } from "./features/informacion/nosotros/equipo/equipo";
+import { Historia } from "./features/informacion/nosotros/historia/historia";
 
 export const clienteRoutes: Routes = [
   {
@@ -27,7 +27,7 @@ export const clienteRoutes: Routes = [
     path: 'mision-y-vision', component: MisionVision
   },
   {
-    path: 'historia', component: History
+    path: 'historia', component: Historia
   },
   {
     path: 'equipo', component: Equipo

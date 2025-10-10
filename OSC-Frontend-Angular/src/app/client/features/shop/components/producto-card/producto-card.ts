@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { Producto } from '../../models/producto';
 import { CarritoService } from '../../services/carrito.service';
 
 @Component({
   selector: 'app-producto-card',
-  imports: [CommonModule],
+  imports: [CommonModule, NgIf],
   templateUrl: './producto-card.html',
   styleUrls: ['./producto-card.css']
 })
