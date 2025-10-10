@@ -29,6 +29,47 @@
   animation: slideIn 0.3s ease-in-out;
 }
 
+.container-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+/* Panel de Formulario - EMPIEZA A LA DERECHA */
+.formulario-panel {
+  width: 50%;
+  position: absolute;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 2;
+}
+
+/* Cuando está en modo registro, el PANEL BLANCO va a la IZQUIERDA */
+.container-wrapper.register-mode .formulario-panel {
+  transform: translateX(-100%);
+}
+
+/* Panel de Bienvenida - EMPIEZA A LA IZQUIERDA */
+.bienvenida-panel {
+  width: 50%;
+  position: absolute;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 2;
+}
+
+/* Cuando está en modo registro, el PANEL AZUL va a la DERECHA */
+.container-wrapper.register-mode .bienvenida-panel {
+  transform: translateX(100%);
+}
+
 .modal-close-btn {
   position: absolute;
   top: 1rem;
@@ -53,7 +94,8 @@
 }
 
 .bienvenida {
-  width: 50%;
+  width: 100%;
+  height: 100%;
   background: #34495E;
   color: #ECF0F1;
   padding: 40px 30px;
@@ -91,41 +133,56 @@
 }
 
 .formulario {
-  width: 50%;
-  padding: 40px 30px;
+  width: 100%;
+  height: 100%;
+  padding: 30px 40px;
   background: white;
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: center;
   color: #2C3E50;
-  position: relative;
+  overflow-y: auto;
+}
+
+/* Mostrar el formulario de login por defecto */
+.formulario.login-form {
+  display: flex;
+}
+
+/* Ocultar login y mostrar registro cuando está en register-mode */
+.container-wrapper.register-mode .formulario.login-form {
+  display: none;
+}
+
+.container-wrapper.register-mode .formulario.register-form {
+  display: flex;
 }
 
 .formulario h2 {
   color: #2C3E50;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 18px;
   text-align: center;
   font-family: 'Inter', sans-serif;
 }
 
 .formulario h4 {
   color: #2C3E50;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  margin-bottom: 8px;
-  margin-top: 20px;
+  margin-bottom: 6px;
+  margin-top: 8px;
   font-family: 'Inter', sans-serif;
 }
 
 .formulario input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 9px 14px;
   border: 1px solid rgba(46, 204, 113, 0.3);
   border-radius: 6px;
-  font-size: 14px;
-  margin-bottom: 10px;
+  font-size: 13px;
+  margin-bottom: 4px;
   background: #F8F9FA;
   color: #2C3E50;
   font-family: 'Inter', sans-serif;
@@ -146,9 +203,10 @@
 .formulario a {
   color: #2ECC71;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11px;
   text-align: left;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
+  margin-top: 5px;
   font-family: 'Inter', sans-serif;
   transition: color 0.3s ease;
 }
@@ -162,12 +220,13 @@
   background: #2ECC71;
   color: white;
   border: none;
-  padding: 12px 30px;
+  padding: 11px 30px;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  margin-top: 8px;
   width: 100%;
   transition: all 0.3s ease;
   font-family: 'Inter', sans-serif;
@@ -203,8 +262,8 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin: 20px 0;
-  font-size: 13px;
+  margin: 10px 0 8px 0;
+  font-size: 12px;
 }
 
 .social-text::before,
@@ -219,7 +278,8 @@
   display: flex;
   flex-direction: row;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 6px;
+  margin-bottom: 10px;
   justify-content: center;
 }
 
@@ -227,9 +287,16 @@
 .btn-facebook {
   flex: 1;
   max-width: 160px;
-  padding: 8px 15px;
+  padding: 7px 14px;
   border: none;
   border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,6 +375,25 @@
     opacity: 0;
   }
 }
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .btn-facebook .material-icons {
   font-size: 1rem;
 }

@@ -3,37 +3,78 @@
         <button class="modal-close-btn" (click)="cerrar()">
             <span class="material-icons">close</span>
         </button>
-        <div class="bienvenida">
-            <img src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png" alt="Logo">
-            <h3>¡Hola, Deportista!</h3>
-            <h6>Accede para reservar, comprar y disfrutar de tu deporte favorito.</h6>
-            <button class="btn-secondary" >Crear cuenta</button>
-        </div>
 
-        <div class="formulario">
-            <h2>Iniciar Sesión</h2>
+        <!-- Contenedor con animación -->
+        <div class="container-wrapper" [ngClass]="{'register-mode': isRegisterMode}">
             
-            <h4>Correo electrónico</h4>
-            <input type="email"  placeholder="usuario@email.com">
-            
-            <h4>Contraseña</h4>
-            <input type="password"  placeholder="Ingrese su contraseña">
-            
-            <a href="#" >¿Olvidaste tu contraseña?</a>
-            
-            <button class="btn-primary" >Iniciar sesión</button>
-            
-            <p class="social-text">O continuar con</p>
-            
-            <div class="social-buttons">
-                <button class="btn-google">
-                    <i class="fa-brands fa-google-plus-g"></i> Google
-                </button>
-                <button class="btn-facebook">
-                    <i class="fa-brands fa-facebook"></i>
-                    Facebook
-                </button>
+            <!-- Panel de Formulario -->
+            <div class="formulario-panel">
+                <!-- Formulario de Login -->
+                <div class="formulario login-form">
+                    <h2>Iniciar Sesión</h2>
+
+                    <h4>Correo electrónico</h4>
+                    <input type="email" [(ngModel)]="usuario" placeholder="gary@gmail.com">
+
+                    <h4>Contraseña</h4>
+                    <input type="password" [(ngModel)]="password" placeholder="Ingrese su contraseña">
+
+                    <a href="#" (click)="abrirRecuperacion(); $event.preventDefault()">Olvidaste tu contraseña?</a>
+
+                    <button class="btn-primary" (click)="login()">Iniciar sesión</button>
+
+                    <p class="social-text">O continuar con</p>
+
+                    <div class="social-buttons">
+                        <button class="btn-google">
+                            <i class="fa-brands fa-google"></i> Google
+                        </button>
+                        <button class="btn-facebook">
+                            <i class="fa-brands fa-facebook"></i> Facebook
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulario de Registro -->
+                <div class="formulario register-form">
+                    <h2>Crear Cuenta</h2>
+
+                    <h4>Nombre completo</h4>
+                    <input type="text" [(ngModel)]="nombre" placeholder="Tu nombre completo">
+
+                    <h4>Correo electrónico</h4>
+                    <input type="email" [(ngModel)]="email" placeholder="usuario@email.com">
+
+                    <h4>Contraseña</h4>
+                    <input type="password" [(ngModel)]="passwordRegistro" placeholder="Crea una contraseña">
+
+                    <button class="btn-primary" (click)="register()">Registrarse</button>
+
+                    <p class="social-text">O registrarse con</p>
+
+                    <div class="social-buttons">
+                        <button class="btn-google">
+                            <i class="fa-brands fa-google"></i> Google
+                        </button>
+                        <button class="btn-facebook">
+                            <i class="fa-brands fa-facebook"></i> Facebook
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            <!-- Panel de Bienvenida -->
+            <div class="bienvenida-panel">
+                <div class="bienvenida">
+                    <img src="https://png.pngtree.com/png-clipart/20230815/original/pngtree-sport-logo-vector-icon-illustration-icon-sport-vector-vector-picture-image_10767900.png" alt="Logo">
+                    <h3>{{ isRegisterMode ? '¡Bienvenido de nuevo!' : '¡Hola, Deportista!' }}</h3>
+                    <h6>{{ isRegisterMode ? 'Para seguir conectado con nosotros, inicia sesión con tu cuenta.' : 'Accede para reservar, comprar y disfrutar de tu deporte favorito.' }}</h6>
+                    <button class="btn-secondary" (click)="toggleForm()">
+                        {{ isRegisterMode ? 'Iniciar sesión' : 'Crear cuenta' }}
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

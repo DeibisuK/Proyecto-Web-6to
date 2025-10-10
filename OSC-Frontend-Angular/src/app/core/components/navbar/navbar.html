@@ -197,7 +197,25 @@
     <button class="modal-close-btn" (click)="cerrarLoginModal()">
       <span class="material-icons">close</span>
     </button>
-    <app-login (cerrarModal)="cerrarLoginModal()"></app-login>
+    <app-login 
+      (cerrarModal)="cerrarLoginModal()"
+      (abrirRecuperarPassword)="abrirRecuperarPasswordModal()">
+    </app-login>
+  </div>
+</div>
+
+<!-- Modal de recuperar contraseña -->
+<div
+  *ngIf="mostrarRecuperarPassword"
+  class="modal-overlay"
+  [class.show]="mostrarRecuperarPassword"
+  (click)="cerrarRecuperarPasswordModal()"
+>
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <app-recuperar-password 
+      (cerrarModal)="cerrarRecuperarPasswordModal()"
+      (volverLogin)="volverAlLoginDesdeRecuperacion()">
+    </app-recuperar-password>
   </div>
 </div>
 

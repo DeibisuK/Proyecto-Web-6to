@@ -3,19 +3,21 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Login } from '../../../acceso/login/login';
+import { RecuperarPassword } from '../../../acceso/recuperar-password/recuperar-password';
 import { CarritoComponent } from '../../../client/features/shop/components/carrito/carrito';
 import { CarritoService } from '../../../client/features/shop/services/carrito.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterLink, RouterLinkActive, Login, FormsModule, CarritoComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, Login, RecuperarPassword, FormsModule, CarritoComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   encapsulation: ViewEncapsulation.None
 })
 export class Navbar implements OnInit, OnDestroy {
   mostrarLogin = false;
+  mostrarRecuperarPassword = false;
   searchTerm = '';
   showSidebar = false;
   showCart = false;
@@ -98,5 +100,22 @@ export class Navbar implements OnInit, OnDestroy {
   cerrarLoginModal() {
     this.mostrarLogin = false;
     document.body.classList.remove('modal-open');
+  }
+
+  abrirRecuperarPasswordModal() {
+    this.mostrarLogin = false;
+    this.mostrarRecuperarPassword = true;
+    // El body ya tiene modal-open del modal anterior
+  }
+
+  cerrarRecuperarPasswordModal() {
+    this.mostrarRecuperarPassword = false;
+    document.body.classList.remove('modal-open');
+  }
+
+  volverAlLoginDesdeRecuperacion() {
+    this.mostrarRecuperarPassword = false;
+    this.mostrarLogin = true;
+    // El body ya tiene modal-open
   }
 }
