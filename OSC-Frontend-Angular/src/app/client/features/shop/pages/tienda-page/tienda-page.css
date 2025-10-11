@@ -48,6 +48,9 @@
   padding: 3rem;
   background: #f8f9fa;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .no-productos p {

@@ -31,4 +31,13 @@ export class ProductoCard {
     if (!this.producto.precioAnterior) return 0;
     return Math.round(((this.producto.precioAnterior - this.producto.precio) / this.producto.precioAnterior) * 100);
   }
+
+  getCaracteristicasTruncadas(): string {
+    const caracteristicas = this.producto.caracteristicas.join(', ');
+    const maxLength = 80; // Ajustar según necesidad
+    if (caracteristicas.length <= maxLength) {
+      return caracteristicas;
+    }
+    return caracteristicas.substring(0, maxLength) + '...';
+  }
 }

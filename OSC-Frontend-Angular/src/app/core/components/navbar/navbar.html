@@ -30,10 +30,10 @@
         <div class="dropdown-menu" [class.show]="dropdowns.productos">
           <div class="dropdown-section">
             <h4><i class="fas fa-list"></i> Categorías</h4>
-            <a routerLink="/productos/equipos"><i class="fas fa-futbol"></i> Equipos Deportivos</a>
-            <a routerLink="/productos/accesorios"><i class="fas fa-tools"></i> Accesorios</a>
-            <a routerLink="/productos/ropa"><i class="fas fa-tshirt"></i> Ropa Deportiva</a>
-            <a routerLink="/productos/calzado"><i class="fas fa-shoe-prints"></i> Calzado</a>
+            <a routerLink="/tienda" [queryParams]="{categoria: 'equipamiento'}"><i class="fas fa-futbol"></i> Equipos Deportivos</a>
+            <a routerLink="/tienda" [queryParams]="{categoria: 'accesorios'}"><i class="fas fa-tools"></i> Accesorios</a>
+            <a routerLink="/tienda" [queryParams]="{categoria: 'ropa'}"><i class="fas fa-tshirt"></i> Ropa Deportiva</a>
+            <a routerLink="/tienda" [queryParams]="{categoria: 'calzado'}"><i class="fas fa-shoe-prints"></i> Calzado</a>
             <div class="dropdown-divider"></div>
             <a routerLink="/tienda"><i class="fas fa-store"></i> Ver todo el catálogo</a>
             <a routerLink="/tienda/pedidos"><i class="fas fa-box"></i> Mis Pedidos</a>

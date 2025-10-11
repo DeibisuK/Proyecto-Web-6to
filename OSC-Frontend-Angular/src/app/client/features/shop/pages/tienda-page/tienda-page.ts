@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { ProductoService } from '../../services/producto.service';
 import { FiltrosProducto } from '../../models/filtros-producto.model';
 import { Producto } from '../../models/producto';
@@ -35,10 +36,15 @@ export class TiendaPage implements OnInit {
     porPagina: 12
   };
 
-  constructor(private productoService: ProductoService) {}
+  constructor(private productoService: ProductoService, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.cargarProductos();
+    this.route.queryParams.subscribe(params => {
+      if (params['categoria']) {
+        this.filtrosActivos.categoria = [params['categoria']];
+      }
+      this.cargarProductos();
+    });
   }
 
   onDeporteChange(deporte: string) {

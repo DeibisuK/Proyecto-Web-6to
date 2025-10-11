@@ -205,6 +205,10 @@ export class ProductoService {
   getProductosFiltrados(filtros: FiltrosProducto): Producto[] {
     let productos = [...this.productosDemo];
 
+    if (filtros.categoria?.length) {
+      productos = productos.filter(p => filtros.categoria!.includes(p.categoria));
+    }
+
     if (filtros.deporte && filtros.deporte !== 'todos') {
       productos = productos.filter(p => p.deporte === filtros.deporte);
     }

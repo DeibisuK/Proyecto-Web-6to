@@ -5,13 +5,13 @@ import { CommonModule } from '@angular/common';
 import { Navbar } from "./core/components/navbar/navbar";
 import { ScrollService } from './core/services/scroll.service';
 import { Footer } from './core/components/footer/footer';
+import { ScrollTop } from './core/components/scroll-top/scroll-top';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, RouterOutlet, Navbar, Footer],
+  imports: [CommonModule, FormsModule, RouterOutlet, Navbar, Footer, ScrollTop],
   templateUrl: './app.html',
-  styleUrl: './app.css',
-  standalone: true
+  styleUrl: './app.css'
 })
 export class App {
   title = 'OSC-Frontend';
