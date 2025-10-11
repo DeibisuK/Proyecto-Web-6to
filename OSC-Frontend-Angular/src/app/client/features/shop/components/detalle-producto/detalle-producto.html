@@ -1,80 +1,129 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Sección de Imágenes -->
-    <div class="space-y-4">
-      <div class="aspect-square rounded-lg overflow-hidden">
-        <img [src]="imagenPrincipal" [alt]="producto.nombre" class="w-full h-full object-cover">
-      </div>
-      <!-- Por ahora solo mostramos la imagen principal -->
-      <!-- En el futuro se puede agregar una galería de imágenes -->
-      <div class="grid grid-cols-4 gap-2">
-        <div class="aspect-square rounded-lg overflow-hidden cursor-pointer">
-          <img [src]="producto.imagen" [alt]="producto.nombre" class="w-full h-full object-cover">
+<div class="detalle-producto-container" *ngIf="producto">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a routerLink="/tienda">Tienda</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="current">{{producto.nombre}}</span>
+  </nav>
+
+  <div class="producto-content">
+    <!-- Sección de Imagen -->
+    <div class="imagen-section">
+      <div class="imagen-principal">
+        <img [src]="imagenPrincipal" [alt]="producto.nombre">
+        <div class="badges">
+          <span *ngIf="producto.nuevo" class="badge nuevo">Nuevo</span>
+          <span *ngIf="producto.oferta" class="badge oferta">-{{calcularDescuento()}}%</span>
         </div>
       </div>
     </div>
 
     <!-- Sección de Información -->
-    <div class="space-y-6">
-      <h1 class="text-3xl font-bold text-gray-900">{{producto.nombre}}</h1>
-      <p class="text-2xl font-semibold text-gray-900">${{producto.precio}}</p>
-
-      <!-- Descripción -->
-      <div>
-        <h2 class="text-lg font-medium text-gray-900">Descripción</h2>
-        <p class="mt-2 text-gray-600">{{producto.descripcion}}</p>
-      </div>
-
-      <!-- Color del Producto -->
-      <div>
-        <h2 class="text-lg font-medium text-gray-900">Color</h2>
-        <div class="mt-2 flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full ring-2 ring-offset-2 ring-primary-500"
-               [style.background-color]="producto.color">
-          </div>
-          <span class="text-gray-600">{{producto.color}}</span>
+    <div class="info-section">
+      <!-- Header del producto -->
+      <div class="producto-header">
+        <h1 class="producto-titulo">{{producto.nombre}}</h1>
+        <div class="marca-categoria">
+          <span class="marca">{{producto.marca}}</span>
+          <span class="categoria">{{getCategoriaDisplay()}}</span>
         </div>
       </div>
 
-      <!-- Selección de Talla -->
-      <div>
-        <h2 class="text-lg font-medium text-gray-900">Talla</h2>
-        <div class="mt-2 grid grid-cols-4 gap-2">
+      <!-- Precio -->
+      <div class="precio-section">
+        <div class="precio-principal">
+          <span class="precio-actual">${{producto.precio}}</span>
+          <span *ngIf="producto.precioAnterior" class="precio-anterior">${{producto.precioAnterior}}</span>
+        </div>
+        <div *ngIf="producto.precioAnterior" class="ahorro">
+          Ahorras ${{producto.precioAnterior - producto.precio}}
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="descripcion-section">
+        <h3>Descripción</h3>
+        <p>{{producto.descripcion}}</p>
+      </div>
+
+      <!-- Características -->
+      <div class="caracteristicas-section">
+        <h3>Características principales</h3>
+        <ul class="caracteristicas-lista">
+          <li *ngFor="let caracteristica of producto.caracteristicas">
+            <i class="fas fa-check"></i>
+            {{caracteristica}}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Color -->
+      <div class="color-section">
+        <h3>Color: <span class="color-nombre">{{producto.color}}</span></h3>
+        <div class="color-muestra" [style.background-color]="getColorHex()"></div>
+      </div>
+
+      <!-- Tallas -->
+      <div class="talla-section" *ngIf="producto.tallas.length > 0 && !esTallaStandard()">
+        <h3>Talla</h3>
+        <div class="tallas-grid">
           <button *ngFor="let talla of producto.tallas"
-                  [class.bg-primary-500]="tallaSeleccionada === talla"
-                  [class.text-white]="tallaSeleccionada === talla"
-                  class="py-2 px-4 border rounded-md hover:border-primary-500 focus:outline-none"
+                  [class.selected]="tallaSeleccionada === talla"
+                  class="talla-btn"
                   (click)="seleccionarTalla(talla)">
             {{talla}}
           </button>
         </div>
+        <p *ngIf="!tallaSeleccionada" class="error-message">Por favor selecciona una talla</p>
       </div>
 
-      <!-- Selector de Cantidad -->
-      <div>
-        <h2 class="text-lg font-medium text-gray-900">Cantidad</h2>
-        <div class="mt-2 flex items-center gap-4">
-          <button (click)="cambiarCantidad(-1)"
-                  class="w-8 h-8 rounded-full border flex items-center justify-center hover:border-primary-500">
-            -
+      <!-- Cantidad -->
+      <div class="cantidad-section">
+        <h3>Cantidad</h3>
+        <div class="cantidad-controls">
+          <button (click)="cambiarCantidad(-1)" 
+                  [disabled]="cantidad <= 1"
+                  class="cantidad-btn">
+            <i class="fas fa-minus"></i>
           </button>
-          <span class="text-lg">{{cantidad}}</span>
-          <button (click)="cambiarCantidad(1)"
-                  class="w-8 h-8 rounded-full border flex items-center justify-center hover:border-primary-500">
-            +
+          <span class="cantidad-display">{{cantidad}}</span>
+          <button (click)="cambiarCantidad(1)" 
+                  [disabled]="cantidad >= producto.stock"
+                  class="cantidad-btn">
+            <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
 
-      <!-- Botón de Agregar al Carrito -->
-      <button (click)="agregarAlCarrito()"
-              [disabled]="!tallaSeleccionada"
-              class="w-full py-3 px-6 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
-        Agregar al Carrito
-      </button>
+      <!-- Stock -->
+      <div class="stock-section">
+        <div class="stock-info" [class.bajo-stock]="producto.stock < 5">
+          <i class="fas fa-box"></i>
+          <span *ngIf="producto.stock >= 5">Stock disponible: {{producto.stock}} unidades</span>
+          <span *ngIf="producto.stock < 5" class="stock-bajo">¡Solo quedan {{producto.stock}} unidades!</span>
+        </div>
+      </div>
 
-      <!-- Stock Disponible -->
-      <p class="text-sm text-gray-600">Stock disponible: {{producto.stock}} unidades</p>
+      <!-- Botones de acción -->
+      <div class="acciones-section">
+        <button (click)="agregarAlCarrito()"
+                [disabled]="!puedeAgregar()"
+                class="btn-agregar-carrito">
+          <i class="fas fa-shopping-cart"></i>
+          Agregar al carrito
+        </button>
+        <button class="btn-favorito" (click)="toggleFavorito()">
+          <i class="fas fa-heart" [class.favorito]="esFavorito"></i>
+        </button>
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div *ngIf="!producto" class="loading-container">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando producto...</p>
   </div>
 </div>

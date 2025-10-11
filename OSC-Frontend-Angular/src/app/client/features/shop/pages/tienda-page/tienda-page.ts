@@ -12,7 +12,6 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
   selector: 'app-tienda-page',
   templateUrl: './tienda-page.html',
   styleUrl: './tienda-page.css',
-  standalone: true,
   imports: [
     CommonModule,
     DeporteSelector,
