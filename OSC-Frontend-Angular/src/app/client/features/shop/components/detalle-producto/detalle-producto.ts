@@ -6,10 +6,11 @@ import { Producto } from '../../models/producto';
 import { ProductoCard } from '../producto-card/producto-card';
 import { CarritoService } from '../../services/carrito.service';
 import { ProductoService } from '../../services/producto.service';
+import { ProductosRelacionados } from '../productos-relacionados/productos-relacionados';
 
 @Component({
   selector: 'app-detalle-producto',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ProductosRelacionados],
   templateUrl: './detalle-producto.html',
   styleUrls: ['./detalle-producto.css']
 })
@@ -19,7 +20,10 @@ export class DetalleProducto implements OnInit {
   cantidad: number = 1;
   imagenPrincipal: string = '';
   colorSeleccionado: string = '';
-  esFavorito: boolean = false;
+  seccionesAbiertas = {
+    caracteristicas: false,
+    descripcion: false
+  };
 
   private coloresHex: { [key: string]: string } = {
     'blanco': '#FFFFFF',
@@ -116,8 +120,26 @@ export class DetalleProducto implements OnInit {
     // this.router.navigate(['/carrito']);
   }
 
-  toggleFavorito() {
-    this.esFavorito = !this.esFavorito;
-    // Aquí podrías implementar la lógica para guardar favoritos
+  toggleSeccion(seccion: 'caracteristicas' | 'descripcion') {
+    this.seccionesAbiertas[seccion] = !this.seccionesAbiertas[seccion];
+  }
+
+  getStockClass(): string {
+    if (this.producto.stock === 0) return 'sin-stock';
+    if (this.producto.stock < 5) return 'poco-stock';
+    if (this.producto.stock < 10) return 'stock-medio';
+    return 'buen-stock';
+  }
+
+  getStockMessage(): string {
+    if (this.producto.stock === 0) return 'Sin stock';
+    if (this.producto.stock < 5) return `Solo ${this.producto.stock} disponibles`;
+    if (this.producto.stock < 10) return `${this.producto.stock} disponibles`;
+    return `${this.producto.stock} disponibles`;
+  }
+
+  getStockPercentage(): number {
+    const maxStock = 20; // Consideramos 20 como stock máximo para el cálculo del porcentaje
+    return Math.min((this.producto.stock / maxStock) * 100, 100);
   }
 }
