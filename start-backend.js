@@ -93,27 +93,40 @@ async function installAll() {
 function startAll() {
   console.log('🚀 Starting all backend services...\n');
   
-  const startPromises = services.map(service => {
+  services.forEach(service => {
     const servicePath = path.join(backendPath, service);
-    // Usamos 'npm run dev' que generalmente usa nodemon para desarrollo
-    return runCommand('npm run dev', servicePath, service);
+    const serviceProcess = exec('npm run dev', { cwd: servicePath });
+    
+    serviceProcess.stdout.on('data', (data) => {
+      console.log(`[${service}] ${data.toString().trim()}`);
+    });
+    
+    serviceProcess.stderr.on('data', (data) => {
+      // Ignorar warnings de npm, solo mostrar errores reales
+      const msg = data.toString().trim();
+      if (!msg.includes('npm') && !msg.includes('warn')) {
+        console.error(`[${service}-ERROR] ${msg}`);
+      }
+    });
+    
+    serviceProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`\n❌ ${service} exited with code ${code}`);
+      }
+    });
   });
 
-  Promise.all(startPromises)
-    .then(() => {
-      console.log('\n✅ All backend services are running!');
-      console.log('📍 Services available at:');
-      console.log('   - API Gateway: http://localhost:3000');
-      console.log('   - User Service: http://localhost:3001');
-      console.log('   - Products Service: http://localhost:3002');
-      console.log('   - Buy Service: http://localhost:3003');
-      console.log('   - Court Service: http://localhost:3004');
-      console.log('   - Match Service: http://localhost:3005\n');
-    })
-    .catch(error => {
-      console.error('\n❌ Failed to start one or more services.', error);
-      process.exit(1);
-    });
+  console.log('\n✅ All backend services are running!');
+  console.log('📍 Services available at:');
+  console.log('   - API Gateway: http://localhost:3000');
+  console.log('   - User Service: http://localhost:3001');
+  console.log('   - Products Service: http://localhost:3002');
+  console.log('   - Buy Service: http://localhost:3003');
+  console.log('   - Court Service: http://localhost:3004');
+  console.log('   - Match Service: http://localhost:3005');
+  console.log('\n💡 To start the frontend, open a new terminal and run:');
+  console.log('   cd OSC-Frontend-Angular && npm install && ng serve --open\n');
+  console.log('⚠️  Press Ctrl+C to stop all services\n');
 }
 
 // Ejecutar el flujo completo

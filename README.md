@@ -35,7 +35,7 @@ Para obtener instrucciones detalladas sobre cómo configurar y ejecutar el backe
 
 ## 🚀 Inicio Rápido (Todo Automático)
 
-### Opción 1: Inicio Completo (Backend + Frontend)
+### Opción 1: Solo Backend (Recomendado)
 
 ```bash
 # En la raíz del proyecto
@@ -46,9 +46,25 @@ Este comando hace **TODO automáticamente**:
 1. ✅ **Detecta archivos `.env` faltantes** y ejecuta la configuración automática
 2. ✅ **Instala dependencias** de todos los microservicios del backend
 3. ✅ **Inicia todos los microservicios** (puertos 3000-3005)
-4. ✅ **Inicia el frontend Angular** en http://localhost:4200
 
-### Opción 2: Solo Backend
+Luego, **en otra terminal**, inicia el frontend:
+
+```bash
+cd OSC-Frontend-Angular
+npm install
+ng serve --open
+```
+
+### Opción 2: Backend y Frontend en Secuencia
+
+```bash
+# Inicia backend, espera a que termine la config, luego frontend
+npm run start:full
+```
+
+⚠️ **Nota:** Esta opción solo funciona bien si los `.env` ya están configurados.
+
+### Opción 3: Iniciar Manualmente (Control Total)
 
 ```bash
 npm run start:backend
@@ -62,9 +78,11 @@ Ejecuta solo los microservicios del backend con configuración automática de `.
 npm run start:frontend
 ```
 
-Inicia únicamente la aplicación Angular.
+Inicia únicamente la aplicación Angular (después de instalar dependencias).
 
 ### Opción 4: Configurar Variables de Entorno Manualmente
+
+Si necesitas reconfigurar o configurar por primera vez:
 
 ```bash
 npm run setup:env
@@ -90,7 +108,7 @@ Si es la **primera vez** que ejecutas el proyecto:
    - Crea una base de datos en PostgreSQL
    - Ejecuta los scripts SQL necesarios (si existen)
 
-4. **Inicia el proyecto**:
+4. **Inicia el backend**:
    ```bash
    npm start
    ```
@@ -99,8 +117,16 @@ Si es la **primera vez** que ejecutas el proyecto:
    - Si faltan archivos `.env`, el script los detectará automáticamente
    - Ingresa las credenciales de tu base de datos DigitalOcean
    - El script creará todos los archivos `.env` necesarios
+   - Espera a que todos los servicios se inicien
 
-6. **¡Listo!** El backend estará en `http://localhost:3000` y el frontend en `http://localhost:4200`
+6. **En otra terminal, inicia el frontend**:
+   ```bash
+   cd OSC-Frontend-Angular
+   npm install
+   ng serve --open
+   ```
+
+7. **¡Listo!** El backend estará en `http://localhost:3000` y el frontend en `http://localhost:4200`
 
 ---
 

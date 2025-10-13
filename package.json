@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm-run-all --parallel start:backend start:frontend",
+    "start": "npm run start:backend",
+    "start:full": "npm run start:backend && npm run start:frontend",
     "start:backend": "node start-backend.js",
-    "start:frontend": "cd OSC-Frontend-Angular && ng serve --open",
+    "start:frontend": "cd OSC-Frontend-Angular && npm install && ng serve --open",
     "setup:env": "node OSC-Backend/setup-env.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
