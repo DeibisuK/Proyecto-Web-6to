@@ -126,10 +126,6 @@ function questionPassword(prompt) {
     });
 }
 
-function generateJWTSecret() {
-    return crypto.randomBytes(32).toString('base64');
-}
-
 function createEnvFile(service) {
     const servicePath = path.join(__dirname, service.folder);
     const examplePath = path.join(servicePath, '.env.example');
@@ -170,12 +166,15 @@ async function setup() {
     try {
         console.log(`${colors.blue}📝 Configuración de Base de Datos PostgreSQL (DigitalOcean)${colors.reset}`);
         console.log(`${colors.yellow}💡 Tip: Copia estos valores desde tu panel de DigitalOcean${colors.reset}`);
-        console.log(`${colors.yellow}💡 Presiona ENTER después de pegar cada valor${colors.reset}`);
+        console.log(`${colors.yellow}💡 IMPORTANTE: Si pegas texto con saltos de línea, solo se tomará la primera línea${colors.reset}`);
         console.log('');
         
         // DB_HOST con validación
         while (!config.DB_HOST) {
-            config.DB_HOST = await question('DB_HOST (ej: db-postgresql-...ondigitalocean.com)');
+            const input = await question('DB_HOST (ej: db-postgresql-...ondigitalocean.com)');
+            // Limpia saltos de línea y espacios
+            config.DB_HOST = input.trim().split('\n')[0].trim();
+            
             if (!config.DB_HOST) {
                 console.log(`${colors.red}❌ DB_HOST no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
@@ -183,12 +182,15 @@ async function setup() {
         console.log(`${colors.green}✓ DB_HOST configurado${colors.reset}\n`);
         
         // DB_PORT
-        config.DB_PORT = await question('DB_PORT', '25060');
+        const portInput = await question('DB_PORT', '25060');
+        config.DB_PORT = portInput.trim().split('\n')[0].trim() || '25060';
         console.log(`${colors.green}✓ DB_PORT configurado: ${config.DB_PORT}${colors.reset}\n`);
         
         // DB_USER con validación
         while (!config.DB_USER) {
-            config.DB_USER = await question('DB_USER (ej: doadmin)');
+            const input = await question('DB_USER (ej: doadmin)');
+            config.DB_USER = input.trim().split('\n')[0].trim();
+            
             if (!config.DB_USER) {
                 console.log(`${colors.red}❌ DB_USER no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
@@ -197,7 +199,9 @@ async function setup() {
         
         // DB_PASSWORD con validación
         while (!config.DB_PASSWORD) {
-            config.DB_PASSWORD = await questionPassword('DB_PASSWORD');
+            const input = await questionPassword('DB_PASSWORD');
+            config.DB_PASSWORD = input.trim().split('\n')[0].trim();
+            
             if (!config.DB_PASSWORD) {
                 console.log(`${colors.red}❌ DB_PASSWORD no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
@@ -206,7 +210,9 @@ async function setup() {
         
         // DB_NAME con validación
         while (!config.DB_NAME) {
-            config.DB_NAME = await question('DB_NAME (ej: bd_orosports)');
+            const input = await question('DB_NAME (ej: bd_orosports)');
+            config.DB_NAME = input.trim().split('\n')[0].trim();
+            
             if (!config.DB_NAME) {
                 console.log(`${colors.red}❌ DB_NAME no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
@@ -233,7 +239,7 @@ async function setup() {
         console.log('');
         
         // Mostrar resumen de configuración (sin password)
-        console.log(`${colors.blue}� Resumen de configuración:${colors.reset}`);
+        console.log(`${colors.blue}📋 Resumen de configuración:${colors.reset}`);
         console.log(`   DB_HOST: ${config.DB_HOST}`);
         console.log(`   DB_PORT: ${config.DB_PORT}`);
         console.log(`   DB_USER: ${config.DB_USER}`);
@@ -241,7 +247,7 @@ async function setup() {
         console.log(`   DB_NAME: ${config.DB_NAME}`);
         console.log('');
         
-        console.log(`${colors.blue}�📌 Archivos .env creados:${colors.reset}`);
+        console.log(`${colors.blue}📌 Archivos .env creados:${colors.reset}`);
         for (const service of services) {
             console.log(`   ✓ ${service.folder}/.env`);
         }
