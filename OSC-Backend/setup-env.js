@@ -44,26 +44,13 @@ const config = {
 function question(prompt, defaultValue = '') {
     return new Promise((resolve) => {
         const displayPrompt = defaultValue 
-            ? `${prompt} [${defaultValue}]: `
+            ? `${prompt} (${defaultValue}): `
             : `${prompt}: `;
         
         rl.question(displayPrompt, (answer) => {
-            // SUPER LIMPIEZA: Remover TODO tipo de espacios y saltos de línea
-            let cleaned = answer || defaultValue;
-            
-            // Remover saltos de línea, retornos de carro, tabs, etc.
-            cleaned = cleaned.replace(/[\r\n\t]/g, '');
-            
-            // Remover espacios al inicio y final
-            cleaned = cleaned.trim();
-            
-            // Si después de limpiar está vacío, usar default
-            if (!cleaned && defaultValue) {
-                cleaned = defaultValue;
-            }
-            
-            console.log(`${colors.yellow}[DEBUG] Valor recibido: "${cleaned}"${colors.reset}`);
-            resolve(cleaned);
+            // Limpiar la respuesta de espacios en blanco y caracteres invisibles
+            const cleanAnswer = answer.trim();
+            resolve(cleanAnswer || defaultValue);
         });
     });
 }
@@ -101,9 +88,7 @@ function questionPassword(prompt) {
                 stdin.pause();
                 stdin.removeListener('data', onData);
                 stdout.write('\n');
-                // Limpiar password de caracteres extraños
-                const cleaned = password.replace(/[\r\n\t]/g, '').trim();
-                resolve(cleaned);
+                resolve(password.trim());
                 return;
             }
             
@@ -130,11 +115,6 @@ function questionPassword(prompt) {
                 return;
             }
             
-            // Ignorar caracteres de control excepto los que queremos
-            if (char.charCodeAt(0) < 32 && char !== '\n' && char !== '\r') {
-                return;
-            }
-            
             // Agregar carácter a la contraseña
             password += char;
             if (rawModeEnabled) {
@@ -144,6 +124,10 @@ function questionPassword(prompt) {
         
         stdin.on('data', onData);
     });
+}
+
+function generateJWTSecret() {
+    return crypto.randomBytes(32).toString('base64');
 }
 
 function createEnvFile(service) {
@@ -185,77 +169,49 @@ function createEnvFile(service) {
 async function setup() {
     try {
         console.log(`${colors.blue}📝 Configuración de Base de Datos PostgreSQL (DigitalOcean)${colors.reset}`);
-        console.log(`${colors.yellow}💡 Tip: Copia y pega los valores desde tu panel de DigitalOcean${colors.reset}`);
+        console.log(`${colors.yellow}💡 Tip: Copia estos valores desde tu panel de DigitalOcean${colors.reset}`);
         console.log(`${colors.yellow}💡 Presiona ENTER después de pegar cada valor${colors.reset}`);
         console.log('');
         
         // DB_HOST con validación
-        let attempts = 0;
-        while (!config.DB_HOST && attempts < 5) {
-            attempts++;
-            config.DB_HOST = await question('DB_HOST (ej: db-postgresql-xxx.ondigitalocean.com)');
-            
+        while (!config.DB_HOST) {
+            config.DB_HOST = await question('DB_HOST (ej: db-postgresql-...ondigitalocean.com)');
             if (!config.DB_HOST) {
-                console.log(`${colors.red}❌ DB_HOST no puede estar vacío. Intento ${attempts}/5${colors.reset}`);
+                console.log(`${colors.red}❌ DB_HOST no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
         }
-        
-        if (!config.DB_HOST) {
-            throw new Error('No se pudo configurar DB_HOST después de 5 intentos');
-        }
-        console.log(`${colors.green}✓ DB_HOST configurado: ${config.DB_HOST}${colors.reset}\n`);
+        console.log(`${colors.green}✓ DB_HOST configurado${colors.reset}\n`);
         
         // DB_PORT
         config.DB_PORT = await question('DB_PORT', '25060');
         console.log(`${colors.green}✓ DB_PORT configurado: ${config.DB_PORT}${colors.reset}\n`);
         
         // DB_USER con validación
-        attempts = 0;
-        while (!config.DB_USER && attempts < 5) {
-            attempts++;
+        while (!config.DB_USER) {
             config.DB_USER = await question('DB_USER (ej: doadmin)');
-            
             if (!config.DB_USER) {
-                console.log(`${colors.red}❌ DB_USER no puede estar vacío. Intento ${attempts}/5${colors.reset}`);
+                console.log(`${colors.red}❌ DB_USER no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
         }
-        
-        if (!config.DB_USER) {
-            throw new Error('No se pudo configurar DB_USER después de 5 intentos');
-        }
-        console.log(`${colors.green}✓ DB_USER configurado: ${config.DB_USER}${colors.reset}\n`);
+        console.log(`${colors.green}✓ DB_USER configurado${colors.reset}\n`);
         
         // DB_PASSWORD con validación
-        attempts = 0;
-        while (!config.DB_PASSWORD && attempts < 5) {
-            attempts++;
+        while (!config.DB_PASSWORD) {
             config.DB_PASSWORD = await questionPassword('DB_PASSWORD');
-            
             if (!config.DB_PASSWORD) {
-                console.log(`${colors.red}❌ DB_PASSWORD no puede estar vacío. Intento ${attempts}/5${colors.reset}`);
+                console.log(`${colors.red}❌ DB_PASSWORD no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
         }
-        
-        if (!config.DB_PASSWORD) {
-            throw new Error('No se pudo configurar DB_PASSWORD después de 5 intentos');
-        }
-        console.log(`${colors.green}✓ DB_PASSWORD configurado (${config.DB_PASSWORD.length} caracteres)${colors.reset}\n`);
+        console.log(`${colors.green}✓ DB_PASSWORD configurado${colors.reset}\n`);
         
         // DB_NAME con validación
-        attempts = 0;
-        while (!config.DB_NAME && attempts < 5) {
-            attempts++;
+        while (!config.DB_NAME) {
             config.DB_NAME = await question('DB_NAME (ej: bd_orosports)');
-            
             if (!config.DB_NAME) {
-                console.log(`${colors.red}❌ DB_NAME no puede estar vacío. Intento ${attempts}/5${colors.reset}`);
+                console.log(`${colors.red}❌ DB_NAME no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
             }
         }
-        
-        if (!config.DB_NAME) {
-            throw new Error('No se pudo configurar DB_NAME después de 5 intentos');
-        }
-        console.log(`${colors.green}✓ DB_NAME configurado: ${config.DB_NAME}${colors.reset}\n`);
+        console.log(`${colors.green}✓ DB_NAME configurado${colors.reset}\n`);
         
         console.log('');
         console.log(`${colors.blue}📦 Creando archivos .env...${colors.reset}`);
@@ -275,29 +231,16 @@ async function setup() {
         console.log('');
         console.log(`${colors.green}✅ Configuración completada!${colors.reset}`);
         console.log('');
-        
-        // Mostrar resumen de configuración (sin password)
-        console.log(`${colors.blue}📋 Resumen de configuración:${colors.reset}`);
-        console.log(`   DB_HOST: ${config.DB_HOST}`);
-        console.log(`   DB_PORT: ${config.DB_PORT}`);
-        console.log(`   DB_USER: ${config.DB_USER}`);
-        console.log(`   DB_PASSWORD: ${'*'.repeat(Math.min(config.DB_PASSWORD.length, 20))}`);
-        console.log(`   DB_NAME: ${config.DB_NAME}`);
-        console.log('');
-        
         console.log(`${colors.blue}📌 Archivos .env creados:${colors.reset}`);
         for (const service of services) {
-            const servicePath = path.join(__dirname, service.folder);
-            if (fs.existsSync(servicePath)) {
-                console.log(`   ✓ ${service.folder}/.env`);
-            }
+            console.log(`   ✓ ${service.folder}/.env`);
         }
         console.log('');
         console.log(`${colors.blue}📌 Próximos pasos:${colors.reset}`);
         console.log('   1. Revisa los archivos .env generados');
         console.log('   2. Verifica que las credenciales sean correctas');
         console.log('   3. NUNCA subas los archivos .env a GitHub (ya están en .gitignore)');
-        console.log('   4. Inicia los servicios con: npm start');
+        console.log('   4. Ejecuta tu script de inicio: node start-backend.js');
         console.log('');
         console.log(`${colors.yellow}⚠️  IMPORTANTE:${colors.reset}`);
         console.log('   • Los archivos .env contienen información sensible');
@@ -307,10 +250,8 @@ async function setup() {
         
     } catch (error) {
         console.error(`${colors.red}❌ Error: ${error.message}${colors.reset}`);
-        console.log(`${colors.yellow}\n💡 Sugerencia: Verifica que estés pegando correctamente los valores${colors.reset}`);
     } finally {
         rl.close();
-        process.exit(0);
     }
 }
 
