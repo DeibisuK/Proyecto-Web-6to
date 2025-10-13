@@ -31,9 +31,98 @@ Para obtener instrucciones detalladas sobre cómo configurar y ejecutar el backe
 
 ➡️ **[Instrucciones del Backend](./OSC-Backend/README.md)**
 
+---
+
+## 🚀 Inicio Rápido (Todo Automático)
+
+### Opción 1: Inicio Completo (Backend + Frontend)
+
+```bash
+# En la raíz del proyecto
+npm start
+```
+
+Este comando hace **TODO automáticamente**:
+1. ✅ **Detecta archivos `.env` faltantes** y ejecuta la configuración automática
+2. ✅ **Instala dependencias** de todos los microservicios del backend
+3. ✅ **Inicia todos los microservicios** (puertos 3000-3005)
+4. ✅ **Inicia el frontend Angular** en http://localhost:4200
+
+### Opción 2: Solo Backend
+
+```bash
+npm run start:backend
+```
+
+Ejecuta solo los microservicios del backend con configuración automática de `.env`.
+
+### Opción 3: Solo Frontend
+
+```bash
+npm run start:frontend
+```
+
+Inicia únicamente la aplicación Angular.
+
+### Opción 4: Configurar Variables de Entorno Manualmente
+
+```bash
+npm run setup:env
+```
+
+Ejecuta el asistente interactivo de configuración de variables de entorno.
+
+---
+
+## 📋 Primera Vez en el Proyecto
+
+Si es la **primera vez** que ejecutas el proyecto:
+
+1. **Clona el repositorio**:
+   ```bash
+   git clone https://github.com/DeibisuK/Proyecto-Web-6to.git
+   cd Proyecto-Web-6to
+   ```
+
+2. **Instala Node.js** (versión 18.x o superior)
+
+3. **Configura PostgreSQL**:
+   - Crea una base de datos en PostgreSQL
+   - Ejecuta los scripts SQL necesarios (si existen)
+
+4. **Inicia el proyecto**:
+   ```bash
+   npm start
+   ```
+
+5. **Sigue las instrucciones** en la terminal:
+   - Si faltan archivos `.env`, el script los detectará automáticamente
+   - Ingresa las credenciales de tu base de datos DigitalOcean
+   - El script creará todos los archivos `.env` necesarios
+
+6. **¡Listo!** El backend estará en `http://localhost:3000` y el frontend en `http://localhost:4200`
+
+---
+
+## ⚙️ Configuración de Variables de Entorno
+
+El proyecto incluye un sistema automatizado para configurar las variables de entorno:
+
+- **Archivos `.env.example`**: Plantillas de configuración (se suben a Git)
+- **Archivos `.env`**: Configuración real con credenciales (NO se suben a Git)
+- **Script automático**: [`setup-env.js`](OSC-Backend/setup-env.js) configura todo
+
 ### Script de Inicio del Backend
 
-El proyecto incluye un script [`start-backend.js`](start-backend.js) en la raíz que facilita el inicio de todos los microservicios simultáneamente.
+El script [`start-backend.js`](start-backend.js) incluye:
+- ✅ Detección automática de archivos `.env` faltantes
+- ✅ Ejecución del asistente de configuración si es necesario
+- ✅ Instalación de dependencias
+- ✅ Inicio paralelo de todos los microservicios
+
+Para más información sobre variables de entorno, consulta:
+- 📘 [`OSC-Backend/GUIA-RAPIDA.md`](OSC-Backend/GUIA-RAPIDA.md)
+- 📗 [`OSC-Backend/ENV-SETUP-GUIDE.md`](OSC-Backend/ENV-SETUP-GUIDE.md)
 
 ---
 

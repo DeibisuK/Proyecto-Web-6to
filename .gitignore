@@ -18,8 +18,19 @@ OSC-Frontend/node_modules/
 .DS_Store
 Thumbs.db
 
-# Env
+# Environment Variables - NUNCA subir archivos .env reales
 .env
+.env.local
+.env.*.local
+**/.env
+
+# Mantener archivos de ejemplo
+!.env.example
+!**/.env.example
+
+# Credenciales del equipo (si se crea con valores reales)
+TEAM-CREDENTIALS.md
+**/TEAM-CREDENTIALS.md
 
 # Others
 OSC-Backend/.env

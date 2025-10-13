@@ -1,6 +1,12 @@
 # Orosports Club - API de Microservicios
 
-Esta es la API de backend para el proyecto Orosports Club, construida con una arquitectura de microservicios utilizando Node.js, Express y PostgreSQL.
+Esta es la API de**📖 Documentación:**
+
+- 📘 **[GUIA-RAPIDA.md](./GUIA-RAPIDA.md)** - Tu configuración actual (DigitalOcean) con ejemplos
+- 📗 **[ENV-SETUP-GUIDE.md](./ENV-SETUP-GUIDE.md)** - Guía completa con mejores prácticas y teoría
+- 📙 **[.env-quick-ref.md](./.env-quick-ref.md)** - Referencia rápida de comandos y troubleshooting
+
+**⚠️ IMPORTANTE:**d para el proyecto Orosports Club, construida con una arquitectura de microservicios utilizando Node.js, Express y PostgreSQL.
 
 ## Arquitectura
 
@@ -19,35 +25,55 @@ La API está dividida en varios microservicios, cada uno responsable de una part
 - [PostgreSQL](https://www.postgresql.org/) como base de datos.
 - Un cliente de base de datos como [DBeaver](https://dbeaver.io/) o [pgAdmin](https://www.pgadmin.org/).
 
-## Configuración del Entorno
+## 🚀 Configuración Rápida
 
-1.  **Base de Datos**:
-    - Crea una base de datos en PostgreSQL.
-    - Ejecuta los scripts SQL necesarios para crear las tablas (puedes generarlos o solicitarlos si no los tienes).
+### 1. Base de Datos
+- Crea una base de datos en PostgreSQL
+- Ejecuta los scripts SQL necesarios para crear las tablas
 
-2.  **Variables de Entorno**:
-    - En la raíz de **cada microservicio** (`user-service`, `products-service`, etc.), crea un archivo `.env`.
-    - Copia y pega el siguiente contenido en cada archivo `.env`, reemplazando los valores con tu configuración local.
+### 2. Variables de Entorno (MUY IMPORTANTE)
 
-    ```env
-    # Configuración de la Base de Datos
-    DB_USER=tu_usuario_de_bd
-    DB_HOST=tu_host_de_bd
-    DB_DATABASE=tu_nombre_de_bd
-    DB_PASSWORD=tu_contraseña_de_bd
-    DB_PORT=tu_puerto_de_bd
+**⚡ Opción Rápida - Script Automático (Recomendado):**
 
-    # Puertos de los Microservicios
-    API_GATEWAY_PORT=3000
-    USER_SERVICE_PORT=3001
-    PRODUCTS_SERVICE_PORT=3002
-    BUY_SERVICE_PORT=3003
-    COURT_SERVICE_PORT=3004
-    MATCH_SERVICE_PORT=3005
+```bash
+# Desde la carpeta OSC-Backend
+node setup-env.js
+```
 
-    # Secret para JWT (en user-service)
-    JWT_SECRET=tu_secreto_para_jwt
-    ```
+El script te guiará en la configuración de:
+- ✅ Conexión a base de datos
+- ✅ Secreto JWT (lo genera automáticamente si lo deseas)
+- ✅ Creación de archivos .env para todos los servicios
+
+**📋 Opción Manual:**
+
+Si prefieres hacerlo manualmente, copia los archivos `.env.example` a `.env` en cada servicio:
+
+```bash
+cd OSC-Backend
+
+# Copiar plantillas
+cp api-gateway/.env.example api-gateway/.env
+cp user-service/.env.example user-service/.env
+cp products-service/.env.example products-service/.env
+cp buy-service/.env.example buy-service/.env
+cp court-service/.env.example court-service/.env
+cp match-service/.env.example match-service/.env
+
+# Luego edita cada .env con tus valores reales
+```
+
+**📖 Documentación:**
+
+- 📘 **[ESTRUCTURA-ENV.md](./ESTRUCTURA-ENV.md)** - Tu configuración actual (DigitalOcean)
+- � **[ENV-SETUP-GUIDE.md](./ENV-SETUP-GUIDE.md)** - Guía completa con mejores prácticas
+- 📙 **[.env-quick-ref.md](./.env-quick-ref.md)** - Referencia rápida de comandos
+
+**⚠️ IMPORTANTE:**
+- NUNCA subas archivos `.env` a GitHub (ya están en `.gitignore`)
+- Los archivos `.env.example` SÍ se deben subir (son plantillas sin datos sensibles)
+- Todos los servicios comparten la misma base de datos PostgreSQL en DigitalOcean
+- Cada servicio usa un puerto diferente pero la misma configuración de BD
 
 ## Instalación y Ejecución
 

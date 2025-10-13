@@ -7,6 +7,7 @@
     "start": "npm-run-all --parallel start:backend start:frontend",
     "start:backend": "node start-backend.js",
     "start:frontend": "cd OSC-Frontend-Angular && ng serve --open",
+    "setup:env": "node OSC-Backend/setup-env.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
