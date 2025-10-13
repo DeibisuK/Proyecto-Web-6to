@@ -15,6 +15,7 @@ import { CarritoComponent } from "./features/shop/components/carrito/carrito";
 import { PoliticaDePrivacidad } from "./features/informacion/legal/politica-de-privacidad/politica-de-privacidad";
 import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
 import { PuntosLealtad } from "./features/informacion/puntos-lealtad/puntos-lealtad";
+import { Prueba } from "../core/components/prueba/prueba";
 
 export const clienteRoutes: Routes = [
   {
@@ -84,5 +85,9 @@ export const clienteRoutes: Routes = [
   {
     path: 'terminos-y-condiciones', 
     component: TerminosYCondiciones
+  },
+  {
+    path: 'prueba',
+    component: Prueba
   }
 ]
