@@ -48,7 +48,9 @@ function question(prompt, defaultValue = '') {
             : `${prompt}: `;
         
         rl.question(displayPrompt, (answer) => {
-            resolve(answer || defaultValue);
+            // Limpiar la respuesta de espacios en blanco y caracteres invisibles
+            const cleanAnswer = answer.trim();
+            resolve(cleanAnswer || defaultValue);
         });
     });
 }
@@ -59,40 +61,68 @@ function questionPassword(prompt) {
         const stdout = process.stdout;
         
         stdout.write(`${prompt}: `);
-        stdin.setRawMode(true);
+        
+        // Intentar usar modo raw, pero con fallback si falla
+        let rawModeEnabled = false;
+        try {
+            stdin.setRawMode(true);
+            rawModeEnabled = true;
+        } catch (err) {
+            // Si falla raw mode, usar el método normal
+            console.log(`${colors.yellow}(Usando modo de entrada estándar)${colors.reset}`);
+        }
+        
         stdin.resume();
         stdin.setEncoding('utf8');
         
         let password = '';
         
-        stdin.on('data', function onData(char) {
+        const onData = function(char) {
             char = char.toString('utf8');
             
-            switch (char) {
-                case '\n':
-                case '\r':
-                case '\u0004':
+            // Manejar diferentes caracteres de fin de línea
+            if (char === '\n' || char === '\r' || char === '\u0004') {
+                if (rawModeEnabled) {
                     stdin.setRawMode(false);
-                    stdin.pause();
-                    stdin.removeListener('data', onData);
-                    stdout.write('\n');
-                    resolve(password);
-                    break;
-                case '\u0003':
-                    process.exit();
-                    break;
-                case '\u007f': // backspace
-                    password = password.slice(0, -1);
-                    stdout.clearLine();
-                    stdout.cursorTo(0);
-                    stdout.write(`${prompt}: ${'*'.repeat(password.length)}`);
-                    break;
-                default:
-                    password += char;
-                    stdout.write('*');
-                    break;
+                }
+                stdin.pause();
+                stdin.removeListener('data', onData);
+                stdout.write('\n');
+                resolve(password.trim());
+                return;
             }
-        });
+            
+            // Ctrl+C para salir
+            if (char === '\u0003') {
+                if (rawModeEnabled) {
+                    stdin.setRawMode(false);
+                }
+                stdout.write('\n');
+                console.log(`${colors.yellow}\nConfiguración cancelada${colors.reset}`);
+                process.exit(0);
+            }
+            
+            // Backspace
+            if (char === '\u007f' || char === '\b') {
+                if (password.length > 0) {
+                    password = password.slice(0, -1);
+                    if (rawModeEnabled) {
+                        stdout.clearLine();
+                        stdout.cursorTo(0);
+                        stdout.write(`${prompt}: ${'*'.repeat(password.length)}`);
+                    }
+                }
+                return;
+            }
+            
+            // Agregar carácter a la contraseña
+            password += char;
+            if (rawModeEnabled) {
+                stdout.write('*');
+            }
+        };
+        
+        stdin.on('data', onData);
     });
 }
 
@@ -140,13 +170,48 @@ async function setup() {
     try {
         console.log(`${colors.blue}📝 Configuración de Base de Datos PostgreSQL (DigitalOcean)${colors.reset}`);
         console.log(`${colors.yellow}💡 Tip: Copia estos valores desde tu panel de DigitalOcean${colors.reset}`);
+        console.log(`${colors.yellow}💡 Presiona ENTER después de pegar cada valor${colors.reset}`);
         console.log('');
         
-        config.DB_HOST = await question('DB_HOST (ej: db-postgresql-...ondigitalocean.com)');
+        // DB_HOST con validación
+        while (!config.DB_HOST) {
+            config.DB_HOST = await question('DB_HOST (ej: db-postgresql-...ondigitalocean.com)');
+            if (!config.DB_HOST) {
+                console.log(`${colors.red}❌ DB_HOST no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
+            }
+        }
+        console.log(`${colors.green}✓ DB_HOST configurado${colors.reset}\n`);
+        
+        // DB_PORT
         config.DB_PORT = await question('DB_PORT', '25060');
-        config.DB_USER = await question('DB_USER (ej: doadmin)');
-        config.DB_PASSWORD = await questionPassword('DB_PASSWORD');
-        config.DB_NAME = await question('DB_NAME (ej: bd_orosports)');
+        console.log(`${colors.green}✓ DB_PORT configurado: ${config.DB_PORT}${colors.reset}\n`);
+        
+        // DB_USER con validación
+        while (!config.DB_USER) {
+            config.DB_USER = await question('DB_USER (ej: doadmin)');
+            if (!config.DB_USER) {
+                console.log(`${colors.red}❌ DB_USER no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
+            }
+        }
+        console.log(`${colors.green}✓ DB_USER configurado${colors.reset}\n`);
+        
+        // DB_PASSWORD con validación
+        while (!config.DB_PASSWORD) {
+            config.DB_PASSWORD = await questionPassword('DB_PASSWORD');
+            if (!config.DB_PASSWORD) {
+                console.log(`${colors.red}❌ DB_PASSWORD no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
+            }
+        }
+        console.log(`${colors.green}✓ DB_PASSWORD configurado${colors.reset}\n`);
+        
+        // DB_NAME con validación
+        while (!config.DB_NAME) {
+            config.DB_NAME = await question('DB_NAME (ej: bd_orosports)');
+            if (!config.DB_NAME) {
+                console.log(`${colors.red}❌ DB_NAME no puede estar vacío. Inténtalo de nuevo.${colors.reset}`);
+            }
+        }
+        console.log(`${colors.green}✓ DB_NAME configurado${colors.reset}\n`);
         
         console.log('');
         console.log(`${colors.blue}📦 Creando archivos .env...${colors.reset}`);
@@ -166,7 +231,17 @@ async function setup() {
         console.log('');
         console.log(`${colors.green}✅ Configuración completada!${colors.reset}`);
         console.log('');
-        console.log(`${colors.blue}📌 Archivos .env creados:${colors.reset}`);
+        
+        // Mostrar resumen de configuración (sin password)
+        console.log(`${colors.blue}� Resumen de configuración:${colors.reset}`);
+        console.log(`   DB_HOST: ${config.DB_HOST}`);
+        console.log(`   DB_PORT: ${config.DB_PORT}`);
+        console.log(`   DB_USER: ${config.DB_USER}`);
+        console.log(`   DB_PASSWORD: ${'*'.repeat(config.DB_PASSWORD.length)}`);
+        console.log(`   DB_NAME: ${config.DB_NAME}`);
+        console.log('');
+        
+        console.log(`${colors.blue}�📌 Archivos .env creados:${colors.reset}`);
         for (const service of services) {
             console.log(`   ✓ ${service.folder}/.env`);
         }
@@ -175,7 +250,7 @@ async function setup() {
         console.log('   1. Revisa los archivos .env generados');
         console.log('   2. Verifica que las credenciales sean correctas');
         console.log('   3. NUNCA subas los archivos .env a GitHub (ya están en .gitignore)');
-        console.log('   4. Ejecuta tu script de inicio: node start-backend.js');
+        console.log('   4. Los servicios se iniciarán automáticamente');
         console.log('');
         console.log(`${colors.yellow}⚠️  IMPORTANTE:${colors.reset}`);
         console.log('   • Los archivos .env contienen información sensible');
