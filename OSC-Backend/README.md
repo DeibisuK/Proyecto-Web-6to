@@ -2,11 +2,10 @@
 
 Esta es la API de**📖 Documentación:**
 
-- 📘 **[GUIA-RAPIDA.md](./GUIA-RAPIDA.md)** - Tu configuración actual (DigitalOcean) con ejemplos
 - 📗 **[ENV-SETUP-GUIDE.md](./ENV-SETUP-GUIDE.md)** - Guía completa con mejores prácticas y teoría
 - 📙 **[.env-quick-ref.md](./.env-quick-ref.md)** - Referencia rápida de comandos y troubleshooting
 
-**⚠️ IMPORTANTE:**d para el proyecto Orosports Club, construida con una arquitectura de microservicios utilizando Node.js, Express y PostgreSQL.
+**⚠️ IMPORTANTE:** para el proyecto Orosports Club, construida con una arquitectura de microservicios utilizando Node.js, Express y PostgreSQL.
 
 ## Arquitectura
 
