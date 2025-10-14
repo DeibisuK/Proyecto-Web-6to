@@ -2,7 +2,6 @@ import { Routes } from "@angular/router";
 import { Contact } from "./features/contact/contact";
 import { Home } from "./features/home/pages/home-page/home-page";
 import { Productos } from "./features/productos/productos";
-import { Reservas } from "./features/reservas/reservas";
 import { MisionVision } from "./features/informacion/nosotros/mision-vision/mision-vision";
 import { Equipo } from "./features/informacion/nosotros/equipo/equipo";
 import { Historia } from "./features/informacion/nosotros/historia/historia";
@@ -16,6 +15,11 @@ import { PoliticaDePrivacidad } from "./features/informacion/legal/politica-de-p
 import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
 import { PuntosLealtad } from "./features/informacion/puntos-lealtad/puntos-lealtad";
 import { Prueba } from "../core/components/prueba/prueba";
+import { ListEquipo } from "./features/reservas/components/mis-equipos/list-equipo/list-equipo";
+import { CrearEquipo } from "./features/reservas/components/mis-equipos/crear-equipo/crear-equipo";
+import { Historial } from "./features/reservas/components/historial/historial";
+import { ListSedes } from "./features/sedes/list-sedes/list-sedes";
+import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
 
 export const clienteRoutes: Routes = [
   {
@@ -30,10 +34,6 @@ export const clienteRoutes: Routes = [
   {
     path: 'productos', 
     component: Productos
-  },
-  {
-    path: 'reservas', 
-    component: Reservas
   },
   {
     path: 'contacto', 
@@ -85,6 +85,21 @@ export const clienteRoutes: Routes = [
   {
     path: 'terminos-y-condiciones', 
     component: TerminosYCondiciones
+  },
+  {
+    path: 'historial-partidos', component: Historial
+  },
+  {
+    path: 'crear-equipo', component: CrearEquipo
+  },
+  {
+    path: 'mis-equipos', component: ListEquipo
+  },
+  {
+    path: 'sede/:id', component: SedesDetalle
+  },
+  {
+    path: 'todas-las-sedes', component: ListSedes
   },
   {
     path: 'prueba',

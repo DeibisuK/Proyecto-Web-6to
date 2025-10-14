@@ -5,11 +5,3 @@
   min-height: 100vh;
   padding-bottom: 40px;
 }
-
-/* Responsivo */
-@media (max-width: 768px) {
-  .main-content {
-    padding-top: 70px;
-    padding-bottom: 20px;
-  }
-}

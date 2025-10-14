@@ -1,0 +1,499 @@
+/* Contenedor Principal */
+.equipos-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Header */
+.equipos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.header-info h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-primary);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.header-info p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.btn-crear {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-crear:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-crear .material-icons {
+  font-size: 1.2rem;
+}
+
+/* Sección de Búsqueda */
+.search-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  flex: 1;
+  min-width: 300px;
+  transition: var(--transition-base);
+}
+
+.search-box:focus-within {
+  border-color: var(--color-accent);
+  background: white;
+}
+
+.search-box .material-icons {
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+}
+
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  font-family: var(--font-primary);
+}
+
+.search-box input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.stat-badge .material-icons {
+  font-size: 1.2rem;
+}
+
+/* Grid de Equipos */
+.equipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card de Equipo */
+.equipo-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.equipo-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-accent);
+}
+
+/* Logo del Equipo */
+.equipo-logo {
+  flex-shrink: 0;
+}
+
+.equipo-logo img,
+.logo-fallback {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid #f0f0f0;
+}
+
+.logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  color: white;
+}
+
+.logo-fallback .material-icons {
+  font-size: 2.5rem;
+}
+
+/* Info del Equipo */
+.equipo-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.titulo-con-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.equipo-info h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.equipo-info .descripcion {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
+.equipo-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+/* Badge de Deporte */
+.deporte-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+}
+
+/* Colores por deporte */
+.deporte-badge[data-deporte="1"] {
+  /* Fútbol - Verde */
+  background: rgba(46, 204, 113, 0.15);
+  color: #27AE60;
+}
+
+.deporte-badge[data-deporte="2"] {
+  /* Básquetbol - Naranja */
+  background: rgba(243, 156, 18, 0.15);
+  color: #d68910;
+}
+
+.deporte-badge[data-deporte="3"] {
+  /* Voleibol - Azul */
+  background: rgba(52, 152, 219, 0.15);
+  color: #2874a6;
+}
+
+.deporte-badge[data-deporte="4"] {
+  /* Tenis - Amarillo */
+  background: rgba(241, 196, 15, 0.15);
+  color: #b8860b;
+}
+
+.deporte-badge[data-deporte="5"] {
+  /* Pádel - Morado */
+  background: rgba(155, 89, 182, 0.15);
+  color: #7d3c98;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.meta-item .material-icons {
+  font-size: 1rem;
+  color: var(--color-accent);
+}
+
+/* Acciones del Equipo */
+.equipo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-action {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action .material-icons {
+  font-size: 1.2rem;
+}
+
+.btn-edit {
+  color: #3498db;
+}
+
+.btn-edit:hover {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  color: var(--color-danger);
+}
+
+.btn-delete:hover {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
+}
+
+/* Estado Vacío */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  margin-bottom: 1.5rem;
+}
+
+.empty-icon .material-icons {
+  font-size: 6rem;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  margin: 0 0 2rem 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.btn-crear-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-crear-empty:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-crear-empty .material-icons {
+  font-size: 1.3rem;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal de Confirmación */
+.modal-confirm {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+.confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.confirm-header .material-icons {
+  font-size: 3rem;
+}
+
+.confirm-header .material-icons.danger {
+  color: var(--color-danger);
+}
+
+.confirm-header h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+}
+
+.modal-confirm p {
+  margin: 0 0 1rem 0;
+  color: var(--color-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.confirm-warning {
+  color: var(--color-danger);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-base);
+  font-family: var(--font-primary);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: var(--color-primary);
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: var(--color-danger-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger .material-icons {
+  font-size: 1.2rem;
+}

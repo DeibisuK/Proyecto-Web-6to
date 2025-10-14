@@ -109,27 +109,3 @@
 .footer-bottom p:hover {
   color: #9e9e9e;
 }
-
-@media (max-width: 768px) {
-  .footer {
-    padding: 3rem 1rem 1.5rem;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .footer-section h3::after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .social-icons {
-    justify-content: center;
-  }
-
-  .footer-section ul li a {
-    justify-content: center;
-  }
-}

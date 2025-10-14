@@ -14,14 +14,12 @@
   color: #2C3E50;
   margin-bottom: 1rem;
   font-weight: 700;
-  font-family: 'Inter', sans-serif;
 }
 
 .gallery-subtitle {
   font-size: 1.2rem;
   color: #7F8C8D;
   margin-bottom: 3rem;
-  font-family: 'Inter', sans-serif;
 }
 
 .pillars-container {
@@ -36,7 +34,7 @@
 .pillar {
   position: relative;
   flex: 1;
-  transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   cursor: pointer;
 }
@@ -86,7 +84,6 @@
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  font-family: 'Inter', sans-serif;
   transform: translateY(20px);
   transition: transform 0.3s ease 0.3s;
 }
@@ -99,47 +96,10 @@
   font-size: 1rem;
   opacity: 0.9;
   line-height: 1.5;
-  font-family: 'Inter', sans-serif;
   transform: translateY(20px);
   transition: transform 0.3s ease 0.4s;
 }
 
 .pillar:hover .pillar-content p {
   transform: translateY(0);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .hover-gallery-section {
-    padding: 2rem 1rem;
-  }
-  
-  .gallery-container h2 {
-    font-size: 2rem;
-  }
-  
-  .pillars-container {
-    height: 300px;
-    flex-direction: column;
-  }
-  
-  .pillar {
-    flex: 1;
-  }
-  
-  .pillar:hover {
-    flex: 2;
-  }
-  
-  .pillar-content h3 {
-    font-size: 1.3rem;
-  }
-  
-  .pillar-content p {
-    font-size: 0.9rem;
-  }
-  
-  .pillar-overlay {
-    padding: 1rem;
-  }
 }
