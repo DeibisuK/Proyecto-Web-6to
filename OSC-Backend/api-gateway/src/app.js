@@ -16,5 +16,6 @@ app.use('/p', proxy(productServiceUrl));
 app.use('/b', proxy(process.env.BUY_SERVICE_URL));
 app.use('/c', proxy(process.env.COURT_SERVICE_URL));
 app.use('/m', proxy(process.env.MATCH_SERVICE_URL));
+app.use('/i', proxy(process.env.CLOUDINARY_SERVICE_URL));
 
 module.exports = app;
