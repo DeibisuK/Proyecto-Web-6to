@@ -3,7 +3,6 @@ import { ClientLayout } from './client/client-layout/client-layout';
 import { AdminLayout } from './admin/admin-layout/admin-layout';
 import { clienteRoutes } from './client/cliente.routes';
 import { adminRoutes } from './admin/admin.routes';
-import { Prueba } from './core/components/prueba/prueba';
 
 
 export const routes: Routes = [
