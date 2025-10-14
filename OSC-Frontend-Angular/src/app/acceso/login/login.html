@@ -25,10 +25,15 @@
 
                     <p class="social-text">O continuar con</p>
 
+                    <div class="google-status" *ngIf="googleStatus">{{ googleStatus }}</div>
+
                     <div class="social-buttons">
-                        <button class="btn-google">
-                            <i class="fa-brands fa-google"></i> Google
-                        </button>
+                        <div class="google-button-container">
+                            <div id="google-signin-login"></div>
+                            <button class="btn-google" *ngIf="!googleRendered" (click)="triggerGooglePrompt($event)">
+                                <i class="fa-brands fa-google"></i> Google
+                            </button>
+                        </div>
                         <button class="btn-facebook">
                             <i class="fa-brands fa-facebook"></i> Facebook
                         </button>
@@ -52,10 +57,15 @@
 
                     <p class="social-text">O registrarse con</p>
 
+                    <div class="google-status" *ngIf="googleStatus">{{ googleStatus }}</div>
+
                     <div class="social-buttons">
-                        <button class="btn-google">
-                            <i class="fa-brands fa-google"></i> Google
-                        </button>
+                        <div class="google-button-container">
+                            <div id="google-signin-register"></div>
+                            <button class="btn-google" *ngIf="!googleRendered" (click)="triggerGooglePrompt($event)">
+                                <i class="fa-brands fa-google"></i> Google
+                            </button>
+                        </div>
                         <button class="btn-facebook">
                             <i class="fa-brands fa-facebook"></i> Facebook
                         </button>
