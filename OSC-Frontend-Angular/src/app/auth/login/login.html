@@ -6,7 +6,7 @@
 
         <!-- Contenedor con animación -->
         <div class="container-wrapper" [ngClass]="{'register-mode': isRegisterMode}">
-            
+
             <!-- Panel de Formulario -->
             <div class="formulario-panel">
                 <!-- Formulario de Login -->
@@ -78,7 +78,8 @@
                 <div class="bienvenida">
                     <img src="Imagotipo Oro Sport Club.png" alt="Logo">
                     <h3>{{ isRegisterMode ? '¡Bienvenido de nuevo!' : '¡Hola, Deportista!' }}</h3>
-                    <h6>{{ isRegisterMode ? 'Para seguir conectado con nosotros, inicia sesión con tu cuenta.' : 'Accede para reservar, comprar y disfrutar de tu deporte favorito.' }}</h6>
+                    <h6>{{ isRegisterMode ? 'Para seguir conectado con nosotros, inicia sesión con tu cuenta.' : 'Accede
+                        para reservar, comprar y disfrutar de tu deporte favorito.' }}</h6>
                     <button class="btn-secondary" (click)="toggleForm()">
                         {{ isRegisterMode ? 'Iniciar sesión' : 'Crear cuenta' }}
                     </button>

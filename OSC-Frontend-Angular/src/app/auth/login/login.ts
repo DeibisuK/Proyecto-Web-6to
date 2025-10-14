@@ -20,7 +20,7 @@ export class Login implements OnInit {
   isClosing = false;
   isRegisterMode = false;
   isAnimating = false;
-
+  isLogin = false;
   // Formulario de registro
   nombre = '';
   email = '';
@@ -204,6 +204,7 @@ export class Login implements OnInit {
     try {
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
       console.log('Datos del usuario (credential):', payload);
+      this.isLogin = true;
       alert(`¡Bienvenido ${payload.name}! 🎉`);
       this.cerrar();
     } catch (err) {
