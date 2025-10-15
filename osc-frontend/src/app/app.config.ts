@@ -4,6 +4,9 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { provideClientHydration } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
@@ -27,6 +30,9 @@ export const appConfig: ApplicationConfig = {
         measurementId: 'G-4M3CZ799Q2',
       })
     ),
-    provideAuth(() => getAuth()),
+  provideAuth(() => getAuth()),
+  provideHttpClient(withInterceptorsFromDi()),
+    // Register HTTP interceptor to attach Firebase ID token
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
 };

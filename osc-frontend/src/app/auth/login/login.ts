@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Auth, createUserWithEmailAndPassword, FacebookAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
+import { FacebookAuthProvider, GoogleAuthProvider } from '@angular/fire/auth';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +13,7 @@ import { NotificationService } from '../../core/services/notification.service';
   styleUrls: ['./login.css'],
 })
 export class Login {
-  private auth: Auth = inject(Auth);
+  private authService = inject(AuthService);
 
   private notificationService = inject(NotificationService);
 
@@ -27,13 +28,11 @@ export class Login {
   isClosing = false;
   isRegisterMode = false;
   isAnimating = false;
-  isLogin = false;
 
   // Formulario de registro
   nombre = '';
   email = '';
   passwordRegistro = '';
-  confirmarPassword = '';
 
   // -------------------- Modal --------------------
   abrirModal() {
@@ -60,54 +59,87 @@ export class Login {
   async loginConGoogle() {
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(this.auth, provider);
-      this.notificationService.notify({ message: 'Sesión iniciada con Google', type: 'success', key: Date.now() });
-      // El observable user$ se actualizará automáticamente
+      await this.authService.signInWithPopupProvider(provider);
+      this.cerrar();
+      this.notificationService.notify({
+        message: 'Sesión iniciada con Google',
+        type: 'success',
+      });
     } catch (error) {
-      this.notificationService.notify({ message: 'Error al iniciar sesión con Google', type: 'error', key: Date.now() });
+      this.notificationService.notify({
+        message: 'Error al iniciar sesión con Google',
+        type: 'error',
+      });
     }
   }
 
   async loginConFacebook() {
     try {
       const provider = new FacebookAuthProvider();
-      const result = await signInWithPopup(this.auth, provider);
-
-      // El observable user$ se actualizará automáticamente
-      this.notificationService.notify({ message: 'Sesión iniciada con Facebook', type: 'success', key: Date.now() });
+      await this.authService.signInWithPopupProvider(provider);
+      this.cerrar();
+      this.notificationService.notify({
+        message: 'Sesión iniciada con Facebook',
+        type: 'success',
+      });
     } catch (error) {
-      this.notificationService.notify({ message: 'Error al iniciar sesión con Facebook', type: 'error', key: Date.now() });
+      this.notificationService.notify({
+        message: 'Error al iniciar sesión con Facebook',
+        type: 'error',
+      });
     }
   }
 
   async registroConEmail() {
-    if (!this.email?.trim() || !this.passwordRegistro?.trim() || !this.confirmarPassword?.trim() || !this.nombre?.trim()) {
-      this.notificationService.notify({ message: 'Todos los campos son obligatorios.', type: 'error', key: Date.now() });
+    if (
+      !this.email?.trim() ||
+      !this.passwordRegistro?.trim() ||
+      !this.nombre?.trim()
+    ) {
+      this.notificationService.notify({
+        message: 'Todos los campos son obligatorios.',
+        type: 'error',
+      });
       return;
     }
-    if (this.passwordRegistro !== this.confirmarPassword) {
-      this.notificationService.notify({ message: 'Las contraseñas no coinciden.', type: 'error', key: Date.now() });
-      return;
-    }
+    
     try {
-      const result = await createUserWithEmailAndPassword(this.auth, this.email, this.passwordRegistro);
-      this.notificationService.notify({ message: 'Registro completado', type: 'success', key: Date.now() });
+      await this.authService.registerWithEmail(this.email, this.passwordRegistro, this.nombre);
+      this.cerrar();
+      this.notificationService.notify({
+        message: 'Registro completado',
+        type: 'success',
+      });
     } catch (error) {
-      this.notificationService.notify({ message: 'Error en el registro', type: 'error', key: Date.now() });
+      const { message } = this.authService.formatAuthError(error);
+      this.notificationService.notify({
+        message: `Error en el registro: ${message}`,
+        type: 'error',
+      });
     }
   }
 
   async loginConEmail() {
     if (!this.usuario?.trim() || !this.password?.trim()) {
-      this.notificationService.notify({ message: 'Usuario y contraseña son obligatorios.', type: 'error', key: Date.now() });
+      this.notificationService.notify({
+        message: 'Usuario y contraseña son obligatorios.',
+        type: 'error',
+      });
       return;
     }
     try {
-      const result = await signInWithEmailAndPassword(this.auth, this.usuario, this.password);
-      this.notificationService.notify({ message: 'Inicio de sesión correcto', type: 'success', key: Date.now() });
+      await this.authService.loginWithEmail(this.usuario, this.password);
+      this.cerrar();
+      this.notificationService.notify({
+        message: 'Inicio de sesión correcto',
+        type: 'success',
+      });
     } catch (error) {
-      this.notificationService.notify({ message: 'Error en el inicio de sesión', type: 'error', key: Date.now() });
+      const { message } = this.authService.formatAuthError(error);
+      this.notificationService.notify({
+        message: `Error en el inicio: ${message}`,
+        type: 'error',
+      });
     }
   }
-
 }

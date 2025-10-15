@@ -1,0 +1,26 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpInterceptor, HttpHandler, HttpRequest, HttpEvent } from '@angular/common/http';
+import { Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
+
+@Injectable({ providedIn: 'root' })
+export class AuthInterceptor implements HttpInterceptor {
+  private authService = inject(AuthService);
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Only attach token for API gateway requests. Adjust the condition as needed.
+    const isApiRequest = req.url.startsWith('/u') || req.url.startsWith('/p') || req.url.startsWith('/b') || req.url.startsWith('/c') || req.url.startsWith('/m') || req.url.startsWith('/i') || req.url.includes(window.location.hostname);
+
+    if (!isApiRequest) return next.handle(req);
+
+    // Convert promise to observable and continue the chain
+    return from(this.authService.getIdToken()).pipe(
+      switchMap((token) => {
+        if (!token) return next.handle(req);
+        const cloned = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+        return next.handle(cloned);
+      })
+    );
+  }
+}
