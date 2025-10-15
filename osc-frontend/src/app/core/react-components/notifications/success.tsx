@@ -29,6 +29,33 @@ const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'defaul
     }
   }, [message, type]);
 
+  // Listen for custom events from Angular components
+  useEffect(() => {
+    const handleToastEvent = (event: CustomEvent) => {
+      const { message, type } = event.detail;
+      
+      switch (type) {
+        case 'success':
+          toast.success(message);
+          break;
+        case 'error':
+          toast.error(message);
+          break;
+        case 'loading':
+          toast.loading(message);
+          break;
+        default:
+          toast(message);
+      }
+    };
+
+    window.addEventListener('showToast', handleToastEvent as EventListener);
+
+    return () => {
+      window.removeEventListener('showToast', handleToastEvent as EventListener);
+    };
+  }, []);
+
   // Only render the Toaster (no demo button)
   return <Toaster expand={true} richColors />;
 };

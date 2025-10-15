@@ -263,6 +263,7 @@
   background: white;
   color: var(--color-primary);
   border: 2px solid #e0e0e0;
+    padding: 0.875rem 2.35rem;
 }
 
 .btn-secondary:hover {

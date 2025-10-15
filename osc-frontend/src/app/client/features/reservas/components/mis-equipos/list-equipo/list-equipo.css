@@ -298,22 +298,22 @@
 }
 
 .btn-edit {
-  color: #3498db;
+  color: #516a84;
 }
 
 .btn-edit:hover {
-  background: #3498db;
-  border-color: #3498db;
+  background: #516a84;
+  border-color: #516a84;
   color: white;
 }
 
 .btn-delete {
-  color: var(--color-danger);
+  color: #b34135;
 }
 
 .btn-delete:hover {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
+  background: #b34135;
+  border-color: #b34135;
   color: white;
 }
 

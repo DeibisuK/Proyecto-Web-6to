@@ -1,0 +1,106 @@
+<div class="sedes-container">
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input 
+        type="text" 
+        placeholder="Buscar sede por nombre, ciudad o dirección..."
+        (input)="onSearchChange($event)">
+    </div>
+
+    <select class="filtro-estado" (change)="onEstadoChange($event)">
+      <option value="">Todos los estados</option>
+      <option value="Activo">Activo</option>
+      <option value="Mantenimiento">Mantenimiento</option>
+      <option value="Inactivo">Inactivo</option>
+    </select>
+
+    <div class="stat-badge">
+      <span class="material-icons">location_on</span>
+      <span>{{ sedesFiltradas.length }} sedes</span>
+    </div>
+
+    <a routerLink="/admin/crear-sede" class="btn-crear">
+      <span class="material-icons">add</span>
+      Nueva Sede
+    </a>
+  </div>
+
+  <!-- Grid de Sedes -->
+  <div class="sedes-grid">
+    <div class="sede-card" *ngFor="let sede of sedesFiltradas">
+      <!-- Mapa -->
+      <div class="sede-map">
+        <img [src]="getMapUrl(sede.latitud, sede.longitud)" [alt]="'Mapa de ' + sede.nombre">
+        <div class="map-overlay">
+          <span class="material-icons">location_on</span>
+        </div>
+      </div>
+
+      <!-- Contenido -->
+      <div class="sede-content">
+        <!-- Header con título y ciudad -->
+        <div class="sede-header">
+          <h3 class="sede-nombre">{{ sede.nombre }}</h3>
+          <span class="ciudad-badge">{{ sede.ciudad }}</span>
+        </div>
+
+        <!-- Dirección -->
+        <div class="sede-direccion">
+          <span class="material-icons">place</span>
+          <span>{{ sede.direccion }}</span>
+        </div>
+
+        <!-- Información de contacto -->
+        <div class="sede-info">
+          <div class="info-item" *ngIf="sede.telefono">
+            <span class="material-icons">phone</span>
+            <span>{{ sede.telefono }}</span>
+          </div>
+          <div class="info-item" *ngIf="sede.email">
+            <span class="material-icons">email</span>
+            <span>{{ sede.email }}</span>
+          </div>
+        </div>
+
+        <!-- Estado y Acciones -->
+        <div class="sede-footer">
+          <span 
+            class="estado-badge"
+            [class.estado-activo]="sede.estado === 'Activo'"
+            [class.estado-mantenimiento]="sede.estado === 'Mantenimiento'"
+            [class.estado-inactivo]="sede.estado === 'Inactivo'">
+            {{ sede.estado }}
+          </span>
+
+          <div class="sede-actions">
+            <button 
+              class="action-btn btn-editar"
+              [routerLink]="['/admin/editar-sede', sede.id_sede]"
+              title="Editar sede">
+              <span class="material-icons">edit</span>
+            </button>
+            <button 
+              class="action-btn btn-eliminar"
+              (click)="eliminarSede(sede.id_sede)"
+              title="Eliminar sede">
+              <span class="material-icons">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="sedesFiltradas.length === 0">
+    <div class="empty-icon">
+      <span class="material-icons">location_off</span>
+    </div>
+    <h3 class="empty-title">No se encontraron sedes</h3>
+    <p class="empty-message">
+      {{ searchTerm || estadoFiltro ? 'Intenta ajustar los filtros de búsqueda' : 'Comienza agregando una nueva sede' }}
+    </p>
+  </div>
+</div>

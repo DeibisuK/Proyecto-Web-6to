@@ -1,0 +1,125 @@
+<div class="list-cancha-container">
+  <!-- Filtros y Búsqueda -->
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input 
+        type="text" 
+        placeholder="Buscar canchas..."
+        (input)="onSearchChange($event)"
+        [value]="searchTerm"
+      />
+    </div>
+
+    <div class="filtro-deporte">
+      <select (change)="onFiltroDeporteChange($event)">
+        <option value="">Todos los deportes</option>
+        <option *ngFor="let deporte of deportes" [value]="deporte.id">
+          {{ deporte.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">sports_soccer</span>
+      {{ canchasFiltradas.length }} Cancha{{ canchasFiltradas.length !== 1 ? 's' : '' }}
+    </div>
+
+    <button class="btn-crear" (click)="crearCancha()">
+      <span class="material-icons">add</span>
+      Crear Cancha
+    </button>
+  </div>
+
+  <!-- Grid de Canchas -->
+  <div class="canchas-grid" *ngIf="canchasFiltradas.length > 0; else sinCanchas">
+    <div class="cancha-card" *ngFor="let cancha of canchasFiltradas">
+      <!-- Imagen de la cancha -->
+      <div class="cancha-imagen">
+        <img 
+          [src]="cancha.imagen_url || 'https://via.placeholder.com/400x250'" 
+          [alt]="cancha.nombre_cancha"
+        />
+        <span 
+          class="estado-badge" 
+          [class.disponible]="cancha.estado === 'Disponible'"
+          [class.mantenimiento]="cancha.estado === 'Mantenimiento'"
+          [class.reservado]="cancha.estado === 'Reservado'"
+          [class.fuera-servicio]="cancha.estado === 'Fuera de Servicio'"
+        >
+          {{ cancha.estado }}
+        </span>
+      </div>
+
+      <!-- Contenido de la card -->
+      <div class="cancha-content">
+        <div class="cancha-header">
+          <h3>{{ cancha.nombre_cancha }}</h3>
+          <span class="deporte-badge" [attr.data-deporte]="cancha.id_deporte">
+            {{ obtenerNombreDeporte(cancha.id_deporte) }}
+          </span>
+        </div>
+
+        <div class="cancha-detalles">
+          <div class="detalle-item">
+            <span class="material-icons">straighten</span>
+            <span>{{ cancha.largo }}m x {{ cancha.ancho }}m</span>
+          </div>
+          <div class="detalle-item">
+            <span class="material-icons">texture</span>
+            <span>{{ cancha.tipo_superficie }}</span>
+          </div>
+          <div class="cancha-tarifa">
+            <span class="material-icons">payments</span>
+            <span>Tarifa: <span class="tarifa-precio">S/ {{ cancha.tarifa }}/hora</span></span>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="cancha-actions">
+          <button class="btn-action btn-editar" (click)="editarCancha(cancha)" title="Editar cancha">
+            <span class="material-icons">edit</span>
+          </button>
+          <button class="btn-action btn-eliminar" (click)="confirmarEliminar(cancha)" title="Eliminar cancha">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin canchas -->
+  <ng-template #sinCanchas>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <span class="material-icons">sports_soccer</span>
+      </div>
+      <h3>No hay canchas registradas</h3>
+      <p>Crea tu primera cancha para empezar a gestionar reservas</p>
+      <button class="btn-crear-empty" (click)="crearCancha()">
+        <span class="material-icons">add</span>
+        Crear Primera Cancha
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
+  <div class="modal-eliminar" (click)="$event.stopPropagation()">
+    <div class="modal-icon-warning">
+      <span class="material-icons">warning</span>
+    </div>
+    <h2>¿Eliminar cancha?</h2>
+    <p>¿Estás seguro de que deseas eliminar <strong>{{ canchaAEliminar?.nombre_cancha }}</strong>? Esta acción no se puede deshacer.</p>
+    
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button class="btn-modal btn-confirmar" (click)="eliminarCancha()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
