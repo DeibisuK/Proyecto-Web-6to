@@ -1,0 +1,281 @@
+/* Contenedor principal */
+.terminos-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.terminos-article {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 2px solid #27ae60;
+}
+
+/* Sección título */
+.terminos-section-titulo {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.terminos-section-titulo .title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.update-date {
+  font-size: 1.1rem;
+  color: white;
+  opacity: 0.9;
+  margin-top: 1rem;
+}
+
+.update-title {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* Secciones generales */
+.terminos-section {
+  padding: 40px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.terminos-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #27ae60;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.section-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #27ae60;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.section-content {
+  margin-left: 44px;
+}
+
+.section-content p {
+  margin-bottom: 16px;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.section-content strong {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* Subsecciones */
+.subsection {
+  margin-bottom: 30px;
+}
+
+.subsection:last-child {
+  margin-bottom: 0;
+}
+
+.subsection-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #34495e;
+  margin-bottom: 15px;
+  padding-left: 20px;
+  border-left: 4px solid #27ae60;
+}
+
+/* Listas */
+.custom-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.custom-list li {
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.custom-list li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Cajas de advertencia */
+.warning-box {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.warning-box i {
+  color: #f39c12;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-box span {
+  color: #8b5a00;
+  font-weight: 500;
+}
+
+/* Cajas destacadas */
+.highlight-box {
+  background: #e8f5e8;
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.highlight-box p {
+  color: #2e7d32;
+  font-weight: 500;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Información de contacto */
+.contact-info {
+  margin-top: 20px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border: 2px solid #27ae60;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.contact-item:hover {
+  background: #e8f5e8;
+}
+
+.contact-item i {
+  color: #27ae60;
+  font-size: 1.2rem;
+}
+
+.contact-item a {
+  color: #34495e;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.contact-item a:hover {
+  color: #27ae60;
+}
+
+/* Sección final */
+.final-note {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-top: 3px solid #27ae60;
+}
+
+.final-note .section-title {
+  color: #34495e;
+}
+
+.contact-section {
+  background: #f8f9fa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .terminos-content {
+    padding: 20px 15px;
+  }
+
+  .terminos-section {
+    padding: 25px 20px;
+  }
+
+  .terminos-section-titulo {
+    padding: 30px 20px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .section-content {
+    margin-left: 0;
+  }
+
+  .warning-box {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .contact-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .section-number {
+    align-self: flex-start;
+  }
+}

@@ -1,0 +1,36 @@
+<h1 class="tienda-titulo">Nuestra Tienda</h1>
+
+<section class="tienda-container">
+  <!-- Selector de deportes -->
+  <div class="deporte-selector-section">
+    <app-deporte-selector
+      [deporteActivo]="deporteSeleccionado"
+      (deporteChange)="onDeporteChange($event)">
+    </app-deporte-selector>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="tienda-content">
+    <!-- Panel de filtros -->
+    <aside class="filtros-sidebar">
+      <app-filtro-panel
+        [filtrosActivos]="filtrosActivos"
+        (filtrosChange)="onFiltrosChange($event)">
+      </app-filtro-panel>
+    </aside>
+
+    <!-- Grid de productos -->
+    <main class="productos-grid">
+      <app-producto-card
+        *ngFor="let producto of productos"
+        [producto]="producto">
+      </app-producto-card>
+
+      <!-- Mensaje cuando no hay productos -->
+      <div *ngIf="productos.length === 0" class="no-productos">
+        <i class="fas fa-search" style="font-size: 3rem; color: #BDC3C7; margin-bottom: 1rem;"></i>
+        <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
+      </div>
+    </main>
+  </div>
+</section>

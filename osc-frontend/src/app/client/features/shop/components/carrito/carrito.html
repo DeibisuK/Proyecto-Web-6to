@@ -1,0 +1,128 @@
+<div class="carrito-container" [ngClass]="mode">
+  <!-- Header del Carrito -->
+  <div class="carrito-header" *ngIf="mode !== 'mini'">
+    <div class="header-content">
+      <h2 class="carrito-title">
+        <span class="material-icons">shopping_cart</span>
+        Carrito de Compras
+        <span class="item-count" *ngIf="totalItems > 0">({{totalItems}})</span>
+      </h2>
+      <button class="close-btn" *ngIf="showCloseButton" (click)="onCloseCart()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido del Carrito -->
+  <div class="carrito-content">
+    <!-- Carrito Vacío -->
+    <div class="empty-cart" *ngIf="cartItems.length === 0">
+      <div class="empty-cart-icon">
+        <span class="material-icons">shopping_cart</span>
+      </div>
+      <h3>Tu carrito está vacío</h3>
+      <p>¡Agrega algunos productos para comenzar!</p>
+      <button class="continue-shopping-btn" (click)="continueShopping()">
+        Continuar Comprando
+      </button>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="cart-items" *ngIf="cartItems.length > 0">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <div class="item-image">
+          <img [src]="item.producto.imagen" [alt]="item.producto.nombre" onerror="this.src='/assets/images/placeholder.jpg'">
+        </div>
+
+        <div class="item-details">
+          <h4 class="item-name">{{item.producto.nombre}}</h4>
+          <p class="item-category">{{item.producto.categoria}}</p>
+          <div class="item-price">${{item.producto.precio| number:'1.2-2'}}</div>
+        </div>
+
+        <div class="item-controls">
+          <div class="quantity-controls">
+            <button class="qty-btn" (click)="decreaseQuantity(item)">
+              <span class="material-icons">remove</span>
+            </button>
+            <input
+              type="number"
+              class="quantity-input"
+              [value]="item.cantidad"
+              (input)="updateQuantity(item, $any($event.target).value)"
+              min="1"
+              [max]="item.producto.stock"
+            >
+            <button class="qty-btn" (click)="increaseQuantity(item)">
+              <span class="material-icons">add</span>
+            </button>
+          </div>
+
+          <div class="item-total">
+            <strong>${{(item.producto.precio * item.cantidad) | number:'1.2-2'}}</strong>
+          </div>
+
+          <button class="remove-btn" (click)="removeItem(item)">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen del Carrito -->
+    <div class="cart-summary" *ngIf="cartItems.length > 0 && mode !== 'mini'">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span>${{subtotal | number:'1.2-2'}}</span>
+      </div>
+      <div class="summary-row">
+        <span>IVA (12%):</span>
+        <span>${{iva | number:'1.2-2'}}</span>
+      </div>
+      <div class="summary-row total-row">
+        <span><strong>Total:</strong></span>
+        <span><strong>${{total | number:'1.2-2'}}</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer del Carrito -->
+  <div class="carrito-footer" *ngIf="cartItems.length > 0">
+    <div class="footer-actions">
+      <button class="clear-cart-btn" (click)="clearCart()" *ngIf="mode !== 'mini'">
+        <span class="material-icons">delete_sweep</span>
+        Vaciar Carrito
+      </button>
+
+      <div class="primary-actions">
+        <button class="continue-shopping-btn" (click)="continueShopping()" *ngIf="mode === 'page'">
+          Continuar Comprando
+        </button>
+        <button class="checkout-btn" (click)="checkout()">
+          <span class="material-icons">payment</span>
+          Proceder al Pago
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista Mini (para header/navbar) -->
+  <div class="mini-cart" *ngIf="mode === 'mini' && cartItems.length > 0">
+    <div class="mini-header">
+      <span class="mini-title">{{totalItems}} producto(s)</span>
+      <span class="mini-total">${{total | number:'1.2-2'}}</span>
+    </div>
+    <div class="mini-items">
+      <div class="mini-item" *ngFor="let item of cartItems.slice(0, 3)">
+        <img [src]="item.producto.imagen" [alt]="item.producto.nombre" onerror="this.src='/assets/images/placeholder.jpg'">
+        <div class="mini-item-info">
+          <span class="mini-item-name">{{item.producto.nombre}}</span>
+          <span class="mini-item-price">${{item.producto.precio | number:'1.2-2'}} x {{item.cantidad}}</span>
+        </div>
+      </div>
+      <div class="mini-more" *ngIf="cartItems.length > 3">
+        <span>+{{cartItems.length - 3}} más...</span>
+      </div>
+    </div>
+  </div>
+</div>

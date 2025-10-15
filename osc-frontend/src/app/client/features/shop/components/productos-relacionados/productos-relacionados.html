@@ -1,0 +1,50 @@
+<div class="productos-relacionados-container" *ngIf="productosRelacionados.length > 0">
+  <div class="header">
+    <h3>Productos relacionados</h3>
+    <div class="controles">
+      <button 
+        class="btn-control" 
+        [disabled]="!canGoPrev"
+        (click)="anterior()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button 
+        class="btn-control" 
+        [disabled]="!canGoNext"
+        (click)="siguiente()">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="carrusel-container">
+    <div class="carrusel-track" [style.transform]="transformX">
+      <div 
+        *ngFor="let producto of productosRelacionados" 
+        class="producto-card"
+        (click)="verDetalle(producto)">
+        
+        <div class="producto-imagen">
+          <img [src]="producto.imagen" [alt]="producto.nombre">
+          <div class="badges">
+            <span *ngIf="producto.nuevo" class="badge nuevo">Nuevo</span>
+            <span *ngIf="producto.precioAnterior" class="badge descuento">
+              -{{calcularDescuento(producto)}}%
+            </span>
+          </div>
+        </div>
+        
+        <div class="producto-info">
+          <h4 class="producto-nombre">{{producto.nombre}}</h4>
+          <div class="producto-precios">
+            <span class="precio-actual">${{producto.precio}}</span>
+            <span *ngIf="producto.precioAnterior" class="precio-anterior">
+              ${{producto.precioAnterior}}
+            </span>
+          </div>
+          <div class="producto-marca">{{producto.marca}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

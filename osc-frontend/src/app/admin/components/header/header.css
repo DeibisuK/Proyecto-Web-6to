@@ -1,0 +1,24 @@
+.page-header {
+  background: #f8f9fa;
+  color: #121212;
+  padding: 18px 30px 12px 30px;
+  border-radius: 0;
+  border-bottom: 1.5px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-header h1 {
+  margin: 0 0 2px 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 0.01em;
+}
+
+.page-header p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}

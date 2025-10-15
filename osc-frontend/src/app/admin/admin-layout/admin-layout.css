@@ -1,0 +1,66 @@
+.admin-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px; /* Width of sidebar */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f8f9fa;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.collapsed {
+  margin-left: 70px; /* Width of collapsed sidebar */
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  background: #ffffff;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .content-wrapper {
+    margin: 10px;
+    padding: 15px;
+  }
+}
+
+/* Smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar for main content */
+.content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

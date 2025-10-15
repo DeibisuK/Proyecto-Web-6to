@@ -1,0 +1,127 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Header del sidebar -->
+  <div class="sidebar-header">
+    <div class="logo-container">
+      Oro Sports Club
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Navegación -->
+  <nav class="sidebar-nav">
+    <!-- Principal -->
+    <div class="nav-section">
+      <h4 class="section-title">Principal</h4>
+      <ul class="nav-items">
+        <li>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reportes" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Reportes</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Comercio -->
+    <div class="nav-section">
+      <h4 class="section-title">Comercio</h4>
+      <ul class="nav-items">
+        <li>
+          <a routerLink="/admin/productos" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-cube"></i>
+            <span>Productos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/pedidos" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Pedidos y Ventas</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Instalaciones -->
+    <div class="nav-section">
+      <h4 class="section-title">Instalaciones</h4>
+      <ul class="nav-items">
+        <li>
+          <a routerLink="/admin/canchas" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-futbol"></i>
+            <span>Canchas</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/sedes" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-building"></i>
+            <span>Sedes</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/reservas" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Reservas</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Competencias -->
+    <div class="nav-section">
+      <h4 class="section-title">Competencias</h4>
+      <ul class="nav-items">
+        <li>
+          <a routerLink="/admin/torneos" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-trophy"></i>
+            <span>Torneos/Campeonatos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/historial" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-clock"></i>
+            <span>Historial de Partidos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/equipos" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Equipos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/partidos" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-play"></i>
+            <span>Partidos</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Sistema -->
+    <div class="nav-section">
+      <h4 class="section-title">Sistema</h4>
+      <ul class="nav-items">
+        <li>
+          <a routerLink="/admin/usuarios" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-user"></i>
+            <span>Usuarios</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/admin/anuncios" routerLinkActive="active" class="nav-link">
+            <i class="fas fa-bullhorn"></i>
+            <span>Anuncios</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</div>
