@@ -43,6 +43,7 @@ export class Navbar implements OnInit, OnDestroy {
     sedes: false,
     nosotros: false,
     servicios: false,
+    usuario: false,
   };
 
   constructor(private carritoService: CarritoService) {
@@ -56,11 +57,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('Navbar e-commerce loaded');
+      this.authService.user$.subscribe((u) => (this.user = u));
 
-    this.authService.user$.subscribe((u) => (this.user = u));
     // Suscribirse al contador de items del carrito
     this.subscriptions.add(
-      console.log('Usuario actual:', this.user?.providerData);
       this.carritoService.obtenerCantidadTotal().subscribe((count) => {
         this.cartItemCount = count;
       })

@@ -123,21 +123,36 @@
         <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
       </button>
 
-      @if(user){
-      <div class="user-btn">
-        @if (user.photoURL) {
-        <img [src]="user.photoURL" alt="User Photo" class="user-photo" />
-        <button (click)="logout()">Cerrar sesión</button>
-        } @else {
-        <span class="material-icons">account_circle</span>
-        }
+      @if (user) {
+      <div
+        class="dropdown user-dropdown"
+        (mouseenter)="toggleDropdown('usuario', true)"
+        (mouseleave)="toggleDropdown('usuario', false)"
+      >
+        <a class="dropdown-toggle user-toggle">
+          <div class="user-btn">
+            @if (user.photoURL) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            }@else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+        </a>
+
+        <div class="dropdown-menu user-menu" [class.show]="dropdowns.usuario">
+          <div class="dropdown-section">
+            <a routerLink="/perfil" (click)="toggleDropdown('usuario', false)">
+              <i class="fas fa-user"></i> Ver Perfil
+            </a>
+            <a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+          </div>
+        </div>
       </div>
-      } @else {
+      }@else {
       <button (click)="abrirLoginModal()" class="user-btn">
         <span class="material-icons">account_circle</span>
       </button>
       }
-
       <button class="hamburger-btn" (click)="toggleSidebar()">
         <span class="material-icons">menu</span>
       </button>
