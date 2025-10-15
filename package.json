@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm-run-all --parallel backend frontend",
     "backend": "node start-backend.js",
-    "frontend": "cd OSC-Frontend-Angular && npm install && ng serve --open",
+    "frontend": "cd osc-frontend-Angular && npm install && ng serve --open",
     "setup:env": "node OSC-Backend/setup-env.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

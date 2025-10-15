@@ -4,7 +4,7 @@ Este es el repositorio principal del proyecto Orosports Club, una plataforma web
 
 El proyecto está dividido en dos componentes principales:
 - **`OSC-Backend`**: Una API RESTful construida con Node.js y Express, siguiendo una arquitectura de microservicios.
-- **`OSC-Frontend-Angular`**: Una aplicación de cliente desarrollada con Angular 20.3.0 para la interacción de los usuarios.
+- **`osc-frontend-Angular`**: Una aplicación de cliente desarrollada con Angular 20.3.0 para la interacción de los usuarios.
 
 ---
 
@@ -50,7 +50,7 @@ Este comando hace **TODO automáticamente**:
 Luego, **en otra terminal**, inicia el frontend:
 
 ```bash
-cd OSC-Frontend-Angular
+cd osc-frontend-Angular
 npm install
 ng serve --open
 ```
@@ -121,7 +121,7 @@ Si es la **primera vez** que ejecutas el proyecto:
 
 6. **En otra terminal, inicia el frontend**:
    ```bash
-   cd OSC-Frontend-Angular
+   cd osc-frontend-Angular
    npm install
    ng serve --open
    ```
@@ -162,11 +162,11 @@ La aplicación principal para los usuarios está desarrollada con Angular 20.3.0
 - **Home**: Página principal con galería interactiva y características principales
 - **Shop**: Tienda de productos deportivos con sistema de filtros y carrito
   - Componentes: Productos relacionados, detalle de producto, filtros
-  - Servicio: [`ProductoService`](OSC-Frontend-Angular/src/app/client/features/shop/services/producto.service.ts)
+  - Servicio: [`ProductoService`](osc-frontend-Angular/src/app/client/features/shop/services/producto.service.ts)
 - **Reservas**: Sistema de reserva de canchas deportivas
 - **Artículos**: Blog con artículos deportivos
   - Páginas individuales: Cancha de fútbol, Estudio deportivo, Instalaciones de pádel
-  - Rutas lazy-loaded en [`articulos.routes.ts`](OSC-Frontend-Angular/src/app/client/features/articulos/articulos.routes.ts)
+  - Rutas lazy-loaded en [`articulos.routes.ts`](osc-frontend-Angular/src/app/client/features/articulos/articulos.routes.ts)
 - **Contacto**: Formulario de contacto con validación
 - **Información**:
   - Nosotros: Historia, Misión/Visión, Equipo
@@ -193,25 +193,25 @@ La aplicación principal para los usuarios está desarrollada con Angular 20.3.0
 2. **Lazy Loading**: Rutas con carga diferida para optimizar el rendimiento
 3. **Responsive Design**: Diseño adaptativo para dispositivos móviles y desktop
 4. **Servicios Compartidos**: 
-   - [`ProductoService`](OSC-Frontend-Angular/src/app/client/features/shop/services/producto.service.ts): Gestión de productos
-   - [`ArticlesService`](OSC-Frontend-Angular/src/app/client/shared/services/articles.service.ts): Gestión de artículos
+   - [`ProductoService`](osc-frontend-Angular/src/app/client/features/shop/services/producto.service.ts): Gestión de productos
+   - [`ArticlesService`](osc-frontend-Angular/src/app/client/shared/services/articles.service.ts): Gestión de artículos
 5. **Modelos TypeScript**: Interfaces para Producto, Article, TeamMember, Valor
 6. **Estilos Modernos**: CSS con animaciones, transiciones y efectos hover
-7. **Sistema de Rutas**: Configuración en [`cliente.routes.ts`](OSC-Frontend-Angular/src/app/client/cliente.routes.ts)
+7. **Sistema de Rutas**: Configuración en [`cliente.routes.ts`](osc-frontend-Angular/src/app/client/cliente.routes.ts)
 
 ### 🔗 Integración con React (Experimental)
 
 El proyecto incluye capacidades para integrar componentes React dentro de Angular, permitiendo aprovechar lo mejor de ambos frameworks.
 
 #### Guías de Desarrollo React:
-📚 **[Guía: Crear Componentes React en Angular](./OSC-Frontend-Angular/CREATE-REACT-COMPONENTS-GUIDE.md)**
+📚 **[Guía: Crear Componentes React en Angular](./osc-frontend-Angular/CREATE-REACT-COMPONENTS-GUIDE.md)**
 - Cómo crear componentes React (.tsx)
 - Integración con Angular mediante wrapper
 - Comunicación bidireccional entre frameworks
 - Componentes avanzados y best practices
 - Troubleshooting común
 
-📦 **[Guía: Usar Dependencias de React](./OSC-Frontend-Angular/REACT-DEPENDENCIES-GUIDE.md)**
+📦 **[Guía: Usar Dependencias de React](./osc-frontend-Angular/REACT-DEPENDENCIES-GUIDE.md)**
 - Instalación de librerías React (react-icons, Material UI, etc.)
 - Ejemplos con librerías populares (recharts, framer-motion, react-hook-form)
 - Integración de state management (zustand, redux)
@@ -229,7 +229,7 @@ El proyecto incluye capacidades para integrar componentes React dentro de Angula
 
 1. **Navega a la carpeta del frontend**:
    ```bash
-   cd OSC-Frontend-Angular
+   cd osc-frontend-Angular
    ```
 
 2. **Instala las dependencias**:
@@ -274,7 +274,7 @@ Proyecto-Web-6to/
 │   ├── products-service/
 │   ├── user-service/
 │   └── README.md
-├── OSC-Frontend-Angular/
+├── osc-frontend-Angular/
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── acceso/

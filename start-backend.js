@@ -155,7 +155,7 @@ function startAll() {
   console.log('   - Court Service: http://localhost:3004');
   console.log('   - Match Service: http://localhost:3005');
   console.log('\n💡 To start the frontend, open a new terminal and run:');
-  console.log('   cd OSC-Frontend-Angular && npm install && ng serve --open\n');
+  console.log('   cd osc-frontend-Angular && npm install && ng serve --open\n');
   console.log('⚠️  Press Ctrl+C to stop all services\n');
 }
 

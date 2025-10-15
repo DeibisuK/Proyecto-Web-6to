@@ -58,9 +58,9 @@ export class Navbar implements OnInit, OnDestroy {
     console.log('Navbar e-commerce loaded');
 
     this.authService.user$.subscribe((u) => (this.user = u));
-    console.log('Usuario actual:', this.user?.providerData);
     // Suscribirse al contador de items del carrito
     this.subscriptions.add(
+      console.log('Usuario actual:', this.user?.providerData);
       this.carritoService.obtenerCantidadTotal().subscribe((count) => {
         this.cartItemCount = count;
       })
