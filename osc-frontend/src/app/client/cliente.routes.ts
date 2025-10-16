@@ -20,6 +20,8 @@ import { CrearEquipo } from "./features/reservas/components/mis-equipos/crear-eq
 import { Historial } from "./features/reservas/components/historial/historial";
 import { ListSedes } from "./features/sedes/list-sedes/list-sedes";
 import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
+import { DetalleReservarCancha } from "./features/shop/components/detalle-reservar-cancha/detalle-reservar-cancha";
+import { ReservarCancha } from "./features/reservas/components/reservar-cancha/reservar-cancha";
 
 export const clienteRoutes: Routes = [
   {
@@ -67,7 +69,8 @@ export const clienteRoutes: Routes = [
     path: 'tienda',
     children: [
       { path: '', component: TiendaPage },
-      { path: 'producto/:id', component: DetalleProducto}
+      { path: 'producto/:id', component: DetalleProducto},
+      { path: 'reservar-cancha/:id', component: DetalleReservarCancha}
     ]
   },
   {
@@ -101,8 +104,13 @@ export const clienteRoutes: Routes = [
   {
     path: 'todas-las-sedes', component: ListSedes
   },
+  
   {
     path: 'prueba',
     component: Prueba
+  },
+  {
+    path: 'reservar-cancha',
+    component: ReservarCancha
   }
 ]
