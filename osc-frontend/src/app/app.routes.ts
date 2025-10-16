@@ -3,18 +3,21 @@ import { ClientLayout } from './client/client-layout/client-layout';
 import { AdminLayout } from './admin/admin-layout/admin-layout';
 import { clienteRoutes } from './client/cliente.routes';
 import { adminRoutes } from './admin/admin.routes';
+import { authGuard } from './core/guards/auth.guard';
 
 
 export const routes: Routes = [
   {
-    path: '', 
-    redirectTo: '/inicio', 
+    path: '',
+    redirectTo: '/inicio',
     pathMatch: 'full'
   },
   {
     path: 'admin',
     component: AdminLayout,
-    children: adminRoutes
+    canActivate: [authGuard],
+
+    children: adminRoutes,
   },
   {
     path: '',
@@ -22,7 +25,7 @@ export const routes: Routes = [
     children: clienteRoutes
   },
   {
-    path: '**', 
+    path: '**',
     redirectTo: '/inicio'
   }
 ];

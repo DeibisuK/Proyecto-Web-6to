@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const proxy = require('express-http-proxy');
 const authenticate = require('./middleware/authenticate');
+const fetch = require('node-fetch');
+const admin = require('firebase-admin');
 
 const app = express();
 
@@ -55,7 +57,69 @@ const authorizeRole = require('./middleware/authorizeRole');
 // By convention admin role id = 1. Change if your DB uses a different id.
 app.use('/admin', authenticate(), authorizeRole(1), adminRoutes);
 
-app.use('/u', authenticate(), proxy(userServiceUrl, proxyOptions));
+// Intercept user creation so we can synchronize Firebase custom claims immediately
+// POST /u/users -> create user in user-service, then set custom claims { role, id_rol }
+app.post('/u/users', authenticate(), async (req, res) => {
+	try {
+		if (!userServiceUrl) return res.status(500).json({ error: 'config_error', message: 'USER_SERVICE_URL not configured' });
+
+		const endpoint = `${userServiceUrl.replace(/\/$/, '')}/users/`;
+		// forward request body to user-service
+		const response = await fetch(endpoint, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(req.body),
+		});
+
+		const text = await response.text();
+		if (!response.ok) {
+			console.error('User service create responded with error:', response.status, text);
+			return res.status(502).json({ error: 'user_service_error', status: response.status, message: text });
+		}
+
+		// parse created user
+		let created;
+		try {
+			created = JSON.parse(text);
+		} catch (e) {
+			created = { raw: text };
+		}
+
+		// attempt to fetch role name and set custom claims (best-effort)
+		let claimsSynced = false;
+		let claimWarning = null;
+		try {
+			const id_rol = req.body && req.body.id_rol;
+			if (typeof id_rol !== 'undefined' && id_rol !== null) {
+				const rolesEndpoint = `${userServiceUrl.replace(/\/$/, '')}/roles/${encodeURIComponent(id_rol)}`;
+				const roleResp = await fetch(rolesEndpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+				let roleName = String(id_rol);
+				if (roleResp.ok) {
+					const roleObj = await roleResp.json();
+					roleName = roleObj.nombre_rol || roleObj.name || roleName;
+				}
+				// set claims (admin SDK is initialized in authenticate middleware)
+				try {
+					await admin.auth().setCustomUserClaims(req.body.uid, { role: roleName, id_rol: Number(id_rol) });
+					claimsSynced = true;
+				} catch (err) {
+					claimWarning = `failed_to_set_claims: ${err && err.message ? err.message : String(err)}`;
+					console.error('Failed to set custom claims for user on registration', req.body.uid, err);
+				}
+			}
+		} catch (err) {
+			claimWarning = `failed_to_sync_claims: ${err && err.message ? err.message : String(err)}`;
+			console.error('Error during claims sync on user create', err);
+		}
+
+		return res.json({ success: true, created, claimsSynced, claimWarning });
+	} catch (err) {
+		console.error('Error creating user via user-service:', err);
+		return res.status(500).json({ error: 'internal_error', message: err.message || String(err) });
+	}
+});
+
+app.use('/u', authorizeRole(1), proxy(userServiceUrl, proxyOptions));
 app.use('/p', authenticate(), proxy(productServiceUrl, proxyOptions));
 app.use('/b', authenticate(), proxy(process.env.BUY_SERVICE_URL, proxyOptions));
 app.use('/c', authenticate(), proxy(process.env.COURT_SERVICE_URL, proxyOptions));

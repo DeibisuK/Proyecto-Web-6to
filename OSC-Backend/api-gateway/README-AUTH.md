@@ -55,4 +55,10 @@ app.use('/u', authenticate(), proxy(process.env.USER_SERVICE_URL));
 - If a user has role but gateway returns 403, inspect the token using the Firebase Admin SDK locally:
   `admin.auth().verifyIdToken(idToken).then(console.log)`
 
+## Synchronization behavior
+
+The gateway's admin endpoint `POST /admin/assign-role` updates the user's role in the user-service (Postgres) and then attempts to synchronize the Firebase custom claim `role` for that user. The response includes `claimsSynced: true|false` and `claimWarning` when claim setting fails.
+
+Important: After a role change the client must refresh its ID token to pick up updated claims. In the browser client call `getIdToken(true)` or sign out/in.
+
 *** End of file ***
