@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
     getAllCanchas,
     getCanchaById,
+    getCanchasBySede,
     createCancha,
     updateCancha,
     deleteCancha,
@@ -11,6 +12,7 @@ const router = Router();
 
 router.get('/canchas', getAllCanchas);
 router.get('/canchas/:id', getCanchaById);
+router.get('/sedes/:idSede/canchas', getCanchasBySede);
 router.post('/canchas', createCancha);
 router.put('/canchas/:id', updateCancha);
 router.delete('/canchas/:id', deleteCancha);

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ReactWrapperComponent } from '../../../share/react-wrapper/react-wrapper.component';
 import PruebaReact from '../../react-components/pruebas/prueba-react';
+import { ReactWrapperComponent } from '../../../shared/react-wrapper/react-wrapper.component';
 
 @Component({
   selector: 'app-prueba',

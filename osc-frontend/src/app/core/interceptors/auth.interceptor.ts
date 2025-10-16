@@ -10,7 +10,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Rutas públicas que no requieren autenticación
-    const publicRoutes = ['/u/contacto', '/c/sedes'];
+    const publicRoutes = ['/u/contacto', '/c/sedes', '/c/canchas'];
     const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
     
     if (isPublicRoute) {

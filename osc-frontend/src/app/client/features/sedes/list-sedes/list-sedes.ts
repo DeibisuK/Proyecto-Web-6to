@@ -3,8 +3,7 @@ import { SedeService } from '../../../../core/services/sede.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Sede } from '../../../../core/models/sede.model';
 import { CommonModule } from '@angular/common';
-import { MiniMapComponent } from '../../../../shared/components/mini-map/mini-map';
-
+import { MiniMapComponent } from '../../../../shared/mini-map/mini-map';
 @Component({
   selector: 'app-list-sedes',
   imports: [CommonModule, MiniMapComponent],

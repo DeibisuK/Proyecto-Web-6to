@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Cancha, Sede, TipoSuperficie, EstadoCancha } from '../../../../core/models/canchas.model';
+import { CanchaService } from '../../../../core/services/cancha.service';
+import { SedeService } from '../../../../core/services/sede.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-crear-cancha',
@@ -36,11 +39,7 @@ export class CrearCancha implements OnInit {
     { id: 5, nombre: 'Pádel' }
   ];
 
-  sedes: Sede[] = [
-    { id_sede: 1, nombre_sede: 'Sede Centro', direccion: 'Av. Principal 123' },
-    { id_sede: 2, nombre_sede: 'Sede Norte', direccion: 'Calle Norte 456' },
-    { id_sede: 3, nombre_sede: 'Sede Sur', direccion: 'Jr. Sur 789' }
-  ];
+  sedes: Sede[] = [];
 
   tiposSuperficie: TipoSuperficie[] = [
     'Cemento',
@@ -59,10 +58,15 @@ export class CrearCancha implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private canchaService: CanchaService,
+    private sedeService: SedeService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
+    this.cargarSedes();
+    
     // Verificar si estamos en modo edición
     const id = this.route.snapshot.params['id'];
     if (id) {
@@ -71,69 +75,86 @@ export class CrearCancha implements OnInit {
     }
   }
 
-  cargarCancha(id: number) {
-    // Aquí iría la llamada al servicio
-    // Por ahora, datos de ejemplo
-    this.canchaData = {
-      id_cancha: id,
-      nombre_cancha: 'Cancha 1',
-      id_sede: 1,
-      id_deporte: 1,
-      largo: 40,
-      ancho: 25,
-      tarifa: 30,
-      tipo_superficie: 'Césped Sintético',
-      estado: 'Disponible'
-    };
+  cargarSedes() {
+    this.sedeService.getSedes().subscribe({
+      next: (data) => {
+        this.sedes = data
+          .filter(sede => sede.id_sede !== undefined)
+          .map(sede => ({
+            id_sede: sede.id_sede!,
+            nombre_sede: sede.nombre,
+            direccion: sede.direccion || ''
+          }));
+      },
+      error: (error) => {
+        console.error('Error al cargar sedes:', error);
+        this.notificationService.error('Error al cargar las sedes');
+      }
+    });
   }
 
-  async guardarCancha() {
+  cargarCancha(id: number) {
+    this.canchaService.getCanchaById(id).subscribe({
+      next: (data) => {
+        this.canchaData = data;
+        if (data.imagen_url) {
+          this.imagenPreview = data.imagen_url;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar cancha:', error);
+        this.notificationService.error('Error al cargar la cancha');
+        this.router.navigate(['/admin/canchas']);
+      }
+    });
+  }
+
+  guardarCancha() {
     if (!this.validarFormulario()) {
       return;
     }
 
     this.isLoading = true;
 
-    try {
-      // Aquí iría la llamada al servicio
-      await this.simularGuardado();
+    const operacion = this.isEditMode 
+      ? this.canchaService.updateCancha(this.canchaData.id_cancha!, this.canchaData)
+      : this.canchaService.createCancha(this.canchaData);
 
-      // Mostrar notificación de éxito usando React component
-      this.mostrarNotificacion(
-        this.isEditMode ? 'Cancha actualizada correctamente' : 'Cancha creada correctamente',
-        'success'
-      );
-
-      // Redirigir al listado
-      setTimeout(() => {
-        this.router.navigate(['/admin/canchas']);
-      }, 1500);
-
-    } catch (error) {
-      this.mostrarNotificacion('Error al guardar la cancha', 'error');
-    } finally {
-      this.isLoading = false;
-    }
+    operacion.subscribe({
+      next: () => {
+        this.notificationService.success(
+          this.isEditMode ? 'Cancha actualizada correctamente' : 'Cancha creada correctamente'
+        );
+        setTimeout(() => {
+          this.router.navigate(['/admin/canchas']);
+        }, 1500);
+      },
+      error: (error) => {
+        console.error('Error al guardar cancha:', error);
+        this.notificationService.error(error.error?.message || 'Error al guardar la cancha');
+        this.isLoading = false;
+      }
+    });
   }
 
   validarFormulario(): boolean {
     if (!this.canchaData.nombre_cancha.trim()) {
-      this.mostrarNotificacion('El nombre de la cancha es obligatorio', 'error');
+      this.notificationService.error('El nombre de la cancha es obligatorio');
       return false;
     }
 
     if (!this.canchaData.id_sede || this.canchaData.id_sede === 0) {
-      this.mostrarNotificacion('Debes seleccionar una sede', 'error');
+      this.notificationService.error('Debes seleccionar una sede');
       return false;
     }
 
     if (this.canchaData.largo <= 0 || this.canchaData.ancho <= 0) {
-      this.mostrarNotificacion('Las dimensiones deben ser mayores a 0', 'error');
+      this.notificationService.error('Las dimensiones deben ser mayores a 0');
       return false;
     }
 
-    if (this.canchaData.tarifa <= 0) {
-      this.mostrarNotificacion('La tarifa debe ser mayor a 0', 'error');
+    if (this.canchaData.tarifa < 0) {
+      this.notificationService.error('La tarifa no puede ser negativa');
       return false;
     }
 
@@ -152,14 +173,14 @@ export class CrearCancha implements OnInit {
       // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        this.mostrarNotificacion('Solo se permiten archivos JPG, PNG o WEBP', 'error');
+        this.notificationService.error('Solo se permiten archivos JPG, PNG o WEBP');
         return;
       }
 
       // Validar tamaño (5MB máximo)
       const maxSize = 5 * 1024 * 1024; // 5MB en bytes
       if (file.size > maxSize) {
-        this.mostrarNotificacion('La imagen no debe superar los 5MB', 'error');
+        this.notificationService.error('La imagen no debe superar los 5MB');
         return;
       }
 
@@ -178,20 +199,6 @@ export class CrearCancha implements OnInit {
     this.imagenPreview = null;
     this.imagenFile = null;
     this.canchaData.imagen_url = undefined;
-  }
-
-  private simularGuardado(): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
-  }
-
-  private mostrarNotificacion(message: string, type: 'success' | 'error') {
-    // Emitir evento para el componente React
-    const event = new CustomEvent('showToast', {
-      detail: { message, type }
-    });
-    window.dispatchEvent(event);
   }
 
   obtenerNombreDeporte(id: number): string {

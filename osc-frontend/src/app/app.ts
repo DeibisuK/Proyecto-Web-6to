@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { ReactWrapperComponent } from './share/react-wrapper/react-wrapper.component';
 import SuccessToaster from './core/react-components/notifications/success';
 import { NotificationService, NotificationPayload } from './core/services/notification.service';
+import { ReactWrapperComponent } from './shared/react-wrapper/react-wrapper.component';
 
 @Component({
   selector: 'app-root',

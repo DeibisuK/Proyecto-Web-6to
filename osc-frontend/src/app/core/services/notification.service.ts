@@ -17,6 +17,18 @@ export class NotificationService {
     this.subject.next(payload);
   }
 
+  success(message: string) {
+    this.notify({ message, type: 'success' });
+  }
+
+  error(message: string) {
+    this.notify({ message, type: 'error' });
+  }
+
+  loading(message: string, key?: string | number) {
+    this.notify({ message, type: 'loading', key });
+  }
+
   onNotify(): Observable<NotificationPayload> {
     return this.subject.asObservable();
   }

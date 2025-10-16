@@ -204,8 +204,10 @@ app.use("/b", authenticate(), proxy(process.env.BUY_SERVICE_URL, proxyOptions));
 
 // Allow listing sedes without authentication (public): GET /c/sedes
 app.get('/c/sedes', proxy(process.env.COURT_SERVICE_URL, courtPublicProxyOptions));
-// Also allow preflight for that specific route
-//app.options('/c/sedes', proxy(process.env.COURT_SERVICE_URL, courtPublicProxyOptions));
+
+// Allow listing canchas without authentication (public): GET /c/canchas
+app.get('/c/canchas', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+app.get('/c/canchas/:id', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
 
 // All other /c routes require authentication
 app.use(

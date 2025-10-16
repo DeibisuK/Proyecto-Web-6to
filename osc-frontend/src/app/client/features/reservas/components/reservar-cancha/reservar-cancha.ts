@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-reservar-cancha',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './reservar-cancha.html',
   styleUrl: './reservar-cancha.css'
 })
