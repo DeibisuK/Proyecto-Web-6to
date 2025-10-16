@@ -19,11 +19,25 @@
                 id="nombres"
                 name="nombres"
                 [(ngModel)]="contactForm.nombres"
-                placeholder="Pepe..."
+                placeholder="Juan"
                 required
               />
             </div>
 
+            <div class="form-group">
+              <label for="apellidos">Apellidos</label>
+              <input
+                type="text"
+                id="apellidos"
+                name="apellidos"
+                [(ngModel)]="contactForm.apellidos"
+                placeholder="Pérez"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group">
               <label for="email">Email</label>
               <input
@@ -35,9 +49,7 @@
                 required
               />
             </div>
-          </div>
 
-          <div class="form-row">
             <div class="form-group">
               <label for="telefono">Teléfono</label>
               <input
@@ -45,28 +57,35 @@
                 id="telefono"
                 name="telefono"
                 [(ngModel)]="contactForm.telefono"
-                placeholder="+1 234 567 890"
+                placeholder="+51 987 654 321"
                 pattern="[0-9+\-\s\(\)]*"
                 maxlength="15"
                 (input)="validatePhone($event)"
+                required
               />
             </div>
+          </div>
 
+          <div class="form-row">
             <div class="form-group">
               <label for="sede">Sede</label>
               <select id="sede" name="sede" [(ngModel)]="contactForm.sede" required>
                 <option value="">Seleccione una sede...</option>
-                <option *ngFor="let sede of sedes" [value]="sede">{{ sede }}</option>
+                <optgroup *ngFor="let grupo of sedesAgrupadas" [label]="grupo.nombre">
+                  <option *ngFor="let sede of grupo.sedes" [value]="sede.nombre">
+                    {{ sede.nombre }} - {{ sede.direccion }}
+                  </option>
+                </optgroup>
               </select>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label for="tipo">Tipo</label>
-            <select id="tipo" name="tipo" [(ngModel)]="contactForm.tipo" required>
-              <option value="">Seleccione un tipo...</option>
-              <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
-            </select>
+            <div class="form-group">
+              <label for="tipo">Tipo</label>
+              <select id="tipo" name="tipo" [(ngModel)]="contactForm.tipo" required>
+                <option value="">Seleccione un tipo...</option>
+                <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group">

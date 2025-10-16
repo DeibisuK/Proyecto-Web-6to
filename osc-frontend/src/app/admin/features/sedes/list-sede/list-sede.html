@@ -32,7 +32,16 @@
     <div class="sede-card" *ngFor="let sede of sedesFiltradas">
       <!-- Mapa -->
       <div class="sede-map">
-        <img [src]="getMapUrl(sede.latitud, sede.longitud)" [alt]="'Mapa de ' + sede.nombre">
+        <app-mini-map 
+          *ngIf="sede.latitud && sede.longitud"
+          [latitud]="sede.latitud" 
+          [longitud]="sede.longitud"
+          [zoom]="14">
+        </app-mini-map>
+        <div *ngIf="!sede.latitud || !sede.longitud" class="no-map-placeholder">
+          <span class="material-icons">location_off</span>
+          <p>Mapa no disponible</p>
+        </div>
         <div class="map-overlay">
           <span class="material-icons">location_on</span>
         </div>
@@ -74,7 +83,7 @@
             {{ sede.estado }}
           </span>
 
-          <div class="sede-actions">
+          <div class="sede-actions" *ngIf="sede.id_sede">
             <button 
               class="action-btn btn-editar"
               [routerLink]="['/admin/editar-sede', sede.id_sede]"

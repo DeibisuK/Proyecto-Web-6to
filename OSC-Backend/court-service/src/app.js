@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import canchaRoutes from './api/cancha.routes.js';
 import reservaRoutes from './api/reserva.routes.js';
+import sedeRoutes from './api/sede.routes.js';
 
 dotenv.config();
 
@@ -13,5 +14,6 @@ app.use(express.json());
 
 app.use('/', canchaRoutes);
 app.use('/', reservaRoutes);
+app.use('/', sedeRoutes);
 
 export default app;
