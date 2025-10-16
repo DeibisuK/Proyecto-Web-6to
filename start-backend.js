@@ -2,7 +2,7 @@ const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const backendPath = path.join(__dirname, 'osc-backend');
+const backendPath = path.join(__dirname, 'OSC-Backend');
 const services = fs.readdirSync(backendPath, { withFileTypes: true })
   .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules' && dirent.name !== 'cloudinary-service')
   .map(dirent => dirent.name);
