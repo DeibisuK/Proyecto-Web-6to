@@ -9,6 +9,7 @@
     "frontend": "cd osc-frontend && npm install && ng serve --open",
     "setup:env": "node osc-backend/setup-env.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-recuperar-password',
@@ -15,6 +16,9 @@ export class RecuperarPassword {
   
   email = '';
   isClosing = false;
+  send = false
+
+  auth = inject(AuthService);
 
   cerrarModalRecuperacion() {
     this.isClosing = true;
@@ -31,8 +35,10 @@ export class RecuperarPassword {
   }
 
   enviarSolicitudRecuperacion() {
-    console.log('Enviando solicitud a:', this.email);
-    // Aquí iría la lógica de envío
-    this.cerrarModalRecuperacion();
+    this.auth.sendPasswordReset(this.email).then(() => {
+      this.send = true;
+    }).catch((error) => {
+      console.error('Error al enviar el correo de recuperación:', error);
+    });
   }
 }

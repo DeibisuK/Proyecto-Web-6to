@@ -84,7 +84,7 @@ export class Login {
       });
     } catch (error) {
       this.notificationService.notify({
-        message: 'Error al iniciar sesión con Facebook',
+        message: `Error al iniciar sesión con Facebook: ${error}`,
         type: 'error',
       });
     }

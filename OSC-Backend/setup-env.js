@@ -33,11 +33,12 @@ const services = [
         hasDB: false,
         isGateway: true  // Marca especial para API Gateway
     },
-    { folder: 'user-service', name: 'User Service', port: 3001, portVar: 'USER_SERVICE_PORT', hasDB: true },
-    { folder: 'products-service', name: 'Products Service', port: 3002, portVar: 'PRODUCTS_SERVICE_PORT', hasDB: true },
-    { folder: 'buy-service', name: 'Buy Service', port: 3003, portVar: 'BUY_SERVICE_PORT', hasDB: true },
-    { folder: 'court-service', name: 'Court Service', port: 3004, portVar: 'COURT_SERVICE_PORT', hasDB: true },
-    { folder: 'match-service', name: 'Match Service', port: 3005, portVar: 'MATCH_SERVICE_PORT', hasDB: true }
+        { folder: 'user-service', name: 'User Service', port: 3001, portVar: 'PORT', hasDB: true },
+        { folder: 'products-service', name: 'Products Service', port: 3002, portVar: 'PORT', hasDB: true },
+        { folder: 'buy-service', name: 'Buy Service', port: 3003, portVar: 'PORT', hasDB: true },
+        { folder: 'court-service', name: 'Court Service', port: 3004, portVar: 'PORT', hasDB: true },
+        { folder: 'match-service', name: 'Match Service', port: 3005, portVar: 'PORT', hasDB: true },
+        { folder: 'cloudinary-service', name: 'Cloudinary Service', port: 3006, portVar: 'PORT', hasDB: true }
 ];
 
 const config = {
@@ -46,6 +47,14 @@ const config = {
     DB_USER: '',
     DB_PASSWORD: '',
     DB_NAME: ''
+};
+
+// Additional service credentials
+const extra = {
+    GOOGLE_APPLICATION_CREDENTIALS: '',
+    CLOUDINARY_CLOUD_NAME: '',
+    CLOUDINARY_API_KEY: '',
+    CLOUDINARY_API_SECRET: ''
 };
 
 function question(prompt, defaultValue = '') {
@@ -105,7 +114,20 @@ function createEnvFile(service) {
     let envContent = fs.readFileSync(examplePath, 'utf8');
     
     // Reemplazar valores según el servicio
-    envContent = envContent.replace(new RegExp(`${service.portVar}=\\d+`), `${service.portVar}=${service.port}`);
+    // Reemplazar valores según el servicio (búsqueda por línea para evitar falsos positivos)
+    const specificPortRegex = new RegExp(`^${service.portVar}=.*$`, 'm');
+    if (specificPortRegex.test(envContent)) {
+        envContent = envContent.replace(specificPortRegex, `${service.portVar}=${service.port}`);
+    } else {
+        // Intentar reemplazar la variable genérica PORT
+        const genericPortRegex = /^PORT=.*$/m;
+        if (genericPortRegex.test(envContent)) {
+            envContent = envContent.replace(genericPortRegex, `PORT=${service.port}`);
+        } else {
+            // Si no existe, añadir al inicio
+            envContent = `PORT=${service.port}\n` + envContent;
+        }
+    }
     
     // Solo reemplazar configuración de BD si el servicio la necesita
     if (service.hasDB) {
@@ -118,11 +140,50 @@ function createEnvFile(service) {
     
     // Si es API Gateway, configurar URLs de microservicios
     if (service.isGateway) {
-        envContent = envContent.replace(/USER_SERVICE_URL=.*/, 'USER_SERVICE_URL=http://localhost:3001');
-        envContent = envContent.replace(/PRODUCT_SERVICE_URL=.*/, 'PRODUCT_SERVICE_URL=http://localhost:3002');
-        envContent = envContent.replace(/BUY_SERVICE_URL=.*/, 'BUY_SERVICE_URL=http://localhost:3003');
-        envContent = envContent.replace(/COURT_SERVICE_URL=.*/, 'COURT_SERVICE_URL=http://localhost:3004');
-        envContent = envContent.replace(/MATCH_SERVICE_URL=.*/, 'MATCH_SERVICE_URL=http://localhost:3005');
+        envContent = envContent.replace(/USER_SERVICE_URL=.*/m, 'USER_SERVICE_URL=http://localhost:3001');
+        envContent = envContent.replace(/PRODUCT_SERVICE_URL=.*/m, 'PRODUCT_SERVICE_URL=http://localhost:3002');
+        envContent = envContent.replace(/BUY_SERVICE_URL=.*/m, 'BUY_SERVICE_URL=http://localhost:3003');
+        envContent = envContent.replace(/COURT_SERVICE_URL=.*/m, 'COURT_SERVICE_URL=http://localhost:3004');
+        envContent = envContent.replace(/MATCH_SERVICE_URL=.*/m, 'MATCH_SERVICE_URL=http://localhost:3005');
+        // Asegurar CLOUDINARY si existe, o añadirla
+        if (/CLOUDINARY_SERVICE_URL=.*/m.test(envContent)) {
+            envContent = envContent.replace(/CLOUDINARY_SERVICE_URL=.*/m, 'CLOUDINARY_SERVICE_URL=http://localhost:3006');
+        } else {
+            envContent += '\nCLOUDINARY_SERVICE_URL=http://localhost:3006\n';
+        }
+        // Reemplazar ruta a credenciales de Google si se proporcionó
+        if (extra.GOOGLE_APPLICATION_CREDENTIALS) {
+            if (/GOOGLE_APPLICATION_CREDENTIALS=.*/m.test(envContent)) {
+                envContent = envContent.replace(/GOOGLE_APPLICATION_CREDENTIALS=.*/m, `GOOGLE_APPLICATION_CREDENTIALS=${extra.GOOGLE_APPLICATION_CREDENTIALS}`);
+            } else {
+                envContent += `\nGOOGLE_APPLICATION_CREDENTIALS=${extra.GOOGLE_APPLICATION_CREDENTIALS}\n`;
+            }
+        }
+    }
+
+    // Reemplazar claves de Cloudinary si se proporcionaron
+    if (service.folder === 'cloudinary-service') {
+        if (extra.CLOUDINARY_CLOUD_NAME) {
+            if (/CLOUDINARY_CLOUD_NAME=.*/m.test(envContent)) {
+                envContent = envContent.replace(/CLOUDINARY_CLOUD_NAME=.*/m, `CLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}`);
+            } else {
+                envContent += `\nCLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}\n`;
+            }
+        }
+        if (extra.CLOUDINARY_API_KEY) {
+            if (/CLOUDINARY_API_KEY=.*/m.test(envContent)) {
+                envContent = envContent.replace(/CLOUDINARY_API_KEY=.*/m, `CLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}`);
+            } else {
+                envContent += `\nCLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}\n`;
+            }
+        }
+        if (extra.CLOUDINARY_API_SECRET) {
+            if (/CLOUDINARY_API_SECRET=.*/m.test(envContent)) {
+                envContent = envContent.replace(/CLOUDINARY_API_SECRET=.*/m, `CLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}`);
+            } else {
+                envContent += `\nCLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}\n`;
+            }
+        }
     }
     
     // Escribir archivo .env
@@ -206,6 +267,14 @@ async function setup() {
             throw new Error('No se pudo configurar DB_NAME después de 5 intentos');
         }
         console.log(`${colors.green}✓ DB_NAME configurado: ${config.DB_NAME}${colors.reset}\n`);
+
+    // Preguntar por credenciales opcionales
+    extra.GOOGLE_APPLICATION_CREDENTIALS = await question('GOOGLE_APPLICATION_CREDENTIALS (ruta a JSON, opcional)', '');
+    extra.CLOUDINARY_CLOUD_NAME = await question('CLOUDINARY_CLOUD_NAME (opcional)', '');
+    extra.CLOUDINARY_API_KEY = await question('CLOUDINARY_API_KEY (opcional)', '');
+    extra.CLOUDINARY_API_SECRET = await question('CLOUDINARY_API_SECRET (opcional)', '');
+
+    console.log('');
         
         console.log('');
         console.log(`${colors.blue}📦 Creando archivos .env...${colors.reset}`);

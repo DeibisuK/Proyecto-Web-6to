@@ -13,7 +13,7 @@ import {
   UserCredential,
   signInWithPopup,
 } from '@angular/fire/auth';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, firstValueFrom, ReplaySubject } from 'rxjs';
 import { UserApiService } from './user-api.service';
 
 @Injectable({ providedIn: 'root' })
@@ -28,10 +28,34 @@ export class AuthService {
   // Observable práctico que indica si hay un usuario autenticado
   isAuthenticated$ = this.user$.pipe(map((u) => !!u));
 
+  // Emits once Firebase has reported the initial auth state (either user or null).
+  // Helps consumers avoid racing on the initial null value.
+  authReady$ = new ReplaySubject<boolean>(1);
+
   constructor() {
+    // Seed the current user from the Auth instance in case it's already available
+    // This avoids a race where consumers (e.g. route guards) subscribe and take(1)
+    // before the async onAuthStateChanged callback fires.
+    try {
+      const maybeUser = (this.auth as any).currentUser ?? null;
+      this.currentUserSubject.next(maybeUser);
+    } catch (err) {
+      // Defensive: if reading currentUser throws for some reason, keep null
+      console.debug('AuthService: failed to read auth.currentUser during init', err);
+    }
+
     // Escucha los cambios de sesión (Firebase lo maneja automáticamente)
     onAuthStateChanged(this.auth, (user) => {
       this.currentUserSubject.next(user);
+      // Notify that the initial auth state has been received (first call)
+      try {
+        // First emission of authReady$ will signal readiness. Use next(true)
+        // and complete so consumers know it won't emit again.
+        this.authReady$.next(true);
+        this.authReady$.complete();
+      } catch (err) {
+        // ignore if already closed
+      }
     });
   }
 
@@ -99,11 +123,16 @@ export class AuthService {
         // default role id (adjust as needed)
         id_rol: 2,
       };
-      // fire and forget; the gateway will forward Authorization header if present
-      this.userApi.createUser(payload).subscribe({
-        next: () => console.log('User record created in backend'),
-        error: (e) => console.error('Failed to create user record in backend', e),
-      });
+      // Wait for backend to create user and (gateway) possibly sync claims
+      const resp = await firstValueFrom(this.userApi.createUser(payload));
+      // If the backend synced claims, force refresh token so client has updated claims
+      try {
+        // force refresh id token to pick up any newly set custom claims
+        await credential.user.getIdToken(true);
+      } catch (err) {
+        console.error('Error forcing token refresh after registration', err);
+      }
+      console.log('User record created in backend', resp);
     } catch (err) {
       console.error('Error persisting user to backend', err);
     }
@@ -159,6 +188,41 @@ export class AuthService {
 
   // Provider sign-in (Google, Facebook, etc.)
   async signInWithPopupProvider(provider: any): Promise<UserCredential> {
-    return signInWithPopup(this.auth, provider);
+    // sign in with popup
+    const credential = await signInWithPopup(this.auth, provider);
+
+    // detect if this is a new user and create record in backend if needed
+    try {
+      // dynamic import to avoid circular or heavy imports at top
+      const { getAdditionalUserInfo } = await import('@angular/fire/auth');
+      const info = getAdditionalUserInfo(credential as any);
+      const isNew = info && (info as any).isNewUser;
+      if (isNew) {
+        const user = credential.user;
+        const payload = {
+          uid: user.uid,
+          nombre: user.displayName || null,
+          email: user.email || null,
+          id_rol: 2, // default role
+        };
+        try {
+          const resp = await firstValueFrom(this.userApi.createUser(payload));
+          console.log('Created backend user for provider sign-in', resp);
+        } catch (err) {
+          console.error('Failed to create backend user after provider sign-in', err);
+        }
+
+        // Force refresh token so any claims set by gateway are present
+        try {
+          await user.getIdToken(true);
+        } catch (err) {
+          console.error('Error forcing token refresh after provider sign-in', err);
+        }
+      }
+    } catch (err) {
+      console.error('Error handling provider sign-in new user flow', err);
+    }
+
+    return credential;
   }
 }

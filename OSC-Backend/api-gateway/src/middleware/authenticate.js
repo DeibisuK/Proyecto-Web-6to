@@ -34,15 +34,16 @@ function makeAuthenticate(requiredRoles = []) {
 
     try {
       const decoded = await admin.auth().verifyIdToken(idToken, CHECK_REVOKED);
-      // Attach user info to request for downstream services
-      req.user = decoded;
+      // Attach full decoded token claims for downstream middleware to optionally use
+      req.tokenClaims = decoded;
+
+      // Attach minimal user info to keep backward compatibility
+      req.user = { uid: decoded.uid, email: decoded.email };
 
       // Previously we validated roles with Firebase custom claims.
       // Roles are now stored in the user-service (Postgres). This middleware only
       // verifies the token and attaches minimal user info to the request.
-      // Role-based authorization is handled by a separate middleware.
-      // Attach minimal info
-      req.user = { uid: decoded.uid, email: decoded.email };
+      // Role-based authorization may use claims first and fallback to DB.
 
       return next();
     } catch (err) {
