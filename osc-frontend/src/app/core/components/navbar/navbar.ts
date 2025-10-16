@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Login } from '../../../auth/login/login';
@@ -7,6 +7,7 @@ import { RecuperarPassword } from '../../../auth/recuperar-password/recuperar-pa
 import { CarritoComponent } from '../../../client/features/shop/components/carrito/carrito';
 import { CarritoService } from '../../../client/features/shop/services/carrito.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -46,7 +47,7 @@ export class Navbar implements OnInit, OnDestroy {
     usuario: false,
   };
 
-  constructor(private carritoService: CarritoService) {
+  constructor(private carritoService: CarritoService, private router: Router) {
     // Cierra el menú al cambiar el tamaño de la ventana
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768 && this.showSidebar) {
@@ -56,8 +57,16 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('Navbar e-commerce loaded');
-      this.authService.user$.subscribe((u) => (this.user = u));
+    // Suscribirse al observable de usuario y gestionarlo dentro de this.subscriptions
+    this.subscriptions.add(this.authService.user$.subscribe((u) => (this.user = u)));
+
+    // Comprobar la URL actual al iniciar (caso de carga inicial)
+    const initialUrlTree = this.router.parseUrl(this.router.url || '');
+    const initialOpen = initialUrlTree.queryParams['openLogin'] === 'true';
+    if (initialOpen && !this.mostrarLogin) {
+      this.abrirLoginModal();
+      this.router.navigate([], { queryParams: { openLogin: null }, queryParamsHandling: 'merge' });
+    }
 
     // Suscribirse al contador de items del carrito
     this.subscriptions.add(

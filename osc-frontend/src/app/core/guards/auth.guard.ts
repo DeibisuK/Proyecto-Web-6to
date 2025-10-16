@@ -15,9 +15,27 @@ export const authGuard: CanActivateFn = () => {
       console.log('AuthGuard - ready:', ready, 'isAuth:', isAuth);
       if (!isAuth) {
         // Redirect to login (use the app's login route)
-        router.navigate(['/inicio']); // Changed back to /inicio to match original
+        router.navigate(['/inicio'], { queryParams: { openLogin: 'true' } });
       }
     }),
     map(([, isAuth]) => !!isAuth)
   );
 };
+
+// export const adminGuard: CanActivateFn = () => {
+//   const auth = inject(AuthService);
+//   const router = inject(Router);
+//   // Wait until Firebase has reported the initial auth state (authReady$),
+//   // then take the current isAdmin$ value and decide.
+//   return combineLatest([auth.authReady$, auth.isAdmin$]).pipe(
+//     take(1),
+//     tap(([ready, isAdmin]) => {
+//       console.log('AdminGuard - ready:', ready, 'isAdmin:', isAdmin);
+//       if (!isAdmin) {
+//         // Redirect to home if not admin
+//         router.navigate(['/inicio']); // Changed back to /inicio to match original
+//       }
+//     }),
+//     map(([, isAdmin]) => !!isAdmin)
+//   );
+// };
