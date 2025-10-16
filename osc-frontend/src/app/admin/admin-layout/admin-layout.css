@@ -12,20 +12,19 @@
   min-height: 100vh;
   background: #f8f9fa;
   transition: margin-left 0.3s ease;
+  overflow: hidden; /* Quitamos scroll del contenedor principal */
 }
 
 .main-content.collapsed {
-  margin-left: 70px; /* Width of collapsed sidebar */
+  margin-left: 80px; /* Width of collapsed sidebar */
 }
 
 .content-wrapper {
   flex: 1;
-  padding: 0;
-  overflow-y: auto;
-  background: #ffffff;
-  margin: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  background: transparent;
+  min-height: calc(100vh - 70px); /* Resta altura del header */
+  overflow-y: auto; /* El scroll ahora está aquí */
 }
 
 /* Responsive design */
@@ -36,8 +35,7 @@
   }
   
   .content-wrapper {
-    margin: 10px;
-    padding: 15px;
+    padding: 1rem;
   }
 }
 
@@ -46,14 +44,13 @@
   box-sizing: border-box;
 }
 
-/* Custom scrollbar for main content */
+/* Custom scrollbar for content wrapper */
 .content-wrapper::-webkit-scrollbar {
   width: 8px;
 }
 
 .content-wrapper::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 4px;
 }
 
 .content-wrapper::-webkit-scrollbar-thumb {

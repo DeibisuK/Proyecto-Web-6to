@@ -20,6 +20,8 @@ import { CrearEquipo } from "./features/reservas/components/mis-equipos/crear-eq
 import { Historial } from "./features/reservas/components/historial/historial";
 import { ListSedes } from "./features/sedes/list-sedes/list-sedes";
 import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
+import { ListMetodo } from "./features/user-profile/metodos-pago/list-metodo/list-metodo";
+import { Perfil } from "./features/user-profile/perfil/perfil";
 
 export const clienteRoutes: Routes = [
   {
@@ -100,6 +102,12 @@ export const clienteRoutes: Routes = [
   },
   {
     path: 'todas-las-sedes', component: ListSedes
+  },
+  {
+    path: 'metodos-de-pago', component: ListMetodo
+  },
+  {
+    path: 'ver-perfil', component: Perfil
   },
   {
     path: 'prueba',
