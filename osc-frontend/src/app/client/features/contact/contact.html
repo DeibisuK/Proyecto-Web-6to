@@ -73,7 +73,7 @@
                 <option value="">Seleccione una sede...</option>
                 <optgroup *ngFor="let grupo of sedesAgrupadas" [label]="grupo.nombre">
                   <option *ngFor="let sede of grupo.sedes" [value]="sede.nombre">
-                    {{ sede.nombre }} - {{ sede.direccion }}
+                    {{ sede.nombre }}
                   </option>
                 </optgroup>
               </select>

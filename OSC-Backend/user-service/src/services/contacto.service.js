@@ -12,88 +12,77 @@ export const enviarCorreo = async ({
     service: 'gmail',
     auth: {
       user: 'noreplycinebyte@gmail.com',
-      pass: 'ykga uoxf eiyu caic'
+      pass: 'yzkx vkye nyuk zdxg'
     }
   });
 
   const mailOptions = {
     from: email,
-    to: 'noreplyoscsports@gmail.com',
-    subject: `Nuevo mensaje de contacto: ${asunto}`,
+    to: 'noreplycinebyte@gmail.com',
+    subject: `Nuevo mensaje de contacto de OSC Sports`,
     html: `
-    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: auto; border: 2px solid #2ECC71; border-radius: 12px; padding: 32px; background: #ECF0F1;">
-      <div style="text-align: center; margin-bottom: 24px; border-bottom: 3px solid #2ECC71; padding-bottom: 16px;">
-        <h1 style="color: #2C3E50; margin: 0; font-size: 32px; font-weight: 700;">
-          🏟️ OSC Sports
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <!-- Header -->
+      <div style="background-color: #2ECC71; padding: 30px; text-align: center;">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff;">
+          OSC Sports
         </h1>
-        <h2 style="color: #34495E; margin: 8px 0 0 0; font-weight: 600; font-size: 20px;">
-          Nuevo Mensaje de Contacto
-        </h2>
+        <p style="margin: 8px 0 0 0; font-size: 16px; color: #ffffff; font-weight: 500;">
+          Nuevo mensaje de contacto
+        </p>
       </div>
-      
-      <p style="color: #2C3E50; font-size: 15px; margin-bottom: 24px; line-height: 1.6;">
-        Has recibido un nuevo mensaje desde el formulario de contacto del sitio web. 
-        Por favor, responde a la brevedad posible.
-      </p>
 
-      <div style="background: #ffffff; border-radius: 8px; padding: 24px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="color: #2ECC71; margin-top: 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #2ECC71; padding-bottom: 8px;">
-          Información del Contacto
-        </h3>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+      <!-- Content -->
+      <div style="padding: 30px; background-color: #f8f9fa;">
+        <p style="color: #495057; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+          Has recibido un nuevo mensaje desde el formulario de contacto de la web. Por favor, responde a la brevedad posible.
+        </p>
+
+        <!-- Info Table -->
+        <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; margin: 20px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <tr>
-            <td style="padding: 10px; font-weight: 600; color: #2C3E50; width: 35%;">Nombres:</td>
-            <td style="padding: 10px; color: #34495E;">${nombres}</td>
-          </tr>
-          <tr style="background: #ECF0F1;">
-            <td style="padding: 10px; font-weight: 600; color: #2C3E50;">Apellidos:</td>
-            <td style="padding: 10px; color: #34495E;">${apellidos}</td>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71; width: 35%; border-bottom: 1px solid #e9ecef;">Nombres:</td>
+            <td style="padding: 15px 20px; color: #212529; border-bottom: 1px solid #e9ecef;">${nombres}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; font-weight: 600; color: #2C3E50;">Teléfono:</td>
-            <td style="padding: 10px; color: #34495E;">${telefono}</td>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71; border-bottom: 1px solid #e9ecef;">Apellidos:</td>
+            <td style="padding: 15px 20px; color: #212529; border-bottom: 1px solid #e9ecef;">${apellidos}</td>
           </tr>
-          <tr style="background: #ECF0F1;">
-            <td style="padding: 10px; font-weight: 600; color: #2C3E50;">Email:</td>
-            <td style="padding: 10px; color: #34495E;">
-              <a href="mailto:${email}" style="color: #2ECC71; text-decoration: none; font-weight: 600;">
+          <tr>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71; border-bottom: 1px solid #e9ecef;">Teléfono:</td>
+            <td style="padding: 15px 20px; color: #212529; border-bottom: 1px solid #e9ecef;">${telefono}</td>
+          </tr>
+          <tr>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71; border-bottom: 1px solid #e9ecef;">Email:</td>
+            <td style="padding: 15px 20px; border-bottom: 1px solid #e9ecef;">
+              <a href="mailto:${email}" style="color: #2ECC71; text-decoration: none; font-weight: 500;">
                 ${email}
               </a>
             </td>
           </tr>
           <tr>
-            <td style="padding: 10px; font-weight: 600; color: #2C3E50;">Asunto:</td>
-            <td style="padding: 10px; color: #34495E; font-weight: 600;">${asunto}</td>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71; border-bottom: 1px solid #e9ecef;">Sede:</td>
+            <td style="padding: 15px 20px; color: #212529; border-bottom: 1px solid #e9ecef;">${asunto}</td>
+          </tr>
+          <tr>
+            <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71;">Tipo:</td>
+            <td style="padding: 15px 20px; color: #212529;">${mensaje.split('\n')[0]}</td>
           </tr>
         </table>
-      </div>
 
-      <div style="background: linear-gradient(135deg, #2ECC71, #27AE60); border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);">
-        <h3 style="color: #ffffff; margin-top: 0; font-size: 18px; font-weight: 600; margin-bottom: 12px;">
-          💬 Mensaje:
-        </h3>
-        <div style="background: rgba(255, 255, 255, 0.95); border-radius: 6px; padding: 16px; color: #2C3E50; line-height: 1.6; font-size: 14px;">
-          ${mensaje.replace(/\n/g, '<br>')}
+        <!-- Message -->
+        <div style="background-color: #ffffff; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #2ECC71; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #2ECC71;">Comentario:</h3>
+          <p style="margin: 0; color: #212529; line-height: 1.6; font-size: 14px;">
+            ${mensaje.replace(/\n/g, '<br>')}
+          </p>
         </div>
       </div>
 
-      <div style="background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ECC71; border-radius: 4px; padding: 16px; margin: 24px 0;">
-        <p style="color: #2C3E50; margin: 0; font-size: 14px; font-weight: 500;">
-          📋 <strong>Recordatorio:</strong> Responde directamente a 
-          <a href="mailto:${email}" style="color: #2ECC71; text-decoration: none; font-weight: 600;">
-            ${email}
-          </a> 
-          para continuar la conversación.
-        </p>
-      </div>
-
-      <div style="text-align: center; margin-top: 32px; padding-top: 20px; border-top: 2px solid #BDC3C7;">
-        <p style="color: #7F8C8D; font-size: 13px; margin: 0;">
-          Este correo fue enviado automáticamente desde el formulario de contacto de 
-          <span style="color: #2ECC71; font-weight: 600;">OSC Sports</span>
-        </p>
-        <p style="color: #95A5A6; font-size: 12px; margin: 8px 0 0 0;">
-          © ${new Date().getFullYear()} OSC Sports - Sistema de Gestión de Canchas Deportivas
+      <!-- Footer -->
+      <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+        <p style="margin: 0; font-size: 12px; color: #6c757d;">
+          Este mensaje fue enviado automáticamente desde el formulario de contacto de <span style="color: #2ECC71; font-weight: 600;">OSC Sports</span>
         </p>
       </div>
     </div>

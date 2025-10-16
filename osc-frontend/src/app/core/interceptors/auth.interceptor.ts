@@ -9,6 +9,15 @@ export class AuthInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Rutas públicas que no requieren autenticación
+    const publicRoutes = ['/u/contacto', '/c/sedes'];
+    const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
+    
+    if (isPublicRoute) {
+      console.log('Ruta pública detectada, no se añade token:', req.url);
+      return next.handle(req);
+    }
+
     // Only attach token for API gateway requests. Adjust the condition as needed.
     const isApiRequest = req.url.startsWith('/u') || req.url.startsWith('/p') || req.url.startsWith('/b') || req.url.startsWith('/c') || req.url.startsWith('/m') || req.url.startsWith('/i') || req.url.includes(window.location.hostname);
 

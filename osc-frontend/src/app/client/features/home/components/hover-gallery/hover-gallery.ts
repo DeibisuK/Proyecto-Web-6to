@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hover-gallery',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './hover-gallery.html',
   styleUrls: ['./hover-gallery.css']

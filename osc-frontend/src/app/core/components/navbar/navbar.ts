@@ -9,6 +9,8 @@ import { CarritoService } from '../../../client/features/shop/services/carrito.s
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { SedeService } from '../../services/sede.service';
+import { Sede } from '../../models/sede.model';
 
 @Component({
   selector: 'app-navbar',
@@ -47,7 +49,13 @@ export class Navbar implements OnInit, OnDestroy {
     usuario: false,
   };
 
-  constructor(private carritoService: CarritoService, private router: Router) {
+  sedesAgrupadas: { nombre: string, sedes: Sede[] }[] = [];
+
+  constructor(
+    private carritoService: CarritoService, 
+    private router: Router,
+    private sedeService: SedeService
+  ) {
     // Cierra el menú al cambiar el tamaño de la ventana
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768 && this.showSidebar) {
@@ -74,6 +82,42 @@ export class Navbar implements OnInit, OnDestroy {
         this.cartItemCount = count;
       })
     );
+
+    // Cargar sedes dinámicamente
+    this.cargarSedes();
+  }
+
+  cargarSedes() {
+    this.sedeService.getSedes().subscribe({
+      next: (sedes) => {
+        console.log('Sedes recibidas en navbar:', sedes);
+        this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
+        console.log('Sedes agrupadas:', this.sedesAgrupadas);
+      },
+      error: (error) => {
+        console.error('Error al cargar sedes en navbar:', error);
+      }
+    });
+  }
+
+  agruparSedesPorCiudad(sedes: Sede[]): { nombre: string, sedes: Sede[] }[] {
+    const sedesActivas = sedes.filter(s => 
+      s.ciudad && (s.estado?.toLowerCase() === 'activo' || s.estado === 'Activo')
+    );
+    const ciudades = new Map<string, Sede[]>();
+    
+    sedesActivas.forEach(sede => {
+      const ciudad = sede.ciudad!;
+      if (!ciudades.has(ciudad)) {
+        ciudades.set(ciudad, []);
+      }
+      ciudades.get(ciudad)!.push(sede);
+    });
+
+    return Array.from(ciudades.entries()).map(([nombre, sedes]) => ({
+      nombre,
+      sedes
+    }));
   }
 
   ngOnDestroy() {

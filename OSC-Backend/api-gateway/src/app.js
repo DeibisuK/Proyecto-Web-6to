@@ -87,6 +87,14 @@ const courtPublicProxyOptions = Object.assign({}, proxyOptions, {
   },
 });
 
+// Public user routes (no authentication required)
+const userPublicProxyOptions = Object.assign({}, proxyOptions, {
+  proxyReqPathResolver: function (req) {
+    console.log('[api-gateway] Public route /u/contacto accessed, forwarding to /contacto');
+    return '/contacto';
+  },
+});
+
 // Mount admin routes (these are handled by gateway directly and not proxied)
 const adminRoutes = require("./routes/admin.routes");
 const authorizeRole = require("./middleware/authorizeRole");
@@ -186,6 +194,10 @@ app.post("/u/users", authenticate(), async (req, res) => {
       .json({ error: "internal_error", message: err.message || String(err) });
   }
 });
+
+// Allow contacto without authentication (public): POST /u/contacto
+app.post('/u/contacto', proxy(userServiceUrl, userPublicProxyOptions));
+
 app.use("/u", authorizeRole(1), proxy(userServiceUrl, proxyOptions));
 app.use("/p", authenticate(), proxy(productServiceUrl, proxyOptions));
 app.use("/b", authenticate(), proxy(process.env.BUY_SERVICE_URL, proxyOptions));

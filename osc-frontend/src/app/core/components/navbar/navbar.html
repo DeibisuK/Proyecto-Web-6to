@@ -80,17 +80,13 @@
         </a>
         <div class="dropdown-menu" [class.show]="dropdowns.sedes">
           <div class="dropdown-section">
-            <h4><i class="fas fa-map-marker-alt"></i> Machala</h4>
-            <a routerLink="/sedes/machala/9-octubre"
-              ><i class="fas fa-building"></i> Sede 9 de Octubre</a
-            >
-            <a routerLink="/sedes/machala/unioro"><i class="fas fa-building"></i> Sede Unioro</a>
-            <div class="dropdown-divider"></div>
-            <h4><i class="fas fa-map-marker-alt"></i> Guayaquil</h4>
-            <a routerLink="/sedes/guayaquil/urdesa"><i class="fas fa-building"></i> Sede Urdesa</a>
-            <a routerLink="/sedes/guayaquil/samborondon"
-              ><i class="fas fa-building"></i> Sede Samborondón</a
-            >
+            <ng-container *ngFor="let grupo of sedesAgrupadas; let isLast = last">
+              <h4><i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}</h4>
+              <a *ngFor="let sede of grupo.sedes" routerLink="/todas-las-sedes">
+                <i class="fas fa-building"></i> {{ sede.nombre }}
+              </a>
+              <div class="dropdown-divider" *ngIf="!isLast"></div>
+            </ng-container>
             <div class="dropdown-divider"></div>
             <a routerLink="/todas-las-sedes"><i class="fas fa-list"></i> Ver todas las sedes</a>
           </div>
