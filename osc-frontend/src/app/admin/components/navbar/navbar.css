@@ -13,10 +13,10 @@
 }
 
 .sidebar.collapsed {
-  width: 70px;
+  width: 80px;
 }
 
-.sidebar.collapsed .logo-container,
+.sidebar.collapsed .logo-text,
 .sidebar.collapsed .section-title,
 .sidebar.collapsed .nav-link span {
   display: none;
@@ -24,10 +24,20 @@
 
 .sidebar.collapsed .nav-link {
   justify-content: center;
+  padding: 0.875rem;
 }
 
 .sidebar.collapsed .nav-link i {
   margin-right: 0;
+  font-size: 1.1rem;
+}
+
+.sidebar.collapsed .nav-section {
+  margin-bottom: 0;
+}
+
+.sidebar.collapsed .nav-items {
+  gap: 0.25rem;
 }
 
 .sidebar.collapsed .toggle-btn {
@@ -36,19 +46,31 @@
 }
 
 .sidebar-header {
-  padding: 15px 20px;
+  padding: 0.875rem 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
   position: relative;
+  height: 70px;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
   flex: 1;
+}
+
+.logo-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2ECC71 0%, #4ade80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
 }
 
 .toggle-btn {
@@ -70,25 +92,12 @@
   background: rgba(74, 222, 128, 0.1);
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-}
-
-.logo img {
-  max-width: 45px;
-  max-height: 45px;
-  object-fit: contain;
-}
-
 .sidebar-nav {
   padding: 20px 0;
 }
 
 .nav-section {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .section-title {
@@ -105,6 +114,9 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .nav-items li {
@@ -114,7 +126,7 @@
 .nav-link {
   display: flex;
   align-items: center;
-  padding: 10px 20px;
+  padding: 0.75rem 1.25rem;
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   transition: all 0.3s ease;

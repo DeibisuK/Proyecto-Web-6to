@@ -141,8 +141,12 @@
 
         <div class="dropdown-menu user-menu" [class.show]="dropdowns.usuario">
           <div class="dropdown-section">
-            <a routerLink="/perfil" (click)="toggleDropdown('usuario', false)">
+            <a routerLink="/ver-perfil" (click)="toggleDropdown('usuario', false)">
               <i class="fas fa-user"></i> Ver Perfil
+            </a>
+            <a routerLink="/admin" (click)="toggleSidebar()"><i class="fas fa-cog"></i> Panel Admin</a>
+            <a routerLink="/metodos-de-pago" (click)="toggleDropdown('usuario', false)">
+              <i class="fas fa-user"></i> Métodos de Pago
             </a>
             <a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
           </div>
@@ -216,9 +220,6 @@
         <a routerLink="/puntos-de-lealtad" (click)="toggleSidebar()"
           ><i class="fas fa-gift"></i> Puntos de Lealtad</a
         >
-      </li>
-      <li>
-        <a routerLink="/admin" (click)="toggleSidebar()"><i class="fas fa-cog"></i> Panel Admin</a>
       </li>
     </ul>
   </section>
