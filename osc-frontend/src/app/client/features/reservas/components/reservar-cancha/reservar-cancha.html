@@ -1,4 +1,3 @@
-
 <div class="canchas-container">
     <div class="canchas-header-section">
         <h1>¡Reserva tu Cancha Ahora! 📅</h1>
@@ -17,7 +16,7 @@
 
             <div class="form-group filter-group">
                 <label for="fecha">Fecha</label>
-                <input type="date" id="fecha" value="2025-10-30" />
+                <input type="date" id="fecha" [value]="minDate" [min]="minDate" />
             </div>
             
             <button class="btn-buscar-canchas">
@@ -28,7 +27,6 @@
     
     <div class="canchas-grid">
         
-        <!-- Card 1: Pádel -->
         <div class="cancha-card animated-card">
             <div class="cancha-imagen">
                 <img src="https://sp-ao.shortpixel.ai/client/to_auto,q_glossy,ret_img,w_640,h_320/https://cespedecuador.com/wp-content/uploads/2024/12/Cancha-de-padel-en-Ecuador-con-cesped-sintetico-profesional.jpg" alt="Cancha de Pádel Élite #1" />
@@ -40,7 +38,7 @@
             </div>
             
             <div class="cancha-details">
-                 <div class="detail-item">
+                   <div class="detail-item">
                     <span class="material-icons">attach_money</span>
                     <p>Tarifa/Hora: <span class="detail-value">$25.00</span></p>
                 </div>
@@ -64,7 +62,6 @@
             </button>
         </div>
 
-        <!-- Card 2: Fútbol -->
         <div class="cancha-card animated-card">
             <div class="cancha-imagen">
                 <img src="https://www.ourensecf.es/media/ourensecf/images/2024/05/22/2024052213061884642.jpg" alt="Cancha de Fútbol Grama #3" />
@@ -100,7 +97,6 @@
             </button>
         </div>
 
-        <!-- Card 3: Tenis -->
         <div class="cancha-card animated-card">
             <div class="cancha-imagen">
                 <img src="https://diariocorreo.com.ec/public/img/uploads/2022-09-13--22-31-19/jugad-tenis-copiajpg" alt="Cancha de Tenis Arcilla" />
