@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Sede } from '../../../../core/models/sede.model';
+import { SedeService } from '../../../../core/services/sede.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { MiniMapComponent } from '../../../../shared/components/mini-map/mini-map';
 
 @Component({
   selector: 'app-list-sede',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MiniMapComponent],
   templateUrl: './list-sede.html',
   styleUrl: './list-sede.css'
 })
@@ -15,59 +19,31 @@ export class ListSede implements OnInit {
   searchTerm: string = '';
   estadoFiltro: string = '';
 
+  constructor(
+    private sedeService: SedeService,
+    private notificationService: NotificationService,
+    private sanitizer: DomSanitizer,
+    private router: Router
+  ) {}
+
   ngOnInit(): void {
     this.cargarSedes();
   }
 
   cargarSedes(): void {
-    this.sedes = [
-      {
-        id_sede: 1,
-        nombre: 'Sede Centro',
-        direccion: 'Av. Principal 123',
-        ciudad: 'Machala',
-        telefono: '01-234-5678',
-        email: 'centro@oscgmail.com',
-        estado: 'Activo',
-        latitud: -12.345678,
-        longitud: -12.345678
+    this.sedeService.getSedes().subscribe({
+      next: (data) => {
+        this.sedes = data;
+        this.sedesFiltradas = [...this.sedes];
       },
-      {
-        id_sede: 2,
-        nombre: 'Sede Pasaje',
-        direccion: 'Av. 16 de Junio lateral al Malecon',
-        ciudad: 'Guayaquil',
-        telefono: '01-345-6789',
-        email: 'centro@oscgmail.com',
-        estado: 'Activo',
-        latitud: -12.345678,
-        longitud: -12.345678
-      },
-      {
-        id_sede: 3,
-        nombre: 'Sede Perusalen',
-        direccion: 'Av. Principal 10 de Agosto',
-        ciudad: 'Huaquillas',
-        telefono: '01-456-7890',
-        email: 'perusalen@oscgmail.com',
-        estado: 'Activo',
-        latitud: -12.345678,
-        longitud: -12.345678
-      },
-      {
-        id_sede: 4,
-        nombre: 'Sede Tia',
-        direccion: 'Diagonal al Tia',
-        ciudad: 'Lima',
-        telefono: '01-567-8901',
-        email: 'sedeTia@oscgmail.com',
-        estado: 'Mantenimiento',
-        latitud: -12.345678,
-        longitud: -12.345678
+      error: (err) => {
+        console.error('Error cargando sedes', err);
+        this.notificationService.notify({
+          message: 'No se pudieron cargar las sedes',
+          type: 'error'
+        });
       }
-    ];
-    
-    this.sedesFiltradas = [...this.sedes];
+    });
   }
 
   filtrarSedes(): void {
@@ -95,30 +71,43 @@ export class ListSede implements OnInit {
     this.filtrarSedes();
   }
 
-  eliminarSede(id: number): void {
-    if (confirm('¿Estás seguro de eliminar esta sede?')) {
-      const index = this.sedes.findIndex(s => s.id_sede === id);
-      if (index !== -1) {
-        this.sedes.splice(index, 1);
-        this.filtrarSedes();
-        this.mostrarNotificacion('Sede eliminada correctamente', 'success');
-      }
+  editarSede(sede: Sede): void {
+    if (sede.id_sede !== undefined) {
+      this.router.navigate(['/admin/editar-sede', sede.id_sede]);
     }
   }
 
-  getMapUrl(latitud?: number, longitud?: number): string {
-    if (!latitud || !longitud) {
-      return 'https://via.placeholder.com/400x200/2ECC71/FFFFFF?text=Mapa+No+Disponible';
-    }
-    // Placeholder para Google Maps - cuando integres la API real, usa esta URL
-    return `https://spcdn.shortpixel.ai/spio/ret_img,q_cdnize,to_webp,s_webp/agenciadepublicidadecuador.com/wp-content/uploads/2019/02/google-maps.png`;
-  }
+  eliminarSede(id: number | undefined): void {
+    if (id === undefined) return;
+    
+    const sede = this.sedes.find(s => s.id_sede === id);
+    if (!sede) return;
 
-  private mostrarNotificacion(message: string, type: 'success' | 'error'): void {
-    window.dispatchEvent(
-      new CustomEvent('showToast', {
-        detail: { message, type }
-      })
-    );
+    const confirmDelete = confirm(`¿Estás seguro de eliminar la sede "${sede.nombre}"? Esta acción no se puede deshacer.`);
+    
+    if (confirmDelete) {
+      this.notificationService.notify({
+        message: 'Eliminando sede...',
+        type: 'loading'
+      });
+
+      this.sedeService.deleteSede(id).subscribe({
+        next: () => {
+          this.sedes = this.sedes.filter(s => s.id_sede !== id);
+          this.filtrarSedes();
+          this.notificationService.notify({
+            message: 'La sede ha sido eliminada correctamente',
+            type: 'success'
+          });
+        },
+        error: (err) => {
+          console.error('Error eliminando sede', err);
+          this.notificationService.notify({
+            message: `No se pudo eliminar la sede: ${err.error?.message || 'Error desconocido'}`,
+            type: 'error'
+          });
+        }
+      });
+    }
   }
 }

@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import userRoutes from './api/user.routes.js';
 import rolRoutes from './api/rol.routes.js';
+import contactoRoutes from './api/contacto.routes.js';
 
 dotenv.config();
 
@@ -13,5 +14,6 @@ app.use(express.json());
 
 app.use('/users', userRoutes);
 app.use('/roles', rolRoutes);
+app.use('/', contactoRoutes);
 
 export default app;

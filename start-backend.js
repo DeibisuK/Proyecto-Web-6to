@@ -2,12 +2,12 @@ const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const backendPath = path.join(__dirname, 'OSC-Backend');
+const backendPath = path.join(__dirname, 'osc-backend');
 const services = fs.readdirSync(backendPath, { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules')
+  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules' && dirent.name !== 'cloudinary-service')
   .map(dirent => dirent.name);
 
-console.log(`\n🚀 OSC Backend Startup Script`);
+console.log(`\n🚀 osc backend Startup Script`);
 console.log(`Found ${services.length} services: ${services.join(', ')}\n`);
 
 // Función para ejecutar comando NO interactivo
@@ -100,7 +100,7 @@ async function setupEnvFiles() {
     console.log('✅ Environment files configured successfully!\n');
   } catch (error) {
     console.error('\n❌ Failed to setup environment files.');
-    console.error('Please run "node OSC-Backend/setup-env.js" manually.\n');
+    console.error('Please run "node osc-backend/setup-env.js" manually.\n');
     throw error;
   }
 }
@@ -155,7 +155,7 @@ function startAll() {
   console.log('   - Court Service: http://localhost:3004');
   console.log('   - Match Service: http://localhost:3005');
   console.log('\n💡 To start the frontend, open a new terminal and run:');
-  console.log('   cd osc-frontend-Angular && npm install && ng serve --open\n');
+  console.log('   cd osc-frontend && npm install && ng serve --open\n');
   console.log('⚠️  Press Ctrl+C to stop all services\n');
 }
 
@@ -163,7 +163,7 @@ function startAll() {
 async function main() {
   try {
     console.log('═'.repeat(60));
-    console.log('  OSC Backend - Automated Startup');
+    console.log('  osc backend - Automated Startup');
     console.log('═'.repeat(60) + '\n');
     
     // Paso 1: Verificar y configurar archivos .env
@@ -181,7 +181,7 @@ async function main() {
   } catch (error) {
     console.error('\n❌ Failed to start backend:', error.message);
     console.error('\nPlease check the error above and try again.');
-    console.error('For manual setup, run: node OSC-Backend/setup-env.js\n');
+    console.error('For manual setup, run: node osc-backend/setup-env.js\n');
     process.exit(1);
   }
 }

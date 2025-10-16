@@ -1,8 +1,11 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Sede } from '../../../../core/models/sede.model';
+import { SedeService } from '../../../../core/services/sede.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-crear-sede',
@@ -10,19 +13,24 @@ import { Sede } from '../../../../core/models/sede.model';
   templateUrl: './crear-sede.html',
   styleUrl: './crear-sede.css'
 })
-export class CrearSede implements OnInit, AfterViewInit {
+export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
   sedeForm!: FormGroup;
   isEditMode = false;
   isLoading = false;
-  latitud: number = -12.046374;
-  longitud: number = -77.042793;
+  latitud: number = -3.258095;
+  longitud: number = -79.959908;
+  
+  private map!: L.Map;
+  private marker!: L.Marker;
   
   estados: string[] = ['Activo', 'Mantenimiento', 'Inactivo'];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private sedeService: SedeService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -46,62 +54,131 @@ export class CrearSede implements OnInit, AfterViewInit {
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       ciudad: [{ value: '', disabled: true }],
       direccion: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(5)]],
-      telefono: ['', [Validators.pattern(/^[\d\s\-]+$/), Validators.maxLength(15)]],
+      telefono: ['', [Validators.pattern(/^[\d\s\-\+]+$/), Validators.maxLength(20)]],
       email: ['', [Validators.email]],
       estado: ['Activo', Validators.required]
     });
   }
 
   cargarSede(id: number): void {
-    // Aquí iría la llamada al servicio
-    // Por ahora, datos de ejemplo
-    const sedeEjemplo: Sede = {
-      id_sede: id,
-      nombre: 'Sede Centro',
-      direccion: 'Av. Principal 123, Centro Histórico',
-      ciudad: 'Lima',
-      telefono: '01-234-5678',
-      email: 'centro@portsconnect.com',
-      estado: 'Activo',
-      latitud: -12.046374,
-      longitud: -77.042793
-    };
+    this.sedeService.getSedeById(id).subscribe({
+      next: (sede) => {
+        this.latitud = sede.latitud || this.latitud;
+        this.longitud = sede.longitud || this.longitud;
 
-    this.latitud = sedeEjemplo.latitud!;
-    this.longitud = sedeEjemplo.longitud!;
+        this.sedeForm.patchValue({
+          nombre: sede.nombre,
+          ciudad: sede.ciudad,
+          direccion: sede.direccion,
+          telefono: sede.telefono,
+          email: sede.email,
+          estado: sede.estado
+        });
 
-    this.sedeForm.patchValue({
-      nombre: sedeEjemplo.nombre,
-      ciudad: sedeEjemplo.ciudad,
-      direccion: sedeEjemplo.direccion,
-      telefono: sedeEjemplo.telefono,
-      email: sedeEjemplo.email,
-      estado: sedeEjemplo.estado
+        this.initMap();
+      },
+      error: (err) => {
+        console.error('Error cargando sede', err);
+        this.notificationService.notify({
+          message: 'No se pudo cargar la sede',
+          type: 'error'
+        });
+        this.router.navigate(['/admin/sedes']);
+      }
     });
-
-    // Actualizar el mapa con las coordenadas cargadas
-    this.initMap();
   }
 
   initMap(): void {
-    // Aquí se inicializaría Google Maps
-    // Por ahora solo simulamos el mapa con un placeholder
-    console.log('Mapa inicializado en:', this.latitud, this.longitud);
-    
-    // Simular geocodificación inversa para obtener dirección y ciudad
-    setTimeout(() => {
-      if (!this.isEditMode || !this.sedeForm.get('direccion')?.value) {
+    // Destruir mapa anterior si existe
+    if (this.map) {
+      this.map.remove();
+    }
+
+    // Crear el mapa centrado en las coordenadas actuales
+    this.map = L.map('map').setView([this.latitud, this.longitud], 15);
+
+    // Agregar capa de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(this.map);
+
+    // Crear icono personalizado para el marcador
+    const customIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    // Agregar marcador arrastrable
+    this.marker = L.marker([this.latitud, this.longitud], {
+      icon: customIcon,
+      draggable: true
+    }).addTo(this.map);
+
+    // Evento cuando se mueve el marcador
+    this.marker.on('dragend', (event: any) => {
+      const position = event.target.getLatLng();
+      this.latitud = position.lat;
+      this.longitud = position.lng;
+      this.getDireccionDesdeCoordenadas(this.latitud, this.longitud);
+    });
+
+    // Evento click en el mapa para mover el marcador
+    this.map.on('click', (event: any) => {
+      const { lat, lng } = event.latlng;
+      this.latitud = lat;
+      this.longitud = lng;
+      this.marker.setLatLng([lat, lng]);
+      this.getDireccionDesdeCoordenadas(lat, lng);
+    });
+
+    // Obtener dirección inicial
+    if (!this.isEditMode || !this.sedeForm.get('direccion')?.value) {
+      this.getDireccionDesdeCoordenadas(this.latitud, this.longitud);
+    }
+  }
+
+  private getDireccionDesdeCoordenadas(lat: number, lon: number): void {
+    // Usar OpenStreetMap Nominatim para geocodificación inversa (gratis)
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+
+    fetch(url, {
+      headers: {
+        'User-Agent': 'OSC-Sports-App/1.0 (contact@oscsports.com)' // Nominatim requiere User-Agent
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.address) {
+          const direccion = data.display_name;
+          const ciudad = data.address.city || data.address.town || data.address.village || data.address.county || 'Machala';
+
+          this.sedeForm.patchValue({
+            direccion: direccion,
+            ciudad: ciudad
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error al obtener dirección desde coordenadas', error);
+        // Fallback
         this.sedeForm.patchValue({
-          direccion: `Calle Ejemplo ${Math.floor(Math.random() * 1000)}, Distrito`,
+          direccion: `Coordenadas: ${lat.toFixed(6)}, ${lon.toFixed(6)}`,
           ciudad: 'Machala'
         });
-      }
-    }, 500);
+      });
   }
 
   onSubmit(): void {
     if (this.sedeForm.invalid) {
-      this.mostrarNotificacion('Por favor completa todos los campos requeridos', 'error');
+      this.notificationService.notify({
+        message: 'Por favor completa todos los campos requeridos correctamente',
+        type: 'error'
+      });
       Object.keys(this.sedeForm.controls).forEach(key => {
         const control = this.sedeForm.get(key);
         if (control?.invalid) {
@@ -114,7 +191,6 @@ export class CrearSede implements OnInit, AfterViewInit {
     this.isLoading = true;
 
     const sedeData: Sede = {
-      id_sede: 0,
       nombre: this.sedeForm.get('nombre')?.value,
       direccion: this.sedeForm.get('direccion')?.value,
       ciudad: this.sedeForm.get('ciudad')?.value,
@@ -125,23 +201,46 @@ export class CrearSede implements OnInit, AfterViewInit {
       longitud: this.longitud
     };
 
-    // Aquí iría la llamada al servicio
-    setTimeout(() => {
-      this.mostrarNotificacion(
-        this.isEditMode ? 'Sede actualizada correctamente' : 'Sede creada correctamente',
-        'success'
-      );
-      
-      setTimeout(() => {
-        this.router.navigate(['/admin/sedes']);
-      }, 1500);
-      
-      this.isLoading = false;
-    }, 1000);
+    this.notificationService.notify({
+      message: this.isEditMode ? 'Actualizando sede...' : 'Creando sede...',
+      type: 'loading'
+    });
+
+    const operation = this.isEditMode 
+      ? this.sedeService.updateSede(Number(this.route.snapshot.params['id']), sedeData)
+      : this.sedeService.createSede(sedeData);
+
+    operation.subscribe({
+      next: () => {
+        this.notificationService.notify({
+          message: this.isEditMode ? 'Sede actualizada correctamente' : 'Sede creada correctamente',
+          type: 'success'
+        });
+        
+        setTimeout(() => {
+          this.router.navigate(['/admin/sedes']);
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('Error al guardar sede', err);
+        this.notificationService.notify({
+          message: `Error al ${this.isEditMode ? 'actualizar' : 'crear'} la sede: ${err.error?.message || 'Error desconocido'}`,
+          type: 'error'
+        });
+        this.isLoading = false;
+      }
+    });
   }
 
   cancelar(): void {
     this.router.navigate(['/admin/sedes']);
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar el mapa al destruir el componente
+    if (this.map) {
+      this.map.remove();
+    }
   }
 
   // Getters para validación en template
@@ -152,13 +251,5 @@ export class CrearSede implements OnInit, AfterViewInit {
 
   getMapPlaceholder(): string {
     return `https://via.placeholder.com/800x400/2ECC71/FFFFFF?text=Mapa+Google+Maps+API+%7C+Lat:+${this.latitud.toFixed(4)}+Lng:+${this.longitud.toFixed(4)}`;
-  }
-
-  private mostrarNotificacion(message: string, type: 'success' | 'error'): void {
-    window.dispatchEvent(
-      new CustomEvent('showToast', {
-        detail: { message, type }
-      })
-    );
   }
 }

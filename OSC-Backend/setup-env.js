@@ -20,7 +20,7 @@ const colors = {
     red: '\x1b[31m'
 };
 
-console.log(`${colors.blue}🚀 Configuración de Variables de Entorno - OSC Backend${colors.reset}`);
+console.log(`${colors.blue}🚀 Configuración de Variables de Entorno - osc backend${colors.reset}`);
 console.log('='.repeat(60));
 console.log('');
 

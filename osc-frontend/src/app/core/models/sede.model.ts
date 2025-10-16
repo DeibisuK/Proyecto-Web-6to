@@ -1,5 +1,5 @@
 export interface Sede {
-  id_sede: number;
+  id_sede?: number;
   nombre: string;
   direccion: string;
   ciudad?: string;

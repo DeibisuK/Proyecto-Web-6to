@@ -57,6 +57,20 @@ const authorizeRole = require('./middleware/authorizeRole');
 // By convention admin role id = 1. Change if your DB uses a different id.
 app.use('/admin', authenticate(), authorizeRole(1), adminRoutes);
 
+<<<<<<< HEAD
+// 🔓 Rutas públicas (sin autenticación)
+// Estas rutas deben ir ANTES de las rutas protegidas para que tengan prioridad
+// Solo permitimos consultas (GET) y envío de contacto (POST)
+app.get('/c/sedes', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+app.get('/c/sedes/:id', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+app.get('/c/canchas', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+app.get('/c/canchas/:id', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+app.post('/u/contacto', proxy(userServiceUrl, proxyOptions));
+
+// 🔒 Rutas protegidas (requieren autenticación)
+// Crear, actualizar y eliminar requieren autenticación
+app.use('/u', authenticate(), proxy(userServiceUrl, proxyOptions));
+=======
 // Intercept user creation so we can synchronize Firebase custom claims immediately
 // POST /u/users -> create user in user-service, then set custom claims { role, id_rol }
 app.post('/u/users', authenticate(), async (req, res) => {
@@ -120,10 +134,12 @@ app.post('/u/users', authenticate(), async (req, res) => {
 });
 
 app.use('/u', authorizeRole(1), proxy(userServiceUrl, proxyOptions));
+>>>>>>> b5ee9b57cd7d972303d39597536d8c81ec750bdf
 app.use('/p', authenticate(), proxy(productServiceUrl, proxyOptions));
 app.use('/b', authenticate(), proxy(process.env.BUY_SERVICE_URL, proxyOptions));
 app.use('/c', authenticate(), proxy(process.env.COURT_SERVICE_URL, proxyOptions));
 app.use('/m', authenticate(), proxy(process.env.MATCH_SERVICE_URL, proxyOptions));
 app.use('/i', authenticate(), proxy(process.env.CLOUDINARY_SERVICE_URL, proxyOptions));
 
+// Routes configured successfully
 module.exports = app;
