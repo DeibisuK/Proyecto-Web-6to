@@ -20,8 +20,13 @@ import { CrearEquipo } from "./features/reservas/components/mis-equipos/crear-eq
 import { Historial } from "./features/reservas/components/historial/historial";
 import { ListSedes } from "./features/sedes/list-sedes/list-sedes";
 import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
+<<<<<<< HEAD
 import { ListMetodo } from "./features/user-profile/metodos-pago/list-metodo/list-metodo";
 import { Perfil } from "./features/user-profile/perfil/perfil";
+=======
+import { DetalleReservarCancha } from "./features/shop/components/detalle-reservar-cancha/detalle-reservar-cancha";
+import { ReservarCancha } from "./features/reservas/components/reservar-cancha/reservar-cancha";
+>>>>>>> 7b2d5d2b0ebe38f9b3c0cc41786e9536a3a15429
 
 export const clienteRoutes: Routes = [
   {
@@ -69,7 +74,8 @@ export const clienteRoutes: Routes = [
     path: 'tienda',
     children: [
       { path: '', component: TiendaPage },
-      { path: 'producto/:id', component: DetalleProducto}
+      { path: 'producto/:id', component: DetalleProducto},
+      { path: 'reservar-cancha/:id', component: DetalleReservarCancha}
     ]
   },
   {
@@ -103,6 +109,7 @@ export const clienteRoutes: Routes = [
   {
     path: 'todas-las-sedes', component: ListSedes
   },
+  
   {
     path: 'metodos-de-pago', component: ListMetodo
   },
@@ -112,5 +119,9 @@ export const clienteRoutes: Routes = [
   {
     path: 'prueba',
     component: Prueba
+  },
+  {
+    path: 'reservar-cancha',
+    component: ReservarCancha
   }
 ]
