@@ -1,4 +1,37 @@
 <div class="page-header">
-  <h1>{{ currentPageTitle }}</h1>
-  <p>Bienvenido al panel de administración</p>
+  <!-- Título de página a la izquierda -->
+  <div class="page-title-section">
+    <h1>Bienvenido {{ getUserName() }} a {{ currentPageTitle }}</h1>
+  </div>
+
+  <!-- Usuario y opciones a la derecha -->
+  <div class="user-section">
+    <div class="user-info" (click)="toggleUserMenu()">
+      @if (user?.photoURL) {
+        <img [src]="user.photoURL" alt="User Photo" class="user-avatar" />
+      } @else {
+        <div class="user-avatar-placeholder">
+          <span class="material-icons">account_circle</span>
+        </div>
+      }
+      <span class="material-icons dropdown-arrow">{{ showUserMenu ? 'expand_less' : 'expand_more' }}</span>
+    </div>
+
+    <!-- Dropdown menu -->
+    <div class="user-dropdown" [class.show]="showUserMenu">
+      <a (click)="verPerfil()" class="dropdown-item">
+        <span class="material-icons">person</span>
+        Ver Perfil
+      </a>
+      <a (click)="salirModoAdmin()" class="dropdown-item">
+        <span class="material-icons">exit_to_app</span>
+        Salir del Modo Admin
+      </a>
+      <div class="dropdown-divider"></div>
+      <a (click)="cerrarSesion()" class="dropdown-item danger">
+        <span class="material-icons">logout</span>
+        Cerrar Sesión
+      </a>
+    </div>
+  </div>
 </div>
