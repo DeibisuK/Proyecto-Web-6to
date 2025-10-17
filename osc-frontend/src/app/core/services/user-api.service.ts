@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { API_URL } from './url';
 
 export interface BackendUserPayload {
@@ -10,6 +11,34 @@ export interface BackendUserPayload {
   id_rol?: number | null;
 }
 
+export interface CombinedUser {
+  uid: string | null;
+  email: string;
+  displayName?: string;
+  photoURL?: string | null;
+  emailVerified: boolean;
+  disabled: boolean;
+  customClaims: any;
+  providerData: any[];
+  metadata: {
+    creationTime: string | null;
+    lastSignInTime: string | null;
+  };
+  id_user?: number;
+  nombre?: string;
+  apellido?: string;
+  id_rol?: number;
+  rol_nombre?: string;
+  source: 'firebase+db' | 'firebase-only' | 'db-only';
+}
+
+export interface AllUsersResponse {
+  total: number;
+  firebaseCount: number;
+  dbCount: number;
+  users: CombinedUser[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserApiService {
   private http = inject(HttpClient);
@@ -18,5 +47,10 @@ export class UserApiService {
   createUser(payload: BackendUserPayload) {
     // The gateway proxies /u -> user-service
     return this.http.post(`${API_URL}/u/users/`, payload);
+  }
+
+  // Get all users (Firebase + Database combined)
+  getAllUsers(): Observable<AllUsersResponse> {
+    return this.http.get<AllUsersResponse>(`${API_URL}/admin/all-users`);
   }
 }

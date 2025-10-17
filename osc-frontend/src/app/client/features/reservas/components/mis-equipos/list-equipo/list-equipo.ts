@@ -43,7 +43,7 @@ export class ListEquipo implements OnInit {
 
   cargarEquipos() {
     this.isLoading = true;
-    this.equipoService.getEquipos().subscribe({
+    this.equipoService.getMisEquipos().subscribe({
       next: (equipos) => {
         this.equipos = equipos;
         this.equiposFiltrados = [...equipos];

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Usuario, RolUsuario, RolInfo } from '../../../core/models/usuario.model';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-usuario',
@@ -16,12 +17,22 @@ export class UsuarioComponent implements OnInit {
   
   searchTerm = '';
   filtroRol: RolUsuario | null = null;
+  filtroTipo: 'todos' | 'firebase-only' | 'db-only' | 'firebase+db' = 'todos';
   
   // Paginación
   currentPage = 1;
-  itemsPerPage = 8;
+  itemsPerPage = 20;
   totalPages = 1;
   pages: number[] = [];
+  
+  // Loading
+  isLoading = false;
+  skeletonItems = Array(20).fill(0);
+  
+  // Estadísticas
+  totalFirebase = 0;
+  totalBD = 0;
+  totalCombinado = 0;
   
   // Modales
   mostrarModalEliminar = false;
@@ -36,64 +47,37 @@ export class UsuarioComponent implements OnInit {
     { value: 'cliente', label: 'Cliente', color: '#2ECC71' }
   ];
 
+  constructor(
+    private notificationService: NotificationService
+  ) {}
+
   ngOnInit() {
-    this.cargarUsuarios();
+    this.cargarUsuariosMock();
   }
 
-  cargarUsuarios() {
-    // Datos de ejemplo
+  cargarUsuariosMock() {
+    // Datos de ejemplo cargados directamente en el componente
     this.usuarios = [
       {
         id_usuario: 1,
-        nombre: 'Gary',
-        apellido: 'Barreiro',
-        email: 'gbarreiro@gmail.com',
-        foto_perfil: 'https://i.imgflip.com/57c2if.png?a488688',
+        uid: 'firebase-uid-1',
+        nombre: 'Rebertida',
+        apellido: 'De Cagada',
+        email: 'nopasonada@ehm.com',
+        foto_perfil: 'https://i.pinimg.com/736x/d5/9b/ed/d59bed6456fb7638e5dac8bab70eb294.jpg',
         rol: 'superadmin',
-        fecha_registro: '2024-01-15',
-        estado: 'activo'
-      },
-      {
-        id_usuario: 2,
-        nombre: 'Jhon',
-        apellido: 'Cruz',
-        email: 'jcruz@gmail.com',
-        foto_perfil: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPaAuD_3-b1o6rQJrpCPDnNs3vqHLUKXViTQ&s',
-        rol: 'superadmin',
-        fecha_registro: '2024-02-20',
-        estado: 'activo'
-      },
-      {
-        id_usuario: 3,
-        nombre: 'Javier',
-        apellido: 'Cellan',
-        email: 'jcellan@gmail.com',
-        foto_perfil: 'https://static0.cbrimages.com/wordpress/wp-content/uploads/2019/11/Anime-Funny-Deku.jpg',
-        rol: 'superadmin',
-        fecha_registro: '2024-03-10',
-        estado: 'activo'
-      },
-      {
-        id_usuario: 4,
-        nombre: 'Ana',
-        apellido: 'Martínez',
-        email: 'ana.martinez@gmail.com',
-        foto_perfil: 'https://i.pravatar.cc/150?img=45',
-        rol: 'cliente',
-        fecha_registro: '2024-04-05',
-        estado: 'activo'
-      },
-      {
-        id_usuario: 5,
-        nombre: 'Luis',
-        apellido: 'Travesti',
-        email: 'ltravesti@gmail.com',
-        foto_perfil: 'https://i.pravatar.cc/150?img=44',
-        rol: 'arbitro',
-        fecha_registro: '2024-05-15',
-        estado: 'activo'
+        fecha_registro: '2024-01-15T10:30:00',
+        estado: 'activo',
+        source: 'firebase+db',
+        emailVerified: true,
+        providerData: [{ providerId: 'google.com' }]
       }
     ];
+
+    // Calcular estadísticas
+    this.totalFirebase = this.usuarios.filter(u => u.source === 'firebase-only').length;
+    this.totalBD = this.usuarios.filter(u => u.source === 'db-only').length;
+    this.totalCombinado = this.usuarios.filter(u => u.source === 'firebase+db').length;
 
     this.usuariosFiltrados = [...this.usuarios];
     this.aplicarPaginacion();
@@ -108,7 +92,9 @@ export class UsuarioComponent implements OnInit {
       
       const matchRol = !this.filtroRol || usuario.rol === this.filtroRol;
       
-      return matchSearch && matchRol;
+      const matchTipo = this.filtroTipo === 'todos' || usuario.source === this.filtroTipo;
+      
+      return matchSearch && matchRol && matchTipo;
     });
 
     this.currentPage = 1;
@@ -135,10 +121,17 @@ export class UsuarioComponent implements OnInit {
     this.filtrarUsuarios();
   }
 
+  onFiltroTipoChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.filtroTipo = value as any;
+    this.filtrarUsuarios();
+  }
+
   cambiarPagina(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
       this.aplicarPaginacion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -148,47 +141,32 @@ export class UsuarioComponent implements OnInit {
     this.mostrarModalCambiarRol = true;
   }
 
-  async cambiarRolUsuario() {
+  cambiarRolUsuario() {
     if (!this.usuarioSeleccionado || !this.nuevoRol) return;
 
-    try {
-      // Aquí iría la llamada al servicio
-      await this.simularOperacion();
-
-      const index = this.usuarios.findIndex(u => u.id_usuario === this.usuarioSeleccionado!.id_usuario);
-      if (index !== -1) {
-        this.usuarios[index].rol = this.nuevoRol;
-      }
-
-      this.filtrarUsuarios();
-      this.mostrarNotificacion('Rol actualizado correctamente', 'success');
-      this.cerrarModalCambiarRol();
-
-    } catch (error) {
-      this.mostrarNotificacion('Error al cambiar el rol', 'error');
+    const index = this.usuarios.findIndex(u => u.id_usuario === this.usuarioSeleccionado!.id_usuario);
+    if (index !== -1) {
+      this.usuarios[index].rol = this.nuevoRol;
     }
+
+    this.filtrarUsuarios();
+    this.notificationService.success('Rol actualizado correctamente');
+    this.cerrarModalCambiarRol();
   }
 
-  async quitarRol(usuario: Usuario) {
+  quitarRol(usuario: Usuario) {
     if (usuario.rol === 'cliente') {
-      this.mostrarNotificacion('Los clientes ya tienen el rol base', 'error');
+      this.notificationService.error('Los clientes ya tienen el rol base');
       return;
     }
 
-    try {
-      await this.simularOperacion();
-      
-      const index = this.usuarios.findIndex(u => u.id_usuario === usuario.id_usuario);
-      if (index !== -1) {
-        this.usuarios[index].rol = 'cliente';
-      }
-
-      this.filtrarUsuarios();
-      this.mostrarNotificacion('Rol removido correctamente', 'success');
-
-    } catch (error) {
-      this.mostrarNotificacion('Error al quitar el rol', 'error');
+    const index = this.usuarios.findIndex(u => u.id_usuario === usuario.id_usuario);
+    if (index !== -1) {
+      this.usuarios[index].rol = 'cliente';
     }
+
+    this.filtrarUsuarios();
+    this.notificationService.success('Rol removido correctamente');
   }
 
   confirmarEliminar(usuario: Usuario) {
@@ -196,21 +174,14 @@ export class UsuarioComponent implements OnInit {
     this.mostrarModalEliminar = true;
   }
 
-  async eliminarUsuario() {
+  eliminarUsuario() {
     if (!this.usuarioSeleccionado) return;
 
-    try {
-      await this.simularOperacion();
+    this.usuarios = this.usuarios.filter(u => u.id_usuario !== this.usuarioSeleccionado!.id_usuario);
+    this.filtrarUsuarios();
 
-      this.usuarios = this.usuarios.filter(u => u.id_usuario !== this.usuarioSeleccionado!.id_usuario);
-      this.filtrarUsuarios();
-
-      this.mostrarNotificacion('Usuario eliminado correctamente', 'success');
-      this.cerrarModalEliminar();
-
-    } catch (error) {
-      this.mostrarNotificacion('Error al eliminar usuario', 'error');
-    }
+    this.notificationService.success('Usuario eliminado correctamente');
+    this.cerrarModalEliminar();
   }
 
   cerrarModalEliminar() {
@@ -229,19 +200,39 @@ export class UsuarioComponent implements OnInit {
   }
 
   getNombreCompleto(usuario: Usuario): string {
-    return `${usuario.nombre} ${usuario.apellido}`;
+    return `${usuario.nombre} ${usuario.apellido}`.trim() || usuario.email;
   }
 
-  private simularOperacion(): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(resolve, 500);
+  getProviderName(usuario: Usuario): string {
+    if (!usuario.providerData || usuario.providerData.length === 0) {
+      return 'Email';
+    }
+    
+    const providers = usuario.providerData.map((p: any) => {
+      if (p.providerId === 'google.com') return 'Google';
+      if (p.providerId === 'facebook.com') return 'Facebook';
+      if (p.providerId === 'password') return 'Email';
+      return p.providerId;
     });
+    
+    return providers.join(', ');
   }
 
-  private mostrarNotificacion(message: string, type: 'success' | 'error') {
-    const event = new CustomEvent('showToast', {
-      detail: { message, type }
-    });
-    window.dispatchEvent(event);
+  getSourceLabel(source?: string): string {
+    const labels: { [key: string]: string } = {
+      'firebase+db': 'Firebase + BD',
+      'firebase-only': 'Solo Firebase',
+      'db-only': 'Solo BD'
+    };
+    return labels[source || ''] || 'Desconocido';
+  }
+
+  getSourceColor(source?: string): string {
+    const colors: { [key: string]: string } = {
+      'firebase+db': '#3498DB',
+      'firebase-only': '#E67E22',
+      'db-only': '#2ECC71'
+    };
+    return colors[source || ''] || '#95A5A6';
   }
 }

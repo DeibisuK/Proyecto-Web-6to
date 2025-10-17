@@ -1,5 +1,6 @@
 export interface Usuario {
   id_usuario: number;
+  uid?: string;
   nombre: string;
   apellido: string;
   email: string;
@@ -7,6 +8,9 @@ export interface Usuario {
   rol: RolUsuario;
   fecha_registro: string;
   estado: EstadoUsuario;
+  source?: 'firebase+db' | 'firebase-only' | 'db-only';
+  emailVerified?: boolean;
+  providerData?: any[];
 }
 
 export type RolUsuario = 'admin' | 'superadmin' | 'arbitro' | 'cliente';

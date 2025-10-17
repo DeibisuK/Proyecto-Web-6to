@@ -17,6 +17,10 @@ export class EquipoService {
     return this.http.get<Equipo[]>(this.apiUrl);
   }
 
+  getMisEquipos(): Observable<Equipo[]> {
+    return this.http.get<Equipo[]>(`${this.apiUrl}/mis-equipos`);
+  }
+
   getEquipoById(id: number): Observable<Equipo> {
     return this.http.get<Equipo>(`${this.apiUrl}/${id}`);
   }

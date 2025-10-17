@@ -204,7 +204,8 @@ app.use("/u", proxy(userServiceUrl, proxyOptions));
 app.use("/p", proxy(productServiceUrl, proxyOptions));
 app.use("/b", proxy(process.env.BUY_SERVICE_URL, proxyOptions));
 app.use("/c", proxy(process.env.COURT_SERVICE_URL, proxyOptions));
-app.use("/m", proxy(process.env.MATCH_SERVICE_URL, proxyOptions));
+// Match service requires authentication for user-specific endpoints
+app.use("/m", authenticate(), proxy(process.env.MATCH_SERVICE_URL, proxyOptions));
 app.use("/i", proxy(process.env.CLOUDINARY_SERVICE_URL, proxyOptions));
 
 // Routes configured successfully
