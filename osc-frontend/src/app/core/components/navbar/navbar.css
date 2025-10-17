@@ -357,6 +357,36 @@
   padding-bottom: 1rem;
 }
 
+/* Ciudad clickeable */
+.ciudad-clickeable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.5rem 0.5rem;
+  margin: 0 0 0.5rem 0.5rem;
+  border-radius: 6px;
+}
+
+.ciudad-clickeable:hover {
+  background-color: var(--accent-opacity-10);
+  color: var(--color-accent);
+}
+
+/* Sede item (sin router) */
+.sede-item {
+  display: block;
+  padding: 0.5rem 1rem 0.5rem 2rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.sede-item i {
+  margin-right: 0.5rem;
+  color: var(--color-text-muted);
+}
+
 /* Barra de búsqueda */
 .search-bar {
   display: flex;

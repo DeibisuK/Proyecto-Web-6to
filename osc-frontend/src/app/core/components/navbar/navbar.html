@@ -80,13 +80,19 @@
         </a>
         <div class="dropdown-menu" [class.show]="dropdowns.sedes">
           <div class="dropdown-section">
-            <ng-container *ngFor="let grupo of sedesAgrupadas; let isLast = last">
-              <h4><i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}</h4>
-              <a *ngFor="let sede of grupo.sedes" routerLink="/todas-las-sedes">
-                <i class="fas fa-building"></i> {{ sede.nombre }}
-              </a>
-              <div class="dropdown-divider" *ngIf="!isLast"></div>
-            </ng-container>
+            @for (grupo of sedesAgrupadas; track grupo.nombre; let isLast = $last) {
+              <h4 class="ciudad-clickeable" (click)="navegarSedesPorCiudad(grupo.nombre)">
+                <i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}
+              </h4>
+              @for (sede of grupo.sedes; track sede.id_sede) {
+                <div class="sede-item">
+                  <i class="fas fa-building"></i> {{ sede.nombre }}
+                </div>
+              }
+              @if (!isLast) {
+                <div class="dropdown-divider"></div>
+              }
+            }
             <div class="dropdown-divider"></div>
             <a routerLink="/todas-las-sedes"><i class="fas fa-list"></i> Ver todas las sedes</a>
           </div>
@@ -116,7 +122,9 @@
 
       <button class="cart-btn" (click)="toggleCart()">
         <span class="material-icons">shopping_cart</span>
-        <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        @if (cartItemCount > 0) {
+          <span class="cart-count">{{ cartItemCount }}</span>
+        }
       </button>
 
       @if (user) {
@@ -129,7 +137,7 @@
           <div class="user-btn">
             @if (user.photoURL) {
             <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
-            }@else {
+            } @else {
             <span class="material-icons">account_circle</span>
             }
           </div>
@@ -148,7 +156,7 @@
           </div>
         </div>
       </div>
-      }@else {
+      } @else {
       <button (click)="abrirLoginModal()" class="user-btn">
         <span class="material-icons">account_circle</span>
       </button>
@@ -248,8 +256,8 @@
 </div>
 
 <!-- Modal de login -->
+@if (mostrarLogin) {
 <div
-  *ngIf="mostrarLogin"
   class="modal-overlay"
   [class.show]="mostrarLogin"
   (click)="cerrarLoginModal()"
@@ -265,10 +273,11 @@
     </app-login>
   </div>
 </div>
+}
 
 <!-- Modal de recuperar contraseña -->
+@if (mostrarRecuperarPassword) {
 <div
-  *ngIf="mostrarRecuperarPassword"
   class="modal-overlay"
   [class.show]="mostrarRecuperarPassword"
   (click)="cerrarRecuperarPasswordModal()"
@@ -281,10 +290,13 @@
     </app-recuperar-password>
   </div>
 </div>
+}
 
 <!-- Carrito Sidebar -->
-<div *ngIf="showCart" class="cart-overlay" [class.show]="showCart" (click)="closeCart()">
+@if (showCart) {
+<div class="cart-overlay" [class.show]="showCart" (click)="closeCart()">
   <div class="cart-container" (click)="$event.stopPropagation()">
     <app-carrito mode="sidebar" [showCloseButton]="true" (closeCart)="closeCart()"> </app-carrito>
   </div>
 </div>
+}

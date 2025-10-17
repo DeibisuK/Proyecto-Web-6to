@@ -21,16 +21,33 @@
 
     <!-- Grid de productos -->
     <main class="productos-grid">
-      <app-producto-card
-        *ngFor="let producto of productos"
-        [producto]="producto">
-      </app-producto-card>
+      <!-- Skeleton Loading -->
+      @if (isLoading) {
+        @for (item of skeletonItems; track $index) {
+          <div class="producto-card-skeleton">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-text skeleton-title"></div>
+              <div class="skeleton-text skeleton-desc"></div>
+              <div class="skeleton-text skeleton-price"></div>
+              <div class="skeleton-button"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        <!-- Productos reales -->
+        @for (producto of productos; track producto.id) {
+          <app-producto-card [producto]="producto"></app-producto-card>
+        }
 
-      <!-- Mensaje cuando no hay productos -->
-      <div *ngIf="productos.length === 0" class="no-productos">
-        <i class="fas fa-search" style="font-size: 3rem; color: #BDC3C7; margin-bottom: 1rem;"></i>
-        <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
-      </div>
+        <!-- Mensaje cuando no hay productos -->
+        @if (productos.length === 0) {
+          <div class="no-productos">
+            <i class="fas fa-search" style="font-size: 3rem; color: #BDC3C7; margin-bottom: 1rem;"></i>
+            <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
+          </div>
+        }
+      }
     </main>
   </div>
 </section>

@@ -22,6 +22,9 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 export class TiendaPage implements OnInit {
   productos: Producto[] = [];
   deporteSeleccionado: string = 'todos';
+  isLoading: boolean = false;
+  skeletonItems = Array(12).fill(0);
+  
   filtrosActivos: FiltrosProducto = {
     deporte: 'todos',
     precioMin: 0,
@@ -58,6 +61,12 @@ export class TiendaPage implements OnInit {
   }
 
   private cargarProductos() {
-    this.productos = this.productoService.getProductosFiltrados(this.filtrosActivos);
+    this.isLoading = true;
+    
+    // Simular delay para mostrar skeleton
+    setTimeout(() => {
+      this.productos = this.productoService.getProductosFiltrados(this.filtrosActivos);
+      this.isLoading = false;
+    }, 500);
   }
 }

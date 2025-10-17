@@ -190,4 +190,11 @@ export class Navbar implements OnInit, OnDestroy {
     this.mostrarLogin = true;
     // El body ya tiene modal-open
   }
+
+  navegarSedesPorCiudad(ciudad: string) {
+    this.router.navigate(['/todas-las-sedes'], { 
+      queryParams: { ciudad: ciudad } 
+    });
+    this.toggleDropdown('sedes', false);
+  }
 }
