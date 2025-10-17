@@ -98,6 +98,9 @@ export const clienteRoutes: Routes = [
     path: 'crear-equipo', component: CrearEquipo
   },
   {
+    path: 'editar-equipo/:id', component: CrearEquipo
+  },
+  {
     path: 'mis-equipos', component: ListEquipo
   },
   {

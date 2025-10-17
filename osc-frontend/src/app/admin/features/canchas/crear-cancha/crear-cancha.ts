@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Cancha, Sede, TipoSuperficie, EstadoCancha } from '../../../../core/models/canchas.model';
 import { CanchaService } from '../../../../core/services/cancha.service';
 import { SedeService } from '../../../../core/services/sede.service';
@@ -59,6 +60,7 @@ export class CrearCancha implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private http: HttpClient,
     private canchaService: CanchaService,
     private sedeService: SedeService,
     private notificationService: NotificationService
@@ -116,6 +118,39 @@ export class CrearCancha implements OnInit {
 
     this.isLoading = true;
 
+    // Si hay una imagen para subir, primero subirla a Cloudinary
+    if (this.imagenFile) {
+      this.subirImagenYGuardar();
+    } else {
+      // Si no hay imagen nueva, guardar directamente
+      this.ejecutarGuardado();
+    }
+  }
+
+  subirImagenYGuardar(): void {
+    const formData = new FormData();
+    formData.append('imagen', this.imagenFile!);
+
+    this.http.post<{ success: boolean, url: string }>('http://localhost:3000/i/imagen/upload-cancha', formData)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.canchaData.imagen_url = response.url;
+            this.ejecutarGuardado();
+          } else {
+            this.notificationService.error('Error al subir la imagen');
+            this.isLoading = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error al subir imagen:', error);
+          this.notificationService.error('Error al subir la imagen');
+          this.isLoading = false;
+        }
+      });
+  }
+
+  ejecutarGuardado(): void {
     const operacion = this.isEditMode 
       ? this.canchaService.updateCancha(this.canchaData.id_cancha!, this.canchaData)
       : this.canchaService.createCancha(this.canchaData);

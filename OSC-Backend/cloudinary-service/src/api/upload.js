@@ -72,6 +72,90 @@ router.post('/upload-imagen', upload.single('imagen'), async (req, res) => {
   }
 });
 
+// Endpoint específico para subir imágenes de canchas (sin guardar en BD)
+router.post('/upload-cancha', upload.single('imagen'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se envió ninguna imagen' });
+    }
+
+    // Subir a Cloudinary usando buffer
+    const resultado = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'canchas',
+          public_id: `cancha_${Date.now()}`,
+          resource_type: 'auto',
+          transformation: [
+            { width: 800, height: 600, crop: 'limit' },
+            { quality: 'auto:good' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
+    res.json({
+      success: true,
+      url: resultado.secure_url,
+      public_id: resultado.public_id
+    });
+
+  } catch (error) {
+    console.error('Error al subir imagen de cancha:', error);
+    res.status(500).json({ 
+      error: 'Error al subir la imagen',
+      details: error.message 
+    });
+  }
+});
+
+// Endpoint específico para subir logos de equipos
+router.post('/upload-equipo', upload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se envió ninguna imagen' });
+    }
+
+    // Subir a Cloudinary usando buffer
+    const resultado = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'equipos',
+          public_id: `equipo_${Date.now()}`,
+          resource_type: 'auto',
+          transformation: [
+            { width: 400, height: 400, crop: 'limit' },
+            { quality: 'auto:good' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
+    res.json({
+      success: true,
+      url: resultado.secure_url,
+      public_id: resultado.public_id
+    });
+
+  } catch (error) {
+    console.error('Error al subir logo de equipo:', error);
+    res.status(500).json({ 
+      error: 'Error al subir la imagen',
+      details: error.message 
+    });
+  }
+});
+
 // Endpoint para eliminar imagen
 router.delete('/delete-imagen/:publicId', async (req, res) => {
   try {

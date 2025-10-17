@@ -44,6 +44,11 @@ export const adminRoutes: Routes = [
     title: 'Crear Cancha'
   },
   {
+    path: 'editar-cancha/:id',
+    component: CrearCancha,
+    title: 'Editar Cancha'
+  },
+  {
     path: 'usuarios',
     component: UsuarioComponent,
     title: 'Usuarios'

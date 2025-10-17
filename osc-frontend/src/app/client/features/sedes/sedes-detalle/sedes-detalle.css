@@ -1,0 +1,44 @@
+/* Skeleton helper styles for sedes listing */
+.skeleton {
+	pointer-events: none;
+}
+
+.skeleton-image {
+	background: linear-gradient(90deg, #f0f0f0 0%, #e6e6e6 50%, #f0f0f0 100%);
+	position: relative;
+	overflow: hidden;
+	height: 160px;
+	border-radius: 8px;
+}
+
+.skeleton-text {
+	height: 14px;
+	background: #f0f0f0;
+	border-radius: 6px;
+	margin-bottom: 8px;
+	position: relative;
+	overflow: hidden;
+}
+
+.skeleton-title { width: 60%; height: 18px; margin-bottom: 10px; }
+.skeleton-detail { width: 80%; height: 12px; }
+.skeleton-button { width: 36px; height: 36px; border-radius: 8px; background: #f0f0f0; }
+
+.skeleton-shimmer,
+.skeleton-image::after,
+.skeleton-text::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -150px;
+	height: 100%;
+	width: 150px;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+	animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+	0% { transform: translateX(0); }
+	100% { transform: translateX(300px); }
+}
+
