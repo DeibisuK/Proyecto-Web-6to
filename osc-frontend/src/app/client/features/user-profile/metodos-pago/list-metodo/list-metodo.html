@@ -1,1 +1,150 @@
-<p>list-metodo works!</p>
+<div class="payment-methods-container">
+  <div class="payment-methods-header">
+    <h2>MÉTODOS DE PAGO</h2>
+  </div>
+
+  <div class="payment-methods-card">
+    <!-- Sección de tarjetas -->
+    <div class="cards-section">
+      <h3>Tarjetas de crédito y débito ({{ totalCards }})</h3>
+      
+      <!-- Estado de carga con skeleton -->
+      @if (isLoading) {
+        <div class="loading-skeleton">
+          @for (item of [1,2,3]; track item) {
+            <div class="skeleton-card">
+              <div class="skeleton-header">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-text skeleton-type"></div>
+              </div>
+              <div class="skeleton-number"></div>
+              <div class="skeleton-info"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Lista de tarjetas -->
+      @if (!isLoading && cards.length > 0) {
+        <div class="cards-list">
+          @for (card of cards; track card.id_metodo_pago) {
+            <div class="payment-card">
+              <div class="card-content">
+                <div class="card-header">
+                  <i [class]="getCardIcon(card.tipo_tarjeta)" 
+                     [style.color]="getCardColor(card.tipo_tarjeta)"
+                     class="card-type-icon"></i>
+                  <span class="card-type">{{ card.tipo_tarjeta }}</span>
+                  <button class="card-delete-btn" (click)="deleteCard(card)" title="Eliminar tarjeta">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="card-info">
+                  <span class="card-number">{{ card.numero_tarjeta }}</span>
+                  <span class="card-expiry">{{ formatExpiryDate(card.fecha_expiracion) }}</span>
+                </div>
+                <div class="card-bank">
+                  <span>{{ card.banco }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Placeholder cuando no hay tarjetas -->
+      @if (!isLoading && cards.length === 0) {
+        <div class="payment-card">
+          <div class="card-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            <span>No hay tarjetas registradas</span>
+          </div>
+        </div>
+      }
+
+      <!-- Botón agregar tarjeta -->
+      <button class="add-card-btn" (click)="openModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Agregar una tarjeta de crédito o débito
+      </button>
+
+      <!-- Iconos de métodos de pago -->
+      <div class="payment-icons">
+        <div class="payment-icon-wrapper">
+          <svg class="payment-icon visa-icon" viewBox="0 0 48 32">
+            <rect width="48" height="32" rx="4" fill="#1a1f71"/>
+            <text x="24" y="20" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">VISA</text>
+          </svg>
+        </div>
+        <div class="payment-icon-wrapper">
+          <svg class="payment-icon mastercard-icon" viewBox="0 0 48 32">
+            <rect width="48" height="32" rx="4" fill="#eb001b"/>
+            <circle cx="18" cy="16" r="10" fill="#ff5f00" opacity="0.8"/>
+            <circle cx="30" cy="16" r="10" fill="#f79e1b" opacity="0.8"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección informativa -->
+    <div class="info-section">
+      <div class="info-subsection">
+        <div class="info-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <h4>Información de Seguridad</h4>
+        </div>
+        <ul class="info-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Datos encriptados en el servidor
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Almacenamiento seguro con AES-256
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Solo tú puedes ver y administrar tus tarjetas
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-subsection">
+        <div class="info-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <h4>Protección de Datos</h4>
+        </div>
+        <p>Tus datos de pago están protegidos con encriptación de nivel bancario. El número de tarjeta y CVV se almacenan encriptados y nunca se muestran completos.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para agregar tarjeta -->
+<app-crear-metodo 
+  [isModalOpen]="isModalOpen"
+  (modalClosed)="closeModal()"
+  (cardAdded)="onCardAdded($event)">
+</app-crear-metodo>

@@ -1,0 +1,295 @@
+.payment-methods-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.payment-methods-header {
+  margin-bottom: 2rem;
+}
+
+.payment-methods-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.payment-methods-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Sección de tarjetas */
+.cards-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 1.5rem 0;
+}
+
+/* Skeleton Loading */
+.loading-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skeleton-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-type {
+  width: 120px;
+}
+
+.skeleton-number {
+  height: 20px;
+  width: 60%;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-info {
+  height: 16px;
+  width: 40%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Lista de tarjetas */
+.cards-list {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.payment-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.payment-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card-type-icon {
+  font-size: 2rem;
+}
+
+.card-type {
+  font-weight: 600;
+  color: var(--color-primary);
+  flex: 1;
+}
+
+.card-delete-btn {
+  background: transparent;
+  border: 2px solid #e74c3c;
+  color: #e74c3c;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-delete-btn:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-number {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 2px;
+}
+
+.card-expiry {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.card-bank {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Placeholder */
+.card-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #999;
+}
+
+.card-placeholder svg {
+  opacity: 0.5;
+}
+
+/* Botón agregar */
+.add-card-btn {
+  width: 100%;
+  padding: 1rem;
+  background: white;
+  border: 2px dashed var(--color-accent);
+  border-radius: 12px;
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-card-btn:hover {
+  background: var(--color-accent);
+  color: white;
+  border-style: solid;
+}
+
+/* Iconos de pago */
+.payment-icons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.payment-icon-wrapper {
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+
+.payment-icon {
+  width: 60px;
+  height: 40px;
+}
+
+/* Sección informativa */
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-subsection {
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  border: 2px solid var(--color-accent);
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.info-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.info-subsection p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
