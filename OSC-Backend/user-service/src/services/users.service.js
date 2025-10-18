@@ -4,16 +4,16 @@ export const getAll = async (req, res) => {
     return await model.findAll();
 };
 
-export const findById = async (id) => {
-    return await model.findById(id);
+export const findById = async (uid) => {
+    return await model.findById(uid);
 };
-
+    
 export const create = async (user) => {
     return await model.create(user);
 };
 
-export const update = async (id, user) => {
-    return await model.update(id, user);
+export const update = async (uid, user) => {
+    return await model.update(uid, user);
 };
 
 export const remove = async (id) => {

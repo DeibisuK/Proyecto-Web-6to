@@ -104,7 +104,9 @@ const adminRoutes = require("./routes/admin.routes");
 const authorizeRole = require("./middleware/authorizeRole");
 // Use authenticate to verify token, then authorizeRole to check id_rol in the user-service.
 // By convention admin role id = 1. Change if your DB uses a different id.
-app.use("/admin", authenticate(), authorizeRole(1), adminRoutes);
+app.use("/admin", 
+  authenticate(), authorizeRole(1), 
+  adminRoutes);
 
 // Intercept user creation so we can synchronize Firebase custom claims immediately
 // POST /u/users -> create user in user-service, then set custom claims { role, id_rol }

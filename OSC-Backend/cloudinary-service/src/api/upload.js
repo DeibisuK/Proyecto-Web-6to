@@ -1,34 +1,38 @@
-import express from 'express';
-import multer from 'multer';
-import cloudinary from '../config/cloudinary.js';
-import pool from '../config/db.js';
+import express from "express";
+import multer from "multer";
+import cloudinary from "../config/cloudinary.js";
+import pool from "../config/db.js";
 
 const router = express.Router();
 // Configurar multer para memoria (no guardar en disco)
 const storage = multer.memoryStorage();
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB máximo
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
 });
 
-router.get('/test-conexion', async (req, res) => {
+router.get("/test-conexion", async (req, res) => {
   try {
-    await pool.query('SELECT 1');
-    res.json({ success: true, message: 'Conexión exitosa a la base de datos' });
+    await pool.query("SELECT 1");
+    res.json({ success: true, message: "Conexión exitosa a la base de datos" });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error de conexión', details: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error de conexión",
+      details: error.message,
+    });
   }
 });
 
 // Endpoint para subir imagen
-router.post('/upload-imagen', upload.single('imagen'), async (req, res) => {
+router.post("/upload-imagen", upload.single("imagen"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No se envió ninguna imagen' });
+      return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
     // Datos adicionales del usuario (si los envías)
-    const { userId, carpeta = 'usuarios' } = req.body;
+    const { userId, carpeta = "usuarios" } = req.body;
 
     // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
@@ -36,7 +40,7 @@ router.post('/upload-imagen', upload.single('imagen'), async (req, res) => {
         {
           folder: carpeta,
           public_id: `user_${userId}_${Date.now()}`, // Nombre único
-          resource_type: 'auto'
+          resource_type: "auto",
         },
         (error, result) => {
           if (error) reject(error);
@@ -45,51 +49,39 @@ router.post('/upload-imagen', upload.single('imagen'), async (req, res) => {
       );
       uploadStream.end(req.file.buffer);
     });
-
-    // Guardar URL en PostgreSQL
-    const query = `
-      INSERT INTO imagenes (user_id, url, public_id, created_at) 
-      VALUES ($1, $2, $3, NOW()) 
-      RETURNING *
-    `;
-    
-    const values = [userId, resultado.secure_url, resultado.public_id];
-    const dbResult = await pool.query(query, values);
 
     res.json({
       success: true,
       url: resultado.secure_url,
       public_id: resultado.public_id,
-      data: dbResult.rows[0]
     });
-
   } catch (error) {
-    console.error('Error al subir imagen:', error);
-    res.status(500).json({ 
-      error: 'Error al subir la imagen',
-      details: error.message 
+    console.error("Error al subir imagen:", error);
+    res.status(500).json({
+      error: "Error al subir la imagen",
+      details: error.message,
     });
   }
 });
 
 // Endpoint específico para subir imágenes de canchas (sin guardar en BD)
-router.post('/upload-cancha', upload.single('imagen'), async (req, res) => {
+router.post("/upload-cancha", upload.single("imagen"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No se envió ninguna imagen' });
+      return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
     // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: 'canchas',
+          folder: "canchas",
           public_id: `cancha_${Date.now()}`,
-          resource_type: 'auto',
+          resource_type: "auto",
           transformation: [
-            { width: 800, height: 600, crop: 'limit' },
-            { quality: 'auto:good' }
-          ]
+            { width: 800, height: 600, crop: "limit" },
+            { quality: "auto:good" },
+          ],
         },
         (error, result) => {
           if (error) reject(error);
@@ -102,36 +94,35 @@ router.post('/upload-cancha', upload.single('imagen'), async (req, res) => {
     res.json({
       success: true,
       url: resultado.secure_url,
-      public_id: resultado.public_id
+      public_id: resultado.public_id,
     });
-
   } catch (error) {
-    console.error('Error al subir imagen de cancha:', error);
-    res.status(500).json({ 
-      error: 'Error al subir la imagen',
-      details: error.message 
+    console.error("Error al subir imagen de cancha:", error);
+    res.status(500).json({
+      error: "Error al subir la imagen",
+      details: error.message,
     });
   }
 });
 
 // Endpoint específico para subir logos de equipos
-router.post('/upload-equipo', upload.single('logo'), async (req, res) => {
+router.post("/upload-equipo", upload.single("logo"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No se envió ninguna imagen' });
+      return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
     // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: 'equipos',
+          folder: "equipos",
           public_id: `equipo_${Date.now()}`,
-          resource_type: 'auto',
+          resource_type: "auto",
           transformation: [
-            { width: 400, height: 400, crop: 'limit' },
-            { quality: 'auto:good' }
-          ]
+            { width: 400, height: 400, crop: "limit" },
+            { quality: "auto:good" },
+          ],
         },
         (error, result) => {
           if (error) reject(error);
@@ -144,32 +135,32 @@ router.post('/upload-equipo', upload.single('logo'), async (req, res) => {
     res.json({
       success: true,
       url: resultado.secure_url,
-      public_id: resultado.public_id
+      public_id: resultado.public_id,
     });
-
   } catch (error) {
-    console.error('Error al subir logo de equipo:', error);
-    res.status(500).json({ 
-      error: 'Error al subir la imagen',
-      details: error.message 
+    console.error("Error al subir logo de equipo:", error);
+    res.status(500).json({
+      error: "Error al subir la imagen",
+      details: error.message,
     });
   }
 });
 
 // Endpoint para eliminar imagen
-router.delete('/delete-imagen/:publicId', async (req, res) => {
+router.delete("/delete-imagen/", async (req, res) => {
   try {
-    const publicId = req.params.publicId.replace(/\|/g, '/'); // Decodificar
-    
+    const publicId = req.body.public_id; // Decodificar
     // Eliminar de Cloudinary
     await cloudinary.uploader.destroy(publicId);
-    
-    // Eliminar de BD
-    await pool.query('DELETE FROM imagenes WHERE public_id = $1', [publicId]);
-    
-    res.json({ success: true, message: 'Imagen eliminada' });
+    res.json({ success: true, message: "Imagen eliminada" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // ¡ESTE ES EL ERROR REAL!
+    console.error("¡FALLÓ EL ENDPOINT DELETE!:", error);
+    // Devuelve el error completo para verlo en la consola del navegador (si quieres)
+    res.status(500).json({
+      error: error.message,
+      fullError: error, // Añade esto para más detalle
+    });
   }
 });
 

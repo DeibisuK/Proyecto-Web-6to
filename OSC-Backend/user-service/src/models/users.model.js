@@ -48,7 +48,7 @@ export const findAll = async () => {
   }
 };
 
-export const findById = async (id) => {
+export const findById = async (uid) => {
   // Buscar por uid (Firebase UID)
   const res = await db.query(`
     SELECT 
@@ -60,7 +60,7 @@ export const findById = async (id) => {
     FROM usuarios u
     LEFT JOIN roles r ON u.id_rol = r.id_rol
     WHERE u.uid = $1
-  `, [id]);
+  `, [uid]);
   return res.rows[0];
 };
 
@@ -83,18 +83,18 @@ export const create = async (user) => {
   }
 };
 
-export const update = async (id, user) => {
-  const { uid, nombre, email, id_rol } = user;
+export const update = async (uid, user) => {
+  const { id_rol } = user;
   try {
     const res = await db.query(
-      "UPDATE usuarios SET name_user = $1, email_user = $2, id_rol = $3 WHERE uid = $4 RETURNING *",
-      [nombre, email, id_rol, uid]
+      "UPDATE usuarios SET id_rol = $1 WHERE uid = $2 RETURNING *",
+      [id_rol, uid]
     );
     return res.rows[0];
   } catch (err) {
     console.error('[users.model] update query failed:', {
-      sql: 'UPDATE usuarios SET name_user = $1, email_user = $2, id_rol = $3 WHERE uid = $4 RETURNING *',
-      params: [nombre, email, id_rol, uid],
+      sql: 'UPDATE usuarios SET id_rol = $1 WHERE uid = $2 RETURNING *',
+      params: [id_rol, uid],
       error: err && err.stack ? err.stack : err,
     });
     throw err;

@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipo } from '../models/equipo.model';
-
-const API_URL = 'http://localhost:3000';
+import { API_URL } from './url';
 
 @Injectable({
   providedIn: 'root'
