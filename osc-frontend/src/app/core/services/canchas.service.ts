@@ -8,9 +8,8 @@ import { API_URL } from './url';
   providedIn: 'root'
 })
 export class CanchasService {
-    private apiUrl = `${API_URL}/u/canchas`;
+  private apiUrl = `${API_URL}/u/canchas`;
   
-
   constructor(private http: HttpClient) {}
 
   // Obtener todas las canchas
