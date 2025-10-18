@@ -45,3 +45,5 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+OSC-Backend/api-gateway/firebase/*.json
