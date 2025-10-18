@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Necesario para ngFor, ngIf en el template
 import { HttpClientModule } from '@angular/common/http'; // Necesario para que el servicio funcione si no está en App.config/module
 import { Cancha } from '../../../../../core/models/canchas.model';
-import { CanchaService } from '../../../../../core/services/canchas.service';
+import { CanchasService } from '../../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-reservar-cancha',
@@ -15,7 +15,8 @@ export class ReservarCancha implements OnInit {
   canchas: Cancha[] = []; 
   errorMessage: string = ''; 
 
-  constructor(private canchaService: CanchaService) {}
+  // Inyección del CanchaService
+  constructor(private canchaService: CanchasService) {}
 
   ngOnInit(): void {
     this.setMinDate();
