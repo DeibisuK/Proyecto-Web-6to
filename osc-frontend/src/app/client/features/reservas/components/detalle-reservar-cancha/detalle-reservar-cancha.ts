@@ -104,7 +104,7 @@ export class DetalleReservarCancha implements OnInit {
   /** Simula la confirmación de reserva */
   confirmarReserva(): void {
     if (!this.cancha || !this.horarioSeleccionado || !this.fechaSeleccionada) {
-      alert('⚠️ Por favor selecciona fecha y horario antes de confirmar.');
+      alert('⚠ Por favor selecciona fecha y horario antes de confirmar.');
       return;
     }
 
