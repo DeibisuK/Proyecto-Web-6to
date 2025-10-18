@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Cancha } from '../models/canchas.model';
+import { API_URL } from './url';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CanchasService {
-  private apiUrl = '/c/canchas';
+    private apiUrl = `${API_URL}/u/canchas`;
+  
 
   constructor(private http: HttpClient) {}
 

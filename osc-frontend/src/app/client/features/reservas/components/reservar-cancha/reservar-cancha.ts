@@ -1,16 +1,52 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common'; // Necesario para ngFor, ngIf en el template
+import { HttpClientModule } from '@angular/common/http'; // Necesario para que el servicio funcione si no está en App.config/module
+import { Cancha } from '../../../../../core/models/canchas.model';
+import { CanchasService } from '../../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-reservar-cancha',
-  imports: [],
+  imports: [CommonModule, HttpClientModule], 
   templateUrl: './reservar-cancha.html',
-  styleUrl: './reservar-cancha.css'
+  styleUrl: './reservar-cancha.css',
+  // Se añade CanchaService a providers si no está en providedIn: 'root' o si se necesita una instancia local
+  // providers: [CanchaService] 
 })
 export class ReservarCancha implements OnInit { 
   minDate: string = '';
+  
+  // Lista para almacenar las canchas obtenidas del servicio
+  canchas: Cancha[] = []; 
+  
+  // Mensaje de error para la UI
+  errorMessage: string = ''; 
+
+  // Inyección del CanchaService
+  constructor(private canchaService: CanchasService) {}
 
   ngOnInit(): void {
     this.setMinDate();
+    this.cargarCanchas(); // Llamamos a la función para cargar las canchas al inicio
+  }
+
+  /**
+   * Obtiene la lista de canchas utilizando el servicio.
+   */
+  cargarCanchas(): void {
+    this.canchaService.getCanchas().subscribe({
+      next: (data) => {
+        // Asignamos los datos recibidos a la propiedad canchas
+        this.canchas = data;
+        console.log('Canchas cargadas:', this.canchas);
+        this.errorMessage = ''; // Limpiar cualquier error anterior
+      },
+      error: (err) => {
+        // Manejo de errores
+        console.error('Error al cargar las canchas:', err);
+        this.errorMessage = 'No se pudieron cargar las canchas. Intenta más tarde.';
+        this.canchas = []; // Asegurar que la lista esté vacía en caso de error
+      }
+    });
   }
 
   /**

@@ -1,4 +1,3 @@
-<p>reservar-cancha works!</p>
 <div class="canchas-container">
     <div class="canchas-header-section">
         <h1>¡Reserva tu Cancha Ahora! 📅</h1>
@@ -17,7 +16,7 @@
 
             <div class="form-group filter-group">
                 <label for="fecha">Fecha</label>
-                <input type="date" id="fecha" value="2025-10-30" />
+                <input type="date" id="fecha" [min]="minDate" /> 
             </div>
             
             <button class="btn-buscar-canchas">
@@ -26,114 +25,61 @@
         </div>
     </div>
     
+    <div *ngIf="canchas.length === 0 && !errorMessage">
+        <p>Cargando canchas...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+        <p>⚠️ {{ errorMessage }}</p>
+    </div>
+
     <div class="canchas-grid">
         
-        <!-- Card 1: Pádel -->
-        <div class="cancha-card animated-card">
+        <div class="cancha-card animated-card" *ngFor="let cancha of canchas">
             <div class="cancha-imagen">
-                <img src="https://sp-ao.shortpixel.ai/client/to_auto,q_glossy,ret_img,w_640,h_320/https://cespedecuador.com/wp-content/uploads/2024/12/Cancha-de-padel-en-Ecuador-con-cesped-sintetico-profesional.jpg" alt="Cancha de Pádel Élite #1" />
+                <img [src]="cancha.imagen_url || 'URL_IMAGEN_DEFAULT'" [alt]="'Cancha de ' + cancha.nombre_cancha" />
             </div>
 
             <div class="cancha-header">
-                <span class="material-icons icon-deporte">sports_tennis</span>
-                <h2 class="cancha-name">Cancha Pádel - Elite #1</h2>
+                <span class="material-icons icon-deporte">sports_soccer</span> 
+                <h2 class="cancha-name">{{ cancha.nombre_cancha }}</h2>
             </div>
             
             <div class="cancha-details">
                  <div class="detail-item">
-                    <span class="material-icons">attach_money</span>
-                    <p>Tarifa/Hora: <span class="detail-value">$25.00</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">open_with</span>
-                    <p>Dimensiones: <span class="detail-value">10m x 20m</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">location_on</span>
-                    <p>Sede: <span class="detail-value">Centro Comercial</span></p>
-                </div>
+                     <span class="material-icons">attach_money</span>
+                     <p>Tarifa/Hora: <span class="detail-value">${{ cancha.tarifa | number: '1.2-2' }}</span></p>
+                 </div>
+                 <div class="detail-item">
+                     <span class="material-icons">open_with</span>
+                     <p>Dimensiones: <span class="detail-value">{{ cancha.largo }}m x {{ cancha.ancho }}m</span></p>
+                 </div>
+                 <div class="detail-item">
+                     <span class="material-icons">category</span>
+                     <p>Superficie: <span class="detail-value">{{ cancha.tipo_superficie }}</span></p>
+                 </div>
             </div>
 
-            <div class="cancha-estado estado-activo">
-                <span class="material-icons">check_circle</span>
-                <span>Disponible Hoy</span>
+            <div 
+                class="cancha-estado" 
+                [ngClass]="{ 
+                    'estado-activo': cancha.estado === 'Activa', 
+                    'estado-mantenimiento': cancha.estado === 'Mantenimiento' 
+                }"
+            >
+                <span class="material-icons">
+                    {{ cancha.estado === 'Activa' ? 'check_circle' : 'settings' }}
+                </span>
+                <span>{{ cancha.estado === 'Activa' ? 'Disponible' : 'En Mantenimiento' }}</span>
             </div>
 
-            <button class="btn-reservar">
-                Reservar Horario
+            <button class="btn-reservar" [disabled]="cancha.estado !== 'Activa'">
+                {{ cancha.estado === 'Activa' ? 'Reservar Horario' : 'No Disponible' }}
             </button>
         </div>
 
-        <!-- Card 2: Fútbol -->
-        <div class="cancha-card animated-card">
-            <div class="cancha-imagen">
-                <img src="https://www.ourensecf.es/media/ourensecf/images/2024/05/22/2024052213061884642.jpg" alt="Cancha de Fútbol Grama #3" />
-            </div>
-
-            <div class="cancha-header">
-                <span class="material-icons icon-deporte">sports_soccer</span>
-                <h2 class="cancha-name">Cancha Fútbol - Grama #3</h2>
-            </div>
-            
-            <div class="cancha-details">
-                <div class="detail-item">
-                    <span class="material-icons">attach_money</span>
-                    <p>Tarifa/Hora: <span class="detail-value">$20.00</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">open_with</span>
-                    <p>Dimensiones: <span class="detail-value">40m x 20m</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">location_on</span>
-                    <p>Sede: <span class="detail-value">Complejo Principal</span></p>
-                </div>
-            </div>
-
-            <div class="cancha-estado estado-mantenimiento">
-                <span class="material-icons">settings</span>
-                <span>En Mantenimiento</span>
-            </div>
-
-            <button class="btn-reservar" disabled>
-                No Disponible
-            </button>
-        </div>
-
-        <!-- Card 3: Tenis -->
-        <div class="cancha-card animated-card">
-            <div class="cancha-imagen">
-                <img src="https://diariocorreo.com.ec/public/img/uploads/2022-09-13--22-31-19/jugad-tenis-copiajpg" alt="Cancha de Tenis Arcilla" />
-            </div>
-
-            <div class="cancha-header">
-                <span class="material-icons icon-deporte">sports_baseball</span>
-                <h2 class="cancha-name">Cancha Tenis - Arcilla</h2>
-            </div>
-            
-            <div class="cancha-details">
-                <div class="detail-item">
-                    <span class="material-icons">attach_money</span>
-                    <p>Tarifa/Hora: <span class="detail-value">$30.00</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">open_with</span>
-                    <p>Dimensiones: <span class="detail-value">24m x 11m</span></p>
-                </div>
-                <div class="detail-item">
-                    <span class="material-icons">location_on</span>
-                    <p>Sede: <span class="detail-value">Centro Comercial</span></p>
-                </div>
-            </div>
-
-            <div class="cancha-estado estado-activo">
-                <span class="material-icons">check_circle</span>
-                <span>Disponible Hoy</span>
-            </div>
-
-            <button class="btn-reservar">
-                Reservar Horario
-            </button>
+        <div *ngIf="canchas.length === 0 && !errorMessage">
+            <p>No se encontraron canchas disponibles en este momento.</p>
         </div>
     </div>
 </div>
