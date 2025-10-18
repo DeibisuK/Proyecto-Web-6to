@@ -16,6 +16,3 @@ export interface Sede {
   nombre_sede: string;
   direccion?: string;
 }
-
-export type TipoSuperficie = 'Cemento' | 'Césped Natural' | 'Césped Sintético' | 'Parquet' | 'Arcilla';
-export type EstadoCancha = 'Disponible' | 'Mantenimiento' | 'Reservado' | 'Fuera de Servicio';
