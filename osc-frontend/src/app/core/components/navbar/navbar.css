@@ -393,12 +393,13 @@
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 0.4rem;
+  padding: 0.4rem 0.2rem 0.4rem 0.4rem;
   backdrop-filter: blur(10px);
   border: 2px solid var(--accent-opacity-40);
   height: 38px;
   margin-right: 1.5rem;
   transition: var(--transition-base);
+  gap: 0.2rem;
 }
 
 .search-bar:hover,
@@ -410,11 +411,12 @@
   background: transparent;
   border: none;
   color: var(--color-text-light);
-  padding: 0.4rem 1rem;
+  padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
   width: 250px;
   outline: none;
   height: 100%;
+  flex: 1;
 }
 
 .search-bar input::placeholder {
@@ -425,8 +427,8 @@
   background: var(--color-accent);
   border: none;
   border-radius: 6px;
-  width: 32px;
-  height: 32px;
+  width: 29px;
+  height: 29px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -437,7 +439,6 @@
 
 .search-btn:hover {
   background: var(--color-accent-hover);
-  transform: scale(1.05);
 }
 
 .search-btn .material-icons {
