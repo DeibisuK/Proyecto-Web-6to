@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CanchaService } from '../../../../../core/services/canchas.service';
 import { SedeService } from '../../../../../core/services/sede.service';
 import { Sede } from '../../../../../core/models/sede.model';
@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-detalle-reservar-cancha',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './detalle-reservar-cancha.html',
   styleUrls: ['./detalle-reservar-cancha.css']
 })

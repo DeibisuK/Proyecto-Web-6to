@@ -43,4 +43,9 @@ export class CanchaService {
   deleteCancha(id: number): Observable<any> {
     return this.http.delete(`${this.canchasUrl}/${id}`);
   }
+
+getCanchasByDeporte(idDeporte: string): Observable<Cancha[]> {
+  return this.http.get<Cancha[]>(`${API_URL}/c/deportes/${idDeporte}/canchas`);
+}
+
 }

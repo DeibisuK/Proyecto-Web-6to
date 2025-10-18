@@ -13,6 +13,10 @@ export const getBySede = async (idSede) => {
   return await model.findBySede(idSede);
 };
 
+export const getByDeporte = async (idDeporte) => {
+  return await model.findByDeporte(idDeporte);
+};
+
 export const create = async (cancha) => {
   // Validaciones
   if (!cancha.nombre_cancha || !cancha.id_sede || !cancha.id_deporte) {

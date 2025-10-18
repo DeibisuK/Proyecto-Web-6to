@@ -6,10 +6,11 @@ import { Deporte } from '../../../../../core/models/deporte.model';
 import { DeporteService } from '../../../../../core/services/deportes.service';
 import { CanchaService } from '../../../../../core/services/canchas.service';
 import { RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-reservar-cancha',
-  imports: [CommonModule, HttpClientModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule],
   templateUrl: './reservar-cancha.html',
   styleUrl: './reservar-cancha.css',
 })
@@ -17,6 +18,7 @@ export class ReservarCancha implements OnInit {
   minDate: string = '';
   canchas: Cancha[] = [];
   deportes: Deporte[] = [];
+   selectedDeporte: string = ''; 
   errorMessage: string = '';
 
   // Inyección de servicios
@@ -68,6 +70,24 @@ export class ReservarCancha implements OnInit {
     });
   }
 
+  buscarPorDeporte(): void {
+    if (!this.selectedDeporte) {
+      this.cargarCanchas(); // si no se selecciona deporte, mostrar todas
+      return;
+    }
+
+    this.canchaService.getCanchasByDeporte(this.selectedDeporte).subscribe({
+      next: (data) => {
+        this.canchas = data;
+        this.errorMessage =
+          data.length === 0 ? 'No se encontraron canchas para este deporte.' : '';
+      },
+      error: (err) => {
+        console.error('Error al buscar por deporte:', err);
+        this.errorMessage = 'Error al buscar las canchas.';
+      },
+    });
+  }
   /**
    * Establece la fecha mínima permitida para la selección (la fecha de hoy).
    */
