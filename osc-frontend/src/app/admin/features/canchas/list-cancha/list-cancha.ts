@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { CanchaService } from '../../../../core/services/cancha.service';
 import { Cancha } from '../../../../core/models/canchas.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CanchaService } from '../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-list-cancha',
