@@ -108,6 +108,8 @@ body {
     height: 52px;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
     transition: background 0.3s ease;
+    
+    font-family: var(--font-primary); 
 }
 
 .btn-buscar-canchas .material-icons {
@@ -305,7 +307,6 @@ body {
     font-size: 1.15rem;
     font-weight: 800;
     cursor: pointer;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
     transition: background 0.3s ease, opacity 0.3s ease;
