@@ -24,6 +24,7 @@ import { ListMetodo } from "./features/user-profile/metodos-pago/list-metodo/lis
 import { Perfil } from "./features/user-profile/perfil/perfil";
 import { DetalleReservarCancha } from "./features/shop/components/detalle-reservar-cancha/detalle-reservar-cancha";
 import { ReservarCancha } from "./features/reservas/components/reservar-cancha/reservar-cancha";
+import { Torneo } from "./features/reservas/components/torneo/torneos/torneo";
 
 export const clienteRoutes: Routes = [
   {
@@ -123,5 +124,9 @@ export const clienteRoutes: Routes = [
   {
     path: 'reservar-cancha',
     component: ReservarCancha
+  },
+  {
+    path: 'torneos',
+    component: Torneo
   }
 ]
