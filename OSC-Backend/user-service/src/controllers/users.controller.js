@@ -13,8 +13,8 @@ export class UserController {
 
   static async getUserById(req, res) {
     try {
-      const { id } = req.params;
-      const user = await service.findById(id);
+      const { uid } = req.params;
+      const user = await service.findById(uid);
       if (user) {
         res.status(200).json(user);
       } else {
@@ -43,14 +43,14 @@ export class UserController {
 
   static async updateUser(req, res) {
     try {
-      const { id } = req.params;
+      const { uid } = req.params;
       const user = req.body;
       if (user.password) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
       }
 
-      const updatedUser = await service.update(id, user);
+      const updatedUser = await service.update(uid, user);
       if (updatedUser) {
         res.status(200).json(updatedUser);
       } else {
