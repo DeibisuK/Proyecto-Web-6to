@@ -11,9 +11,9 @@
         <label for="deporte">Deporte</label>
         <select id="deporte">
           <option value="">Seleccionar Deporte...</option>
-          <option value="padel">Pádel</option>
-          <option value="futbol">Fútbol 7</option>
-          <option value="tennis">Tenis</option>
+         <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
+           {{ deporte.nombre_deporte }}
+         </option>
         </select>
       </div>
 

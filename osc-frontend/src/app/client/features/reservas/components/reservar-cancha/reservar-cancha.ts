@@ -1,26 +1,33 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Necesario para ngFor, ngIf en el template
-import { HttpClientModule } from '@angular/common/http'; // Necesario para que el servicio funcione si no está en App.config/module
+import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { Cancha } from '../../../../../core/models/canchas.model';
+import { Deporte } from '../../../../../core/models/deporte.model';
+import { DeporteService } from '../../../../../core/services/deportes.service';
 import { CanchaService } from '../../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-reservar-cancha',
-  imports: [CommonModule, HttpClientModule], 
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './reservar-cancha.html',
   styleUrl: './reservar-cancha.css',
-  })
-export class ReservarCancha implements OnInit { 
+})
+export class ReservarCancha implements OnInit {
   minDate: string = '';
-  canchas: Cancha[] = []; 
-  errorMessage: string = ''; 
+  canchas: Cancha[] = [];
+  deportes: Deporte[] = [];
+  errorMessage: string = '';
 
-  // Inyección del CanchaService
-  constructor(private canchaService: CanchaService) {}
+  // Inyección de servicios
+  constructor(
+    private canchaService: CanchaService,
+    private deporteService: DeporteService
+  ) { }
 
   ngOnInit(): void {
     this.setMinDate();
-    this.cargarCanchas(); 
+    this.cargarCanchas();
+    this.cargarDeportes();
   }
 
   /**
@@ -39,6 +46,23 @@ export class ReservarCancha implements OnInit {
         console.error('Error al cargar las canchas:', err);
         this.errorMessage = 'No se pudieron cargar las canchas. Intenta más tarde.';
         this.canchas = []; // Asegurar que la lista esté vacía en caso de error
+      }
+    });
+  }
+
+  /**
+   * Obtiene la lista de deportes utilizando el servicio.
+   */
+  cargarDeportes(): void {
+    this.deporteService.getDeportes().subscribe({
+      next: (data) => {
+        this.deportes = data;
+        console.log('Deportes cargados:', this.deportes);
+      },
+      error: (err) => {
+        console.error('Error al cargar los deportes:', err);
+        // Se usa el mismo mensaje de error para simplificar, pero se podría crear uno específico.
+        // this.errorMessage = 'No se pudieron cargar los deportes.'; 
       }
     });
   }
