@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Cancha, Sede, TipoSuperficie, EstadoCancha } from '../../../../core/models/canchas.model';
 import { SedeService } from '../../../../core/services/sede.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CanchaService } from '../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-crear-cancha',

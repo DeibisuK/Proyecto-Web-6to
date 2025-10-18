@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Cancha } from '../../../../core/models/canchas.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CanchaService } from '../../../../core/services/canchas.service';
 
 @Component({
   selector: 'app-list-cancha',
