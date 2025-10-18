@@ -3,7 +3,6 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
 }
 
 /* ------------------ Base y Contenedor ------------------ */
@@ -109,7 +108,7 @@ body {
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
     transition: background 0.3s ease;
     
-    font-family: var(--font-primary); 
+    font-family: var(--font-secondary); 
 }
 
 .btn-buscar-canchas .material-icons {
