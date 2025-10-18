@@ -21,6 +21,7 @@
   --transition-slow: all 0.5s ease;
   
   --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Poppins', sans-serif;
 }
 
 * {
