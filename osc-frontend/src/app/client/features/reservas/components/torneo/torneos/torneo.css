@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: #f7f9fb;
+  margin: 0;
+  padding: 20px;
+}
+
+.encabezado {
+  display: flex;
+  gap: 30px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.encabezado h2 {
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: #555;
+}
+
+.encabezado .activo {
+  color: #4caf50;
+  border-bottom: 3px solid #4caf50;
+}
+
+.deportes {
+  display: flex;
+  gap: 15px;
+  margin: 25px 0;
+}
+
+.tarjeta-fub {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  width: 100px;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 2px solid transparent;
+}
+
+.tarjeta-fub img {
+  width: 50px;
+  height: 50px;
+}
+
+.tarjeta-fub.activa,
+.tarjeta-fub:hover {
+  border-color: #4caf50;
+}
+
+.subtitulo {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.torneo-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.torneo-card h3 {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.info {
+  display: flex;
+  gap: 25px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.detalle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.barra-progreso {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progreso {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s;
+}
+
+.btn-ver {
+  background: #4caf50;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  padding: 6px 15px;
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 20px;
+}
+
+.btn-ver:hover {
+  background: #43a047;
+}
