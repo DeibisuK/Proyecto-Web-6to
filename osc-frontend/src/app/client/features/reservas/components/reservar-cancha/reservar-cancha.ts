@@ -5,10 +5,11 @@ import { Cancha } from '../../../../../core/models/canchas.model';
 import { Deporte } from '../../../../../core/models/deporte.model';
 import { DeporteService } from '../../../../../core/services/deportes.service';
 import { CanchaService } from '../../../../../core/services/canchas.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-reservar-cancha',
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, RouterLink],
   templateUrl: './reservar-cancha.html',
   styleUrl: './reservar-cancha.css',
 })

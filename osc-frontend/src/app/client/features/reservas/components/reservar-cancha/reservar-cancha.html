@@ -94,17 +94,21 @@
         <span>{{ cancha.estado }}</span>
       </div>
 
-      <button class="btn-reservar" [disabled]="cancha.estado !== 'Disponible'">
-        {{
-          cancha.estado === 'Disponible'
-            ? 'Reservar'
-            : cancha.estado === 'Reservado'
-            ? 'Ya Reservada'
-            : cancha.estado === 'Mantenimiento'
-            ? 'En Mantenimiento'
-            : 'No Disponible'
-        }}
-      </button>
+      <button 
+  class="btn-reservar" 
+  [disabled]="cancha.estado !== 'Disponible'"
+  [routerLink]="['/tienda/reservar-cancha', cancha.id_cancha]">
+  {{
+    cancha.estado === 'Disponible'
+      ? 'Reservar'
+      : cancha.estado === 'Reservado'
+      ? 'Ya Reservada'
+      : cancha.estado === 'Mantenimiento'
+      ? 'En Mantenimiento'
+      : 'No Disponible'
+  }}
+</button>
+
     </div>
 
     <div *ngIf="canchas.length === 0 && !errorMessage">

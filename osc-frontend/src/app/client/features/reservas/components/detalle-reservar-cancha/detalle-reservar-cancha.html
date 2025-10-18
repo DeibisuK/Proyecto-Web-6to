@@ -18,23 +18,6 @@
           <span class="badge rating">⭐ 4.8</span>
         </div>
       </div>
-      <div class="imagenes-secundarias">
-        <div class="imagen-miniatura active">
-          <img [src]="cancha?.imagen_url || 'https://via.placeholder.com/640x320?text=Sin+Imagen'" alt="Miniatura 1">
-        </div>
-        <div class="imagen-miniatura placeholder">
-          <span class="material-icons">light_mode</span>
-          <span>Iluminación</span>
-        </div>
-        <div class="imagen-miniatura placeholder">
-          <span class="material-icons">deck</span>
-          <span>Vista Exterior</span>
-        </div>
-        <div class="imagen-miniatura placeholder">
-          <span class="material-icons">fence</span>
-          <span>Césped</span>
-        </div>
-      </div>
     </div>
 
     <div class="info-reserva-section">
@@ -66,11 +49,16 @@
       </div>
       
       <div class="reserva-section">
-        <h2>📅 Selecciona Fecha y Horario</h2>
+        <h2> Selecciona Fecha y Horario</h2>
         <div class="filtros-reserva-grid">
           <div class="form-group">
             <label for="fecha-reserva">Fecha</label>
-            <input type="date" id="fecha-reserva" [(ngModel)]="fechaSeleccionada" />
+            <input 
+              type="date" 
+              [(ngModel)]="fechaSeleccionada" 
+              [min]="minDate"
+              class="input-fecha" 
+            />
           </div>
           <div class="form-group">
             <label for="duracion-reserva">Duración (Horas)</label>
