@@ -1,6 +1,6 @@
 <div class="canchas-container">
     <div class="canchas-header-section">
-        <h1>¡Reserva tu Cancha Ahora! <span class="material-icons">calendar_today</span></h1> 
+        <h1>¡Reserva tu Cancha Ahora! 📅</h1>
         <p>Explora nuestras canchas disponibles. Selecciona la que mejor se adapte a tu deporte y horario para asegurar tu cupo.</p>
 
         <div class="canchas-filters">
@@ -63,18 +63,27 @@
             <div 
                 class="cancha-estado" 
                 [ngClass]="{ 
-                    'estado-activo': cancha.estado === 'Activa', 
-                    'estado-mantenimiento': cancha.estado === 'Mantenimiento' 
+                    'estado-disponible': cancha.estado === 'Disponible',
+                    'estado-reservado': cancha.estado === 'Reservado',
+                    'estado-mantenimiento': cancha.estado === 'Mantenimiento',
+                    'estado-fuera-servicio': cancha.estado === 'Fuera de Servicio'
                 }"
             >
                 <span class="material-icons">
-                    {{ cancha.estado === 'Activa' ? 'check_circle' : 'settings' }}
+                    {{ cancha.estado === 'Disponible' ? 'check_circle' : 
+                       cancha.estado === 'Reservado' ? 'schedule' :
+                       cancha.estado === 'Mantenimiento' ? 'settings' : 'cancel' }}
                 </span>
-                <span>{{ cancha.estado === 'Activa' ? 'Disponible' : 'En Mantenimiento' }}</span>
+                <span>{{ cancha.estado }}</span>
             </div>
 
-            <button class="btn-reservar" [disabled]="cancha.estado !== 'Activa'">
-                {{ cancha.estado === 'Activa' ? 'Reservar Horario' : 'No Disponible' }}
+            <button 
+                class="btn-reservar" 
+                [disabled]="cancha.estado !== 'Disponible'"
+            >
+                {{ cancha.estado === 'Disponible' ? 'Reservar' : 
+                   cancha.estado === 'Reservado' ? 'Ya Reservada' :
+                   cancha.estado === 'Mantenimiento' ? 'En Mantenimiento' : 'No Disponible' }}
             </button>
         </div>
 
