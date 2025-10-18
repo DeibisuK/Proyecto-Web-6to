@@ -43,6 +43,22 @@ export const findBySede = async (idSede) => {
   return result.rows;
 };
 
+export const findByDeporte = async (idDeporte) => {
+  const result = await pool.query(`
+    SELECT 
+      c.*,
+      s.nombre AS nombre_sede,
+      d.nombre_deporte
+    FROM canchas c
+    LEFT JOIN sedes s ON c.id_sede = s.id_sede
+    LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
+    WHERE c.id_deporte = $1
+    ORDER BY c.nombre_cancha
+  `, [idDeporte]);
+  return result.rows;
+};
+
+
 export const create = async (cancha) => {
   const { 
     nombre_cancha, 

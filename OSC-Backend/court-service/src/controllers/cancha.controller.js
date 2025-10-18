@@ -31,6 +31,15 @@ export const getCanchasBySede = async (req, res) => {
   }
 };
 
+export const getCanchasByDeporte = async (req, res) => {
+  try {
+    const canchas = await service.getByDeporte(req.params.idDeporte);
+    res.json(canchas);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const createCancha = async (req, res) => {
   try {
     const cancha = await service.create(req.body);
