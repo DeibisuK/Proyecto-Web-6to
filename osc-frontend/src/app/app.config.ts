@@ -1,10 +1,12 @@
 import {
   ApplicationConfig,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -12,6 +14,16 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { routes } from './app.routes';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
+import { AuthService } from './core/services/auth.service';
+import { firstValueFrom } from 'rxjs';
+
+// Función factory para inicializar la autenticación
+export function initializeAuth(authService: AuthService) {
+  console.log('APP_INITIALIZER: Esperando estado de autenticación...');
+  return firstValueFrom(authService.authReady$).then(() => {
+    console.log('APP_INITIALIZER: Estado de autenticación cargado');
+  });
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,9 +42,13 @@ export const appConfig: ApplicationConfig = {
         measurementId: 'G-4M3CZ799Q2',
       })
     ),
-  provideAuth(() => getAuth()),
-  provideHttpClient(withInterceptorsFromDi()),
+    provideAuth(() => getAuth()),
+    provideHttpClient(withInterceptorsFromDi(), withFetch()),
     // Register HTTP interceptor to attach Firebase ID token
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      return initializeAuth(authService);
+    }),
   ],
 };
