@@ -107,17 +107,11 @@ body {
     transition: background 0.3s ease;
 }
 
-.btn-buscar-canchas:hover {
-    background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
-    transform: none; 
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-}
-
 .btn-buscar-canchas .material-icons {
     font-size: 1.3rem;
 }
 
-/* ------------------ Grid de Canchas (OPTIMIZACIÓN CLAVE PARA ALTURA UNIFORME Y ANCHOS IGUALES) ------------------ */
+/* ------------------ Grid de Canchas ------------------ */
 
 .canchas-grid {
     display: grid;
@@ -125,7 +119,6 @@ body {
     gap: 3rem;
     margin-top: 3rem;
     max-width: 100%;
-    /* CLAVE 1: Los elementos se estiran automáticamente a la altura máxima de la fila. */
     align-items: stretch; 
 }
 
@@ -135,14 +128,11 @@ body {
     border-radius: 16px;
     border: 2px solid #F0F2F5;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    /* CLAVE 2: Estructura interna de la tarjeta para controlar el contenido. */
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    /* CLAVE 3: Ocupa el 100% de la altura de la celda del grid. */
     height: 100%;
-    /* CLAVE CORREGIDA: Fuerza a tomar el 100% del ancho de la columna 1fr, garantizando igualdad. */
     width: 100%; 
     transition: border-color 0.3s ease;
 }
@@ -195,17 +185,11 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
-    /* Zoom eliminado */
     transform: none; 
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
-    transition: transform 0.3s ease; /* Mantengo la transición por si se quiere añadir otro efecto en el futuro */
+    transition: transform 0.3s ease;
 }
-
-/* Selector hover para la imagen eliminado para quitar el zoom */
-/* .cancha-card:hover .cancha-imagen img {
-    transform: scale(1.03); 
-} */
 
 /* ------------------ Contenido de la Card ------------------ */
 
@@ -235,7 +219,6 @@ body {
 }
 
 .cancha-details {
-    /* CLAVE 4: Este elemento crece para ocupar el espacio vertical sobrante. */
     flex-grow: 1; 
     display: flex;
     flex-direction: column;
