@@ -1,0 +1,119 @@
+<div class="detalle-cancha-container">
+
+  <nav class="breadcrumb">
+    <a routerLink="/canchas">Canchas</a>
+    <span class="breadcrumb-separator">/</span>
+    <span class="current">{{ cancha?.nombre_cancha }}</span>
+  </nav>
+
+  <div class="cancha-content">
+    
+    <div class="imagen-section">
+      <div class="imagen-principal">
+        <img 
+          [src]="cancha?.imagen_url || 'https://via.placeholder.com/640x320?text=Sin+Imagen'" 
+          [alt]="cancha?.nombre_cancha">
+        <div class="badges">
+          <span class="badge tipo-cancha">{{ cancha?.tipo_superficie }}</span>
+          <span class="badge rating">⭐ 4.8</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-reserva-section">
+      
+      <div class="cancha-header">
+        <h1 class="cancha-titulo">{{ cancha?.nombre_cancha }}</h1>
+        <div class="sede-info">
+          <span class="material-icons">location_on</span>
+          <span class="sede-nombre">Sede: {{ sede?.nombre || 'Sin sede asignada' }}</span>
+        </div>
+      </div>
+
+      <div class="descripcion-caracteristicas-section">
+        <h3>Características Clave:</h3>
+        <ul class="caracteristicas-lista">
+          <li><span class="material-icons">aspect_ratio</span> Dimensiones: {{ cancha?.largo }}m x {{ cancha?.ancho }}m</li>
+          <li><span class="material-icons">sports_tennis</span> Superficie: {{ cancha?.tipo_superficie }}</li>
+          <li><span class="material-icons">group</span> Estado Actual: {{ cancha?.estado }}</li>
+        </ul>
+      </div>
+      
+      <div class="tarifa-section">
+        <div class="tarifa-info">
+          <span class="tarifa-label">Tarifa Estándar por Hora:</span>
+          <div class="tarifas">
+            <span class="tarifa-actual">${{ cancha?.tarifa | number : '1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="reserva-section">
+        <h2> Selecciona Fecha y Horario</h2>
+        <div class="filtros-reserva-grid">
+          <div class="form-group">
+            <label for="fecha-reserva">Fecha</label>
+            <input type="date" id="fecha-reserva" [(ngModel)]="fechaSeleccionada" />
+          </div>
+          <div class="form-group">
+            <label for="duracion-reserva">Duración (Horas)</label>
+            <select id="duracion-reserva" [(ngModel)]="duracionSeleccionada">
+              <option value="1">1 Hora</option>
+              <option value="1.5">1.5 Horas</option>
+              <option value="2">2 Horas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="horarios-disponibles-section">
+          <h3>Horarios Disponibles:</h3>
+          <div class="horarios-grid">
+            <button *ngFor="let h of horariosDisponibles" 
+                    class="horario-btn" 
+                    [ngClass]="{ 'disabled': h.reservado, 'selected': h === horarioSeleccionado }"
+                    (click)="seleccionarHorario(h)">
+              {{ h.hora }}
+            </button>
+          </div>
+          <p class="horario-info">Horarios en rojo están reservados. Los seleccionados son en verde claro.</p>
+        </div>
+
+        <div class="resumen-reserva">
+          <div class="total-a-pagar">
+            <span>Total estimado:</span>
+            <span class="precio-final">${{ totalPagar | number : '1.2-2' }}</span> 
+          </div>
+          <button class="btn-confirmar-reserva" 
+                  [disabled]="!horarioSeleccionado"
+                  (click)="confirmarReserva()">
+            <span class="material-icons">event_available</span> Confirmar Reserva
+          </button>
+        </div>
+      </div>
+      
+      <div class="secciones-expandibles">
+        <div class="seccion-expandible">
+          <button class="seccion-header">
+            <h3>Política de Cancelación</h3>
+            <span class="material-icons">keyboard_arrow_down</span>
+          </button>
+          <div class="seccion-contenido abierta">
+            <p>Cancelaciones permitidas hasta 3 horas antes sin cargo. Después de 3 horas, se aplicará un cargo del 50% de la tarifa.</p>
+          </div>
+        </div>
+        <div class="seccion-expandible">
+          <button class="seccion-header">
+            <h3>Servicios Adicionales (Vestuarios, Parqueo)</h3>
+            <span class="material-icons">keyboard_arrow_down</span>
+          </button>
+          <div class="seccion-contenido">
+            <ul class="servicios-lista">
+              <li>Vestuarios climatizados con duchas.</li>
+              <li>Parqueo subterráneo gratuito por 2 horas.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -65,10 +65,12 @@ body {
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    color: #2C3E50;
-    font-weight: 600;
-    font-size: 0.95rem;
+    margin-bottom: 0.7rem;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    font-family: var(--font-secondary);
 }
 
 .form-group input,
@@ -77,16 +79,17 @@ body {
     border: 2px solid #E0E4E8;
     border-radius: 10px;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
     background: white;
     width: 220px;
     box-sizing: border-box;
+    font-family: var(--font-secondary);
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #2ECC71;
+    border-color: var(--color-accent);
     box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.12);
 }
 
@@ -105,6 +108,8 @@ body {
     height: 52px;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
     transition: background 0.3s ease;
+    
+    font-family: var(--font-primary); 
 }
 
 .btn-buscar-canchas .material-icons {
@@ -119,7 +124,7 @@ body {
     gap: 3rem;
     margin-top: 3rem;
     max-width: 100%;
-    align-items: stretch; 
+    align-items: stretch;
 }
 
 .cancha-card {
@@ -133,7 +138,7 @@ body {
     position: relative;
     overflow: hidden;
     height: 100%;
-    width: 100%; 
+    width: 100%;
     transition: border-color 0.3s ease;
 }
 
@@ -156,7 +161,7 @@ body {
 .cancha-card:hover {
     transform: none;
     border-color: #2ECC71;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06); 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* ------------------ Imagen de la Cancha ------------------ */
@@ -176,7 +181,7 @@ body {
     left: 0;
     right: 0;
     height: 60px;
-    background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
     pointer-events: none;
 }
 
@@ -185,7 +190,7 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
-    transform: none; 
+    transform: none;
     border-top-left-radius: 14px;
     border-top-right-radius: 14px;
     transition: transform 0.3s ease;
@@ -219,7 +224,7 @@ body {
 }
 
 .cancha-details {
-    flex-grow: 1; 
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -295,22 +300,21 @@ body {
 .btn-reservar {
     margin: 0 1.5rem 1.5rem;
     padding: 1.1rem;
-    background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%); 
+    background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
     color: white;
     border: none;
     border-radius: 10px;
     font-size: 1.15rem;
     font-weight: 800;
     cursor: pointer;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
     transition: background 0.3s ease, opacity 0.3s ease;
 }
 
 .btn-reservar:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%); 
-    transform: none; 
+    background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+    transform: none;
     box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
 }
 
@@ -336,11 +340,12 @@ body {
         flex-wrap: wrap;
         justify-content: center;
     }
+
     .filter-group input,
     .filter-group select {
         width: 200px;
     }
-    
+
     .canchas-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
@@ -352,41 +357,48 @@ body {
         margin: 1.5rem;
         padding: 1.5rem;
     }
-    
+
     .canchas-header-section h1 {
         font-size: 2.2rem;
     }
-    
+
     .canchas-grid {
         /* En móvil, volvemos a una sola columna */
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .cancha-card {
-        max-width: 100%; /* Permite que la tarjeta ocupe todo el ancho en móvil */
+        max-width: 100%;
+        /* Permite que la tarjeta ocupe todo el ancho en móvil */
     }
-    
+
     .canchas-filters {
         padding: 1.5rem;
     }
 
     .form-group {
-        width: 100%; /* Asegura que cada grupo de filtro ocupe su propio espacio */
-        text-align: center; /* Centra la etiqueta y el input/select */
+        width: 100%;
+        /* Asegura que cada grupo de filtro ocupe su propio espacio */
+        text-align: center;
+        /* Centra la etiqueta y el input/select */
     }
 
     .form-group label {
-        text-align: left; /* Alinea las etiquetas a la izquierda si el input es 100% */
+        text-align: left;
+        /* Alinea las etiquetas a la izquierda si el input es 100% */
         margin-left: 0;
     }
 
     .form-group input,
     .form-group select {
         width: 100%;
-        max-width: 300px; /* Limita el ancho en pantallas pequeñas si 100% es demasiado grande */
-        display: block; /* Asegura que ocupe su propia línea si hay otros elementos */
-        margin: 0.5rem auto 1rem auto; /* Centra el input/select y le da margen vertical */
+        max-width: 300px;
+        /* Limita el ancho en pantallas pequeñas si 100% es demasiado grande */
+        display: block;
+        /* Asegura que ocupe su propia línea si hay otros elementos */
+        margin: 0.5rem auto 1rem auto;
+        /* Centra el input/select y le da margen vertical */
     }
 
     .btn-buscar-canchas {
@@ -399,11 +411,12 @@ body {
     .cancha-imagen {
         height: 180px;
     }
-    
+
     .cancha-name {
         font-size: 1.25rem;
     }
 }
+
 .estado-disponible {
     background: #e8f5e9;
     color: #2e7d32;

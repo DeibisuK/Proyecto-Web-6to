@@ -1,6 +1,6 @@
 <div class="canchas-container">
   <div class="canchas-header-section">
-    <h1>¡Reserva tu Cancha Ahora! <span class="material-icons">calendar_today</span></h1>
+    <h1>¡Reserva tu Cancha Ahora!</h1>
     <p>
       Explora nuestras canchas disponibles. Selecciona la que mejor se adapte a tu deporte y horario
       para asegurar tu cupo.
@@ -94,17 +94,21 @@
         <span>{{ cancha.estado }}</span>
       </div>
 
-      <button class="btn-reservar" [disabled]="cancha.estado !== 'Disponible'">
-        {{
-          cancha.estado === 'Disponible'
-            ? 'Reservar'
-            : cancha.estado === 'Reservado'
-            ? 'Ya Reservada'
-            : cancha.estado === 'Mantenimiento'
-            ? 'En Mantenimiento'
-            : 'No Disponible'
-        }}
-      </button>
+      <button 
+  class="btn-reservar" 
+  [disabled]="cancha.estado !== 'Disponible'"
+  [routerLink]="['/tienda/reservar-cancha', cancha.id_cancha]">
+  {{
+    cancha.estado === 'Disponible'
+      ? 'Reservar'
+      : cancha.estado === 'Reservado'
+      ? 'Ya Reservada'
+      : cancha.estado === 'Mantenimiento'
+      ? 'En Mantenimiento'
+      : 'No Disponible'
+  }}
+</button>
+
     </div>
 
     <div *ngIf="canchas.length === 0 && !errorMessage">
