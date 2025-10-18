@@ -7,10 +7,9 @@ import { Cancha } from '../../../../../core/models/canchas.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-
 @Component({
   selector: 'app-detalle-reservar-cancha',
-  imports:[CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './detalle-reservar-cancha.html',
   styleUrls: ['./detalle-reservar-cancha.css']
 })
@@ -20,6 +19,7 @@ export class DetalleReservarCancha implements OnInit {
   sede?: Sede;
 
   fechaSeleccionada: string = '';
+  minDate: string = ''; // 👈 nueva propiedad
   duracionSeleccionada: number = 1;
   horariosDisponibles: { hora: string, reservado: boolean }[] = [];
   horarioSeleccionado: any = null;
@@ -32,6 +32,10 @@ export class DetalleReservarCancha implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // ✅ Establecer la fecha mínima (hoy)
+    const hoy = new Date();
+    this.minDate = hoy.toISOString().split('T')[0];
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.cargarCancha(id);
