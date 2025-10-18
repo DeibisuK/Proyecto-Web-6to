@@ -17,13 +17,6 @@ export interface Sede {
   direccion?: string;
 }
 
-// En tu archivo 'canchas.model.ts'
-
-// ... (Cancha y Sede interfaces permanecen igual)
-
-/** * Define los tipos de superficie válidos para una cancha. 
- * AÑADIDOS: 'Césped Natural' y 'Parquet'
- */
 export type TipoSuperficie = 
     'Césped Sintético' 
     | 'Arcilla' 
