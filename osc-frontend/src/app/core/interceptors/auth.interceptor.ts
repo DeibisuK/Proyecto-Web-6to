@@ -20,6 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     // Only attach token for API gateway requests
     const isApiRequest = req.url.includes('localhost:3000') || 
+                        req.url.startsWith('/admin') ||
                         req.url.startsWith('/u') || 
                         req.url.startsWith('/p') || 
                         req.url.startsWith('/b') || 

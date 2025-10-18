@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from './url';
+import { RolUsuario, Usuario } from '../models/usuario.model';
 
 export interface BackendUserPayload {
   uid: string;
@@ -18,17 +19,15 @@ export interface CombinedUser {
   photoURL?: string | null;
   emailVerified: boolean;
   disabled: boolean;
-  customClaims: any;
+  customClaims: {
+    role?: RolUsuario;
+    id_rol?: number;
+  };
   providerData: any[];
   metadata: {
     creationTime: string | null;
     lastSignInTime: string | null;
   };
-  id_user?: number;
-  nombre?: string;
-  apellido?: string;
-  id_rol?: number;
-  rol_nombre?: string;
   source: 'firebase+db' | 'firebase-only' | 'db-only';
 }
 
@@ -48,6 +47,10 @@ export class UserApiService {
     // The gateway proxies /u -> user-service
     return this.http.post(`${API_URL}/u/users/`, payload);
   }
+  
+  getUserByUid(uid: string): Observable<Usuario> {
+    return this.http.get<Usuario>(`${API_URL}/u/users/${uid}`);
+  }
 
   // Get all users (Firebase + Database combined)
   getAllUsers(): Observable<AllUsersResponse> {
@@ -55,13 +58,13 @@ export class UserApiService {
   }
 
   // Get all users from database with roles
-  getAllUsersFromDB(): Observable<any[]> {
-    return this.http.get<any[]>(`${API_URL}/u/users`);
+  getAllUsersFromDB(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(`${API_URL}/u/users`);
   }
 
   // Update user role
   updateUserRole(uid: string, id_rol: number): Observable<any> {
-    return this.http.patch(`${API_URL}/u/users/${uid}/role`, { id_rol });
+    return this.http.post(`${API_URL}/admin/assign-role`, { uid, id_rol });
   }
 
   // Delete user
