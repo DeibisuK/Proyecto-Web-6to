@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Usuario, RolUsuario, RolInfo } from '../../../core/models/usuario.model';
 import { NotificationService } from '../../../core/services/notification.service';
+import { UserApiService } from '../../../core/services/user-api.service';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-usuario',
@@ -11,6 +13,8 @@ import { NotificationService } from '../../../core/services/notification.service
   styleUrl: './usuario.css'
 })
 export class UsuarioComponent implements OnInit {
+  private userApiService = inject(UserApiService);
+  private auth = inject(Auth);
   usuarios: Usuario[] = [];
   usuariosFiltrados: Usuario[] = [];
   usuariosPaginados: Usuario[] = [];
@@ -26,8 +30,8 @@ export class UsuarioComponent implements OnInit {
   pages: number[] = [];
   
   // Loading
-  isLoading = false;
-  skeletonItems = Array(20).fill(0);
+  isLoading = true;
+  skeletonItems = Array(12).fill(0); // Mostrar 12 skeletons
   
   // Estadísticas
   totalFirebase = 0;
@@ -41,38 +45,75 @@ export class UsuarioComponent implements OnInit {
   nuevoRol: RolUsuario | null = null;
   
   roles: RolInfo[] = [
-    { value: 'superadmin', label: 'Super Admin', color: '#9B59B6' },
-    { value: 'admin', label: 'Admin', color: '#3498DB' },
-    { value: 'arbitro', label: 'Árbitro', color: '#F39C12' },
-    { value: 'cliente', label: 'Cliente', color: '#2ECC71' }
+    { value: 'Admin', label: 'Admin', color: '#3498DB', id: 1 },
+    { value: 'Cliente', label: 'Cliente', color: '#2ECC71', id: 2 },
+    { value: 'Arbitro', label: 'Árbitro', color: '#F39C12', id: 3 }
   ];
+
+  // Mapeo de id_rol a nombre
+  rolMap: { [key: number]: RolUsuario } = {
+    1: 'Admin',
+    2: 'Cliente',
+    3: 'Arbitro'
+  };
 
   constructor(
     private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
-    this.cargarUsuariosMock();
+    this.cargarUsuarios();
+  }
+
+  async cargarUsuarios() {
+    this.isLoading = true;
+    try {
+      const currentUser = this.auth.currentUser;
+      
+      this.userApiService.getAllUsersFromDB().subscribe({
+        next: (data) => {
+          console.log('Usuarios desde BD:', data);
+          
+          // Transformar los datos al formato esperado
+          this.usuarios = data.map((u, index) => ({
+            id_usuario: index + 1, // ID temporal para el frontend
+            uid: u.uid,
+            nombre: u.nombre || 'Sin nombre',
+            apellido: '',
+            email: u.email,
+            foto_perfil: u.foto_perfil || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.nombre || 'User') + '&background=random',
+            rol: u.rol || this.rolMap[u.id_rol] || 'Cliente',
+            fecha_registro: new Date().toISOString(),
+            estado: 'activo',
+            source: 'db-only',
+            emailVerified: true,
+            providerData: []
+          }));
+
+          // Filtrar el usuario actual de la lista
+          if (currentUser) {
+            this.usuarios = this.usuarios.filter(u => u.uid !== currentUser.uid);
+          }
+
+          this.usuariosFiltrados = [...this.usuarios];
+          this.aplicarPaginacion();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar usuarios:', error);
+          this.notificationService.error('Error al cargar usuarios');
+          this.isLoading = false;
+        }
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      this.isLoading = false;
+    }
   }
 
   cargarUsuariosMock() {
-    // Datos de ejemplo cargados directamente en el componente
-    this.usuarios = [
-      {
-        id_usuario: 1,
-        uid: 'firebase-uid-1',
-        nombre: 'Rebertida',
-        apellido: 'De Cagada',
-        email: 'nopasonada@ehm.com',
-        foto_perfil: 'https://i.pinimg.com/736x/d5/9b/ed/d59bed6456fb7638e5dac8bab70eb294.jpg',
-        rol: 'superadmin',
-        fecha_registro: '2024-01-15T10:30:00',
-        estado: 'activo',
-        source: 'firebase+db',
-        emailVerified: true,
-        providerData: [{ providerId: 'google.com' }]
-      }
-    ];
+    // Este método ya no se usa, se carga desde la BD con cargarUsuarios()
+    this.usuarios = [];
 
     // Calcular estadísticas
     this.totalFirebase = this.usuarios.filter(u => u.source === 'firebase-only').length;
@@ -144,29 +185,69 @@ export class UsuarioComponent implements OnInit {
   cambiarRolUsuario() {
     if (!this.usuarioSeleccionado || !this.nuevoRol) return;
 
-    const index = this.usuarios.findIndex(u => u.id_usuario === this.usuarioSeleccionado!.id_usuario);
-    if (index !== -1) {
-      this.usuarios[index].rol = this.nuevoRol;
+    const rolInfo = this.roles.find(r => r.value === this.nuevoRol);
+    if (!rolInfo) {
+      this.notificationService.error('Rol no válido');
+      return;
     }
 
-    this.filtrarUsuarios();
-    this.notificationService.success('Rol actualizado correctamente');
-    this.cerrarModalCambiarRol();
+    const uid = this.usuarioSeleccionado.uid;
+    if (!uid) {
+      this.notificationService.error('Usuario sin UID');
+      return;
+    }
+
+    this.userApiService.updateUserRole(uid, rolInfo.id).subscribe({
+      next: (data) => {
+        console.log('Rol actualizado:', data);
+        
+        // Actualizar en la lista local
+        const index = this.usuarios.findIndex(u => u.uid === this.usuarioSeleccionado!.uid);
+        if (index !== -1) {
+          this.usuarios[index].rol = this.nuevoRol!;
+        }
+
+        this.filtrarUsuarios();
+        this.notificationService.success('Rol actualizado correctamente');
+        this.cerrarModalCambiarRol();
+      },
+      error: (error) => {
+        console.error('Error al actualizar rol:', error);
+        this.notificationService.error('Error al actualizar el rol');
+      }
+    });
   }
 
   quitarRol(usuario: Usuario) {
-    if (usuario.rol === 'cliente') {
+    if (usuario.rol === 'Cliente') {
       this.notificationService.error('Los clientes ya tienen el rol base');
       return;
     }
 
-    const index = this.usuarios.findIndex(u => u.id_usuario === usuario.id_usuario);
-    if (index !== -1) {
-      this.usuarios[index].rol = 'cliente';
+    const uid = usuario.uid;
+    if (!uid) {
+      this.notificationService.error('Usuario sin UID');
+      return;
     }
 
-    this.filtrarUsuarios();
-    this.notificationService.success('Rol removido correctamente');
+    // id_rol 2 = Cliente
+    this.userApiService.updateUserRole(uid, 2).subscribe({
+      next: (data) => {
+        console.log('Rol removido:', data);
+        
+        const index = this.usuarios.findIndex(u => u.uid === usuario.uid);
+        if (index !== -1) {
+          this.usuarios[index].rol = 'Cliente';
+        }
+
+        this.filtrarUsuarios();
+        this.notificationService.success('Rol removido correctamente');
+      },
+      error: (error) => {
+        console.error('Error al remover rol:', error);
+        this.notificationService.error('Error al remover el rol');
+      }
+    });
   }
 
   confirmarEliminar(usuario: Usuario) {
@@ -177,11 +258,28 @@ export class UsuarioComponent implements OnInit {
   eliminarUsuario() {
     if (!this.usuarioSeleccionado) return;
 
-    this.usuarios = this.usuarios.filter(u => u.id_usuario !== this.usuarioSeleccionado!.id_usuario);
-    this.filtrarUsuarios();
+    const uid = this.usuarioSeleccionado.uid;
+    if (!uid) {
+      this.notificationService.error('Usuario sin UID');
+      return;
+    }
 
-    this.notificationService.success('Usuario eliminado correctamente');
-    this.cerrarModalEliminar();
+    this.userApiService.deleteUser(uid).subscribe({
+      next: () => {
+        console.log('Usuario eliminado');
+        
+        this.usuarios = this.usuarios.filter(u => u.uid !== this.usuarioSeleccionado!.uid);
+        this.filtrarUsuarios();
+
+        this.notificationService.success('Usuario eliminado correctamente');
+        this.cerrarModalEliminar();
+      },
+      error: (error) => {
+        console.error('Error al eliminar usuario:', error);
+        this.notificationService.error('Error al eliminar el usuario');
+        this.cerrarModalEliminar();
+      }
+    });
   }
 
   cerrarModalEliminar() {
@@ -234,5 +332,10 @@ export class UsuarioComponent implements OnInit {
       'db-only': '#2ECC71'
     };
     return colors[source || ''] || '#95A5A6';
+  }
+
+  onImageError(event: Event, usuario: Usuario) {
+    const img = event.target as HTMLImageElement;
+    img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(usuario.nombre || 'User')}&background=random&size=200`;
   }
 }

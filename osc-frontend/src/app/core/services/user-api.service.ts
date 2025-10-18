@@ -53,4 +53,19 @@ export class UserApiService {
   getAllUsers(): Observable<AllUsersResponse> {
     return this.http.get<AllUsersResponse>(`${API_URL}/admin/all-users`);
   }
+
+  // Get all users from database with roles
+  getAllUsersFromDB(): Observable<any[]> {
+    return this.http.get<any[]>(`${API_URL}/u/users`);
+  }
+
+  // Update user role
+  updateUserRole(uid: string, id_rol: number): Observable<any> {
+    return this.http.patch(`${API_URL}/u/users/${uid}/role`, { id_rol });
+  }
+
+  // Delete user
+  deleteUser(uid: string): Observable<any> {
+    return this.http.delete(`${API_URL}/u/users/${uid}`);
+  }
 }

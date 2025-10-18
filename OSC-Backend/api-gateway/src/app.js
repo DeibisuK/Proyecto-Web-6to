@@ -76,6 +76,10 @@ const proxyOptions = {
       if (srcReq.user.email)
         proxyReqOpts.headers["x-user-email"] = srcReq.user.email;
     }
+    // Attach role from tokenClaims if available
+    if (srcReq.tokenClaims && srcReq.tokenClaims.role) {
+      proxyReqOpts.headers["x-user-role"] = srcReq.tokenClaims.role;
+    }
     return proxyReqOpts;
   },
 };

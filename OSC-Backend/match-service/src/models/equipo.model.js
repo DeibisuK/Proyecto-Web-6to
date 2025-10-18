@@ -1,16 +1,14 @@
 import pool from '../config/db.js';
 
 // Obtener todos los equipos (ADMIN)
+// Los datos de nombre_creador y email_creador vienen directamente de la tabla equipos
 export const findAll = async () => {
     const result = await pool.query(`
         SELECT 
             e.*,
-            d.nombre_deporte,
-            u.name_user as nombre_creador,
-            u.email_user as email_creador
+            d.nombre_deporte
         FROM equipos e
         LEFT JOIN deportes d ON e.id_deporte = d.id_deporte
-        LEFT JOIN usuarios u ON e.id_usuario_creador = u.id_user
         ORDER BY e.creado_en DESC
     `);
     return result.rows;
@@ -57,12 +55,12 @@ export const findById = async (id) => {
 };
 
 export const create = async (equipo) => {
-    const { nombre_equipo, descripcion, logo_url, id_deporte, id_usuario_creador, firebase_uid } = equipo;
+    const { nombre_equipo, descripcion, logo_url, id_deporte, firebase_uid } = equipo;
     const result = await pool.query(
-        `INSERT INTO equipos (nombre_equipo, descripcion, logo_url, id_deporte, id_usuario_creador, firebase_uid) 
-         VALUES ($1, $2, $3, $4, $5, $6) 
+        `INSERT INTO equipos (nombre_equipo, descripcion, logo_url, id_deporte, firebase_uid) 
+         VALUES ($1, $2, $3, $4, $5) 
          RETURNING *`,
-        [nombre_equipo, descripcion, logo_url || null, id_deporte || null, id_usuario_creador || null, firebase_uid || null]
+        [nombre_equipo, descripcion, logo_url || null, id_deporte || null, firebase_uid]
     );
     return result.rows[0];
 };

@@ -76,4 +76,25 @@ export class UserController {
       res.status(500).json({ error: "Failed to delete user" });
     }
   }
+
+  static async updateUserRole(req, res) {
+    try {
+      const { uid } = req.params;
+      const { id_rol } = req.body;
+      
+      if (!id_rol) {
+        return res.status(400).json({ error: "id_rol is required" });
+      }
+
+      const updatedUser = await service.updateRole(uid, id_rol);
+      if (updatedUser) {
+        res.status(200).json(updatedUser);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error) {
+      console.error("[UserController Error]", error);
+      res.status(500).json({ error: "Failed to update user role" });
+    }
+  }
 }

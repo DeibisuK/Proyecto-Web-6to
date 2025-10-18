@@ -24,10 +24,12 @@
             #nombreInput="ngModel"
           />
           <span class="char-count">{{ equipoData.nombre_equipo.length }}/50</span>
-          <div *ngIf="nombreInput.invalid && nombreInput.touched" class="error-message">
-            <span class="material-icons">error</span>
-            El nombre del equipo es obligatorio
-          </div>
+          @if (nombreInput.invalid && nombreInput.touched) {
+            <div class="error-message">
+              <span class="material-icons">error</span>
+              El nombre del equipo es obligatorio
+            </div>
+          }
         </div>
 
         <!-- Deporte -->
@@ -47,25 +49,30 @@
             <option [value]="4">Tenis</option>
             <option [value]="5">Pádel</option>
           </select>
-          <div *ngIf="deporteInput.invalid && deporteInput.touched" class="error-message">
-            <span class="material-icons">error</span>
-            Debes seleccionar un deporte
-          </div>
+          @if (deporteInput.invalid && deporteInput.touched) {
+            <div class="error-message">
+              <span class="material-icons">error</span>
+              Debes seleccionar un deporte
+            </div>
+          }
         </div>
       </div>
 
       <!-- Logo del Equipo a la derecha -->
       <div class="logo-section-right">
         <div class="logo-preview" [class.has-image]="logoPreview || equipoData.logo_url">
-          <img 
-            *ngIf="logoPreview || equipoData.logo_url" 
-            [src]="logoPreview || equipoData.logo_url" 
-            alt="Logo del equipo"
-          />
-          <div *ngIf="!logoPreview && !equipoData.logo_url" class="logo-placeholder">
-            <span class="material-icons">add_photo_alternate</span>
-            <p>Subir logo</p>
-          </div>
+          @if (logoPreview || equipoData.logo_url) {
+            <img 
+              [src]="logoPreview || equipoData.logo_url" 
+              alt="Logo del equipo"
+            />
+          }
+          @if (!logoPreview && !equipoData.logo_url) {
+            <div class="logo-placeholder">
+              <span class="material-icons">add_photo_alternate</span>
+              <p>Subir logo</p>
+            </div>
+          }
         </div>
         <input 
           type="file" 
@@ -110,8 +117,12 @@
         class="btn btn-primary" 
         [disabled]="equipoForm.invalid || isLoading"
       >
-        <span class="spinner" *ngIf="isLoading"></span>
-        <span *ngIf="!isLoading">{{ equipoEditar ? 'Actualizar' : 'Crear Equipo' }}</span>
+        @if (isLoading) {
+          <span class="spinner"></span>
+        }
+        @if (!isLoading) {
+          <span>{{ equipoEditar ? 'Actualizar' : 'Crear Equipo' }}</span>
+        }
       </button>
     </div>
   </form>

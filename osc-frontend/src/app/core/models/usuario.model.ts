@@ -13,11 +13,12 @@ export interface Usuario {
   providerData?: any[];
 }
 
-export type RolUsuario = 'admin' | 'superadmin' | 'arbitro' | 'cliente';
+export type RolUsuario = 'Admin' | 'Cliente' | 'Arbitro';
 export type EstadoUsuario = 'activo' | 'inactivo' | 'bloqueado';
 
 export interface RolInfo {
   value: RolUsuario;
   label: string;
   color: string;
+  id: number;
 }
