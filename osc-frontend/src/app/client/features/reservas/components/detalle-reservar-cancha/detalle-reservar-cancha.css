@@ -1,5 +1,3 @@
-/* detalle-cancha.component.css */
-
 /* ------------------ Contenedor y Breadcrumb ------------------ */
 
 .detalle-cancha-container {
@@ -45,7 +43,9 @@
     display: grid;
     grid-template-columns: 1.1fr 1fr; /* Imagen un poco más grande que la info */
     gap: 3rem;
+    /* --- CORRECCIÓN CLAVE: Asegura que ambas columnas empiecen arriba --- */
     align-items: start;
+    /* ------------------------------------------------------------------- */
 }
 
 /* ------------------ Sección de Imagen ------------------ */
@@ -54,8 +54,10 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    position: sticky; /* Mantener la imagen visible al hacer scroll */
-    top: 2rem;
+    /* --- CORRECCIÓN CLAVE: Remover position: sticky para que no empuje el contenido lateral --- */
+    position: static; 
+    top: 0; /* Aseguramos que no haya desplazamiento */
+    /* ---------------------------------------------------------------------------------------- */
 }
 
 .imagen-principal {
@@ -240,7 +242,12 @@
 .tarifa-actual {
     font-size: 2rem;
     font-weight: 800;
-    color: #E74C3C; /* Rojo para el precio final */
+    color: #16A085; /* Rojo para el precio final */
+    .info-reserva-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
 }
 
 .tarifa-anterior {
@@ -264,10 +271,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     color: #2C3E50;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #ECF0F1;
-    padding-bottom: 0.5rem;
-}
+    }
 
 .filtros-reserva-grid {
     display: flex;
@@ -483,7 +487,7 @@
         gap: 2rem;
     }
     .imagen-section {
-        position: static; /* Desactivar sticky en móvil */
+        position: static; /* Ya está corregido, pero lo dejamos aquí */
     }
     .cancha-titulo {
         font-size: 1.8rem;
