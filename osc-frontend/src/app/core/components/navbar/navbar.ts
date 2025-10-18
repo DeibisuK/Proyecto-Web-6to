@@ -83,6 +83,15 @@ export class Navbar implements OnInit, OnDestroy {
       })
     );
 
+    // Scroll al inicio cuando se navega a una nueva ruta
+    this.subscriptions.add(
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+    );
+
     // Cargar sedes dinámicamente
     this.cargarSedes();
   }
@@ -189,5 +198,12 @@ export class Navbar implements OnInit, OnDestroy {
     this.mostrarRecuperarPassword = false;
     this.mostrarLogin = true;
     // El body ya tiene modal-open
+  }
+
+  navegarSedesPorCiudad(ciudad: string) {
+    this.router.navigate(['/todas-las-sedes'], { 
+      queryParams: { ciudad: ciudad } 
+    });
+    this.toggleDropdown('sedes', false);
   }
 }

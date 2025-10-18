@@ -1,1 +1,134 @@
-<p>crear-metodo works!</p>
+<!-- Modal overlay -->
+@if (isModalOpen) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <!-- Botón cerrar -->
+      <button class="modal-close" (click)="closeModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Título del modal -->
+      <div class="modal-header">
+        <h2>Agregar una nueva tarjeta</h2>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="cardForm" (ngSubmit)="addCard()" class="card-form">
+        <!-- Número de tarjeta -->
+        <div class="form-group">
+          <label class="form-label">Número de tarjeta</label>
+          <div class="input-container">
+            <svg class="input-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            @if (cardType) {
+              <i [class]="getCardIcon() + ' input-icon-card'" 
+                 [style.color]="getCardColor()"></i>
+              <span class="card-type-indicator">
+                {{ cardType }}
+              </span>
+            }
+            <input 
+              type="text" 
+              formControlName="cardNumber"
+              placeholder="1234 5678 9012 3456"
+              class="form-input"
+              maxlength="19"
+              (input)="formatCardNumber($event)">
+          </div>
+          @if (cardForm.get('cardNumber')?.invalid && cardForm.get('cardNumber')?.touched) {
+            <span class="error-message">Número de tarjeta requerido (13-19 dígitos)</span>
+          }
+        </div>
+
+        <!-- Fecha de vencimiento y CVV -->
+        <div class="form-row">
+          <div class="form-group form-group-half">
+            <label class="form-label">Fecha de vencimiento</label>
+            <div class="input-container">
+              <input 
+                type="text" 
+                formControlName="expiryDate"
+                placeholder="MM/AA"
+                class="form-input"
+                maxlength="5"
+                (input)="formatExpiryDate($event)">
+            </div>
+            @if (cardForm.get('expiryDate')?.invalid && cardForm.get('expiryDate')?.touched) {
+              <span class="error-message">Formato: MM/AA</span>
+            }
+          </div>
+
+          <div class="form-group form-group-half">
+            <label class="form-label">CVV</label>
+            <div class="input-container">
+              <input 
+                type="text" 
+                formControlName="cvv"
+                placeholder="123"
+                class="form-input"
+                maxlength="4">
+              <svg class="input-icon-right" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            @if (cardForm.get('cvv')?.invalid && cardForm.get('cvv')?.touched) {
+              <span class="error-message">CVV de 3-4 dígitos</span>
+            }
+          </div>
+        </div>
+
+        <!-- Información de seguridad -->
+        <div class="protection-info">
+          <div class="protection-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h4>Seguridad de tus datos</h4>
+          </div>
+          <ul class="protection-list">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Encriptación AES-256 en el servidor
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Los datos se envían de forma segura
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Nunca se almacenan sin encriptar
+            </li>
+          </ul>
+        </div>
+
+        <!-- Botón agregar tarjeta -->
+        <button type="submit" class="add-card-submit-btn" [disabled]="!cardForm.valid || isLoading">
+          @if (isLoading) {
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+            </svg>
+          } @else {
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          }
+          {{ isLoading ? 'Procesando...' : 'Agregar tu tarjeta' }}
+        </button>
+      </form>
+    </div>
+  </div>
+}

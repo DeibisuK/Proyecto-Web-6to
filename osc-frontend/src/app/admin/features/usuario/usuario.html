@@ -14,9 +14,9 @@
     <div class="filtro-rol">
       <select (change)="onFiltroRolChange($event)">
         <option value="">Todos los roles</option>
-        <option *ngFor="let rol of roles" [value]="rol.value">
-          {{ rol.label }}
-        </option>
+        @for (rol of roles; track rol.value) {
+          <option [value]="rol.value">{{ rol.label }}</option>
+        }
       </select>
     </div>
 
@@ -27,99 +27,95 @@
   </div>
 
   <!-- Grid de Usuarios -->
-  <div class="usuarios-grid" *ngIf="usuariosPaginados.length > 0; else sinUsuarios">
-    <div class="usuario-card" *ngFor="let usuario of usuariosPaginados">
-      <!-- Background con blur -->
-      <div class="card-background" [style.background-image]="'url(' + (usuario.foto_perfil || 'https://via.placeholder.com/150') + ')'"></div>
-      
-      <!-- Contenido -->
-      <div class="card-content">
-        <!-- Foto de perfil circular -->
-        <div class="foto-perfil">
-          <img 
-            [src]="usuario.foto_perfil || 'https://via.placeholder.com/150'" 
-            [alt]="getNombreCompleto(usuario)"
-          />
+  @if (isLoading) {
+    <!-- Skeleton Loading -->
+    <div class="usuarios-grid">
+      @for (item of skeletonItems; track $index) {
+        <div class="usuario-card skeleton-card">
+          <div class="skeleton-background"></div>
+          <div class="card-content">
+            <div class="skeleton-avatar"></div>
+            <div class="skeleton-info">
+              <div class="skeleton-line skeleton-title"></div>
+              <div class="skeleton-line skeleton-email"></div>
+              <div class="skeleton-line skeleton-badge"></div>
+            </div>
+            <div class="skeleton-actions">
+              <div class="skeleton-button"></div>
+              <div class="skeleton-button"></div>
+              <div class="skeleton-button"></div>
+            </div>
+          </div>
         </div>
-
-        <!-- Información del usuario -->
-        <div class="usuario-info">
-          <h3>{{ getNombreCompleto(usuario) }}</h3>
-          <p class="email">{{ usuario.email }}</p>
-          
-          <!-- Badge de rol -->
-          <span 
-            class="rol-badge" 
-            [style.background]="getRolInfo(usuario.rol).color"
-          >
-            {{ getRolInfo(usuario.rol).label }}
-          </span>
-        </div>
-
-        <!-- Acciones -->
-        <div class="usuario-actions">
-          <button 
-            class="btn-action btn-cambiar-rol" 
-            (click)="abrirModalCambiarRol(usuario)"
-            title="Modificar rol"
-          >
-            <span class="material-icons">admin_panel_settings</span>
-            Cambiar Rol
-          </button>
-          
-          <button 
-            class="btn-action btn-quitar-rol" 
-            (click)="quitarRol(usuario)"
-            [disabled]="usuario.rol === 'cliente'"
-            title="Quitar rol"
-          >
-            <span class="material-icons">remove_circle</span>
-            Quitar Rol
-          </button>
-          
-          <button 
-            class="btn-action btn-eliminar" 
-            (click)="confirmarEliminar(usuario)"
-            title="Eliminar usuario"
-          >
-            <span class="material-icons">delete</span>
-            Eliminar
-          </button>
-        </div>
-      </div>
+      }
     </div>
-  </div>
+  } @else if (usuariosPaginados.length > 0) {
+    <div class="usuarios-grid">
+      @for (usuario of usuariosPaginados; track usuario.id_usuario) {
+        <div class="usuario-card">
+          <!-- Background con blur -->
+          <div class="card-background" [style.background-image]="'url(' + usuario.foto_perfil + ')'"></div>
+          
+          <!-- Contenido -->
+          <div class="card-content">
+            <!-- Foto de perfil circular -->
+            <div class="foto-perfil">
+              <img 
+                [src]="usuario.foto_perfil" 
+                [alt]="getNombreCompleto(usuario)"
+                (error)="onImageError($event, usuario)"
+              />
+            </div>
 
-  <!-- Paginación -->
-  <div class="pagination" *ngIf="totalPages > 1">
-    <button 
-      class="page-btn" 
-      (click)="cambiarPagina(currentPage - 1)"
-      [disabled]="currentPage === 1"
-    >
-      <span class="material-icons">chevron_left</span>
-    </button>
+            <!-- Información del usuario -->
+            <div class="usuario-info">
+              <h3>{{ getNombreCompleto(usuario) }}</h3>
+              <p class="email">{{ usuario.email }}</p>
+              
+              <!-- Badge de rol -->
+              <span 
+                class="rol-badge" 
+                [style.background]="getRolInfo(usuario.rol).color"
+              >
+                {{ getRolInfo(usuario.rol).label }}
+              </span>
+            </div>
 
-    <button 
-      *ngFor="let page of pages"
-      class="page-btn"
-      [class.active]="page === currentPage"
-      (click)="cambiarPagina(page)"
-    >
-      {{ page }}
-    </button>
-
-    <button 
-      class="page-btn" 
-      (click)="cambiarPagina(currentPage + 1)"
-      [disabled]="currentPage === totalPages"
-    >
-      <span class="material-icons">chevron_right</span>
-    </button>
-  </div>
-
-  <!-- Estado vacío -->
-  <ng-template #sinUsuarios>
+            <!-- Acciones -->
+            <div class="usuario-actions">
+              <button 
+                class="btn-action btn-cambiar-rol" 
+                (click)="abrirModalCambiarRol(usuario)"
+                title="Modificar rol"
+              >
+                <span class="material-icons">admin_panel_settings</span>
+                Cambiar Rol
+              </button>
+              
+              <button 
+                class="btn-action btn-quitar-rol" 
+                (click)="quitarRol(usuario)"
+                [disabled]="usuario.rol === 'Cliente'"
+                title="Quitar rol"
+              >
+                <span class="material-icons">remove_circle</span>
+                Quitar Rol
+              </button>
+              
+              <button 
+                class="btn-action btn-eliminar" 
+                (click)="confirmarEliminar(usuario)"
+                title="Eliminar usuario"
+              >
+                <span class="material-icons">delete</span>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
     <div class="empty-state">
       <div class="empty-icon">
         <span class="material-icons">people_outline</span>
@@ -127,11 +123,43 @@
       <h3>No se encontraron usuarios</h3>
       <p>Intenta ajustar los filtros de búsqueda</p>
     </div>
-  </ng-template>
+  }
+
+  <!-- Paginación -->
+  @if (totalPages > 1) {
+    <div class="pagination">
+      <button 
+        class="page-btn" 
+        (click)="cambiarPagina(currentPage - 1)"
+        [disabled]="currentPage === 1"
+      >
+        <span class="material-icons">chevron_left</span>
+      </button>
+
+      @for (page of pages; track page) {
+        <button 
+          class="page-btn"
+          [class.active]="page === currentPage"
+          (click)="cambiarPagina(page)"
+        >
+          {{ page }}
+        </button>
+      }
+
+      <button 
+        class="page-btn" 
+        (click)="cambiarPagina(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+      >
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  }
 </div>
 
 <!-- Modal de Cambiar Rol -->
-<div class="modal-overlay" *ngIf="mostrarModalCambiarRol" (click)="cerrarModalCambiarRol()">
+@if (mostrarModalCambiarRol) {
+<div class="modal-overlay" (click)="cerrarModalCambiarRol()">
   <div class="modal-cambiar-rol" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>Cambiar Rol de Usuario</h2>
@@ -140,32 +168,35 @@
       </button>
     </div>
 
-    <div class="modal-body" *ngIf="usuarioSeleccionado">
+    @if (usuarioSeleccionado) {
+    <div class="modal-body">
       <p class="modal-subtitle">
         Selecciona el nuevo rol para <strong>{{ getNombreCompleto(usuarioSeleccionado) }}</strong>
       </p>
 
       <div class="roles-grid">
-        <label 
-          *ngFor="let rol of roles" 
-          class="rol-option"
-          [class.selected]="nuevoRol === rol.value"
-        >
-          <input 
-            type="radio" 
-            name="rol" 
-            [value]="rol.value"
-            [(ngModel)]="nuevoRol"
-          />
-          <div class="rol-card" [style.border-color]="rol.color">
-            <span class="rol-icon material-icons">
-              {{ rol.value === 'superadmin' ? 'shield' : rol.value === 'admin' ? 'manage_accounts' : rol.value === 'arbitro' ? 'sports_soccer' : 'person' }}
-            </span>
-            <span class="rol-name" [style.color]="rol.color">{{ rol.label }}</span>
-          </div>
-        </label>
+        @for (rol of roles; track rol.value) {
+          <label 
+            class="rol-option"
+            [class.selected]="nuevoRol === rol.value"
+          >
+            <input 
+              type="radio" 
+              name="rol" 
+              [value]="rol.value"
+              [(ngModel)]="nuevoRol"
+            />
+            <div class="rol-card" [style.border-color]="rol.color">
+              <span class="rol-icon material-icons">
+                {{ rol.value === 'Admin' ? 'manage_accounts' : rol.value === 'Arbitro' ? 'sports_soccer' : 'person' }}
+              </span>
+              <span class="rol-name" [style.color]="rol.color">{{ rol.label }}</span>
+            </div>
+          </label>
+        }
       </div>
     </div>
+    }
 
     <div class="modal-footer">
       <button class="btn-modal btn-cancelar" (click)="cerrarModalCambiarRol()">
@@ -181,17 +212,21 @@
     </div>
   </div>
 </div>
+}
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
+@if (mostrarModalEliminar) {
+<div class="modal-overlay" (click)="cerrarModalEliminar()">
   <div class="modal-eliminar" (click)="$event.stopPropagation()">
     <div class="modal-icon-warning">
       <span class="material-icons">warning</span>
     </div>
     <h2>¿Eliminar usuario?</h2>
-    <p *ngIf="usuarioSeleccionado">
+    @if (usuarioSeleccionado) {
+    <p>
       ¿Estás seguro de que deseas eliminar a <strong>{{ getNombreCompleto(usuarioSeleccionado) }}</strong>? Esta acción no se puede deshacer.
     </p>
+    }
     
     <div class="modal-actions">
       <button class="btn-modal btn-cancelar" (click)="cerrarModalEliminar()">
@@ -203,3 +238,4 @@
     </div>
   </div>
 </div>
+}

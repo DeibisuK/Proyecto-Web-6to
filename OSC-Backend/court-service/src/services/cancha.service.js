@@ -61,6 +61,45 @@ export const update = async (id, cancha) => {
 };
 
 export const remove = async (id) => {
+    // Obtener la cancha para ver si tiene imagen_url
+    const cancha = await model.findById(id);
+    
+    if (!cancha) {
+        throw new Error('Cancha no encontrada');
+    }
+
+    // Eliminar imagen de Cloudinary si existe
+    if (cancha.imagen_url) {
+        await eliminarImagenCloudinary(cancha.imagen_url);
+    }
+
     return await model.remove(id);
 };
+
+// Función auxiliar para eliminar imagen de Cloudinary
+async function eliminarImagenCloudinary(imageUrl) {
+    try {
+        const matches = imageUrl.match(/\/v\d+\/(.+)\.\w+$/);
+        if (matches && matches[1]) {
+            const publicId = matches[1]; // canchas/cancha_123
+            
+            // Llamar al servicio de Cloudinary para eliminar
+            const cloudinaryServiceUrl = process.env.CLOUDINARY_SERVICE_URL || 'http://localhost:3006';
+            const encodedPublicId = publicId.replace(/\//g, '|'); // Reemplazar / por |
+            
+            const response = await fetch(`${cloudinaryServiceUrl}/delete-imagen/${encodedPublicId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                console.log(`Imagen eliminada de Cloudinary: ${publicId}`);
+            } else {
+                console.warn(`No se pudo eliminar la imagen de Cloudinary: ${publicId}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error al eliminar imagen de Cloudinary:', error.message);
+        // No lanzar error para que no bloquee la eliminación de la cancha
+    }
+}
 

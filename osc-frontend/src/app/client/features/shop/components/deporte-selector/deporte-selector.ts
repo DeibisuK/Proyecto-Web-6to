@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-deporte-selector',
-  imports: [CommonModule, NgFor],
+  imports: [CommonModule],
   templateUrl: './deporte-selector.html',
   styleUrls: ['./deporte-selector.css']
 })

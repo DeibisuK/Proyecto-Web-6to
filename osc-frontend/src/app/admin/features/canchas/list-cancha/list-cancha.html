@@ -32,7 +32,7 @@
   </div>
 
   <!-- Grid de Canchas -->
-  <div class="canchas-grid" *ngIf="canchasFiltradas.length > 0; else sinCanchas">
+  <div class="canchas-grid" *ngIf="!isLoading && canchasFiltradas.length > 0; else noContent">
     <div class="cancha-card" *ngFor="let cancha of canchasFiltradas">
       <!-- Imagen de la cancha -->
       <div class="cancha-imagen">
@@ -88,18 +88,40 @@
     </div>
   </div>
 
-  <!-- Sin canchas -->
-  <ng-template #sinCanchas>
-    <div class="empty-state">
-      <div class="empty-icon">
-        <span class="material-icons">sports_soccer</span>
+  <!-- Skeleton Loading -->
+  <ng-template #noContent>
+    <div class="canchas-grid" *ngIf="isLoading">
+      <div class="cancha-card skeleton" *ngFor="let item of [1,2,3,4,5,6]">
+        <div class="cancha-imagen skeleton-image">
+          <div class="skeleton-shimmer"></div>
+        </div>
+        <div class="cancha-content">
+          <div class="cancha-header">
+            <div class="skeleton-text skeleton-title"></div>
+            <div class="skeleton-text skeleton-badge"></div>
+          </div>
+          <div class="cancha-detalles">
+            <div class="skeleton-text skeleton-detail"></div>
+            <div class="skeleton-text skeleton-detail"></div>
+            <div class="skeleton-text skeleton-detail"></div>
+          </div>
+          <div class="cancha-actions">
+            <div class="skeleton-button"></div>
+            <div class="skeleton-button"></div>
+          </div>
+        </div>
       </div>
-      <h3>No hay canchas registradas</h3>
-      <p>Crea tu primera cancha para empezar a gestionar reservas</p>
-      <button class="btn-crear-empty" (click)="crearCancha()">
-        <span class="material-icons">add</span>
-        Crear Primera Cancha
-      </button>
+    </div>
+
+    <!-- Sin canchas -->
+    <div *ngIf="!isLoading">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <span class="material-icons">sports_soccer</span>
+        </div>
+        <h3>No hay canchas registradas</h3>
+        <p>Crea tu primera cancha para empezar a gestionar reservas</p>
+      </div>
     </div>
   </ng-template>
 </div>

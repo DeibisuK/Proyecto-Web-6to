@@ -13,6 +13,7 @@ import { MiniMapComponent } from '../../../../shared/mini-map/mini-map';
 export class ListSedes implements OnInit {
   sedes: Sede[] = [];
   sedesAgrupadas: { nombre: string, sedes: Sede[] }[] = [];
+  isLoading = true;
   searchTerm: string = '';
   estadoFiltro: string = '';
 
@@ -26,10 +27,12 @@ export class ListSedes implements OnInit {
   }
 
   cargarSedes(): void {
+    this.isLoading = true;
     this.sedeService.getSedes().subscribe({
       next: (data) => {
         this.sedes = data;
         this.agruparSedesPorCiudad();
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error cargando sedes', err);
@@ -37,6 +40,7 @@ export class ListSedes implements OnInit {
           message: 'No se pudieron cargar las sedes',
           type: 'error'
         });
+        this.isLoading = false;
       }
     });
   }

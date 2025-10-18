@@ -76,6 +76,10 @@ const proxyOptions = {
       if (srcReq.user.email)
         proxyReqOpts.headers["x-user-email"] = srcReq.user.email;
     }
+    // Attach role from tokenClaims if available
+    if (srcReq.tokenClaims && srcReq.tokenClaims.role) {
+      proxyReqOpts.headers["x-user-role"] = srcReq.tokenClaims.role;
+    }
     return proxyReqOpts;
   },
 };
@@ -104,7 +108,7 @@ app.use("/admin", authenticate(), authorizeRole(1), adminRoutes);
 
 // Intercept user creation so we can synchronize Firebase custom claims immediately
 // POST /u/users -> create user in user-service, then set custom claims { role, id_rol }
-app.post("/u/users", authenticate(), async (req, res) => {
+app.post("/u/users", async (req, res) => {
   try {
     if (!userServiceUrl)
       return res.status(500).json({
@@ -195,36 +199,18 @@ app.post("/u/users", authenticate(), async (req, res) => {
   }
 });
 
-// Allow contacto without authentication (public): POST /u/contacto
-app.post('/u/contacto', proxy(userServiceUrl, userPublicProxyOptions));
+// =============================================
+// PUBLIC ROUTES (NO AUTHENTICATION REQUIRED)
+// Only /admin routes require authentication
+// =============================================
 
-app.use("/u", authorizeRole(1), proxy(userServiceUrl, proxyOptions));
-app.use("/p", authenticate(), proxy(productServiceUrl, proxyOptions));
-app.use("/b", authenticate(), proxy(process.env.BUY_SERVICE_URL, proxyOptions));
-
-// Allow listing sedes without authentication (public): GET /c/sedes
-app.get('/c/sedes', proxy(process.env.COURT_SERVICE_URL, courtPublicProxyOptions));
-
-// Allow listing canchas without authentication (public): GET /c/canchas
-app.get('/c/canchas', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
-app.get('/c/canchas/:id', proxy(process.env.COURT_SERVICE_URL, proxyOptions));
-
-// All other /c routes require authentication
-app.use(
-  "/c",
-  authenticate(),
-  proxy(process.env.COURT_SERVICE_URL, proxyOptions)
-);
-app.use(
-  "/m",
-  authenticate(),
-  proxy(process.env.MATCH_SERVICE_URL, proxyOptions)
-);
-app.use(
-  "/i",
-  authenticate(),
-  proxy(process.env.CLOUDINARY_SERVICE_URL, proxyOptions)
-);
+app.use("/u", proxy(userServiceUrl, proxyOptions));
+app.use("/p", proxy(productServiceUrl, proxyOptions));
+app.use("/b", proxy(process.env.BUY_SERVICE_URL, proxyOptions));
+app.use("/c", proxy(process.env.COURT_SERVICE_URL, proxyOptions));
+// Match service requires authentication for user-specific endpoints
+app.use("/m", authenticate(), proxy(process.env.MATCH_SERVICE_URL, proxyOptions));
+app.use("/i", proxy(process.env.CLOUDINARY_SERVICE_URL, proxyOptions));
 
 // Routes configured successfully
 module.exports = app;

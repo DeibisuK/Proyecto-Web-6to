@@ -31,7 +31,7 @@
   </div>
 
   <!-- Lista de Equipos -->
-  <div class="equipos-grid" *ngIf="equiposFiltrados.length > 0; else sinEquipos">
+  <div class="equipos-grid" *ngIf="!isLoading && equiposFiltrados.length > 0; else contenidoAlternativo">
     <div class="equipo-card" *ngFor="let equipo of equiposFiltrados">
       <div class="equipo-logo">
         <img 
@@ -73,18 +73,34 @@
     </div>
   </div>
 
-  <!-- Sin equipos -->
-  <ng-template #sinEquipos>
-    <div class="empty-state">
+  <!-- Skeleton Loading y Sin Equipos -->
+  <ng-template #contenidoAlternativo>
+    <!-- Skeleton Loading -->
+    <div class="equipos-grid" *ngIf="isLoading">
+      <div class="equipo-card skeleton" *ngFor="let item of [1,2,3,4,5,6]">
+        <div class="equipo-logo skeleton-logo">
+          <div class="skeleton-shimmer"></div>
+        </div>
+        <div class="equipo-info">
+          <div class="skeleton-text skeleton-title"></div>
+          <div class="skeleton-text skeleton-badge" style="width: 30%;"></div>
+          <div class="skeleton-text skeleton-detail"></div>
+          <div class="skeleton-text skeleton-detail" style="width: 70%;"></div>
+        </div>
+        <div class="equipo-actions">
+          <div class="skeleton-button"></div>
+          <div class="skeleton-button"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin equipos -->
+    <div class="empty-state" *ngIf="!isLoading && equiposFiltrados.length === 0">
       <div class="empty-icon">
         <span class="material-icons">sports_soccer</span>
       </div>
       <h3>No tienes equipos registrados</h3>
       <p>Crea tu primer equipo para empezar a organizar tus partidos</p>
-      <button class="btn-crear-empty" (click)="abrirModalCrear()">
-        <span class="material-icons">add</span>
-        Crear Mi Primer Equipo
-      </button>
     </div>
   </ng-template>
 </div>

@@ -19,3 +19,7 @@ export const update = async (id, user) => {
 export const remove = async (id) => {
     return await model.remove(id);
 };
+
+export const updateRole = async (uid, id_rol) => {
+    return await model.updateRole(uid, id_rol);
+};

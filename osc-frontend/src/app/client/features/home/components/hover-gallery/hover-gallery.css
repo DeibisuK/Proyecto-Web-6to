@@ -34,7 +34,7 @@
 .pillar {
   position: relative;
   flex: 1;
-  transition: flex 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: flex 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   cursor: pointer;
 }

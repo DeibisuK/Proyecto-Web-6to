@@ -37,7 +37,6 @@
 }
 
 .deporte-item:hover {
-  transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
@@ -67,6 +66,11 @@
 
 .deporte-item.activo {
   border: 2px solid #2ECC71;
+  transform: scale(1.05);
+}
+
+.deporte-item.activo img {
+  transform: scale(1.15);
 }
 
 .deporte-item.activo .deporte-nombre {

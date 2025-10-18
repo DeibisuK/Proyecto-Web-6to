@@ -1,12 +1,13 @@
 <div class="deportes-carousel">
   <h2>Tipo de Deporte</h2>
   <div class="deportes-items">
-    <div class="deporte-item"
-         *ngFor="let deporte of deportes"
-         [class.activo]="deporteActivo === deporte.id"
-         (click)="seleccionarDeporte(deporte.id)">
-      <img [src]="deporte.imagen" [alt]="deporte.nombre">
-      <span class="deporte-nombre">{{deporte.nombre}}</span>
-    </div>
+    @for (deporte of deportes; track deporte.id) {
+      <div class="deporte-item"
+           [class.activo]="deporteActivo === deporte.id"
+           (click)="seleccionarDeporte(deporte.id)">
+        <img [src]="deporte.imagen" [alt]="deporte.nombre">
+        <span class="deporte-nombre">{{deporte.nombre}}</span>
+      </div>
+    }
   </div>
 </div>

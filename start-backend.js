@@ -4,7 +4,7 @@ const path = require('path');
 
 const backendPath = path.join(__dirname, 'OSC-Backend');
 const services = fs.readdirSync(backendPath, { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules' && dirent.name !== 'cloudinary-service')
+  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules')
   .map(dirent => dirent.name);
 
 console.log(`\n🚀 osc backend Startup Script`);
@@ -154,6 +154,7 @@ function startAll() {
   console.log('   - Buy Service: http://localhost:3003');
   console.log('   - Court Service: http://localhost:3004');
   console.log('   - Match Service: http://localhost:3005');
+  console.log('   - Cloudinary Service: http://localhost:3006');
   console.log('\n💡 To start the frontend, open a new terminal and run:');
   console.log('   cd osc-frontend && npm install && ng serve --open\n');
   console.log('⚠️  Press Ctrl+C to stop all services\n');

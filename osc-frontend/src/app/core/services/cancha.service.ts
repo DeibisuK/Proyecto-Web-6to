@@ -7,7 +7,7 @@ import { Cancha } from '../models/canchas.model';
   providedIn: 'root'
 })
 export class CanchaService {
-  private apiUrl = '/c/canchas';
+  private apiUrl = 'http://localhost:3000/c/canchas';
 
   constructor(private http: HttpClient) {}
 
@@ -20,7 +20,7 @@ export class CanchaService {
   }
 
   getCanchasBySede(idSede: number): Observable<Cancha[]> {
-    return this.http.get<Cancha[]>(`/c/sedes/${idSede}/canchas`);
+    return this.http.get<Cancha[]>(`http://localhost:3000/c/sedes/${idSede}/canchas`);
   }
 
   createCancha(cancha: Cancha): Observable<Cancha> {

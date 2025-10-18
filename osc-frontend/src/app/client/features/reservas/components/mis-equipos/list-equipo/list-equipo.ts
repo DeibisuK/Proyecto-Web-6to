@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CrearEquipo } from '../crear-equipo/crear-equipo';
 import { Equipo } from '../../../../../../core/models/equipo.model';
+import { EquipoService } from '../../../../../../core/services/equipo.service';
+import { NotificationService } from '../../../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-list-equipo',
@@ -14,6 +17,7 @@ export class ListEquipo implements OnInit {
   equipos: Equipo[] = [];
   equiposFiltrados: Equipo[] = [];
   searchTerm = '';
+  isLoading = true;
   mostrarModal = false;
   mostrarModalEliminar = false;
   equipoSeleccionado?: Equipo;
@@ -22,36 +26,39 @@ export class ListEquipo implements OnInit {
   deportes: { [key: number]: string } = {
     1: 'Fútbol',
     2: 'Básquetbol',
-    3: 'Tenis',
-    4: 'Pádel'
+    3: 'Voleibol',
+    4: 'Tenis',
+    5: 'Pádel'
   };
+
+  constructor(
+    private equipoService: EquipoService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.cargarEquipos();
   }
 
   cargarEquipos() {
-    this.equipos = [
-      {
-        id_equipo: 1,
-        nombre_equipo: 'Los Insanos FC',
-        descripcion: 'Equipo de fútbol de insanos',
-        logo_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_-G6DvnfJNnIdjo8XltsMHVdIHbTpvRWyfQ&s',
-        id_deporte: 1
+    this.isLoading = true;
+    this.equipoService.getMisEquipos().subscribe({
+      next: (equipos) => {
+        this.equipos = equipos;
+        this.equiposFiltrados = [...equipos];
+        this.isLoading = false;
       },
-      {
-        id_equipo: 2,
-        nombre_equipo: 'Barcelona SC',
-        descripcion: 'Equipo competitivo con más de 5 años de experiencia',
-        logo_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Barcelona_Sporting_Club_Logo.png/1150px-Barcelona_Sporting_Club_Logo.png',
-        id_deporte: 2
+      error: (error) => {
+        console.error('Error al cargar equipos:', error);
+        this.notificationService.error('Error al cargar los equipos');
+        this.isLoading = false;
       }
-    ];
-    
-    this.equiposFiltrados = [...this.equipos];
+    });
   }
 
-  obtenerNombreDeporte(id: number): string {
+  obtenerNombreDeporte(id?: number): string {
+    if (!id) return 'Sin especificar';
     return this.deportes[id] || 'Sin especificar';
   }
 
@@ -76,9 +83,8 @@ export class ListEquipo implements OnInit {
   }
 
   editarEquipo(equipo: Equipo) {
-    this.equipoSeleccionado = { ...equipo };
-    this.mostrarModal = true;
-    document.body.classList.add('modal-open');
+    // Navegar a la ruta de edición
+    this.router.navigate(['/editar-equipo', equipo.id_equipo]);
   }
 
   eliminarEquipo(equipo: Equipo) {
@@ -88,32 +94,25 @@ export class ListEquipo implements OnInit {
   }
 
   confirmarEliminacion() {
-    if (this.equipoAEliminar) {
-      // Aquí conectarías con tu servicio para eliminar
-      this.equipos = this.equipos.filter(e => e.id_equipo !== this.equipoAEliminar!.id_equipo);
-      this.filtrarEquipos();
-      
-      console.log('Equipo eliminado:', this.equipoAEliminar.nombre_equipo);
+    if (this.equipoAEliminar && this.equipoAEliminar.id_equipo) {
+      this.equipoService.deleteEquipo(this.equipoAEliminar.id_equipo).subscribe({
+        next: () => {
+          this.notificationService.success(`Equipo "${this.equipoAEliminar!.nombre_equipo}" eliminado correctamente`);
+          this.cargarEquipos();
+          this.cerrarModalEliminar();
+        },
+        error: (error) => {
+          console.error('Error al eliminar equipo:', error);
+          this.notificationService.error('Error al eliminar el equipo');
+          this.cerrarModalEliminar();
+        }
+      });
     }
-    this.cerrarModalEliminar();
   }
 
   onEquipoGuardado(equipo: Equipo) {
-    if (this.equipoSeleccionado) {
-      // Editar equipo existente
-      const index = this.equipos.findIndex(e => e.id_equipo === equipo.id_equipo);
-      if (index !== -1) {
-        this.equipos[index] = equipo;
-      }
-    } else {
-      // Crear nuevo equipo
-      equipo.id_equipo = this.equipos.length > 0 
-        ? Math.max(...this.equipos.map(e => e.id_equipo)) + 1 
-        : 1;
-      this.equipos.push(equipo);
-    }
-    
-    this.filtrarEquipos();
+    this.cargarEquipos();
+    this.cerrarModal();
   }
 
   cerrarModal() {

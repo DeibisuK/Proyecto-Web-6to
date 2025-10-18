@@ -18,8 +18,14 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    // Only attach token for API gateway requests. Adjust the condition as needed.
-    const isApiRequest = req.url.startsWith('/u') || req.url.startsWith('/p') || req.url.startsWith('/b') || req.url.startsWith('/c') || req.url.startsWith('/m') || req.url.startsWith('/i') || req.url.includes(window.location.hostname);
+    // Only attach token for API gateway requests
+    const isApiRequest = req.url.includes('localhost:3000') || 
+                        req.url.startsWith('/u') || 
+                        req.url.startsWith('/p') || 
+                        req.url.startsWith('/b') || 
+                        req.url.startsWith('/c') || 
+                        req.url.startsWith('/m') || 
+                        req.url.startsWith('/i');
 
     if (!isApiRequest) return next.handle(req);
 

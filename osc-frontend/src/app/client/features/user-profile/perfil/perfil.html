@@ -1,1 +1,238 @@
-<p>perfil works!</p>
+<div class="perfil-container">
+  @if (user) {
+    <div class="perfil-header">
+      <div class="avatar-section">
+        @if (!showDefaultAvatar && user.photoURL) {
+          <img [src]="user.photoURL" alt="Avatar" class="avatar" (error)="handleImageError($event)">
+        } @else {
+          <div class="default-avatar">
+            <span>{{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}</span>
+          </div>
+        }
+      </div>
+      <div class="user-info">
+        <h1>{{ user.displayName || 'Usuario' }}</h1>
+        <p class="email">{{ user.email }}</p>
+        <span class="role-badge">{{ userRole }}</span>
+      </div>
+    </div>
+
+    <div class="perfil-content">
+      <!-- Información del perfil -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2>Información del Perfil</h2>
+          @if (!isEditing) {
+            <button class="btn-edit" (click)="isEditing = true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Editar
+            </button>
+          }
+        </div>
+
+        @if (!isEditing) {
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre:</label>
+              <p>{{ user.displayName || 'No especificado' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Correo electrónico:</label>
+              <p>{{ user.email }}</p>
+            </div>
+            <div class="info-item">
+              <label>Cuenta creada:</label>
+              <p>{{ creationTime }}</p>
+            </div>
+            <div class="info-item">
+              <label>Último acceso:</label>
+              <p>{{ lastSignInTime }}</p>
+            </div>
+          </div>
+        } @else {
+          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+            <div class="form-group">
+              <label>Nombre:</label>
+              <input 
+                type="text" 
+                formControlName="displayName" 
+                placeholder="Tu nombre"
+                class="form-control"
+              >
+              @if (profileForm.get('displayName')?.invalid && profileForm.get('displayName')?.touched) {
+                <span class="error-message">El nombre es requerido</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Correo electrónico:</label>
+              <input 
+                type="email" 
+                [value]="user.email" 
+                disabled
+                class="form-control"
+              >
+              <small class="help-text">El correo no se puede modificar</small>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" [disabled]="profileForm.invalid">
+                Guardar cambios
+              </button>
+              <button type="button" class="btn-secondary" (click)="isEditing = false">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+
+      <!-- Cambiar contraseña -->
+      @if (canChangePassword()) {
+        <div class="info-card">
+          <div class="card-header">
+            <h2>Seguridad</h2>
+            @if (!isChangingPassword) {
+              <button class="btn-edit" (click)="isChangingPassword = true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Cambiar contraseña
+              </button>
+            }
+          </div>
+
+          @if (isChangingPassword) {
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <div class="form-group">
+                <label>Contraseña actual:</label>
+                <input 
+                  type="password" 
+                  formControlName="currentPassword" 
+                  placeholder="Ingresa tu contraseña actual"
+                  class="form-control"
+                >
+                @if (passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched) {
+                  <span class="error-message">Campo requerido</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label>Nueva contraseña:</label>
+                <input 
+                  type="password" 
+                  formControlName="newPassword" 
+                  placeholder="Mínimo 6 caracteres"
+                  class="form-control"
+                >
+                @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+                  <span class="error-message">Mínimo 6 caracteres</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label>Confirmar nueva contraseña:</label>
+                <input 
+                  type="password" 
+                  formControlName="confirmPassword" 
+                  placeholder="Confirma tu nueva contraseña"
+                  class="form-control"
+                >
+                @if (passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched) {
+                  <span class="error-message">Las contraseñas no coinciden</span>
+                }
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid">
+                  Cambiar contraseña
+                </button>
+                <button type="button" class="btn-secondary" (click)="isChangingPassword = false; passwordForm.reset()">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          } @else {
+            <p class="security-message">Tu contraseña está protegida. Haz clic en "Cambiar contraseña" para actualizarla.</p>
+          }
+        </div>
+      }
+
+      <!-- Métodos de autenticación -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2>Métodos de Autenticación</h2>
+        </div>
+
+        <div class="providers-list">
+          @for (provider of providerData; track provider.providerId) {
+            <div class="provider-item">
+              <div class="provider-icon">
+                @if (provider.providerId === 'password') {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                } @else if (provider.providerId === 'google.com') {
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                } @else if (provider.providerId === 'facebook.com') {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                } @else {
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                }
+              </div>
+              <div class="provider-info">
+                <span class="provider-name">{{ getProviderName(provider.providerId) }}</span>
+                <small class="provider-email">{{ provider.email }}</small>
+              </div>
+              <span class="provider-badge">Conectado</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="perfil-skeleton">
+      <!-- Header Skeleton -->
+      <div class="skeleton-header">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-email"></div>
+          <div class="skeleton-line skeleton-badge"></div>
+        </div>
+      </div>
+
+      <!-- Cards Skeleton -->
+      <div class="skeleton-cards">
+        @for (card of [1, 2, 3]; track card) {
+          <div class="skeleton-card">
+            <div class="skeleton-card-header">
+              <div class="skeleton-line skeleton-card-title"></div>
+              <div class="skeleton-line skeleton-button"></div>
+            </div>
+            <div class="skeleton-content">
+              @for (line of [1, 2, 3, 4]; track line) {
+                <div class="skeleton-line skeleton-text"></div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

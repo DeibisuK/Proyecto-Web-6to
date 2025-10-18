@@ -1,1 +1,278 @@
-<p>equipos works!</p>
+<div class="equipos-container">
+  <!-- Filtros y Búsqueda -->
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input 
+        type="text" 
+        placeholder="Buscar equipos..."
+        (input)="onSearchChange($event)"
+        [value]="searchTerm"
+      />
+    </div>
+
+    <div class="filtro-deporte">
+      <select (change)="onFiltroDeporteChange($event)">
+        <option value="">Todos los deportes</option>
+        <option *ngFor="let deporte of deportes | keyvalue" [value]="deporte.key">
+          {{ deporte.value }}
+        </option>
+      </select>
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">groups</span>
+      {{ equiposFiltrados.length }} Equipo{{ equiposFiltrados.length !== 1 ? 's' : '' }}
+    </div>
+  </div>
+
+  <!-- Grid de Equipos - Loading Skeleton -->
+  <div class="equipos-grid" *ngIf="isLoading">
+    <div class="equipo-card skeleton" *ngFor="let item of skeletonItems">
+      <div class="equipo-imagen skeleton-image">
+        <div class="skeleton-shimmer"></div>
+      </div>
+      <div class="equipo-content">
+        <div class="equipo-header">
+          <div class="skeleton-text skeleton-title"></div>
+          <div class="skeleton-text skeleton-badge"></div>
+        </div>
+        <div class="skeleton-text skeleton-desc"></div>
+        <div class="equipo-propietario">
+          <div class="skeleton-text skeleton-meta"></div>
+          <div class="skeleton-text skeleton-meta"></div>
+        </div>
+        <div class="equipo-actions">
+          <div class="skeleton-button"></div>
+          <div class="skeleton-button"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de Equipos - Datos Reales -->
+  <div class="equipos-grid" *ngIf="!isLoading && equiposPaginados.length > 0">
+    <div class="equipo-card" *ngFor="let equipo of equiposPaginados">
+      <!-- Imagen del equipo -->
+      <div class="equipo-imagen">
+        <img 
+          *ngIf="equipo.logo_url"
+          [src]="equipo.logo_url" 
+          [alt]="equipo.nombre_equipo"
+        />
+        <div *ngIf="!equipo.logo_url" class="equipo-placeholder">
+          <span class="material-icons">groups</span>
+        </div>
+      </div>
+      
+      <!-- Contenido -->
+      <div class="equipo-content">
+        <!-- Header con nombre y deporte -->
+        <div class="equipo-header">
+          <h3>{{ equipo.nombre_equipo }}</h3>
+          <span 
+            class="deporte-badge" 
+            [attr.data-deporte]="equipo.id_deporte"
+          >
+            {{ obtenerNombreDeporte(equipo.id_deporte) }}
+          </span>
+        </div>
+
+        <!-- Descripción -->
+        <p class="equipo-descripcion">{{ equipo.descripcion }}</p>
+
+        <!-- Información del propietario -->
+        <div class="equipo-propietario">
+          <div class="propietario-item">
+            <span class="material-icons">person</span>
+            <span>{{ equipo.nombre_creador || 'Sin nombre' }}</span>
+          </div>
+          <div class="propietario-item">
+            <span class="material-icons">email</span>
+            <span>{{ equipo.email_creador || 'Sin email' }}</span>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="equipo-actions">
+          <button 
+            class="btn-action btn-editar" 
+            (click)="abrirModalEditar(equipo)"
+            title="Editar equipo"
+          >
+            <span class="material-icons">edit</span>
+          </button>
+          
+          <button 
+            class="btn-action btn-eliminar" 
+            (click)="confirmarEliminar(equipo)"
+            title="Eliminar equipo"
+          >
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin equipos -->
+  <div class="sin-datos" *ngIf="!isLoading && equiposPaginados.length === 0">
+    <span class="material-icons">sports</span>
+    <h3>No se encontraron equipos</h3>
+    <p>{{ searchTerm || filtroDeporte ? 'Intenta con otros filtros' : 'Aún no hay equipos registrados' }}</p>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="!isLoading && totalPages > 1">
+    <button 
+      class="page-btn" 
+      (click)="cambiarPagina(currentPage - 1)"
+      [disabled]="currentPage === 1"
+    >
+      <span class="material-icons">chevron_left</span>
+    </button>
+
+    <button 
+      *ngFor="let page of pages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="cambiarPagina(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button 
+      class="page-btn" 
+      (click)="cambiarPagina(currentPage + 1)"
+      [disabled]="currentPage === totalPages"
+    >
+      <span class="material-icons">chevron_right</span>
+    </button>
+  </div>
+</div>
+
+<!-- Modal Editar Equipo -->
+<div class="modal-overlay" *ngIf="mostrarModalEditar" (click)="cerrarModalEditar()">
+  <div class="modal-editar-equipo" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Editar Equipo</h2>
+      <button class="btn-close" (click)="cerrarModalEditar()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <form class="modal-body" *ngIf="equipoSeleccionado">
+      <!-- Layout con inputs a la izquierda y logo a la derecha -->
+      <div class="form-layout">
+        <div class="form-inputs">
+          <!-- Nombre del Equipo -->
+          <div class="form-group">
+            <label for="nombre-edit">Nombre del Equipo</label>
+            <input 
+              type="text" 
+              id="nombre-edit"
+              [(ngModel)]="equipoSeleccionado.nombre_equipo"
+              placeholder="Ingrese el nombre del equipo"
+              [ngModelOptions]="{standalone: true}"
+            />
+          </div>
+
+          <!-- Deporte -->
+          <div class="form-group">
+            <label for="deporte-edit">Deporte</label>
+            <select 
+              id="deporte-edit"
+              [(ngModel)]="equipoSeleccionado.id_deporte"
+              [ngModelOptions]="{standalone: true}"
+            >
+              <option [value]="null">Sin especificar</option>
+              <option *ngFor="let deporte of deportes | keyvalue" [value]="deporte.key">
+                {{ deporte.value }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Logo del Equipo a la derecha -->
+        <div class="logo-section-right">
+          <div class="logo-preview" [class.has-image]="logoPreviewEdit || equipoSeleccionado.logo_url">
+            <img 
+              *ngIf="logoPreviewEdit || equipoSeleccionado.logo_url" 
+              [src]="logoPreviewEdit || equipoSeleccionado.logo_url" 
+              [alt]="equipoSeleccionado.nombre_equipo"
+            />
+            <div *ngIf="!logoPreviewEdit && !equipoSeleccionado.logo_url" class="logo-placeholder">
+              <span class="material-icons">add_photo_alternate</span>
+              <p>Subir logo</p>
+            </div>
+          </div>
+          <input 
+            type="file" 
+            #fileInputEdit 
+            (change)="onFileSelectedEdit($event)" 
+            accept="image/*"
+            style="display: none;"
+          />
+          <button 
+            type="button" 
+            class="btn-upload" 
+            (click)="fileInputEdit.click()"
+          >
+            <span class="material-icons">cloud_upload</span>
+            {{ logoPreviewEdit || equipoSeleccionado.logo_url ? 'Cambiar' : 'Subir' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Descripción (ancho completo) -->
+      <div class="form-group">
+        <label for="descripcion-edit">Descripción</label>
+        <textarea 
+          id="descripcion-edit"
+          [(ngModel)]="equipoSeleccionado.descripcion"
+          placeholder="Ingrese una descripción"
+          rows="4"
+          [ngModelOptions]="{standalone: true}"
+        ></textarea>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cerrarModalEditar()">
+        Cancelar
+      </button>
+      <button class="btn btn-primary" (click)="guardarCambios()">
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar Equipo -->
+<div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
+  <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Eliminar Equipo</h2>
+      <button class="btn-close" (click)="cerrarModalEliminar()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="equipoSeleccionado">
+      <div class="confirm-delete">
+        <span class="material-icons warning-icon">warning</span>
+        <p>¿Estás seguro de que deseas eliminar el equipo <strong>{{ equipoSeleccionado.nombre_equipo }}</strong>?</p>
+        <p class="warning-text">Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button class="btn-danger" (click)="eliminarEquipo()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

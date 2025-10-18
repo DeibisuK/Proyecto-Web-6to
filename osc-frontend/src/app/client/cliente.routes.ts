@@ -16,7 +16,7 @@ import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-co
 import { PuntosLealtad } from "./features/informacion/puntos-lealtad/puntos-lealtad";
 import { Prueba } from "../core/components/prueba/prueba";
 import { ListEquipo } from "./features/reservas/components/mis-equipos/list-equipo/list-equipo";
-import { CrearEquipo } from "./features/reservas/components/mis-equipos/crear-equipo/crear-equipo";
+import { EquipoFormPage } from "./features/reservas/components/mis-equipos/equipo-form-page/equipo-form-page";
 import { Historial } from "./features/reservas/components/historial/historial";
 import { ListSedes } from "./features/sedes/list-sedes/list-sedes";
 import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
@@ -95,7 +95,10 @@ export const clienteRoutes: Routes = [
     path: 'historial-partidos', component: Historial
   },
   {
-    path: 'crear-equipo', component: CrearEquipo
+    path: 'crear-equipo', component: EquipoFormPage
+  },
+  {
+    path: 'editar-equipo/:id', component: EquipoFormPage
   },
   {
     path: 'mis-equipos', component: ListEquipo

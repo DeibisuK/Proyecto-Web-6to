@@ -6,6 +6,10 @@ export const findAll = async () => {
     c.*,
      s.nombre AS nombre_sede,
       d.nombre_deporte 
+    SELECT 
+      c.*,
+      s.nombre AS nombre_sede,
+      d.nombre_deporte AS nombre_deporte
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
@@ -20,6 +24,7 @@ export const findById = async (id) => {
       c.*,
       s.nombre AS nombre_sede,
       d.nombre_deporte
+      d.nombre_deporte AS nombre_deporte
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
@@ -34,6 +39,7 @@ export const findBySede = async (idSede) => {
       c.*,
       s.nombre AS nombre_sede,
       d.nombre_deporte
+      d.nombre_deporte AS nombre_deporte
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN deportes d ON c.id_deporte = d.id_deporte

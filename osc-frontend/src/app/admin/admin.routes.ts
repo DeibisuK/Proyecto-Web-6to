@@ -6,6 +6,7 @@ import { UsuarioComponent } from "./features/usuario/usuario";
 import { Anuncios } from "./features/anuncios/anuncios";
 import { ListSede } from "./features/sedes/list-sede/list-sede";
 import { CrearSede } from "./features/sedes/crear-sede/crear-sede";
+import { Equipos } from "./features/equipos/equipos";
 
 export const adminRoutes: Routes = [
   {
@@ -42,6 +43,14 @@ export const adminRoutes: Routes = [
     path: 'crear-cancha',
     component: CrearCancha,
     title: 'Crear Cancha'
+  },
+  {
+    path: 'editar-cancha/:id',
+    component: CrearCancha,
+    title: 'Editar Cancha'
+  },
+  {
+    path: 'equipos', component: Equipos
   },
   {
     path: 'usuarios',
