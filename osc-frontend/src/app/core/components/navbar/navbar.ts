@@ -6,7 +6,7 @@ import { Login } from '../../../auth/login/login';
 import { RecuperarPassword } from '../../../auth/recuperar-password/recuperar-password';
 import { CarritoComponent } from '../../../client/features/shop/components/carrito/carrito';
 import { CarritoService } from '../../../client/features/shop/services/carrito.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { SedeService } from '../../services/sede.service';
@@ -39,6 +39,8 @@ export class Navbar implements OnInit, OnDestroy {
   cartItemCount = 0;
 
   user = this.authService.currentUser;
+  isAdmin$!: Observable<boolean>;
+  isArbitro$!: Observable<boolean>;
 
   dropdowns = {
     productos: false,
@@ -49,10 +51,10 @@ export class Navbar implements OnInit, OnDestroy {
     usuario: false,
   };
 
-  sedesAgrupadas: { nombre: string, sedes: Sede[] }[] = [];
+  sedesAgrupadas: { nombre: string; sedes: Sede[] }[] = [];
 
   constructor(
-    private carritoService: CarritoService, 
+    private carritoService: CarritoService,
     private router: Router,
     private sedeService: SedeService
   ) {
@@ -67,7 +69,8 @@ export class Navbar implements OnInit, OnDestroy {
   ngOnInit() {
     // Suscribirse al observable de usuario y gestionarlo dentro de this.subscriptions
     this.subscriptions.add(this.authService.user$.subscribe((u) => (this.user = u)));
-
+    this.isAdmin$ = this.authService.isAdmin$;
+    this.isArbitro$ = this.authService.isArbitro$;
     // Comprobar la URL actual al iniciar (caso de carga inicial)
     const initialUrlTree = this.router.parseUrl(this.router.url || '');
     const initialOpen = initialUrlTree.queryParams['openLogin'] === 'true';
@@ -85,9 +88,7 @@ export class Navbar implements OnInit, OnDestroy {
 
     // Scroll al inicio cuando se navega a una nueva ruta
     this.subscriptions.add(
-      this.router.events.pipe(
-        filter(event => event instanceof NavigationEnd)
-      ).subscribe(() => {
+      this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       })
     );
@@ -105,17 +106,17 @@ export class Navbar implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar sedes en navbar:', error);
-      }
+      },
     });
   }
 
-  agruparSedesPorCiudad(sedes: Sede[]): { nombre: string, sedes: Sede[] }[] {
-    const sedesActivas = sedes.filter(s => 
-      s.ciudad && (s.estado?.toLowerCase() === 'activo' || s.estado === 'Activo')
+  agruparSedesPorCiudad(sedes: Sede[]): { nombre: string; sedes: Sede[] }[] {
+    const sedesActivas = sedes.filter(
+      (s) => s.ciudad && (s.estado?.toLowerCase() === 'activo' || s.estado === 'Activo')
     );
     const ciudades = new Map<string, Sede[]>();
-    
-    sedesActivas.forEach(sede => {
+
+    sedesActivas.forEach((sede) => {
       const ciudad = sede.ciudad!;
       if (!ciudades.has(ciudad)) {
         ciudades.set(ciudad, []);
@@ -125,7 +126,7 @@ export class Navbar implements OnInit, OnDestroy {
 
     return Array.from(ciudades.entries()).map(([nombre, sedes]) => ({
       nombre,
-      sedes
+      sedes,
     }));
   }
 
@@ -201,8 +202,8 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   navegarSedesPorCiudad(ciudad: string) {
-    this.router.navigate(['/todas-las-sedes'], { 
-      queryParams: { ciudad: ciudad } 
+    this.router.navigate(['/todas-las-sedes'], {
+      queryParams: { ciudad: ciudad },
     });
     this.toggleDropdown('sedes', false);
   }

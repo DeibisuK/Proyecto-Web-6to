@@ -1,4 +1,3 @@
-// src/app/core/services/auth.service.ts
 import { Injectable, inject } from '@angular/core';
 import {
   Auth,
@@ -13,48 +12,75 @@ import {
   UserCredential,
   signInWithPopup,
 } from '@angular/fire/auth';
-import { BehaviorSubject, map, firstValueFrom, ReplaySubject } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  firstValueFrom,
+  ReplaySubject,
+  shareReplay,
+  switchMap,
+  Observable,
+  from,
+} from 'rxjs';
 import { UserApiService } from './user-api.service';
+
+interface CustomClaims {
+  role?: string;
+  id_rol?: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
   private userApi = inject(UserApiService);
 
-  // Mantiene el usuario actual
   private currentUserSubject = new BehaviorSubject<User | null>(null);
-  user$ = this.currentUserSubject.asObservable(); // Observable público
-
-  // Observable práctico que indica si hay un usuario autenticado
+  user$ = this.currentUserSubject.asObservable();
   isAuthenticated$ = this.user$.pipe(map((u) => !!u));
 
-  // Emits once Firebase has reported the initial auth state (either user or null).
-  // Helps consumers avoid racing on the initial null value.
+  /** Indica cuando Firebase ha inicializado el estado de autenticación */
   authReady$ = new ReplaySubject<boolean>(1);
 
+  /** Custom claims del usuario (incluye rol) */
+  claims$: Observable<CustomClaims | null> = this.user$.pipe(
+    switchMap((user) => {
+      if (!user) return from(Promise.resolve(null));
+      return from(user.getIdTokenResult()).pipe(
+        map((tokenResult) => tokenResult.claims as CustomClaims)
+      );
+    }),
+    shareReplay(1)
+  );
+
+  /** Verifica si el usuario tiene rol de administrador */
+  isAdmin$ = this.claims$.pipe(
+    map((claims) => claims?.role === 'Admin'),
+    shareReplay(1)
+  );
+
+  /** Verifica si el usuario tiene rol de árbitro */
+  isArbitro$ = this.claims$.pipe(
+    map((claims) => claims?.role === 'Arbitro'),
+    shareReplay(1)
+  );
+
   constructor() {
-    // Seed the current user from the Auth instance in case it's already available
-    // This avoids a race where consumers (e.g. route guards) subscribe and take(1)
-    // before the async onAuthStateChanged callback fires.
+    // Inicializa con el usuario actual si ya está disponible
     try {
       const maybeUser = (this.auth as any).currentUser ?? null;
       this.currentUserSubject.next(maybeUser);
     } catch (err) {
-      // Defensive: if reading currentUser throws for some reason, keep null
-      console.debug('AuthService: failed to read auth.currentUser during init', err);
+      console.debug('AuthService: error al leer auth.currentUser durante init', err);
     }
 
-    // Escucha los cambios de sesión (Firebase lo maneja automáticamente)
+    // Escucha cambios en el estado de autenticación
     onAuthStateChanged(this.auth, (user) => {
       this.currentUserSubject.next(user);
-      // Notify that the initial auth state has been received (first call)
       try {
-        // First emission of authReady$ will signal readiness. Use next(true)
-        // and complete so consumers know it won't emit again.
         this.authReady$.next(true);
         this.authReady$.complete();
       } catch (err) {
-        // ignore if already closed
+        // Ya completado
       }
     });
   }
@@ -67,27 +93,23 @@ export class AuthService {
     await signOut(this.auth);
   }
 
-  // Return ID token (nullable)
+  /** Obtiene el token de ID del usuario actual */
   async getIdToken(forceRefresh = false): Promise<string | null> {
     const user = this.currentUser;
     if (!user) return null;
     try {
       return await user.getIdToken(forceRefresh);
     } catch (err) {
-      console.error('Error getting ID token', err);
+      console.error('Error al obtener ID token', err);
       return null;
     }
   }
 
-  // Convenience methods used by UI components
   async loginWithEmail(email: string, password: string): Promise<UserCredential> {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
-  /**
-   * Register a new user with email + password and optionally set the display name.
-   * If displayName is provided, update the user's profile after creation.
-   */
+  /** Registra un nuevo usuario con email y contraseña */
   async registerWithEmail(
     email: string,
     password: string,
@@ -96,45 +118,40 @@ export class AuthService {
     const credential = await createUserWithEmailAndPassword(this.auth, email, password);
     if (displayName) {
       try {
-        // AngularFire's updateProfile is a thin wrapper around firebase/auth updateProfile
-        // @ts-ignore - user type compatibility
+        // @ts-ignore
         await updateProfile(credential.user as any, { displayName });
-        // update local subject so UI reflects name immediately
+        // Actualiza el subject local para reflejar el nombre inmediatamente
         const current = this.currentUserSubject.value;
         if (current && current.uid === credential.user.uid) {
-          // create a shallow clone with updated displayName
           const updated = Object.assign(Object.create(Object.getPrototypeOf(current)), current);
           // @ts-ignore
           updated.displayName = displayName;
           this.currentUserSubject.next(updated);
         }
       } catch (err) {
-        console.error('Error setting displayName after registration', err);
-        // Not fatal for account creation; rethrow if you want to fail the whole flow
+        console.error('Error al establecer displayName después del registro', err);
       }
     }
-    // After creating the Firebase user, persist minimal user info in our backend
+
+    // Persiste la información del usuario en el backend
     try {
       const uid = credential.user.uid;
       const payload = {
         uid,
         nombre: displayName || null,
         email: credential.user.email || null,
-        // default role id (adjust as needed)
         id_rol: 2,
       };
-      // Wait for backend to create user and (gateway) possibly sync claims
       const resp = await firstValueFrom(this.userApi.createUser(payload));
-      // If the backend synced claims, force refresh token so client has updated claims
+      // Refresca el token para obtener los claims actualizados
       try {
-        // force refresh id token to pick up any newly set custom claims
         await credential.user.getIdToken(true);
       } catch (err) {
-        console.error('Error forcing token refresh after registration', err);
+        console.error('Error al refrescar token después del registro', err);
       }
-      console.log('User record created in backend', resp);
+      console.log('Usuario creado en el backend', resp);
     } catch (err) {
-      console.error('Error persisting user to backend', err);
+      console.error('Error al persistir usuario en el backend', err);
     }
     return credential;
   }
@@ -143,21 +160,20 @@ export class AuthService {
     return firebaseSendPasswordResetEmail(this.auth, email);
   }
 
-  // Send verification email to current user (if available)
+  /** Envía email de verificación al usuario actual */
   async sendEmailVerification(): Promise<void> {
     const user = this.currentUser;
-    if (!user) throw new Error('No authenticated user');
+    if (!user) throw new Error('No hay usuario autenticado');
     try {
-      // Use AngularFire's wrapped function which runs inside Angular's injection/zone context
-      // @ts-ignore - AngularFire's User type is compatible here
+      // @ts-ignore
       return await sendEmailVerification(this.currentUser as any);
     } catch (err) {
-      console.error('Error sending verification email', err);
+      console.error('Error al enviar email de verificación', err);
       throw err;
     }
   }
 
-  // Map firebase error codes to user-friendly messages
+  /** Formatea errores de autenticación de Firebase a mensajes amigables */
   formatAuthError(err: any): { code: string; message: string } {
     const code = err?.code || 'auth/unknown';
     let message = 'Ocurrió un error';
@@ -186,14 +202,12 @@ export class AuthService {
     return { code, message };
   }
 
-  // Provider sign-in (Google, Facebook, etc.)
+  /** Inicia sesión con proveedor externo (Google, Facebook, etc.) */
   async signInWithPopupProvider(provider: any): Promise<UserCredential> {
-    // sign in with popup
     const credential = await signInWithPopup(this.auth, provider);
 
-    // detect if this is a new user and create record in backend if needed
+    // Si es un usuario nuevo, crea el registro en el backend
     try {
-      // dynamic import to avoid circular or heavy imports at top
       const { getAdditionalUserInfo } = await import('@angular/fire/auth');
       const info = getAdditionalUserInfo(credential as any);
       const isNew = info && (info as any).isNewUser;
@@ -203,24 +217,24 @@ export class AuthService {
           uid: user.uid,
           nombre: user.displayName || null,
           email: user.email || null,
-          id_rol: 2, // default role
+          id_rol: 2,
         };
         try {
           const resp = await firstValueFrom(this.userApi.createUser(payload));
-          console.log('Created backend user for provider sign-in', resp);
+          console.log('Usuario creado en backend con proveedor', resp);
         } catch (err) {
-          console.error('Failed to create backend user after provider sign-in', err);
+          console.error('Error al crear usuario en backend con proveedor', err);
         }
 
-        // Force refresh token so any claims set by gateway are present
+        // Refresca el token para obtener los claims
         try {
           await user.getIdToken(true);
         } catch (err) {
-          console.error('Error forcing token refresh after provider sign-in', err);
+          console.error('Error al refrescar token después de login con proveedor', err);
         }
       }
     } catch (err) {
-      console.error('Error handling provider sign-in new user flow', err);
+      console.error('Error al manejar nuevo usuario con proveedor', err);
     }
 
     return credential;

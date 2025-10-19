@@ -81,18 +81,14 @@
         <div class="dropdown-menu" [class.show]="dropdowns.sedes">
           <div class="dropdown-section">
             @for (grupo of sedesAgrupadas; track grupo.nombre; let isLast = $last) {
-              <h4 class="ciudad-clickeable" (click)="navegarSedesPorCiudad(grupo.nombre)">
-                <i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}
-              </h4>
-              @for (sede of grupo.sedes; track sede.id_sede) {
-                <div class="sede-item">
-                  <i class="fas fa-building"></i> {{ sede.nombre }}
-                </div>
-              }
-              @if (!isLast) {
-                <div class="dropdown-divider"></div>
-              }
-            }
+            <h4 class="ciudad-clickeable" (click)="navegarSedesPorCiudad(grupo.nombre)">
+              <i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}
+            </h4>
+            @for (sede of grupo.sedes; track sede.id_sede) {
+            <div class="sede-item"><i class="fas fa-building"></i> {{ sede.nombre }}</div>
+            } @if (!isLast) {
+            <div class="dropdown-divider"></div>
+            } }
             <div class="dropdown-divider"></div>
             <a routerLink="/todas-las-sedes"><i class="fas fa-list"></i> Ver todas las sedes</a>
           </div>
@@ -123,7 +119,7 @@
       <button class="cart-btn" (click)="toggleCart()">
         <span class="material-icons">shopping_cart</span>
         @if (cartItemCount > 0) {
-          <span class="cart-count">{{ cartItemCount }}</span>
+        <span class="cart-count">{{ cartItemCount }}</span>
         }
       </button>
 
@@ -148,7 +144,16 @@
             <a routerLink="/ver-perfil" (click)="toggleDropdown('usuario', false)">
               <i class="fas fa-user"></i> Ver Perfil
             </a>
-            <a routerLink="/admin" (click)="toggleSidebar()"><i class="fas fa-cog"></i> Panel Admin</a>
+            @if (isAdmin$ | async) {
+            <a routerLink="/admin" (click)="toggleSidebar()"
+              ><i class="fas fa-cog"></i> Panel Admin</a>
+            }
+            @if (isArbitro$ | async) {
+              <a routerLink="/admin" (click)="toggleSidebar()"
+                ><i class="fas fa-gavel"></i> Panel Árbitro</a
+              >
+            }
+
             <a routerLink="/metodos-de-pago" (click)="toggleDropdown('usuario', false)">
               <i class="fas fa-user"></i> Métodos de Pago
             </a>
@@ -257,11 +262,7 @@
 
 <!-- Modal de login -->
 @if (mostrarLogin) {
-<div
-  class="modal-overlay"
-  [class.show]="mostrarLogin"
-  (click)="cerrarLoginModal()"
->
+<div class="modal-overlay" [class.show]="mostrarLogin" (click)="cerrarLoginModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <button class="modal-close-btn" (click)="cerrarLoginModal()">
       <span class="material-icons">close</span>
