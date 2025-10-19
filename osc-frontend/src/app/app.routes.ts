@@ -3,7 +3,7 @@ import { ClientLayout } from './client/client-layout/client-layout';
 import { AdminLayout } from './admin/admin-layout/admin-layout';
 import { clienteRoutes } from './client/cliente.routes';
 import { adminRoutes } from './admin/admin.routes';
-import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/auth.guard';
 
 
 export const routes: Routes = [
@@ -15,7 +15,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
-    canActivate: [authGuard],
+    canActivate: [adminGuard],
     children: adminRoutes,
   },
   {

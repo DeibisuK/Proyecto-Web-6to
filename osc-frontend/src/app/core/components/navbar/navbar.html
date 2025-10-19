@@ -130,6 +130,15 @@
         (mouseleave)="toggleDropdown('usuario', false)"
       >
         <a class="dropdown-toggle user-toggle">
+          @if(isArbitro$ | async){
+          <div class="user-btn" style="border: 2px solid orange; background-color: orange">
+            @if (user.photoURL) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            } @else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+          }@else{
           <div class="user-btn">
             @if (user.photoURL) {
             <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
@@ -137,6 +146,7 @@
             <span class="material-icons">account_circle</span>
             }
           </div>
+          }
         </a>
 
         <div class="dropdown-menu user-menu" [class.show]="dropdowns.usuario">
@@ -146,12 +156,12 @@
             </a>
             @if (isAdmin$ | async) {
             <a routerLink="/admin" (click)="toggleSidebar()"
-              ><i class="fas fa-cog"></i> Panel Admin</a>
-            }
-            @if (isArbitro$ | async) {
-              <a routerLink="/admin" (click)="toggleSidebar()"
-                ><i class="fas fa-gavel"></i> Panel Árbitro</a
-              >
+              ><i class="fas fa-cog"></i> Panel Admin</a
+            >
+            } @if (isArbitro$ | async) {
+            <a routerLink="/admin" (click)="toggleSidebar()"
+              ><i class="fas fa-gavel"></i> Panel Árbitro</a
+            >
             }
 
             <a routerLink="/metodos-de-pago" (click)="toggleDropdown('usuario', false)">

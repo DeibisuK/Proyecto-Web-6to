@@ -22,20 +22,38 @@ export const authGuard: CanActivateFn = () => {
   );
 };
 
-// export const adminGuard: CanActivateFn = () => {
-//   const auth = inject(AuthService);
-//   const router = inject(Router);
-//   // Wait until Firebase has reported the initial auth state (authReady$),
-//   // then take the current isAdmin$ value and decide.
-//   return combineLatest([auth.authReady$, auth.isAdmin$]).pipe(
-//     take(1),
-//     tap(([ready, isAdmin]) => {
-//       console.log('AdminGuard - ready:', ready, 'isAdmin:', isAdmin);
-//       if (!isAdmin) {
-//         // Redirect to home if not admin
-//         router.navigate(['/inicio']); // Changed back to /inicio to match original
-//       }
-//     }),
-//     map(([, isAdmin]) => !!isAdmin)
-//   );
-// };
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  // Wait until Firebase has reported the initial auth state (authReady$),
+  // then take the current isAdmin$ value and decide.
+  return combineLatest([auth.authReady$, auth.isAdmin$]).pipe(
+    take(1),
+    tap(([ready, isAdmin]) => {
+      console.log('AdminGuard - ready:', ready, 'isAdmin:', isAdmin);
+      if (!isAdmin) {
+        // Redirect to home if not admin
+        router.navigate(['/inicio']); // Changed back to /inicio to match original
+      }
+    }),
+    map(([, isAdmin]) => !!isAdmin)
+  );
+};
+
+export const arbitroGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  // Wait until Firebase has reported the initial auth state (authReady$),
+  // then take the current isAdmin$ value and decide.
+  return combineLatest([auth.authReady$, auth.isArbitro$]).pipe(
+    take(1),
+    tap(([ready, isArbitro]) => {
+      console.log('ArbitroGuard - ready:', ready, 'isArbitro:', isArbitro);
+      if (!isArbitro) {
+        // Redirect to home if not admin
+        router.navigate(['/inicio']); // Changed back to /inicio to match original
+      }
+    }),
+    map(([, isArbitro]) => !!isArbitro)
+  );
+};
