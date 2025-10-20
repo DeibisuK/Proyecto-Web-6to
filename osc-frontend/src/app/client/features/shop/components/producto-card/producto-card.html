@@ -1,7 +1,7 @@
 <div class="producto-card" (click)="verDetalle()">
   <div class="producto-imagen">
-    <img [src]="producto.imagen" [alt]="producto.nombre">
-    @if (producto.precioAnterior) {
+    <img [src]="producto.url_imagen" [alt]="producto.nombre">
+    @if (producto.precio_anterior) {
       <div class="producto-descuento">
         -{{calcularDescuento()}}%
       </div>
@@ -13,19 +13,19 @@
   
   <div class="producto-info">
     <h3 class="producto-nombre">{{producto.nombre}}</h3>
-    <p class="producto-caracteristicas">{{getCaracteristicasTruncadas()}}</p>
+    <p class="producto-caracteristicas">{{producto.descripcion}}</p>
     
     <div class="producto-detalles">
       <div class="precio-contenedor">
         <span class="precio-actual">${{producto.precio}}</span>
-        @if (producto.precioAnterior) {
+        @if (producto.precio_anterior) {
           <span class="precio-anterior">
-            ${{producto.precioAnterior}}
+            ${{producto.precio_anterior}}
           </span>
         }
       </div>
       
-      <span class="producto-marca">{{producto.marca}}</span>
+      <span class="producto-marca">{{producto.id_marca}}</span>
     </div>
 
     @if (producto.stock < 5) {

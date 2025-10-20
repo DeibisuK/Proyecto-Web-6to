@@ -14,7 +14,6 @@ import { CarritoComponent } from "./features/shop/components/carrito/carrito";
 import { PoliticaDePrivacidad } from "./features/informacion/legal/politica-de-privacidad/politica-de-privacidad";
 import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
 import { PuntosLealtad } from "./features/informacion/puntos-lealtad/puntos-lealtad";
-import { Prueba } from "../core/components/prueba/prueba";
 import { ListEquipo } from "./features/reservas/components/mis-equipos/list-equipo/list-equipo";
 import { EquipoFormPage } from "./features/reservas/components/mis-equipos/equipo-form-page/equipo-form-page";
 import { Historial } from "./features/reservas/components/historial/historial";
@@ -116,10 +115,6 @@ export const clienteRoutes: Routes = [
   },
   {
     path: 'ver-perfil', component: Perfil
-  },
-  {
-    path: 'prueba',
-    component: Prueba
   },
   {
     path: 'reservar-cancha',

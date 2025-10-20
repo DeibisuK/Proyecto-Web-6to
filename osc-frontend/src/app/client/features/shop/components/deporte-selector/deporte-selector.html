@@ -1,13 +1,15 @@
 <div class="deportes-carousel">
   <h2>Tipo de Deporte</h2>
   <div class="deportes-items">
-    @for (deporte of deportes; track deporte.id) {
-      <div class="deporte-item"
-           [class.activo]="deporteActivo === deporte.id"
-           (click)="seleccionarDeporte(deporte.id)">
-        <img [src]="deporte.imagen" [alt]="deporte.nombre">
-        <span class="deporte-nombre">{{deporte.nombre}}</span>
-      </div>
+    @for (deporte of deportes; track deporte.id_deporte) {
+    <div
+      class="deporte-item"
+      [class.activo]="deporteActivo === deporte.id_deporte"
+      (click)="seleccionarDeporte(deporte.id_deporte)"
+    >
+      <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" />
+      <span class="deporte-nombre">{{ deporte.nombre_deporte }}</span>
+    </div>
     }
   </div>
 </div>

@@ -17,15 +17,12 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 export class ReservarCancha implements OnInit {
   minDate: string = '';
   canchas: Cancha[] = [];
-  deportes: Deporte[] = [];
-   selectedDeporte: string = ''; 
+  deportes: Deporte[] | null = [];
+  selectedDeporte: string = '';
   errorMessage: string = '';
 
   // Inyección de servicios
-  constructor(
-    private canchaService: CanchaService,
-    private deporteService: DeporteService
-  ) { }
+  constructor(private canchaService: CanchaService, private deporteService: DeporteService) {}
 
   ngOnInit(): void {
     this.setMinDate();
@@ -49,7 +46,7 @@ export class ReservarCancha implements OnInit {
         console.error('Error al cargar las canchas:', err);
         this.errorMessage = 'No se pudieron cargar las canchas. Intenta más tarde.';
         this.canchas = []; // Asegurar que la lista esté vacía en caso de error
-      }
+      },
     });
   }
 
@@ -57,17 +54,7 @@ export class ReservarCancha implements OnInit {
    * Obtiene la lista de deportes utilizando el servicio.
    */
   cargarDeportes(): void {
-    this.deporteService.getDeportes().subscribe({
-      next: (data) => {
-        this.deportes = data;
-        console.log('Deportes cargados:', this.deportes);
-      },
-      error: (err) => {
-        console.error('Error al cargar los deportes:', err);
-        // Se usa el mismo mensaje de error para simplificar, pero se podría crear uno específico.
-        // this.errorMessage = 'No se pudieron cargar los deportes.'; 
-      }
-    });
+    this.deporteService.getDeportes().then((deportes) => (this.deportes = deportes));
   }
 
   buscarPorDeporte(): void {
@@ -79,8 +66,7 @@ export class ReservarCancha implements OnInit {
     this.canchaService.getCanchasByDeporte(this.selectedDeporte).subscribe({
       next: (data) => {
         this.canchas = data;
-        this.errorMessage =
-          data.length === 0 ? 'No se encontraron canchas para este deporte.' : '';
+        this.errorMessage = data.length === 0 ? 'No se encontraron canchas para este deporte.' : '';
       },
       error: (err) => {
         console.error('Error al buscar por deporte:', err);

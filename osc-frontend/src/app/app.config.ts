@@ -16,6 +16,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { AuthService } from './core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { DeporteService } from './core/services/deportes.service';
 
 // Función factory para inicializar la autenticación
 export function initializeAuth(authService: AuthService) {
@@ -49,6 +50,22 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       return initializeAuth(authService);
+    }),
+    // Preload deportes (safe timeout so bootstrap doesn't hang indefinitely)
+    provideAppInitializer(() => {
+      const deporteService = inject(DeporteService);
+      const timeoutMs = 3000; // adjust as needed
+      return (async () => {
+        try {
+            await Promise.race([
+              // DeporteService.getDeportes() now returns a Promise via preload/getDeportes
+              deporteService.getDeportes(),
+              new Promise(resolve => setTimeout(resolve, timeoutMs))
+            ]);
+        } catch (err) {
+          console.warn('Preload deportes failed (continuing bootstrap)', err);
+        }
+      })();
     }),
   ],
 };

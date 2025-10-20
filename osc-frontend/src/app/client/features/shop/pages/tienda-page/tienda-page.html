@@ -5,7 +5,8 @@
   <div class="deporte-selector-section">
     <app-deporte-selector
       [deporteActivo]="deporteSeleccionado"
-      (deporteChange)="onDeporteChange($event)">
+      (deporteChange)="onDeporteChange($event)"
+    >
     </app-deporte-selector>
   </div>
 
@@ -13,41 +14,36 @@
   <div class="tienda-content">
     <!-- Panel de filtros -->
     <aside class="filtros-sidebar">
-      <app-filtro-panel
-        [filtrosActivos]="filtrosActivos"
-        (filtrosChange)="onFiltrosChange($event)">
+      <app-filtro-panel [filtrosActivos]="filtrosActivos" (filtrosChange)="onFiltrosChange($event)">
       </app-filtro-panel>
     </aside>
 
     <!-- Grid de productos -->
     <main class="productos-grid">
       <!-- Skeleton Loading -->
-      @if (isLoading) {
-        @for (item of skeletonItems; track $index) {
-          <div class="producto-card-skeleton">
-            <div class="skeleton-image"></div>
-            <div class="skeleton-content">
-              <div class="skeleton-text skeleton-title"></div>
-              <div class="skeleton-text skeleton-desc"></div>
-              <div class="skeleton-text skeleton-price"></div>
-              <div class="skeleton-button"></div>
-            </div>
-          </div>
-        }
-      } @else {
-        <!-- Productos reales -->
-        @for (producto of productos; track producto.id) {
-          <app-producto-card [producto]="producto"></app-producto-card>
-        }
-
-        <!-- Mensaje cuando no hay productos -->
-        @if (productos.length === 0) {
-          <div class="no-productos">
-            <i class="fas fa-search" style="font-size: 3rem; color: #BDC3C7; margin-bottom: 1rem;"></i>
-            <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
-          </div>
-        }
+      @if (isLoading) { @for (item of skeletonItems; track $index) {
+      <div class="producto-card-skeleton">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-text skeleton-title"></div>
+          <div class="skeleton-text skeleton-desc"></div>
+          <div class="skeleton-text skeleton-price"></div>
+          <div class="skeleton-button"></div>
+        </div>
+      </div>
+      } } @else {
+      <!-- Productos reales -->
+      @for (producto of productos; track producto.id) {
+      <app-producto-card [producto]="producto"></app-producto-card>
       }
+
+      <!-- Mensaje cuando no hay productos -->
+      @if (productos.length === 0) {
+      <div class="no-productos">
+        <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem"></i>
+        <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
+      </div>
+      } }
     </main>
   </div>
 </section>

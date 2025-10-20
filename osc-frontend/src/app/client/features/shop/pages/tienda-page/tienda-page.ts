@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductoService } from '../../services/producto.service';
 import { FiltrosProducto } from '../../models/filtros-producto.model';
-import { Producto } from '../../models/producto';
+import { Producto, Productoa } from '../../models/producto';
 import { DeporteSelector } from '../../components/deporte-selector/deporte-selector';
 import { FiltroPanelComponent } from '../../components/filtro-panel/filtro-panel';
 import { ProductoCard } from '../../components/producto-card/producto-card';
@@ -20,7 +20,7 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
   ]
 })
 export class TiendaPage implements OnInit {
-  productos: Producto[] = [];
+  productos: Productoa[] = [];
   deporteSeleccionado: string = 'todos';
   isLoading: boolean = false;
   skeletonItems = Array(12).fill(0);
@@ -61,12 +61,17 @@ export class TiendaPage implements OnInit {
   }
 
   private cargarProductos() {
-    this.isLoading = true;
-    
-    // Simular delay para mostrar skeleton
-    setTimeout(() => {
-      this.productos = this.productoService.getProductosFiltrados(this.filtrosActivos);
+    this.productoService.getProductosA().subscribe(productos => {
+      this.productos = productos;
       this.isLoading = false;
-    }, 500);
+    });
+
+    // this.isLoading = true;
+    
+    // // Simular delay para mostrar skeleton
+    // setTimeout(() => {
+    //   this.productos = this.productoService.getProductosFiltrados(this.filtrosActivos);
+    //   this.isLoading = false;
+    // }, 500);
   }
 }

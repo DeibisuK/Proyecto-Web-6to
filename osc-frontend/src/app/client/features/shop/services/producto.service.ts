@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Producto } from '../models/producto';
+import { Producto, Productoa } from '../models/producto';
 import { FiltrosProducto } from '../models/filtros-producto.model';
+import { HttpClient } from '@angular/common/http';
+import { API_URL } from '../../../../core/services/url';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
+
+  constructor(private http:HttpClient) { }
+
   // Datos para probar
   private productosDemo: Producto[] = [
     {
@@ -248,5 +253,9 @@ export class ProductoService {
 
   getProductos(): Observable<Producto[]> {
     return of(this.productosDemo);
+  }
+
+  getProductosA(): Observable<Productoa[]> {
+    return this.http.get<Productoa[]>(API_URL + '/p/products');
   }
 }
