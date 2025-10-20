@@ -54,7 +54,15 @@ export class ReservarCancha implements OnInit {
    * Obtiene la lista de deportes utilizando el servicio.
    */
   cargarDeportes(): void {
-    this.deporteService.getDeportes().then((deportes) => (this.deportes = deportes));
+    this.deporteService.getDeportes().subscribe({
+      next: (data) => {
+        this.deportes = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar los deportes:', err);
+        this.deportes = [];
+      },
+    });
   }
 
   buscarPorDeporte(): void {

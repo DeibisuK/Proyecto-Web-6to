@@ -16,7 +16,7 @@ export class DeporteSelector implements OnInit {
   deportes: Deporte[] | null = [];
 
   ngOnInit(): void {
-    this.deporteService.getDeportes().then((deportes) => {
+    this.deporteService.getDeportes().subscribe((deportes) => {
       this.deportes = deportes;
     });
   }

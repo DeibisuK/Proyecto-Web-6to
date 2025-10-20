@@ -1,0 +1,17 @@
+{
+  "name": "osc-backend",
+  "version": "1.0.0",
+  "description": "Esta es la API de**📖 Documentación:**",
+  "main": "setup-env.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "firebase-admin": "^13.5.0"
+  }
+}
