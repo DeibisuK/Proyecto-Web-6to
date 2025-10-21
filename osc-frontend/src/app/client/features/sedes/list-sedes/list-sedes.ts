@@ -27,6 +27,7 @@ export class ListSedes implements OnInit {
   }
 
   cargarSedes(): void {
+    console.log('listar sedes de cliente');
     this.isLoading = true;
     this.sedeService.getSedes().subscribe({
       next: (data) => {

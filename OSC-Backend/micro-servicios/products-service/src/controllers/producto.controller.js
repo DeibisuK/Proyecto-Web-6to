@@ -9,6 +9,28 @@ export const getAllProductos = async (req, res) => {
   }
 };
 
+export const getProductosCard = async (req, res) => {
+  try {
+    const { categoria, deporte, marca, sort, limit, offset } = req.query;
+    console.debug('[getProductosCard] req.query:', req.query);
+    const opts = {
+      categoriaId: categoria ? parseInt(categoria, 10) : null,
+      deporteId: deporte ? parseInt(deporte, 10) : null,
+      marcaId: marca ? parseInt(marca, 10) : null,
+      sort: sort || null,
+      limit: limit ? parseInt(limit, 10) : 24,
+      offset: offset ? parseInt(offset, 10) : 0,
+    };
+
+    console.debug('[getProductosCard] opts (parsed):', opts);
+    const productos = await service.getAllCard(opts);
+    console.debug('[getProductosCard] productos returned:', productos.length);
+    res.json(productos);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const getProductoById = async (req, res) => {
   try {
     const producto = await service.getById(req.params.id);

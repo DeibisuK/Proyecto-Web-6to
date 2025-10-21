@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
 import { v2 as cloudinary } from 'cloudinary';
-
-dotenv.config();
 
 // Verificar que las variables existen
 if (!process.env.CLOUDINARY_CLOUD_NAME || 

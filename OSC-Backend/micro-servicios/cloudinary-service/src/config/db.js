@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
 import { Pool, types } from 'pg';
-
-dotenv.config();
 
 // Configurar el parser para tipos numéricos (float)
 types.setTypeParser(1700, (val) => parseFloat(val));

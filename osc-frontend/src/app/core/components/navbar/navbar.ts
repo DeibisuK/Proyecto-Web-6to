@@ -98,6 +98,8 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   cargarSedes() {
+        console.log('listar sedes de navbar');
+
     this.sedeService.getSedes().subscribe({
       next: (sedes) => {
         console.log('Sedes recibidas en navbar:', sedes);

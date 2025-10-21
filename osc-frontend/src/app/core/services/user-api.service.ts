@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_URL } from './url';
+import { API_URL } from '../../shared/url';
 import { RolUsuario, Usuario } from '../models/usuario.model';
 
 export interface BackendUserPayload {
@@ -47,7 +47,7 @@ export class UserApiService {
     // The gateway proxies /u -> user-service
     return this.http.post(`${API_URL}/u/users/`, payload);
   }
-  
+
   getUserByUid(uid: string): Observable<Usuario> {
     return this.http.get<Usuario>(`${API_URL}/u/users/${uid}`);
   }

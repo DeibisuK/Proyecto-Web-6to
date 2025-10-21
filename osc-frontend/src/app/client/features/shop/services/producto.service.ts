@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Producto, Productoa } from '../models/producto';
-import { FiltrosProducto } from '../models/filtros-producto.model';
-import { HttpClient } from '@angular/common/http';
-import { API_URL } from '../../../../core/services/url';
+import { FiltrosProducto } from '../models/filtros-producto';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { API_URL } from '../../../../shared/url';
 
 @Injectable({
   providedIn: 'root'
@@ -207,41 +207,40 @@ export class ProductoService {
     }
   ];
 
-  getProductosFiltrados(filtros: FiltrosProducto): Producto[] {
-    let productos = [...this.productosDemo];
+  // getProductosFiltrados(filtros: FiltrosProducto): Producto[] {
 
-    if (filtros.categoria?.length) {
-      productos = productos.filter(p => filtros.categoria!.includes(p.categoria));
-    }
+  //   if (filtros.categoria?.length) {
+  //     productos = productos.filter(p => filtros.categoria!.includes(p.categoria));
+  //   }
 
-    if (filtros.deporte && filtros.deporte !== 'todos') {
-      productos = productos.filter(p => p.deporte === filtros.deporte);
-    }
+  //   if (filtros.deporte && filtros.deporte !== 'todos') {
+  //     productos = productos.filter(p => p.deporte === filtros.deporte);
+  //   }
 
-    if (filtros.marca?.length) {
-      productos = productos.filter(p => filtros.marca!.includes(p.marca));
-    }
+  //   if (filtros.marca?.length) {
+  //     productos = productos.filter(p => filtros.marca!.includes(p.marca));
+  //   }
 
-    if (typeof filtros.precioMin === 'number' && filtros.precioMin > 0) {
-      productos = productos.filter(p => p.precio >= filtros.precioMin!);
-    }
+  //   if (typeof filtros.precioMin === 'number' && filtros.precioMin > 0) {
+  //     productos = productos.filter(p => p.precio >= filtros.precioMin!);
+  //   }
 
-    if (typeof filtros.precioMax === 'number' && filtros.precioMax < Infinity) {
-      productos = productos.filter(p => p.precio <= filtros.precioMax!);
-    }
+  //   if (typeof filtros.precioMax === 'number' && filtros.precioMax < Infinity) {
+  //     productos = productos.filter(p => p.precio <= filtros.precioMax!);
+  //   }
 
-    if (filtros.tallas?.length) {
-      productos = productos.filter(p => 
-        p.tallas.some(t => filtros.tallas!.includes(t))
-      );
-    }
+  //   if (filtros.tallas?.length) {
+  //     productos = productos.filter(p =>
+  //       p.tallas.some(t => filtros.tallas!.includes(t))
+  //     );
+  //   }
 
-    if (filtros.color?.length) {
-      productos = productos.filter(p => filtros.color!.includes(p.color));
-    }
+  //   if (filtros.color?.length) {
+  //     productos = productos.filter(p => filtros.color!.includes(p.color));
+  //   }
 
-    return productos;
-  }
+  //   return productos;
+  // }
 
   getProductosPorDeporte(deporte: string): Observable<Producto[]> {
     return of(this.productosDemo.filter(p => p.deporte === deporte));
@@ -256,6 +255,6 @@ export class ProductoService {
   }
 
   getProductosA(): Observable<Productoa[]> {
-    return this.http.get<Productoa[]>(API_URL + '/p/products');
+    return this.http.get<Productoa[]>(API_URL + '/p/client/productos/card');
   }
 }

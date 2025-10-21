@@ -5,7 +5,7 @@ import {
     createArbitro,
     updateArbitro,
     deleteArbitro,
-} from '../controllers/arbitro.controller.js';
+} from '../../controllers/arbitro.controller.js';
 
 const router = Router();
 

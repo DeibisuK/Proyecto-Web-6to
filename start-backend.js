@@ -2,10 +2,21 @@ const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const backendPath = path.join(__dirname, 'OSC-Backend');
-const services = fs.readdirSync(backendPath, { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules')
-  .map(dirent => dirent.name);
+// New layout: services live inside OSC-Backend/micro-servicios
+const oscBackendRoot = path.join(__dirname, 'OSC-Backend');
+const servicesRoot = path.join(oscBackendRoot, 'micro-servicios');
+
+let services = [];
+if (fs.existsSync(servicesRoot)) {
+  services = fs.readdirSync(servicesRoot, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+} else if (fs.existsSync(oscBackendRoot)) {
+  // Fallback for older layout where services were directly under OSC-Backend
+  services = fs.readdirSync(oscBackendRoot, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory() && dirent.name !== 'node_modules')
+    .map(dirent => dirent.name);
+}
 
 console.log(`\n🚀 osc backend Startup Script`);
 console.log(`Found ${services.length} services: ${services.join(', ')}\n`);
@@ -42,9 +53,10 @@ function runInteractiveCommand(command, cwd, serviceName) {
     console.log(`\n🔧 Running interactive setup for ${serviceName}...\n`);
     
     // Usar spawn con stdio: 'inherit' para permitir interacción directa
+    // Use spawn with shell so node scripts behave correctly across platforms
     const process = spawn(command, [], {
       cwd,
-      stdio: 'inherit', // ← CLAVE: Heredar stdin/stdout/stderr del proceso padre
+      stdio: 'inherit', // inherit for interactive input
       shell: true
     });
 
@@ -68,11 +80,11 @@ function runInteractiveCommand(command, cwd, serviceName) {
 // Verificar si ya existen archivos .env
 function checkEnvFiles() {
   const missingEnv = [];
-  
   for (const service of services) {
-    const envPath = path.join(backendPath, service, '.env');
-    const envExamplePath = path.join(backendPath, service, '.env.example');
-    
+    const servicePath = fs.existsSync(servicesRoot) ? path.join(servicesRoot, service) : path.join(oscBackendRoot, service);
+    const envPath = path.join(servicePath, '.env');
+    const envExamplePath = path.join(servicePath, '.env.example');
+
     if (fs.existsSync(envExamplePath) && !fs.existsSync(envPath)) {
       missingEnv.push(service);
     }
@@ -96,7 +108,7 @@ async function setupEnvFiles() {
 
   try {
     // USAR runInteractiveCommand en lugar de runCommand
-    await runInteractiveCommand('node setup-env.js', backendPath, 'env-setup');
+    await runInteractiveCommand('node setup-env.js', oscBackendRoot, 'env-setup');
     console.log('✅ Environment files configured successfully!\n');
   } catch (error) {
     console.error('\n❌ Failed to setup environment files.');
@@ -110,7 +122,7 @@ async function installAll() {
   console.log('📦 Installing dependencies in all services...\n');
   
   for (const service of services) {
-    const servicePath = path.join(backendPath, service);
+    const servicePath = fs.existsSync(servicesRoot) ? path.join(servicesRoot, service) : path.join(oscBackendRoot, service);
     if (fs.existsSync(path.join(servicePath, 'package.json'))) {
       await runCommand('npm install', servicePath, service);
     }
@@ -122,39 +134,53 @@ async function installAll() {
 // Iniciar todos los servicios en paralelo
 function startAll() {
   console.log('🚀 Starting all backend services...\n');
-  
   services.forEach(service => {
-    const servicePath = path.join(backendPath, service);
-    const serviceProcess = exec('npm run dev', { cwd: servicePath });
-    
-    serviceProcess.stdout.on('data', (data) => {
+    const servicePath = fs.existsSync(servicesRoot) ? path.join(servicesRoot, service) : path.join(oscBackendRoot, service);
+
+    // pick start command intelligently
+    let commandParts = null;
+    const pkgPath = path.join(servicePath, 'package.json');
+    try {
+      if (fs.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (pkg.scripts && pkg.scripts.dev) commandParts = ['npm', 'run', 'dev'];
+        else if (pkg.scripts && pkg.scripts.start) commandParts = ['npm', 'start'];
+      }
+    } catch (e) {
+      console.error(`[${service}-ERROR] Failed to read package.json: ${e.message}`);
+    }
+
+    if (!commandParts) {
+      if (fs.existsSync(path.join(servicePath, 'src', 'server.js'))) commandParts = ['node', 'src/server.js'];
+      else if (fs.existsSync(path.join(servicePath, 'server.js'))) commandParts = ['node', 'server.js'];
+    }
+
+    if (!commandParts) {
+      console.log(`- Skipping ${service}: no start script or server file found.`);
+      return;
+    }
+
+    const child = spawn(commandParts[0], commandParts.slice(1), { cwd: servicePath, shell: true });
+
+    child.stdout.on('data', (data) => {
       console.log(`[${service}] ${data.toString().trim()}`);
     });
-    
-    serviceProcess.stderr.on('data', (data) => {
-      // Ignorar warnings de npm, solo mostrar errores reales
+
+    child.stderr.on('data', (data) => {
       const msg = data.toString().trim();
-      if (!msg.includes('npm') && !msg.includes('warn')) {
+      if (!msg.toLowerCase().includes('warn')) {
         console.error(`[${service}-ERROR] ${msg}`);
       }
     });
-    
-    serviceProcess.on('close', (code) => {
-      if (code !== 0) {
-        console.error(`\n❌ ${service} exited with code ${code}`);
-      }
+
+    child.on('close', (code) => {
+      if (code !== 0) console.error(`\n❌ ${service} exited with code ${code}`);
     });
   });
 
   console.log('\n✅ All backend services are running!');
-  console.log('📍 Services available at:');
-  console.log('   - API Gateway: http://localhost:3000');
-  console.log('   - User Service: http://localhost:3001');
-  console.log('   - Products Service: http://localhost:3002');
-  console.log('   - Buy Service: http://localhost:3003');
-  console.log('   - Court Service: http://localhost:3004');
-  console.log('   - Match Service: http://localhost:3005');
-  console.log('   - Cloudinary Service: http://localhost:3006');
+  console.log('📍 Services started (ports depend on each service .env/config). Started services:');
+  console.log(`   - ${services.join('\n   - ')}`);
   console.log('\n💡 To start the frontend, open a new terminal and run:');
   console.log('   cd osc-frontend && npm install && ng serve --open\n');
   console.log('⚠️  Press Ctrl+C to stop all services\n');

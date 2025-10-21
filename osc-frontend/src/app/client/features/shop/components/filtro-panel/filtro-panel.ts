@@ -1,7 +1,11 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FiltrosProducto } from '../../models/filtros-producto.model';
+import { FiltrosProducto } from '../../models/filtros-producto';
+import { CategoriaService } from '../../../../../core/services/categoria.service';
+import { MarcaService } from '../../../../../core/services/marca.service';
+import { Marca } from '../../../../../core/models/marca.model';
+import { Categoria } from '../../../../../core/models/categoria.model';
 
 @Component({
   selector: 'app-filtro-panel',
@@ -9,7 +13,7 @@ import { FiltrosProducto } from '../../models/filtros-producto.model';
   templateUrl: './filtro-panel.html',
   styleUrls: ['./filtro-panel.css'],
 })
-export class FiltroPanelComponent {
+export class FiltroPanelComponent implements OnInit {
   @Input() filtrosActivos: FiltrosProducto = {
     deporte: 'todos',
     precioMin: 0,
@@ -37,14 +41,27 @@ export class FiltroPanelComponent {
     porPagina: 12,
   };
 
-  categorias = [
-    { id: 'ropa', nombre: 'Ropa' },
-    { id: 'calzado', nombre: 'Calzado' },
-    { id: 'accesorios', nombre: 'Accesorios' },
-    { id: 'equipamiento', nombre: 'Equipamiento' },
-  ];
+  categoriaService = inject(CategoriaService);
+  marcaService = inject(MarcaService);
 
-  marcas = ['Nike', 'Adidas', 'Puma', 'Under Armour', 'New Balance'];
+  categorias: Categoria[] = [];
+  marcas: Marca[] = [];
+
+  ngOnInit(): void {
+    // Cargar categorias desde el servicio (tipadas)
+    this.categoriaService.getCategorias().subscribe((categorias: Categoria[]) => {
+      this.categorias = categorias;
+      console.log('📁 Categorías cargadas en FiltroPanelComponent:', categorias);
+      console.log('   Tipos de ID:', categorias.map(c => ({ id: c.id_categoria, tipo: typeof c.id_categoria })));
+    });
+
+    // Cargar marcas desde el servicio (tipadas)
+    this.marcaService.getMarcas().subscribe((marcas: Marca[]) => {
+      this.marcas = marcas;
+      console.log('🏷️ Marcas cargadas en FiltroPanelComponent:', marcas);
+      console.log('   Tipos de ID:', marcas.map(m => ({ id: m.id_marca, tipo: typeof m.id_marca })));
+    });
+  }
 
   // tallas = [
   //   'XS', 'S', 'M', 'L', 'XL', 'XXL'
@@ -61,24 +78,44 @@ export class FiltroPanelComponent {
     this.seccionesDesplegadas[filtro] = !this.seccionesDesplegadas[filtro];
   }
 
-  toggleCategoria(categoria: string) {
-    const index = this.filtros.categoria?.indexOf(categoria) ?? -1;
+  toggleCategoria(categoriaId: string) {
+    console.log('📁 Toggle Categoría - ID recibido:', categoriaId, '(tipo:', typeof categoriaId + ')');
+
+    const index = this.filtros.categoria?.indexOf(categoriaId) ?? -1;
     if (index === -1) {
-      this.filtros.categoria?.push(categoria);
+      this.filtros.categoria?.push(categoriaId);
+      console.log('  ✅ Categoría agregada');
     } else {
       this.filtros.categoria?.splice(index, 1);
+      console.log('  ❌ Categoría removida');
     }
+
+    console.log('  Categorías actuales:', this.filtros.categoria);
     this.aplicarFiltros();
   }
 
-  toggleMarca(marca: string) {
-    const index = this.filtros.marca?.indexOf(marca) ?? -1;
+  toggleMarca(marcaId: string) {
+    console.log('🏷️ Toggle Marca - ID recibido:', marcaId, '(tipo:', typeof marcaId + ')');
+
+    const index = this.filtros.marca?.indexOf(marcaId) ?? -1;
     if (index === -1) {
-      this.filtros.marca?.push(marca);
+      this.filtros.marca?.push(marcaId);
+      console.log('  ✅ Marca agregada');
     } else {
       this.filtros.marca?.splice(index, 1);
+      console.log('  ❌ Marca removida');
     }
+
+    console.log('  Marcas actuales:', this.filtros.marca);
     this.aplicarFiltros();
+  }
+
+  isCategoriaSeleccionada(categoriaId: string): boolean {
+    return this.filtros.categoria?.includes(categoriaId) ?? false;
+  }
+
+  isMarcaSeleccionada(marcaId: string): boolean {
+    return this.filtros.marca?.includes(marcaId) ?? false;
   }
 
   toggleTalla(talla: string) {
@@ -110,6 +147,7 @@ export class FiltroPanelComponent {
   }
 
   private aplicarFiltros() {
+    console.log('📤 FiltroPanelComponent - Emitiendo filtros:', this.filtros);
     this.filtrosChange.emit(this.filtros);
   }
 }

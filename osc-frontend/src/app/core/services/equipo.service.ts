@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipo } from '../models/equipo.model';
-import { API_URL } from './url';
+import { API_URL } from '../../shared/url';
 
 @Injectable({
   providedIn: 'root'

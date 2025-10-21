@@ -1,37 +1,31 @@
 <div class="producto-card" (click)="verDetalle()">
   <div class="producto-imagen">
-    <img [src]="producto.url_imagen" [alt]="producto.nombre">
-    @if (producto.precio_anterior) {
-      <div class="producto-descuento">
-        -{{calcularDescuento()}}%
-      </div>
-    }
-    <button class="btn-agregar" (click)="agregarAlCarrito($event)">
+  <img [src]="producto.images?.[0] || '/assets/placeholder.png'" [alt]="producto.nombre" (error)="onImageError($event)">
+    <div class="producto-descuento" *ngIf="producto.precio_anterior">
+      -{{ calcularDescuento() }}%
+    </div>
+    <button class="btn-agregar" (click)="agregarAlCarrito($event); $event.stopPropagation();">
       <i class="fas fa-plus"></i>
     </button>
   </div>
-  
+
   <div class="producto-info">
     <h3 class="producto-nombre">{{producto.nombre}}</h3>
     <p class="producto-caracteristicas">{{producto.descripcion}}</p>
-    
-    <div class="producto-detalles">
+
+      <div class="producto-detalles">
       <div class="precio-contenedor">
         <span class="precio-actual">${{producto.precio}}</span>
-        @if (producto.precio_anterior) {
-          <span class="precio-anterior">
-            ${{producto.precio_anterior}}
-          </span>
-        }
+        <span class="precio-anterior" *ngIf="producto.precio_anterior">
+          ${{ producto.precio_anterior }}
+        </span>
       </div>
-      
-      <span class="producto-marca">{{producto.id_marca}}</span>
+
+      <span class="producto-marca">{{ producto.nombre_marca || producto.id_marca }}</span>
     </div>
 
-    @if (producto.stock < 5) {
-      <div class="producto-disponibilidad">
-        ¡Solo quedan {{producto.stock}} unidades!
-      </div>
-    }
+    <div class="producto-disponibilidad" *ngIf="producto.stock != null && producto.stock < 5">
+      ¡Solo quedan {{ producto.stock }} unidades!
+    </div>
   </div>
 </div>

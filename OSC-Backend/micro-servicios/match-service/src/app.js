@@ -1,19 +1,25 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import cors from 'cors';
-import arbitroRoutes from './api/arbitro.routes.js';
-import equipoRoutes from './api/equipo.routes.js';
-import partidoRoutes from './api/partido.routes.js';
-
-dotenv.config();
+import express from "express";
+import cors from "cors";
+import arbitroAdmin from "./api/admin/arbitro.admin.routes.js";
+import equipoAdmin from "./api/admin/equipo.admin.routes.js";
+import equipoClient from "./api/client/equipo.client.routes.js";
+import partidoAdmin from "./api/admin/partido.admin.routes.js";
+import partidoClient from "./api/client/partido.client.routes.js";
+import authenticate from "../../../middleware/authenticate.js";
+import authorizeRole from "../../../middleware/authorizeRole.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/', arbitroRoutes);
-app.use('/', equipoRoutes);
-app.use('/', partidoRoutes);
+//CLIENT ROUTES
+app.use("/client", authenticate(), equipoClient);
+app.use("/client", authenticate(), partidoClient);
+
+//ADMIN ROUTES
+app.use("/admin", authorizeRole(3), arbitroAdmin);
+app.use("/admin", authorizeRole(1), equipoAdmin);
+app.use("/admin", authorizeRole(1), partidoAdmin);
 
 export default app;

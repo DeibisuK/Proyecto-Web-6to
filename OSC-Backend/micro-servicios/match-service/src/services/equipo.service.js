@@ -1,43 +1,43 @@
 import * as equipoModel from "../models/equipo.model.js";
 import * as historialModel from "../models/historial_partidos.model.js";
-import admin from "../config/firebase.js";
-import { eliminarImagenCloudinary } from "../../../share/utils.js";
+//import admin from "../config/firebase.js";
+import { eliminarImagenCloudinary } from "../../../../share/utils.js";
 
 // Obtener todos los equipos (ADMIN)
 export const getAll = async () => {
   const equipos = await equipoModel.findAll();
 
   // Enriquecer con datos de Firebase
-  const equiposConDatos = await Promise.all(
-    equipos.map(async (equipo) => {
-      if (equipo.firebase_uid) {
-        try {
-          const userRecord = await admin.auth().getUser(equipo.firebase_uid);
-          return {
-            ...equipo,
-            nombre_creador:
-              userRecord.displayName ||
-              userRecord.email?.split("@")[0] ||
-              "Usuario",
-            email_creador: userRecord.email || "",
-          };
-        } catch (error) {
-          console.error(
-            `Error obteniendo datos de Firebase para UID ${equipo.firebase_uid}:`,
-            error.message
-          );
-          return {
-            ...equipo,
-            nombre_creador: "Usuario no encontrado",
-            email_creador: "",
-          };
-        }
-      }
-      return equipo;
-    })
-  );
+  // const equiposConDatos = await Promise.all(
+  //   equipos.map(async (equipo) => {
+  //     if (equipo.firebase_uid) {
+  //       try {
+  //         const userRecord = await admin.auth().getUser(equipo.firebase_uid);
+  //         return {
+  //           ...equipo,
+  //           nombre_creador:
+  //             userRecord.displayName ||
+  //             userRecord.email?.split("@")[0] ||
+  //             "Usuario",
+  //           email_creador: userRecord.email || "",
+  //         };
+  //       } catch (error) {
+  //         console.error(
+  //           `Error obteniendo datos de Firebase para UID ${equipo.firebase_uid}:`,
+  //           error.message
+  //         );
+  //         return {
+  //           ...equipo,
+  //           nombre_creador: "Usuario no encontrado",
+  //           email_creador: "",
+  //         };
+  //       }
+  //     }
+  //     return equipo;
+  //   })
+  // );
 
-  return equiposConDatos;
+  return equipos;
 };
 
 // Obtener equipos del usuario autenticado

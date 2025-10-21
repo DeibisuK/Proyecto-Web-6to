@@ -1,6 +1,15 @@
 <div class="deportes-carousel">
   <h2>Tipo de Deporte</h2>
   <div class="deportes-items">
+    <!-- Opción "Todos" -->
+    <div
+      class="deporte-item"
+      [class.activo]="deporteActivo === 'todos'"
+      (click)="seleccionarDeporte('todos')"
+    >
+      <span class="deporte-nombre">Todos</span>
+    </div>
+
     @for (deporte of deportes; track deporte.id_deporte) {
     <div
       class="deporte-item"

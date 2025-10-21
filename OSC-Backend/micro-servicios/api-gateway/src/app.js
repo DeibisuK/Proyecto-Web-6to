@@ -2,17 +2,17 @@ import express from "express";
 import cors from "cors";
 import proxy from "express-http-proxy";
 
-// Middlewares & routes that are handled in this gateway
-// import  authenticate from "./middleware/authenticate.js";
-// import authorizeRole from "./middleware/authorizeRole.js";
-// import adminRoutes from "./routes/admin.routes.js";
-
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
 app.use('/p',proxy(process.env.PRODUCT_SERVICE_URL || ""));
+app.use('/u',proxy(process.env.USER_SERVICE_URL || ""));
+app.use('/c',proxy(process.env.COURT_SERVICE_URL || ""));
+app.use('/m',proxy(process.env.MATCH_SERVICE_URL || ""));
+//app.use('/b',proxy(process.env.BUY_SERVICE_URL || ""));
+app.use('/i',proxy(process.env.CLOUDINARY_SERVICE_URL || ""));
 
 export default app;
 

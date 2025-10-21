@@ -7,7 +7,7 @@ import {
     createReserva,
     updateReserva,
     deleteReserva,
-} from '../controllers/reserva.controller.js';
+} from '../../controllers/reserva.controller.js';
 
 const router = Router();
 

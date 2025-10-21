@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { ContactoForm } from '../../../core/models/contacto.model';
   selector: 'app-contact',
   imports: [CommonModule, FormsModule],
   templateUrl: './contact.html',
-  styleUrl: './contact.css'
+  styleUrl: './contact.css',
 })
 export class Contact implements OnInit {
   contactForm: ContactoForm = {
@@ -22,17 +22,16 @@ export class Contact implements OnInit {
     telefono: '',
     sede: '',
     tipo: '',
-    mensaje: ''
+    mensaje: '',
   };
-
+  private sedeService = inject(SedeService);
   charCount = 0;
   sedesDisponibles: Sede[] = [];
-  sedesAgrupadas: { nombre: string, sedes: Sede[] }[] = [];
+  sedesAgrupadas: { nombre: string; sedes: Sede[] }[] = [];
   sedes: string[] = []; // Se llenará desde el backend
 
   constructor(
     private http: HttpClient,
-    private sedeService: SedeService,
     private contactoService: ContactoService,
     private notificationService: NotificationService
   ) {}
@@ -47,27 +46,30 @@ export class Contact implements OnInit {
     'Reserva de Cancha',
     'Compra de Productos',
     'Evento Privado',
-    'Reclamo'
+    'Reclamo',
   ];
 
   cargarSedes() {
-    this.sedeService.getSedes().subscribe({
-      next: (sedes: Sede[]) => {
-        this.sedesDisponibles = sedes;
-        this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
-      },
-      error: (error: any) => {
-        console.error('Error al cargar sedes:', error);
-        this.notificationService.notify({
-          message: 'No se pudieron cargar las sedes disponibles',
-          type: 'error'
-        });
-      }
-    });
+    console.log('listar sedes de contact');
+    setTimeout(() => {
+      this.sedeService.getSedes().subscribe({
+        next: (sedes: Sede[]) => {
+          this.sedesDisponibles = sedes;
+          this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
+        },
+        error: (error: any) => {
+          console.error('Error al cargar sedes:', error);
+          this.notificationService.notify({
+            message: 'No se pudieron cargar las sedes disponibles',
+            type: 'error',
+          });
+        },
+      });
+    }, 200); // Retraso de 200 ms
   }
 
-  agruparSedesPorCiudad(sedes: Sede[]): { nombre: string, sedes: Sede[] }[] {
-    const ciudadesMap: { [ciudad: string]: { nombre: string, sedes: Sede[] } } = {};
+  agruparSedesPorCiudad(sedes: Sede[]): { nombre: string; sedes: Sede[] }[] {
+    const ciudadesMap: { [ciudad: string]: { nombre: string; sedes: Sede[] } } = {};
 
     for (const sede of sedes) {
       const ciudadNombre = sede.ciudad?.trim() || 'Sin ciudad';
@@ -84,12 +86,18 @@ export class Contact implements OnInit {
 
   onSubmit() {
     // Validar formulario
-    if (!this.contactForm.nombres || !this.contactForm.apellidos || 
-        !this.contactForm.email || !this.contactForm.telefono ||
-        !this.contactForm.sede || !this.contactForm.tipo || !this.contactForm.mensaje) {
+    if (
+      !this.contactForm.nombres ||
+      !this.contactForm.apellidos ||
+      !this.contactForm.email ||
+      !this.contactForm.telefono ||
+      !this.contactForm.sede ||
+      !this.contactForm.tipo ||
+      !this.contactForm.mensaje
+    ) {
       this.notificationService.notify({
         message: 'Por favor complete todos los campos requeridos correctamente',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -99,7 +107,7 @@ export class Contact implements OnInit {
     if (!emailPattern.test(this.contactForm.email)) {
       this.notificationService.notify({
         message: 'Por favor ingrese un email válido',
-        type: 'error'
+        type: 'error',
       });
       return;
     }
@@ -111,13 +119,13 @@ export class Contact implements OnInit {
       telefono: this.contactForm.telefono,
       email: this.contactForm.email,
       asunto: `${this.contactForm.tipo} - ${this.contactForm.sede}`,
-      mensaje: this.contactForm.mensaje
+      mensaje: this.contactForm.mensaje,
     };
 
     // Mostrar loading
     this.notificationService.notify({
       message: 'Enviando mensaje...',
-      type: 'loading'
+      type: 'loading',
     });
 
     // Enviar formulario
@@ -125,7 +133,7 @@ export class Contact implements OnInit {
       next: () => {
         this.notificationService.notify({
           message: '¡Mensaje enviado! Te contactaremos pronto.',
-          type: 'success'
+          type: 'success',
         });
         this.resetForm();
       },
@@ -133,9 +141,9 @@ export class Contact implements OnInit {
         console.error('Error al enviar:', error);
         this.notificationService.notify({
           message: 'No se pudo enviar el mensaje. Por favor intente nuevamente',
-          type: 'error'
+          type: 'error',
         });
-      }
+      },
     });
   }
 
@@ -147,7 +155,7 @@ export class Contact implements OnInit {
       telefono: '',
       sede: '',
       tipo: '',
-      mensaje: ''
+      mensaje: '',
     };
     this.charCount = 0;
   }

@@ -5,7 +5,7 @@ import {
   createSede,
   updateSede,
   deleteSede,
-} from '../controllers/sede.controller.js';
+} from '../../controllers/sede.controller.js';
 
 const router = Router();
 

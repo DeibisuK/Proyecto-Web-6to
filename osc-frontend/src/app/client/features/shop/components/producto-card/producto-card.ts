@@ -8,29 +8,49 @@ import { CarritoService } from '../../services/carrito.service';
   selector: 'app-producto-card',
   imports: [CommonModule],
   templateUrl: './producto-card.html',
-  styleUrls: ['./producto-card.css']
+  styleUrls: ['./producto-card.css'],
 })
 export class ProductoCard {
   @Input() producto!: Productoa;
-  
-  constructor(
-    private carritoService: CarritoService,
-    private router: Router
-  ) {
-  }
+
+  constructor(private carritoService: CarritoService, private router: Router) {}
 
   verDetalle() {
-    this.router.navigate(['/tienda/producto', this.producto.id]);
+    this.router.navigate(['/tienda/producto', String(this.producto.id_producto)]);
   }
 
   agregarAlCarrito(event: Event) {
-    event.stopPropagation(); // Evita que se active el verDetalle
-    //this.carritoService.agregarProducto(this.producto);
+    // La plantilla ya detiene la propagación del evento
+    // Mapear Productoa a Producto mínimo para el carrito
+    const productoParaCarrito: Producto = {
+      id: String(this.producto.id_producto),
+      nombre: this.producto.nombre,
+      descripcion: this.producto.descripcion || '',
+      caracteristicas: [],
+      precio: this.producto.precio,
+      imagen: this.producto.images && this.producto.images.length ? this.producto.images[0] : '',
+      categoria: this.producto.nombre_categoria || '',
+      deporte: this.producto.nombre_deporte || '',
+      marca: this.producto.nombre_marca || '',
+      color: '',
+      tallas: [],
+      stock: this.producto.stock || 0,
+    };
+
+    this.carritoService.agregarProducto(productoParaCarrito);
+    console.log('Producto agregado al carrito:', productoParaCarrito.id);
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (img) img.src = '/assets/placeholder.png';
   }
 
   calcularDescuento(): number {
     if (!this.producto.precio_anterior) return 0;
-    return Math.round(((this.producto.precio_anterior - this.producto.precio) / this.producto.precio_anterior) * 100);
+    return Math.round(
+      ((this.producto.precio_anterior - this.producto.precio) / this.producto.precio_anterior) * 100
+    );
   }
 
   // getCaracteristicasTruncadas(): string {

@@ -146,3 +146,53 @@ export async function create(payload) {
     client.release();
   }
 }
+
+// Obtener productos para card usando la view vw_productos_card
+export const findAllProductosCard = async ({
+  categoriaId = null,
+  deporteId = null,
+  marcaId = null,
+  sort = null, // 'price_asc' | 'price_desc' | null
+  limit = 24,
+  offset = 0,
+} = {}) => {
+  const sql = `
+    SELECT
+      id_producto,
+      nombre,
+      descripcion,
+      id_categoria,
+      nombre_categoria,
+      id_deporte,
+      nombre_deporte,
+      id_marca,
+      nombre_marca,
+      es_nuevo,
+      precio,
+      precio_anterior,
+      stock,
+      images
+    FROM public.vw_productos_card
+    WHERE (
+      $1::int IS NULL
+      OR id_categoria = $1::int
+    )
+      AND (
+        $2::int IS NULL
+        OR id_deporte = $2::int
+      )
+      AND (
+        $3::int IS NULL
+        OR id_marca = $3::int
+      )
+    ORDER BY
+      CASE WHEN $4 = 'price_asc' THEN precio END ASC,
+      CASE WHEN $4 = 'price_desc' THEN precio END DESC,
+      id_producto ASC
+    LIMIT $5 OFFSET $6;
+  `;
+
+  const params = [categoriaId, deporteId, marcaId, sort, limit, offset];
+  const result = await pool.query(sql, params);
+  return result.rows;
+};

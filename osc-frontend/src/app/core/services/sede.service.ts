@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { API_URL } from './url';
+import { API_URL } from '../../shared/url';
 import { Sede } from '../models/sede.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -8,27 +8,28 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SedeService {
-  private apiUrl = `${API_URL}/c/sedes`;
+  private clientUrl = `${API_URL}/c/client/sedes`;
+  private adminUrl = `${API_URL}/c/admin/sedes`;
 
   constructor(private http: HttpClient) {}
 
   getSedes(): Observable<Sede[]> {
-    return this.http.get<Sede[]>(this.apiUrl);
+    return this.http.get<Sede[]>(this.clientUrl);
   }
 
   getSedeById(id: number): Observable<Sede> {
-    return this.http.get<Sede>(`${this.apiUrl}/${id}`);
+    return this.http.get<Sede>(`${this.clientUrl}/${id}`);
   }
 
   createSede(sede: Sede): Observable<Sede> {
-    return this.http.post<Sede>(this.apiUrl, sede);
+    return this.http.post<Sede>(this.adminUrl, sede);
   }
 
   updateSede(id: number, sede: Sede): Observable<Sede> {
-    return this.http.put<Sede>(`${this.apiUrl}/${id}`, sede);
+    return this.http.put<Sede>(`${this.adminUrl}/${id}`, sede);
   }
 
   deleteSede(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.adminUrl}/${id}`);
   }
 }

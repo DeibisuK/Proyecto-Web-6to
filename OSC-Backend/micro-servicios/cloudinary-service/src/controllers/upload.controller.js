@@ -1,17 +1,7 @@
-import express from "express";
-import multer from "multer";
 import cloudinary from "../config/cloudinary.js";
 import pool from "../config/db.js";
 
-const router = express.Router();
-// Configurar multer para memoria (no guardar en disco)
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
-});
-
-router.get("/test-conexion", async (req, res) => {
+export const testConexion = async (req, res) => {
   try {
     await pool.query("SELECT 1");
     res.json({ success: true, message: "Conexión exitosa a la base de datos" });
@@ -22,24 +12,21 @@ router.get("/test-conexion", async (req, res) => {
       details: error.message,
     });
   }
-});
+};
 
-// Endpoint para subir imagen
-router.post("/upload-imagen", upload.single("imagen"), async (req, res) => {
+export const uploadImagen = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
-    // Datos adicionales del usuario (si los envías)
     const { userId, carpeta = "usuarios" } = req.body;
 
-    // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: carpeta,
-          public_id: `user_${userId}_${Date.now()}`, // Nombre único
+          public_id: `user_${userId}_${Date.now()}`,
           resource_type: "auto",
         },
         (error, result) => {
@@ -62,16 +49,14 @@ router.post("/upload-imagen", upload.single("imagen"), async (req, res) => {
       details: error.message,
     });
   }
-});
+};
 
-// Endpoint específico para subir imágenes de canchas (sin guardar en BD)
-router.post("/upload-cancha", upload.single("imagen"), async (req, res) => {
+export const uploadCancha = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
-    // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -103,16 +88,14 @@ router.post("/upload-cancha", upload.single("imagen"), async (req, res) => {
       details: error.message,
     });
   }
-});
+};
 
-// Endpoint específico para subir logos de equipos
-router.post("/upload-equipo", upload.single("logo"), async (req, res) => {
+export const uploadEquipo = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No se envió ninguna imagen" });
     }
 
-    // Subir a Cloudinary usando buffer
     const resultado = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -144,24 +127,22 @@ router.post("/upload-equipo", upload.single("logo"), async (req, res) => {
       details: error.message,
     });
   }
-});
+};
 
-// Endpoint para eliminar imagen
-router.delete("/delete-imagen/", async (req, res) => {
+export const deleteImagen = async (req, res) => {
   try {
-    const publicId = req.body.public_id; // Decodificar
-    // Eliminar de Cloudinary
+    const publicId = req.body.public_id;
+    if (!publicId) {
+      return res.status(400).json({ error: "public_id es requerido" });
+    }
+
     await cloudinary.uploader.destroy(publicId);
     res.json({ success: true, message: "Imagen eliminada" });
   } catch (error) {
-    // ¡ESTE ES EL ERROR REAL!
     console.error("¡FALLÓ EL ENDPOINT DELETE!:", error);
-    // Devuelve el error completo para verlo en la consola del navegador (si quieres)
     res.status(500).json({
       error: error.message,
-      fullError: error, // Añade esto para más detalle
+      fullError: error,
     });
   }
-});
-
-export default router;
+};

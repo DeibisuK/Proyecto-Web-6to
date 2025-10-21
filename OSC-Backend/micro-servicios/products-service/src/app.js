@@ -8,8 +8,8 @@ import categoriaAdmin from './api/admin/categoria.admin.routes.js';
 import deporteAdmin from './api/admin/deporte.admin.routes.js';
 import marcaAdmin from './api/admin/marca.admin.routes.js';
 import productoAdmin from './api/admin/producto.admin.routes.js';
-import authorizeRole from '../../config/middleware/authorizeRole.js';
-import authenticate from '../../config/middleware/authenticate.js';
+import authorizeRole from '../../../middleware/authorizeRole.js';
+import authenticate from '../../../middleware/authenticate.js';
 
 const app = express();
 

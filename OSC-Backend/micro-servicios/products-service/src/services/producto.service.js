@@ -4,6 +4,10 @@ export const getAll = async () => {
     return await model.findAllProductos();
 };
 
+export const getAllCard = async (opts) => {
+    return await model.findAllProductosCard(opts);
+};
+
 export const getById = async (id) => {
     return await model.findById(id);
 };

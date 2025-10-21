@@ -1,20 +1,9 @@
 // server.js
-import dotenv from 'dotenv';
+import '../../../config/dotenv.js'
+import app from "./app.js";
 
-// PRIMERO cargar las variables de entorno
-dotenv.config();
-
-// DESPUÉS importar la app
-import app from './app.js';
-
-// Prefer generic PORT, but allow backward compatibility with CLOUDINARY_SERVICE_PORT
 const PORT = process.env.PORT || 3006;
 
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en puerto ${PORT}`);
-  console.log('🔑 Cloudinary configurado:', {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '❌ Falta',
-    api_key: process.env.CLOUDINARY_API_KEY ? '✅ OK' : '❌ Falta',
-    api_secret: process.env.CLOUDINARY_API_SECRET ? '✅ OK' : '❌ Falta'
-  });
 });

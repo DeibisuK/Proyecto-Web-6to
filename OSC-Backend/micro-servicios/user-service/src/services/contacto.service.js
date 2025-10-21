@@ -1,24 +1,24 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-export const enviarCorreo = async ({ 
-  nombres, 
-  apellidos, 
-  telefono, 
-  email, 
-  asunto, 
-  mensaje 
+export const enviarCorreo = async ({
+  nombres,
+  apellidos,
+  telefono,
+  email,
+  asunto,
+  mensaje,
 }) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
-      user: 'noreplycinebyte@gmail.com',
-      pass: 'yzkx vkye nyuk zdxg'
-    }
+      user: "noreplycinebyte@gmail.com",
+      pass: "yzkx vkye nyuk zdxg",
+    },
   });
 
   const mailOptions = {
     from: email,
-    to: 'noreplycinebyte@gmail.com',
+    to: "noreplycinebyte@gmail.com",
     subject: `Nuevo mensaje de contacto de OSC Sports`,
     html: `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -66,7 +66,9 @@ export const enviarCorreo = async ({
           </tr>
           <tr>
             <td style="padding: 15px 20px; font-weight: 600; color: #2ECC71;">Tipo:</td>
-            <td style="padding: 15px 20px; color: #212529;">${mensaje.split('\n')[0]}</td>
+            <td style="padding: 15px 20px; color: #212529;">${
+              mensaje.split("\n")[0]
+            }</td>
           </tr>
         </table>
 
@@ -74,7 +76,7 @@ export const enviarCorreo = async ({
         <div style="background-color: #ffffff; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #2ECC71; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #2ECC71;">Comentario:</h3>
           <p style="margin: 0; color: #212529; line-height: 1.6; font-size: 14px;">
-            ${mensaje.replace(/\n/g, '<br>')}
+            ${mensaje.replace(/\n/g, "<br>")}
           </p>
         </div>
       </div>
@@ -86,7 +88,7 @@ export const enviarCorreo = async ({
         </p>
       </div>
     </div>
-    `
+    `,
   };
 
   return await transporter.sendMail(mailOptions);

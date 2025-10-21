@@ -1,19 +1,18 @@
 export interface Productoa {
-  id: string;
+  id_producto: number;
   nombre: string;
-  descripcion: string;
-  id_categoria: string;
-  id_deporte: string;
-  id_marca: number;
-  //  descuento?: number;
+  descripcion?: string;
+  id_categoria?: number | null;
+  nombre_categoria?: string | null;
+  id_deporte?: number | null;
+  nombre_deporte?: string | null;
+  id_marca?: number | null;
+  nombre_marca?: string | null;
   es_nuevo?: boolean;
-  url_imagen: string;
-  // oferta?: boolean;
   precio: number;
-  precio_anterior: number;
-  stock: number;
-  id_primera_variante: number;
-  sku_primera_variante: string;
+  precio_anterior?: number | null;
+  stock?: number;
+  images?: string[];
 }
 
 export interface Producto {

@@ -1,4 +1,4 @@
-import { eliminarImagenCloudinary } from "../../../share/utils.js";
+import { eliminarImagenCloudinary } from "../../../../share/utils.js";
 import * as model from "../models/cancha.model.js";
 
 export const getAll = async () => {

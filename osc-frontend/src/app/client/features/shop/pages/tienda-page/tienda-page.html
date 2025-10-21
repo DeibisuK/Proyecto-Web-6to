@@ -33,7 +33,7 @@
       </div>
       } } @else {
       <!-- Productos reales -->
-      @for (producto of productos; track producto.id) {
+      @for (producto of productos; track producto.id_producto) {
       <app-producto-card [producto]="producto"></app-producto-card>
       }
 
