@@ -11,21 +11,36 @@ export const getAllProductos = async (req, res) => {
 
 export const getProductosCard = async (req, res) => {
   try {
-    const { categoria, deporte, marca, sort, limit, offset } = req.query;
-    console.debug('[getProductosCard] req.query:', req.query);
+    const {
+      categoria,
+      deporte,
+      marca,
+      sort,
+      q = null,
+      is_new = undefined,
+      page = '1',
+      per_page = '24',
+    } = req.query;
+
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const perPageNum = Math.min(Math.max(parseInt(per_page, 10) || 24, 1), 100);
+    const offset = (pageNum - 1) * perPageNum;
+
     const opts = {
       categoriaId: categoria ? parseInt(categoria, 10) : null,
       deporteId: deporte ? parseInt(deporte, 10) : null,
       marcaId: marca ? parseInt(marca, 10) : null,
       sort: sort || null,
-      limit: limit ? parseInt(limit, 10) : 24,
-      offset: offset ? parseInt(offset, 10) : 0,
+      q: q ? String(q).trim() : null,
+      is_new: is_new === undefined ? null : (String(is_new) === 'true'),
+      limit: perPageNum,
+      offset,
     };
 
     console.debug('[getProductosCard] opts (parsed):', opts);
-    const productos = await service.getAllCard(opts);
-    console.debug('[getProductosCard] productos returned:', productos.length);
-    res.json(productos);
+    const result = await service.getAllCard(opts);
+    console.debug('[getProductosCard] result:', { total: result.total, count: result.data.length });
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

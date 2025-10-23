@@ -7,7 +7,7 @@ import {
 
 const router = Router();
 
-router.get('/', getAllProductos);
+router.get('/', getProductosCard);
 router.get('/card', getProductosCard);
 router.get('/:id', getProductoById);
 

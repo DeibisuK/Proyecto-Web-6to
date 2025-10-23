@@ -1,15 +1,15 @@
 import * as model from '../models/producto.model.js';
 
 export const getAll = async () => {
-    return await model.findAllProductos();
+    return await model.findProducts();
 };
 
 export const getAllCard = async (opts) => {
-    return await model.findAllProductosCard(opts);
+    return await model.findProducts(opts);
 };
 
 export const getById = async (id) => {
-    return await model.findById(id);
+    return await model.findProductsFiltre(id);
 };
 
 export const create = async (producto) => {

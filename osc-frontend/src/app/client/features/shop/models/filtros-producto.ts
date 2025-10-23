@@ -1,12 +1,14 @@
 export interface FiltrosProducto {
-    categoria?: string[];
-    deporte?: string;
-    precioMin?: number;
-    precioMax?: number;
-    tallas?: string[];
-    marca?: string[];
-    color?: string[];
-    ordenamiento?: 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre';
-    pagina?: number;
-    porPagina?: number;
+  q?: string; // búsqueda libre
+  categoria?: string | string[]; // id o nombre, o lista
+  deporte?: string; // id o nombre
+  marca?: string | string[]; // id o nombre, o lista
+  precioMin?: number;
+  precioMax?: number;
+  tallas?: string[];
+  color?: string[];
+  is_new?: boolean;
+  ordenamiento?: 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre';
+  pagina?: number;
+  porPagina?: number;
 }

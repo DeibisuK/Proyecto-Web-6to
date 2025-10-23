@@ -1,42 +1,101 @@
 import pool from "../config/db.js";
 
 // javascript
-export const findAllProductos = async () => {
+export const findProducts = async ({
+  categoriaId = null,
+  deporteId = null,
+  marcaId = null,
+  q = null,
+  is_new = null,
+  sort = null,
+  limit = 24,
+  offset = 0,
+} = {}) => {
   const sql = `
     SELECT
-      p.*,
-      CASE
-        WHEN v_first.url_images IS NULL THEN NULL
-        WHEN jsonb_typeof(v_first.url_images -> 0) = 'string' THEN v_first.url_images ->> 0
-        ELSE (v_first.url_images -> 0) ->> 'url'
-      END AS url_imagen,
-      v_first.precio AS precio,
-      v_first.previous_price AS precio_anterior,
-      v_first.stock AS stock,
-      v_first.id_variante AS id_primera_variante,
-      v_first.sku AS sku_primera_variante
-    FROM productos p
-    LEFT JOIN LATERAL (
-      SELECT id_variante, precio, previous_price, sku, stock, url_images
-      FROM variantes_productos v
-      WHERE v.id_producto = p.id_producto
-      ORDER BY id_variante ASC
-      LIMIT 1
-    ) v_first ON TRUE
-    ORDER BY p.id_producto;
+      id_producto AS id,
+      nombre,
+      descripcion AS caracteristicas,
+      id_categoria,
+      nombre_categoria,
+      id_deporte,
+      nombre_deporte AS deporte,
+      id_marca,
+      nombre_marca AS marca,
+      es_nuevo,
+      COALESCE(precio,0)::numeric(10,2) AS precio,
+      precio_anterior::numeric(10,2) AS precio_anterior,
+      stock,
+      (images ->> 0) AS imagen,
+      COUNT(*) OVER() AS total_count
+    FROM public.vw_productos_card
+    WHERE (
+      $1::int IS NULL OR id_categoria = $1::int
+    )
+    AND (
+      $2::int IS NULL OR id_deporte = $2::int
+    )
+    AND (
+      $3::int IS NULL OR id_marca = $3::int
+    )
+    AND (
+      $4::text IS NULL OR LOWER(nombre) LIKE '%' || LOWER($4) || '%' OR LOWER(descripcion) LIKE '%' || LOWER($4) || '%'
+    )
+    AND (
+      $5::boolean IS NULL OR es_nuevo = $5::boolean
+    )
+    ORDER BY
+      CASE WHEN $6 = 'price_asc' THEN precio END ASC,
+      CASE WHEN $6 = 'price_desc' THEN precio END DESC,
+      CASE WHEN $6 = 'newest' THEN id_producto END DESC,
+      id_producto ASC
+    LIMIT $7 OFFSET $8;
   `;
 
-  const result = await pool.query(sql);
+  const params = [categoriaId, deporteId, marcaId, q, is_new, sort, limit, offset];
+  const result = await pool.query(sql, params);
 
-  return result.rows;
+  const rows = result.rows.map((r) => {
+    const { total_count, ...item } = r;
+    return item;
+  });
+
+  const total = result.rows.length ? parseInt(result.rows[0].total_count, 10) : 0;
+  const total_pages = Math.ceil(total / (limit || 1));
+
+  return {
+    page: Math.floor(offset / limit) + 1,
+    per_page: limit,
+    total,
+    total_pages,
+    data: rows,
+  };
 };
 
-export const findById = async (id) => {
-  const result = await pool.query(
-    "SELECT * FROM productos WHERE id_producto = $1",
-    [id]
-  );
-  return result.rows[0];
+export const findProductsFiltre = async (id) => {
+  const sql = `
+    SELECT
+      id_producto AS id,
+      nombre,
+      descripcion AS caracteristicas,
+      id_categoria,
+      nombre_categoria,
+      id_deporte,
+      nombre_deporte AS deporte,
+      id_marca,
+      nombre_marca AS marca,
+      es_nuevo,
+      COALESCE(precio,0)::numeric(10,2) AS precio,
+      precio_anterior::numeric(10,2) AS precio_anterior,
+      stock,
+      images
+    FROM public.vw_productos_card
+    WHERE id_producto = $1::int
+    LIMIT 1;
+  `;
+
+  const result = await pool.query(sql, [id]);
+  return result.rows[0] || null;
 };
 
 export async function create(payload) {

@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { Contact } from "./features/contact/contact";
 import { Home } from "./features/home/pages/home-page/home-page";
-import { Productos } from "./features/productos/productos";
+//import { Productos } from "./features/productos/productos";
 import { MisionVision } from "./features/informacion/nosotros/mision-vision/mision-vision";
 import { Equipo } from "./features/informacion/nosotros/equipo/equipo";
 import { Historia } from "./features/informacion/nosotros/historia/historia";
@@ -27,44 +27,44 @@ import { DetalleReservarCancha } from "./features/reservas/components/detalle-re
 
 export const clienteRoutes: Routes = [
   {
-    path: '', 
-    redirectTo: 'inicio', 
+    path: '',
+    redirectTo: 'inicio',
     pathMatch: 'full'
   },
   {
-    path: 'inicio', 
+    path: 'inicio',
     component: Home
   },
+  // {
+  //   path: 'productos',
+  //   component: Productos
+  // },
   {
-    path: 'productos', 
-    component: Productos
-  },
-  {
-    path: 'contacto', 
+    path: 'contacto',
     component: Contact
   },
   {
-    path: 'articulos/cancha-futbol', 
+    path: 'articulos/cancha-futbol',
     component: CanchaFutbolCompletoComponent
   },
   {
-    path: 'articulos/estudio-deportivo', 
+    path: 'articulos/estudio-deportivo',
     component: EstudioDeportivoCompletoComponent
   },
   {
-    path: 'articulos/padel-beneficios', 
+    path: 'articulos/padel-beneficios',
     component: PadelBeneficiosCompletoComponent
   },
   {
-    path: 'mision-y-vision', 
+    path: 'mision-y-vision',
     component: MisionVision
   },
   {
-    path: 'historia', 
+    path: 'historia',
     component: Historia
   },
   {
-    path: 'nuestro-equipo', 
+    path: 'nuestro-equipo',
     component: Equipo
   },
   {
@@ -76,19 +76,19 @@ export const clienteRoutes: Routes = [
     ]
   },
   {
-    path: 'carrito', 
+    path: 'carrito',
     component: CarritoComponent
   },
   {
-    path: 'puntos-de-lealtad', 
+    path: 'puntos-de-lealtad',
     component: PuntosLealtad
   },
   {
-    path: 'politica-de-privacidad', 
+    path: 'politica-de-privacidad',
     component: PoliticaDePrivacidad
   },
   {
-    path: 'terminos-y-condiciones', 
+    path: 'terminos-y-condiciones',
     component: TerminosYCondiciones
   },
   {
@@ -109,7 +109,7 @@ export const clienteRoutes: Routes = [
   {
     path: 'todas-las-sedes', component: ListSedes
   },
-  
+
   {
     path: 'metodos-de-pago', component: ListMetodo
   },

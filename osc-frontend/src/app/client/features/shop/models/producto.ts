@@ -1,18 +1,22 @@
-export interface Productoa {
-  id_producto: number;
+export interface ProductosResponse {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+  data: Producto[];
+}
+
+export interface ProductoCard{
+  id: string;
   nombre: string;
-  descripcion?: string;
-  id_categoria?: number | null;
-  nombre_categoria?: string | null;
-  id_deporte?: number | null;
-  nombre_deporte?: string | null;
-  id_marca?: number | null;
-  nombre_marca?: string | null;
-  es_nuevo?: boolean;
   precio: number;
-  precio_anterior?: number | null;
-  stock?: number;
-  images?: string[];
+  imagen: string;
+  categoria: string;
+  deporte: string;
+  marca: string;
+  color: string;
+  nuevo?: boolean;
+  oferta?: boolean;
 }
 
 export interface Producto {

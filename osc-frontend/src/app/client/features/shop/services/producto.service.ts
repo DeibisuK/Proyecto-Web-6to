@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Producto, Productoa } from '../models/producto';
+import { Producto, ProductosResponse } from '../models/producto';
 import { FiltrosProducto } from '../models/filtros-producto';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { API_URL } from '../../../../shared/url';
@@ -254,7 +254,59 @@ export class ProductoService {
     return of(this.productosDemo);
   }
 
-  getProductosA(): Observable<Productoa[]> {
-    return this.http.get<Productoa[]>(API_URL + '/p/client/productos/card');
+  getAllProductos(): Observable<ProductosResponse[]> {
+    return this.http.get<any[]>(API_URL + '/p/client/productos/card');
+  }
+
+  getProductosFiltrados(filtros: FiltrosProducto, page: number, per_page: number, sort: string): Observable<ProductosResponse> {
+    const pageNum = Math.max(1, page);
+    const perPageNum = Math.min(Math.max(per_page, 1), 100);
+
+    let params = new HttpParams()
+      .set('page', pageNum.toString())
+      .set('per_page', perPageNum.toString());
+
+    // Preferir el sort pasado como argumento; si no, mapear desde filtros.ordenamiento
+    let finalSort = sort || '';
+    if (!finalSort && filtros?.ordenamiento) {
+      const map: Record<string, string> = {
+        'precio-asc': 'price_asc',
+        'precio-desc': 'price_desc',
+        'relevancia': '',
+        'nombre': 'name'
+      };
+      finalSort = map[filtros.ordenamiento] ?? '';
+    }
+    if (finalSort) params = params.set('sort', finalSort);
+
+    // Añadir filtros opcionales sólo si existen
+    if (filtros) {
+      if (filtros.categoria) {
+        const cat = Array.isArray(filtros.categoria) ? filtros.categoria[0] : filtros.categoria;
+        if (cat) params = params.set('categoria', String(cat));
+      }
+      if (filtros.deporte) {
+        params = params.set('deporte', String(filtros.deporte));
+      }
+      if (filtros.marca) {
+        const m = Array.isArray(filtros.marca) ? filtros.marca[0] : filtros.marca;
+        if (m) params = params.set('marca', String(m));
+      }
+      if (typeof filtros.precioMin === 'number') {
+        params = params.set('precioMin', String(filtros.precioMin));
+      }
+      if (typeof filtros.precioMax === 'number') {
+        params = params.set('precioMax', String(filtros.precioMax));
+      }
+      if (filtros.tallas && filtros.tallas.length) {
+        params = params.set('tallas', filtros.tallas.join(','));
+      }
+      if (filtros.color && filtros.color.length) {
+        params = params.set('color', filtros.color.join(','));
+      }
+    }
+
+    // Usar la ruta cliente raíz que ahora devuelve los product-cards filtrados
+    return this.http.get<ProductosResponse>(API_URL + '/p/client/productos/card', { params });
   }
 }
