@@ -32,7 +32,7 @@
       </div>
       } } @else {
       <!-- Productos reales -->
-      @for (producto of productos; track producto.id_producto) {
+      @for (producto of productos; track producto.id) {
       <app-producto-card [producto]="producto"></app-producto-card>
       }
 
@@ -41,8 +41,68 @@
       <div class="no-productos">
         <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem"></i>
         <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
+        <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
+          Limpiar Filtros
+        </button>
       </div>
-      } }
+      }
+
+      <!-- Paginación -->
+      @if (totalPaginas > 1) {
+      <div class="paginacion">
+        <!-- Botón Anterior -->
+        <button
+          class="btn-pagina"
+          [disabled]="filtrosActivos.page === 1"
+          (click)="cambiarPagina(filtrosActivos.page! - 1)"
+          [class.disabled]="filtrosActivos.page === 1">
+          <i class="fas fa-chevron-left"></i>
+          Anterior
+        </button>
+
+        <!-- Números de página -->
+        <div class="paginas-numeros">
+          <!-- Primera página -->
+          @if (filtrosActivos.page! > 3) {
+          <button class="btn-numero-pagina" (click)="cambiarPagina(1)">1</button>
+          @if (filtrosActivos.page! > 4) {
+          <span class="pagina-dots">...</span>
+          }
+          }
+
+          <!-- Páginas cercanas -->
+          @for (pagina of getPaginasCercanas(); track pagina) {
+          <button
+            class="btn-numero-pagina"
+            [class.active]="pagina === filtrosActivos.page"
+            (click)="cambiarPagina(pagina)">
+            {{ pagina }}
+          </button>
+          }
+
+          <!-- Última página -->
+          @if (filtrosActivos.page! < totalPaginas - 2) {
+          @if (filtrosActivos.page! < totalPaginas - 3) {
+          <span class="pagina-dots">...</span>
+          }
+          <button class="btn-numero-pagina" (click)="cambiarPagina(totalPaginas)">
+            {{ totalPaginas }}
+          </button>
+          }
+        </div>
+
+        <!-- Botón Siguiente -->
+        <button
+          class="btn-pagina"
+          [disabled]="filtrosActivos.page === totalPaginas"
+          (click)="cambiarPagina(filtrosActivos.page! + 1)"
+          [class.disabled]="filtrosActivos.page === totalPaginas">
+          Siguiente
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      }
+      }
     </main>
   </div>
 </section>

@@ -17,7 +17,7 @@
       <div class="opciones-grid">
         <label class="opcion-checkbox" *ngFor="let cat of categorias">
           <input type="checkbox"
-                 [checked]="filtros.categoria?.includes(cat.id_categoria)"
+                 [checked]="isCategoriaSeleccionada(cat.id_categoria)"
                  (change)="toggleCategoria(cat.id_categoria)">
           <span>{{cat.nombre_categoria}}</span>
         </label>
@@ -38,7 +38,7 @@
       <div class="opciones-lista">
         <label class="opcion-checkbox" *ngFor="let marca of marcas">
           <input type="checkbox"
-                 [checked]="filtros.marca?.includes(marca.id_marca)"
+                 [checked]="isMarcaSeleccionada(marca.id_marca)"
                  (change)="toggleMarca(marca.id_marca)">
           <span>{{marca.nombre_marca}}</span>
         </label>

@@ -2,8 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Producto } from '../../models/producto';
-import { ProductoCard } from '../producto-card/producto-card';
+import { ProductoDetalle, VarianteProducto, OpcionesProducto } from '../../models/producto';
 import { CarritoService } from '../../services/carrito.service';
 import { ProductoService } from '../../services/producto.service';
 import { ProductosRelacionados } from '../productos-relacionados/productos-relacionados';
@@ -15,27 +14,18 @@ import { ProductosRelacionados } from '../productos-relacionados/productos-relac
   styleUrls: ['./detalle-producto.css']
 })
 export class DetalleProducto implements OnInit {
-  producto!: Producto;
-  tallaSeleccionada: string = '';
+  producto?: ProductoDetalle;
+  varianteSeleccionada?: VarianteProducto;
+  opcionesSeleccionadas: Map<number, number> = new Map(); // id_opcion -> id_valor
+  opcionesDisponibles: OpcionesProducto[] = [];
+
   cantidad: number = 1;
   imagenPrincipal: string = '';
-  colorSeleccionado: string = '';
+  isLoading: boolean = true;
+
   seccionesAbiertas = {
     caracteristicas: false,
     descripcion: false
-  };
-
-  private coloresHex: { [key: string]: string } = {
-    'blanco': '#FFFFFF',
-    'negro': '#000000',
-    'azul': '#0066CC',
-    'rojo': '#CC0000',
-    'verde': '#00CC00',
-    'amarillo': '#FFFF00',
-    'naranja': '#FF6600',
-    'gris': '#808080',
-    'rosa': '#FF69B4',
-    'morado': '#800080'
   };
 
   constructor(
@@ -49,97 +39,327 @@ export class DetalleProducto implements OnInit {
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) {
-        const productoEncontrado = this.productoService.getProductoPorId(id);
-        if (productoEncontrado) {
-          this.producto = productoEncontrado;
-          this.imagenPrincipal = this.producto.imagen;
-          this.colorSeleccionado = this.producto.color;
-          
-          // Auto-seleccionar talla si es standard
-          if (this.esTallaStandard()) {
-            this.tallaSeleccionada = this.producto.tallas[0];
-          }
-        } else {
-          // Producto no encontrado, redirigir a tienda
-          this.router.navigate(['/tienda']);
-        }
+        this.cargarProducto(parseInt(id, 10));
       }
     });
   }
 
+  /**
+   * Carga el producto desde el backend
+   */
+  private cargarProducto(id: number) {
+    this.isLoading = true;
+
+    this.productoService.getProductoDetalle(id).subscribe({
+      next: (producto) => {
+        console.log('✅ Producto cargado:', producto);
+        this.producto = producto;
+        this.extraerOpciones();
+        this.seleccionarPrimeraVariante();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Error cargando producto:', error);
+        this.isLoading = false;
+        // Redirigir a tienda si el producto no existe
+        this.router.navigate(['/tienda']);
+      }
+    });
+  }
+
+  /**
+   * Extrae las opciones únicas (Color, Talla) de todas las variantes
+   */
+  private extraerOpciones() {
+    if (!this.producto?.variantes) return;
+
+    const opcionesMap = new Map<number, OpcionesProducto>();
+
+    this.producto.variantes.forEach(variante => {
+      variante.valores.forEach(valor => {
+        if (!opcionesMap.has(valor.id_opcion)) {
+          opcionesMap.set(valor.id_opcion, {
+            id_opcion: valor.id_opcion,
+            nombre_opcion: valor.nombre_opcion,
+            valores: []
+          });
+        }
+
+        const opcion = opcionesMap.get(valor.id_opcion)!;
+
+        // Agregar valor si no existe
+        if (!opcion.valores.find(v => v.id_valor === valor.id_valor)) {
+          opcion.valores.push({
+            id_valor: valor.id_valor,
+            valor: valor.valor
+          });
+        }
+      });
+    });
+
+    this.opcionesDisponibles = Array.from(opcionesMap.values());
+    console.log('🎨 Opciones extraídas:', this.opcionesDisponibles);
+  }
+
+  /**
+   * Selecciona automáticamente la primera variante disponible
+   */
+  private seleccionarPrimeraVariante() {
+    if (!this.producto?.variantes || this.producto.variantes.length === 0) return;
+
+    const primeraVariante = this.producto.variantes[0];
+
+    // Pre-seleccionar los valores de la primera variante
+    primeraVariante.valores.forEach(valor => {
+      this.opcionesSeleccionadas.set(valor.id_opcion, valor.id_valor);
+    });
+
+    this.actualizarVarianteSeleccionada();
+  }
+
+  /**
+   * Maneja el cambio de una opción (Color, Talla, etc.)
+   */
+  seleccionarOpcion(idOpcion: number, idValor: number) {
+    this.opcionesSeleccionadas.set(idOpcion, idValor);
+    this.actualizarVarianteSeleccionada();
+  }
+
+  /**
+   * Busca y selecciona la variante que coincida con las opciones elegidas
+   */
+  private actualizarVarianteSeleccionada() {
+    if (!this.producto?.variantes) return;
+
+    // Buscar variante que coincida con TODAS las opciones seleccionadas
+    const varianteEncontrada = this.producto.variantes.find(variante => {
+      return Array.from(this.opcionesSeleccionadas.entries()).every(([idOpcion, idValor]) => {
+        return variante.valores.some(v => v.id_opcion === idOpcion && v.id_valor === idValor);
+      });
+    });
+
+    if (varianteEncontrada) {
+      this.varianteSeleccionada = varianteEncontrada;
+      this.imagenPrincipal = this.getImagenUrl(varianteEncontrada.imagenes[0]);
+      this.cantidad = 1; // Resetear cantidad al cambiar variante
+
+      console.log('🔄 Variante seleccionada:', {
+        sku: varianteEncontrada.sku,
+        precio: varianteEncontrada.precio,
+        stock: varianteEncontrada.stock
+      });
+    }
+  }
+
+  /**
+   * Normaliza la URL de imagen (maneja string o objeto {url: string})
+   */
+  private getImagenUrl(imagen: any): string {
+    if (typeof imagen === 'string') {
+      return imagen;
+    }
+    if (imagen && typeof imagen === 'object' && imagen.url) {
+      return imagen.url;
+    }
+    return '/assets/placeholder.png';
+  }
+
+  /**
+   * Obtiene el array de URLs de imágenes normalizadas
+   */
+  getImagenesNormalizadas(): string[] {
+    if (!this.varianteSeleccionada?.imagenes) return [];
+    return this.varianteSeleccionada.imagenes.map(img => this.getImagenUrl(img));
+  }
+
+  /**
+   * Cambia la imagen principal
+   */
+  cambiarImagenPrincipal(imagen: string) {
+    this.imagenPrincipal = imagen;
+  }
+
+  /**
+   * Verifica si una opción está seleccionada
+   */
+  isOpcionSeleccionada(idOpcion: number, idValor: number): boolean {
+    return this.opcionesSeleccionadas.get(idOpcion) === idValor;
+  }
+
+  /**
+   * Calcula el descuento de la variante seleccionada
+   */
   calcularDescuento(): number {
-    if (!this.producto.precioAnterior) return 0;
-    return Math.round(((this.producto.precioAnterior - this.producto.precio) / this.producto.precioAnterior) * 100);
+    if (!this.varianteSeleccionada?.precio_anterior) return 0;
+    if (this.varianteSeleccionada.precio_anterior <= this.varianteSeleccionada.precio) return 0;
+
+    return Math.round(
+      ((this.varianteSeleccionada.precio_anterior - this.varianteSeleccionada.precio) /
+       this.varianteSeleccionada.precio_anterior) * 100
+    );
   }
 
+  /**
+   * Retorna el nombre de la categoría
+   */
   getCategoriaDisplay(): string {
-    const categorias: { [key: string]: string } = {
-      'ropa': 'Ropa Deportiva',
-      'calzado': 'Calzado',
-      'accesorios': 'Accesorios',
-      'equipamiento': 'Equipamiento'
-    };
-    return categorias[this.producto.categoria] || this.producto.categoria;
+    return this.producto?.nombre_categoria || '';
   }
 
-  getColorHex(): string {
-    return this.coloresHex[this.producto.color.toLowerCase()] || '#CCCCCC';
-  }
-
-  esTallaStandard(): boolean {
-    return this.producto.tallas.length === 1 && 
-           (this.producto.tallas[0] === 'standard' || this.producto.tallas[0] === '5');
-  }
-
-  seleccionarTalla(talla: string) {
-    this.tallaSeleccionada = this.tallaSeleccionada === talla ? '' : talla;
-  }
-
+  /**
+   * Cambia la cantidad del producto
+   */
   cambiarCantidad(incremento: number) {
+    if (!this.varianteSeleccionada) return;
+
     const nuevaCantidad = this.cantidad + incremento;
-    if (nuevaCantidad >= 1 && nuevaCantidad <= this.producto.stock) {
+    if (nuevaCantidad >= 1 && nuevaCantidad <= this.varianteSeleccionada.stock) {
       this.cantidad = nuevaCantidad;
     }
   }
 
+  /**
+   * Verifica si se puede agregar al carrito
+   */
   puedeAgregar(): boolean {
-    return this.producto.stock > 0 && 
-           (this.esTallaStandard() || this.tallaSeleccionada !== '') &&
+    if (!this.varianteSeleccionada) return false;
+
+    // Verificar que todas las opciones estén seleccionadas
+    const todasOpcionesSeleccionadas = this.opcionesDisponibles.length === this.opcionesSeleccionadas.size;
+
+    return this.varianteSeleccionada.stock > 0 &&
+           todasOpcionesSeleccionadas &&
            this.cantidad > 0;
   }
 
+  /**
+   * Agrega el producto al carrito
+   */
   agregarAlCarrito() {
-    if (!this.puedeAgregar()) {
+    if (!this.puedeAgregar() || !this.producto || !this.varianteSeleccionada) {
       return;
     }
-    
-    // Si hay talla seleccionada o es standard, proceder
-    this.carritoService.agregarProducto(this.producto, this.cantidad);
-    
-    // Opcional: Mostrar mensaje de éxito o redirigir
-    // this.router.navigate(['/carrito']);
+
+    // Adaptar a la interfaz del carrito (temporal, hasta que actualicemos el carrito)
+    const productoParaCarrito = {
+      id: String(this.producto.id_producto),
+      nombre: this.producto.nombre,
+      descripcion: this.producto.descripcion,
+      caracteristicas: [this.producto.descripcion],
+      precio: this.varianteSeleccionada.precio,
+      precioAnterior: this.varianteSeleccionada.precio_anterior || undefined,
+      imagen: this.imagenPrincipal,
+      categoria: this.producto.nombre_categoria,
+      deporte: this.producto.nombre_deporte,
+      marca: this.producto.nombre_marca,
+      color: this.getValorOpcion(1) || '', // Asumiendo que id_opcion 1 es Color
+      tallas: [this.getValorOpcion(2) || ''], // Asumiendo que id_opcion 2 es Talla
+      stock: this.varianteSeleccionada.stock,
+      descuento: this.calcularDescuento(),
+      nuevo: this.producto.es_nuevo,
+      oferta: this.calcularDescuento() > 0
+    };
+
+    this.carritoService.agregarProducto(productoParaCarrito, this.cantidad);
+    console.log('✅ Producto agregado al carrito:', {
+      sku: this.varianteSeleccionada.sku,
+      cantidad: this.cantidad
+    });
   }
 
+  /**
+   * Obtiene el valor seleccionado de una opción
+   */
+  private getValorOpcion(idOpcion: number): string | null {
+    const idValor = this.opcionesSeleccionadas.get(idOpcion);
+    if (!idValor || !this.varianteSeleccionada) return null;
+
+    const valor = this.varianteSeleccionada.valores.find(v =>
+      v.id_opcion === idOpcion && v.id_valor === idValor
+    );
+
+    return valor?.valor || null;
+  }
+
+  /**
+   * Toggle de secciones expandibles
+   */
   toggleSeccion(seccion: 'caracteristicas' | 'descripcion') {
     this.seccionesAbiertas[seccion] = !this.seccionesAbiertas[seccion];
   }
 
+  /**
+   * Clase CSS según el stock
+   */
   getStockClass(): string {
-    if (this.producto.stock === 0) return 'sin-stock';
-    if (this.producto.stock < 5) return 'poco-stock';
-    if (this.producto.stock < 10) return 'stock-medio';
+    if (!this.varianteSeleccionada) return 'sin-stock';
+
+    const stock = this.varianteSeleccionada.stock;
+    if (stock === 0) return 'sin-stock';
+    if (stock < 5) return 'poco-stock';
+    if (stock < 10) return 'stock-medio';
     return 'buen-stock';
   }
 
+  /**
+   * Mensaje de stock
+   */
   getStockMessage(): string {
-    if (this.producto.stock === 0) return 'Sin stock';
-    if (this.producto.stock < 5) return `Solo ${this.producto.stock} disponibles`;
-    if (this.producto.stock < 10) return `${this.producto.stock} disponibles`;
-    return `${this.producto.stock} disponibles`;
+    if (!this.varianteSeleccionada) return 'Sin stock';
+
+    const stock = this.varianteSeleccionada.stock;
+    if (stock === 0) return 'Sin stock';
+    if (stock < 5) return `Solo ${stock} disponibles`;
+    if (stock < 10) return `${stock} disponibles`;
+    return `${stock} disponibles`;
   }
 
+  /**
+   * Porcentaje de stock (para barra visual)
+   */
   getStockPercentage(): number {
-    const maxStock = 20; // Consideramos 20 como stock máximo para el cálculo del porcentaje
-    return Math.min((this.producto.stock / maxStock) * 100, 100);
+    if (!this.varianteSeleccionada) return 0;
+
+    const maxStock = 20;
+    return Math.min((this.varianteSeleccionada.stock / maxStock) * 100, 100);
+  }
+
+  /**
+   * Manejo de error en imágenes
+   */
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = '/assets/placeholder.png';
+    }
+  }
+
+  /**
+   * Obtiene el código de color CSS para un nombre de color
+   */
+  getColorCss(nombreColor: string): string {
+    const colores: { [key: string]: string } = {
+      'negro': '#000000',
+      'blanco': '#FFFFFF',
+      'gris': '#808080',
+      'rojo': '#FF0000',
+      'azul': '#0066CC',
+      'verde': '#00AA00',
+      'amarillo': '#FFD700',
+      'naranja': '#FF8C00',
+      'rosa': '#FF69B4',
+      'morado': '#9B59B6',
+      'violeta': '#8B00FF',
+      'celeste': '#87CEEB',
+      'turquesa': '#40E0D0',
+      'dorado': '#FFD700',
+      'plateado': '#C0C0C0',
+      'beige': '#F5F5DC',
+      'marron': '#8B4513',
+      'café': '#6F4E37',
+      'crema': '#FFFDD0'
+    };
+
+    return colores[nombreColor.toLowerCase()] || '#CCCCCC'; // Color por defecto si no se encuentra
   }
 }

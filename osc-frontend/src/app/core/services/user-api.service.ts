@@ -54,7 +54,7 @@ export class UserApiService {
 
   // Get all users (Firebase + Database combined)
   getAllUsers(): Observable<AllUsersResponse> {
-    return this.http.get<AllUsersResponse>(`${API_URL}/admin/all-users`);
+    return this.http.get<AllUsersResponse>(`${API_URL}/u/admin/all-users`);
   }
 
   // Get all users from database with roles
@@ -64,7 +64,7 @@ export class UserApiService {
 
   // Update user role
   updateUserRole(uid: string, id_rol: number): Observable<any> {
-    return this.http.post(`${API_URL}/admin/assign-role`, { uid, id_rol });
+    return this.http.post(`${API_URL}/u/admin/assign-role`, { uid, id_rol });
   }
 
   // Delete user

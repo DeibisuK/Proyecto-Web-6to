@@ -656,3 +656,68 @@
     gap: 0.5rem;
   }
 }
+
+/* Estilos para selectores dinámicos de opciones */
+.opcion-section {
+  margin-bottom: 1.5rem;
+}
+
+.opcion-section h3 {
+  font-size: 1rem;
+  color: #2C3E50;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+/* Grid de colores (alternativa a botones) */
+.colores-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.color-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  color: #2C3E50;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-btn:hover {
+  border-color: #2ECC71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.color-btn.selected {
+  border-color: #2ECC71;
+  background: #E8F8F0;
+  color: #27AE60;
+  font-weight: 600;
+}
+
+.color-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #E0E0E0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+.color-btn.selected .color-indicator {
+  border-color: #2ECC71;
+  box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
+}
+
+.color-btn .color-nombre {
+  display: block;
+}

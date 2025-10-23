@@ -15,30 +15,26 @@ import { Categoria } from '../../../../../core/models/categoria.model';
 })
 export class FiltroPanelComponent implements OnInit {
   @Input() filtrosActivos: FiltrosProducto = {
-    deporte: 'todos',
-    precioMin: 0,
-    precioMax: 1000,
-    tallas: [],
-    color: [],
-    marca: [],
-    categoria: [],
-    ordenamiento: 'relevancia',
-    pagina: 1,
-    porPagina: 12,
+    deportes: [],
+    marcas: [],
+    categorias: [],
+    q: '',
+    sort: 'price_asc',
+    is_new: undefined,
+    page: 1,
+    per_page: 24,
   };
   @Output() filtrosChange = new EventEmitter<FiltrosProducto>();
 
   filtros: FiltrosProducto = {
-    deporte: 'todos',
-    categoria: [],
-    precioMin: 0,
-    precioMax: 200,
-    marca: [],
-    tallas: [],
-    color: [],
-    ordenamiento: 'relevancia',
-    pagina: 1,
-    porPagina: 12,
+    categorias: [],
+    marcas: [],
+    deportes: [],
+    is_new: undefined,
+    q: '',
+    sort: 'price_asc',
+    page: 1,
+    per_page: 24,
   };
 
   categoriaService = inject(CategoriaService);
@@ -52,14 +48,20 @@ export class FiltroPanelComponent implements OnInit {
     this.categoriaService.getCategorias().subscribe((categorias: Categoria[]) => {
       this.categorias = categorias;
       console.log('📁 Categorías cargadas en FiltroPanelComponent:', categorias);
-      console.log('   Tipos de ID:', categorias.map(c => ({ id: c.id_categoria, tipo: typeof c.id_categoria })));
+      console.log(
+        '   Tipos de ID:',
+        categorias.map((c) => ({ id: c.id_categoria, tipo: typeof c.id_categoria }))
+      );
     });
 
     // Cargar marcas desde el servicio (tipadas)
     this.marcaService.getMarcas().subscribe((marcas: Marca[]) => {
       this.marcas = marcas;
       console.log('🏷️ Marcas cargadas en FiltroPanelComponent:', marcas);
-      console.log('   Tipos de ID:', marcas.map(m => ({ id: m.id_marca, tipo: typeof m.id_marca })));
+      console.log(
+        '   Tipos de ID:',
+        marcas.map((m) => ({ id: m.id_marca, tipo: typeof m.id_marca }))
+      );
     });
   }
 
@@ -69,79 +71,87 @@ export class FiltroPanelComponent implements OnInit {
 
   seccionesDesplegadas = {
     categoria: true,
-    precio: true,
     marca: true,
-    talla: true,
+    precio: true,
+    // talla: true,
   };
 
   toggleFiltro(filtro: keyof typeof this.seccionesDesplegadas) {
     this.seccionesDesplegadas[filtro] = !this.seccionesDesplegadas[filtro];
   }
 
-  toggleCategoria(categoriaId: string) {
-    console.log('📁 Toggle Categoría - ID recibido:', categoriaId, '(tipo:', typeof categoriaId + ')');
+  toggleCategoria(categoriaId: number) {
+    console.log(
+      '📁 Toggle Categoría - ID recibido:',
+      categoriaId,
+      '(tipo:',
+      typeof categoriaId + ')'
+    );
 
-    const index = this.filtros.categoria?.indexOf(categoriaId) ?? -1;
+    const index = this.filtros.categorias?.indexOf(categoriaId) ?? -1;
     if (index === -1) {
-      this.filtros.categoria?.push(categoriaId);
+      this.filtros.categorias?.push(categoriaId);
       console.log('  ✅ Categoría agregada');
     } else {
-      this.filtros.categoria?.splice(index, 1);
+      this.filtros.categorias?.splice(index, 1);
       console.log('  ❌ Categoría removida');
     }
 
-    console.log('  Categorías actuales:', this.filtros.categoria);
+    console.log('  Categorías actuales:', this.filtros.categorias);
     this.aplicarFiltros();
   }
 
-  toggleMarca(marcaId: string) {
+  toggleMarca(marcaId: number) {
     console.log('🏷️ Toggle Marca - ID recibido:', marcaId, '(tipo:', typeof marcaId + ')');
 
-    const index = this.filtros.marca?.indexOf(marcaId) ?? -1;
+    const index = this.filtros.marcas?.indexOf(marcaId) ?? -1;
     if (index === -1) {
-      this.filtros.marca?.push(marcaId);
+      this.filtros.marcas?.push(marcaId);
       console.log('  ✅ Marca agregada');
     } else {
-      this.filtros.marca?.splice(index, 1);
+      this.filtros.marcas?.splice(index, 1);
       console.log('  ❌ Marca removida');
     }
 
-    console.log('  Marcas actuales:', this.filtros.marca);
+    console.log('  Marcas actuales:', this.filtros.marcas);
     this.aplicarFiltros();
   }
 
-  isCategoriaSeleccionada(categoriaId: string): boolean {
-    return this.filtros.categoria?.includes(categoriaId) ?? false;
+  isCategoriaSeleccionada(categoriaId: number): boolean {
+    return this.filtros.categorias?.includes(categoriaId) ?? false;
   }
 
-  isMarcaSeleccionada(marcaId: string): boolean {
-    return this.filtros.marca?.includes(marcaId) ?? false;
+  isMarcaSeleccionada(marcaId: number): boolean {
+    return this.filtros.marcas?.includes(marcaId) ?? false;
   }
 
-  toggleTalla(talla: string) {
-    const index = this.filtros.tallas?.indexOf(talla) ?? -1;
-    if (index === -1) {
-      this.filtros.tallas?.push(talla);
-    } else {
-      this.filtros.tallas?.splice(index, 1);
-    }
-    this.aplicarFiltros();
-  }
+  // toggleTalla(talla: string) {
+  //   const index = this.filtros.tallas?.indexOf(talla) ?? -1;
+  //   if (index === -1) {
+  //     this.filtros.tallas?.push(talla);
+  //   } else {
+  //     this.filtros.tallas?.splice(index, 1);
+  //   }
+  //   this.aplicarFiltros();
+  // }
 
-  actualizarPrecio() {
-    if (this.filtros.precioMin! > this.filtros.precioMax!) {
-      this.filtros.precioMax = this.filtros.precioMin;
-    }
-    this.aplicarFiltros();
-  }
+  // actualizarPrecio() {
+  //   if (this.filtros.precioMin! > this.filtros.precioMax!) {
+  //     this.filtros.precioMax = this.filtros.precioMin;
+  //   }
+  //   this.aplicarFiltros();
+  // }
 
   limpiarFiltros() {
     this.filtros = {
-      categoria: [],
-      precioMin: 0,
-      precioMax: 200,
-      marca: [],
-      tallas: [],
+      categorias: [],
+      deportes: [],
+      is_new: undefined,
+      q: '',
+      marcas: [],
+      sort: 'price_asc',
+      page: 1,
+      per_page: 24,
     };
     this.aplicarFiltros();
   }

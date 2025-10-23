@@ -5,7 +5,7 @@ import { ProductoService } from '../../services/producto.service';
 import { CategoriaService } from '../../../../../core/services/categoria.service';
 import { Categoria } from '../../../../../core/models/categoria.model';
 import { FiltrosProducto } from '../../models/filtros-producto';
-import { Producto, Productoa } from '../../models/producto';
+import { Productos } from '../../models/producto';
 import { DeporteSelector } from '../../components/deporte-selector/deporte-selector';
 import { FiltroPanelComponent } from '../../components/filtro-panel/filtro-panel';
 import { ProductoCard } from '../../components/producto-card/producto-card';
@@ -18,23 +18,26 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 })
 export class TiendaPage implements OnInit {
   categorias: Categoria[] = [];
-  productos: Productoa[] = [];
-  deporteSeleccionado: string = 'todos';
+  productos: Productos[] = [];
+  deporteSeleccionado: number = 1;
   isLoading: boolean = false;
   skeletonItems = Array(12).fill(0);
 
+  // Filtros activos que se envían al backend
   filtrosActivos: FiltrosProducto = {
-    deporte: 'todos',
-    precioMin: 0,
-    precioMax: 1000,
-    tallas: [],
-    color: [],
-    marca: [],
-    categoria: [],
-    ordenamiento: 'relevancia',
-    pagina: 1,
-    porPagina: 12,
+    categorias: [],
+    marcas: [],
+    deportes: [],
+    is_new: undefined,
+    q: '',
+    sort: 'price_asc',
+    page: 1,
+    per_page: 24,
   };
+
+  // Información de paginación
+  totalProductos: number = 0;
+  totalPaginas: number = 0;
 
   constructor(
     private productoService: ProductoService,
@@ -51,10 +54,16 @@ export class TiendaPage implements OnInit {
         this.route.queryParams.subscribe((params) => {
           const qcat = params['categoria'];
           if (qcat) {
-            // validar que exista la categoria por id_categoria
-            const found = this.categorias.find((c) => c.id_categoria === qcat);
+            // Convertir a número si viene como string
+            const categoriaId = Number(qcat);
+
+            // Validar que exista la categoria por id_categoria
+            const found = this.categorias.find((c) => c.id_categoria === categoriaId);
             if (found) {
-              this.filtrosActivos.categoria = [qcat];
+              console.log(`✅ Categoría encontrada: ${found.nombre_categoria} (ID: ${categoriaId})`);
+              this.filtrosActivos.categorias = [categoriaId];
+            } else {
+              console.warn(`⚠️ Categoría no encontrada con ID: ${categoriaId}`);
             }
           }
           this.cargarProductos();
@@ -64,8 +73,10 @@ export class TiendaPage implements OnInit {
         console.error('Error cargando categorias en TiendaPage', err);
         // aunque fallen las categorias, seguimos cargando productos sin filtrar por categoria
         this.route.queryParams.subscribe((params) => {
-          if (params['categoria']) {
-            this.filtrosActivos.categoria = [params['categoria']];
+          const qcat = params['categoria'];
+          if (qcat) {
+            const categoriaId = Number(qcat);
+            this.filtrosActivos.categorias = [categoriaId];
           }
           this.cargarProductos();
         });
@@ -73,12 +84,17 @@ export class TiendaPage implements OnInit {
     );
   }
 
-  onDeporteChange(deporte: string) {
+  /**
+   * Maneja cambios en el deporte seleccionado
+   * Cuando cambia el deporte, se resetea a la página 1 y se recargan productos
+   */
+  onDeporteChange(deporte: number) {
     console.log('\n🎾 === CAMBIO DE DEPORTE ===');
-    console.log('Deporte recibido:', deporte, '(tipo:', typeof deporte + ')');
+    console.log('Deporte recibido:', deporte);
 
     this.deporteSeleccionado = deporte;
-    this.filtrosActivos.deporte = deporte;
+    this.filtrosActivos.deportes = [deporte];
+    this.filtrosActivos.page = 1; // Resetear a página 1 al cambiar filtro
 
     console.log('Filtros activos actualizados:', this.filtrosActivos);
     console.log('===========================\n');
@@ -86,12 +102,20 @@ export class TiendaPage implements OnInit {
     this.cargarProductos();
   }
 
+  /**
+   * Maneja cambios en los filtros del panel lateral
+   * Cuando cambian los filtros, se resetea a la página 1 y se recargan productos
+   */
   onFiltrosChange(filtros: FiltrosProducto) {
     console.log('\n🔧 === CAMBIO DE FILTROS ===');
     console.log('Filtros recibidos:', filtros);
-    console.log('Filtros anteriores:', this.filtrosActivos);
 
-    this.filtrosActivos = { ...this.filtrosActivos, ...filtros };
+    // Mergear filtros nuevos con los actuales
+    this.filtrosActivos = {
+      ...this.filtrosActivos,
+      ...filtros,
+      page: 1 // Resetear a página 1 cuando cambian filtros
+    };
 
     console.log('Filtros activos actualizados:', this.filtrosActivos);
     console.log('============================\n');
@@ -99,155 +123,95 @@ export class TiendaPage implements OnInit {
     this.cargarProductos();
   }
 
+  /**
+   * Carga productos desde el backend usando el nuevo endpoint de búsqueda.
+   *
+   * El filtrado ahora se hace en el BACKEND, no en el frontend.
+   * Solo enviamos los filtros activos y el backend nos devuelve los productos ya filtrados.
+   *
+   * Ventajas:
+   * - Más eficiente (menos datos transferidos)
+   * - Filtrado más rápido (se hace en la base de datos)
+   * - Paginación real (no cargar todos los productos)
+   * - Código más simple y mantenible
+   */
   private cargarProductos() {
     this.isLoading = true;
-    this.productoService.getProductosA().subscribe(
-      (productos: Productoa[]) => {
-        console.log('🔵 === INICIO FILTRADO ===');
-        console.log('📦 Total productos recibidos:', productos.length);
-        console.log('🎯 Filtros activos:', this.filtrosActivos);
 
-        let productosFiltrados = productos;
+    console.log('🔵 === CARGANDO PRODUCTOS DESDE BACKEND ===');
+    console.log('🎯 Filtros enviados al backend:', this.filtrosActivos);
 
-        // Filtrar por categoría
-        if (this.filtrosActivos.categoria && this.filtrosActivos.categoria.length > 0) {
-          console.log('\n📁 FILTRO CATEGORÍA:');
-          console.log('  Categorías buscadas:', this.filtrosActivos.categoria);
+    // Llamar al nuevo endpoint que hace el filtrado en el backend
+    this.productoService.searchProductos(this.filtrosActivos).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta del backend:', response);
+        console.log(`� Productos recibidos: ${response.data.length} de ${response.total} totales`);
+        console.log(`📄 Página ${response.page} de ${response.total_pages}`);
 
-          const antesCategoria = productosFiltrados.length;
-          productosFiltrados = productosFiltrados.filter((p) => {
-            if (p.id_categoria == null) {
-              console.log(`  ❌ Producto "${p.nombre}" sin categoría`);
-              return false;
-            }
-
-            // Comparar convirtiendo ambos a string para evitar problemas de tipo
-            const idCategoriaStr = p.id_categoria.toString();
-            const coincide = this.filtrosActivos.categoria!.some(cat =>
-              String(cat) === idCategoriaStr
-            );
-
-            console.log(`  ${coincide ? '✅' : '⚠️'} "${p.nombre}" - ID: ${p.id_categoria} (tipo: ${typeof p.id_categoria}), Buscando: ${JSON.stringify(this.filtrosActivos.categoria)} - ${coincide ? 'PASA' : 'NO PASA'}`);
-            return coincide;
-          });
-          console.log(`  📊 Productos después del filtro: ${productosFiltrados.length} (eliminados: ${antesCategoria - productosFiltrados.length})`);
-        }
-
-        // Filtrar por deporte
-        if (this.filtrosActivos.deporte && this.filtrosActivos.deporte !== 'todos') {
-          console.log('\n⚽ FILTRO DEPORTE:');
-          console.log('  Deporte buscado:', this.filtrosActivos.deporte, '(tipo:', typeof this.filtrosActivos.deporte + ')');
-
-          const antesDeporte = productosFiltrados.length;
-          productosFiltrados = productosFiltrados.filter((p) => {
-            if (p.id_deporte == null) {
-              console.log(`  ❌ Producto "${p.nombre}" sin deporte`);
-              return false;
-            }
-
-            // Comparar convirtiendo ambos a string
-            const idDeporteStr = p.id_deporte.toString();
-            const deporteFiltroStr = String(this.filtrosActivos.deporte);
-            const nombreDeporte = p.nombre_deporte?.toLowerCase() ?? '';
-            const deporteFiltroLower = deporteFiltroStr.toLowerCase();
-
-            const coincidePorId = idDeporteStr === deporteFiltroStr;
-            const coincidePorNombre = nombreDeporte === deporteFiltroLower;
-            const coincide = coincidePorId || coincidePorNombre;
-
-            console.log(`  ${coincide ? '✅' : '⚠️'} "${p.nombre}" - ID: ${p.id_deporte}, ID String: "${idDeporteStr}", Nombre: "${nombreDeporte}", Filtro: "${deporteFiltroStr}" - ${coincide ? 'PASA' : 'NO PASA'}`);
-            return coincide;
-          });
-          console.log(`  📊 Productos después del filtro: ${productosFiltrados.length} (eliminados: ${antesDeporte - productosFiltrados.length})`);
-        }
-
-        // Filtrar por marca
-        if (this.filtrosActivos.marca && this.filtrosActivos.marca.length > 0) {
-          console.log('\n🏷️ FILTRO MARCA:');
-          console.log('  Marcas buscadas:', this.filtrosActivos.marca);
-
-          const antesMarca = productosFiltrados.length;
-          productosFiltrados = productosFiltrados.filter((p) => {
-            if (p.id_marca == null) {
-              console.log(`  ❌ Producto "${p.nombre}" sin marca`);
-              return false;
-            }
-
-            // Comparar convirtiendo ambos a string para evitar problemas de tipo
-            const idMarcaStr = p.id_marca.toString();
-            const coincide = this.filtrosActivos.marca!.some(marca =>
-              String(marca) === idMarcaStr
-            );
-
-            console.log(`  ${coincide ? '✅' : '⚠️'} "${p.nombre}" - ID: ${p.id_marca} (tipo: ${typeof p.id_marca}), Nombre: "${p.nombre_marca}", Buscando: ${JSON.stringify(this.filtrosActivos.marca)} - ${coincide ? 'PASA' : 'NO PASA'}`);
-            return coincide;
-          });
-          console.log(`  📊 Productos después del filtro: ${productosFiltrados.length} (eliminados: ${antesMarca - productosFiltrados.length})`);
-        }
-
-        // Filtrar por rango de precio
-        if (this.filtrosActivos.precioMin || this.filtrosActivos.precioMax) {
-          console.log('\n💰 FILTRO PRECIO:');
-          console.log(`  Rango: $${this.filtrosActivos.precioMin} - $${this.filtrosActivos.precioMax}`);
-
-          const antesPrecio = productosFiltrados.length;
-          productosFiltrados = productosFiltrados.filter((p) => {
-            const precio = p.precio ?? 0;
-            const coincide = precio >= (this.filtrosActivos.precioMin ?? 0) &&
-                            precio <= (this.filtrosActivos.precioMax ?? Infinity);
-
-            console.log(`  ${coincide ? '✅' : '⚠️'} "${p.nombre}" - Precio: $${precio} - ${coincide ? 'PASA' : 'NO PASA'}`);
-            return coincide;
-          });
-          console.log(`  📊 Productos después del filtro: ${productosFiltrados.length} (eliminados: ${antesPrecio - productosFiltrados.length})`);
-        }
-
-        // Aplicar ordenamiento
-        if (this.filtrosActivos.ordenamiento) {
-          console.log('\n🔄 ORDENAMIENTO:', this.filtrosActivos.ordenamiento);
-          productosFiltrados = this.ordenarProductos(productosFiltrados);
-        }
-
-        console.log('\n✅ === FIN FILTRADO ===');
-        console.log('📦 Total productos finales:', productosFiltrados.length);
-        console.log('Productos:', productosFiltrados.map(p => ({
-          id: p.id_producto,
-          nombre: p.nombre,
-          id_cat: p.id_categoria,
-          id_dep: p.id_deporte,
-          id_marca: p.id_marca
-        })));
-        console.log('======================\n');
-
-        this.productos = productosFiltrados;
+        // Asignar productos ya filtrados por el backend
+        this.productos = response.data;
+        this.totalProductos = response.total;
+        this.totalPaginas = response.total_pages;
         this.isLoading = false;
+
+        console.log('===========================================\n');
       },
-      (err) => {
-        console.error('Error cargando productos', err);
+      error: (error) => {
+        console.error('❌ Error cargando productos:', error);
+        this.productos = [];
+        this.totalProductos = 0;
+        this.totalPaginas = 0;
         this.isLoading = false;
       }
-    );
+    });
   }
 
-  private ordenarProductos(productos: Productoa[]): Productoa[] {
-    switch (this.filtrosActivos.ordenamiento) {
-      case 'precio-asc':
-        return [...productos].sort((a, b) => (a.precio ?? 0) - (b.precio ?? 0));
-      case 'precio-desc':
-        return [...productos].sort((a, b) => (b.precio ?? 0) - (a.precio ?? 0));
-      case 'nombre':
-        return [...productos].sort((a, b) => a.nombre.localeCompare(b.nombre));
-      default:
-        return productos;
+  /**
+   * Cambia a una página específica
+   * @param pagina - Número de página a cargar
+   */
+  cambiarPagina(pagina: number) {
+    if (pagina < 1 || pagina > this.totalPaginas) {
+      return; // Validar límites
     }
+    this.filtrosActivos.page = pagina;
+    this.cargarProductos();
   }
 
-    // this.isLoading = true;
+  /**
+   * Limpia todos los filtros y recarga productos sin filtrar
+   */
+  limpiarFiltros() {
+    this.deporteSeleccionado = 1; // Resetear al primer deporte (default)
+    this.filtrosActivos = {
+      categorias: [],
+      marcas: [],
+      deportes: [],
+      is_new: undefined,
+      q: '',
+      sort: 'price_asc',
+      page: 1,
+      per_page: 24,
+    };
+    this.cargarProductos();
+  }
 
-    // // Simular delay para mostrar skeleton
-    // setTimeout(() => {
-    //   this.productos = this.productoService.getProductosFiltrados(this.filtrosActivos);
-    //   this.isLoading = false;
-    // }, 500);
+  /**
+   * Obtiene las páginas cercanas a la actual para mostrar en la paginación
+   * Ejemplo: Si estás en página 5, muestra [3, 4, 5, 6, 7]
+   */
+  getPaginasCercanas(): number[] {
+    const paginaActual = this.filtrosActivos.page || 1;
+    const paginas: number[] = [];
+    const rango = 2; // Mostrar 2 páginas antes y después de la actual
 
+    const inicio = Math.max(1, paginaActual - rango);
+    const fin = Math.min(this.totalPaginas, paginaActual + rango);
+
+    for (let i = inicio; i <= fin; i++) {
+      paginas.push(i);
+    }
+
+    return paginas;
+  }
 }

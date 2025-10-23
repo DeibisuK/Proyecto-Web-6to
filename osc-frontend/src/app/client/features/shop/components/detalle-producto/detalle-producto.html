@@ -1,33 +1,38 @@
-<div class="detalle-producto-container" *ngIf="producto">
+<div class="detalle-producto-container" *ngIf="producto && varianteSeleccionada">
   <!-- Breadcrumb -->
   <nav class="breadcrumb">
     <a routerLink="/tienda">Tienda</a>
     <span class="breadcrumb-separator">/</span>
-    <span class="current">{{producto.nombre}}</span>
+    <span class="current">{{ producto.nombre }}</span>
   </nav>
 
   <div class="producto-content">
     <!-- Sección de Imagen -->
     <div class="imagen-section">
       <div class="imagen-principal">
-        <img [src]="imagenPrincipal" [alt]="producto.nombre">
+        <img [src]="imagenPrincipal" [alt]="producto.nombre" (error)="onImageError($event)" />
         <div class="badges">
-          <span *ngIf="producto.nuevo" class="badge nuevo">Nuevo</span>
-          <span *ngIf="producto.oferta" class="badge oferta">-{{calcularDescuento()}}%</span>
+          <span *ngIf="producto.es_nuevo" class="badge nuevo">Nuevo</span>
         </div>
       </div>
       <div class="imagenes-secundarias">
-        <div class="imagen-miniatura active">
-          <img [src]="producto.imagen" [alt]="producto.nombre">
+        <div
+          *ngFor="let imagen of getImagenesNormalizadas(); let i = index"
+          class="imagen-miniatura"
+          [class.active]="imagenPrincipal === imagen"
+          (click)="cambiarImagenPrincipal(imagen)"
+        >
+          <img
+            [src]="imagen"
+            [alt]="producto.nombre + ' - ' + (i + 1)"
+            (error)="onImageError($event)"
+          />
         </div>
-        <!-- Placeholders para más imágenes -->
-        <div class="imagen-miniatura placeholder">
-          <i class="fas fa-image"></i>
-        </div>
-        <div class="imagen-miniatura placeholder">
-          <i class="fas fa-image"></i>
-        </div>
-        <div class="imagen-miniatura placeholder">
+        <!-- Placeholders si hay menos de 4 imágenes -->
+        <div
+          *ngFor="let i of [1, 2, 3, 4].slice(getImagenesNormalizadas().length)"
+          class="imagen-miniatura placeholder"
+        >
           <i class="fas fa-image"></i>
         </div>
       </div>
@@ -37,10 +42,10 @@
     <div class="info-section">
       <!-- Header del producto -->
       <div class="producto-header">
-        <h1 class="producto-titulo">{{producto.nombre}}</h1>
+        <h1 class="producto-titulo">{{ producto.nombre }}</h1>
         <div class="marca-categoria">
-          <span class="marca">{{producto.marca}}</span>
-          <span class="categoria">{{getCategoriaDisplay()}}</span>
+          <span class="marca">{{ producto.nombre_marca }}</span>
+          <span class="categoria">{{ getCategoriaDisplay() }}</span>
         </div>
       </div>
 
@@ -49,36 +54,54 @@
         <div class="precio-info">
           <span class="precio-label">Precio:</span>
           <div class="precios">
-            <span class="precio-actual">${{producto.precio}}</span>
-            <span *ngIf="producto.precioAnterior" class="precio-anterior">${{producto.precioAnterior}}</span>
+            <span class="precio-actual">${{ varianteSeleccionada.precio | number : '1.2-2' }}</span>
+            <span
+              *ngIf="
+                varianteSeleccionada.precio_anterior &&
+                varianteSeleccionada.precio_anterior > varianteSeleccionada.precio
+              "
+              class="precio-anterior"
+              >${{ varianteSeleccionada.precio_anterior | number : '1.2-2' }}</span
+            >
           </div>
         </div>
-        <div *ngIf="producto.precioAnterior" class="descuento-badge">
-          {{calcularDescuento()}}% OFF
+        <div *ngIf="calcularDescuento() > 0" class="descuento-badge">
+          {{ calcularDescuento() }}% OFF
         </div>
       </div>
 
-      <!-- Color -->
-      <div class="color-section">
-        <h3>Color:</h3>
-        <div class="color-info">
-          <div class="color-muestra" [style.background-color]="getColorHex()"></div>
-          <span class="color-nombre">{{producto.color}}</span>
-        </div>
-      </div>
+      <!-- Selectores dinámicos de opciones (Color, Talla, etc.) -->
+      <div *ngFor="let opcion of opcionesDisponibles" class="opcion-section">
+        <h3>{{ opcion.nombre_opcion }}:</h3>
 
-      <!-- Tallas -->
-      <div class="talla-section" *ngIf="producto.tallas.length > 0 && !esTallaStandard()">
-        <h3>Talla:</h3>
-        <div class="tallas-grid">
-          <button *ngFor="let talla of producto.tallas"
-                  [class.selected]="tallaSeleccionada === talla"
-                  class="talla-btn"
-                  (click)="seleccionarTalla(talla)">
-            {{talla}}
-          </button>
+        <!-- Si es Color, mostrar como círculos de color (si aplica) o botones -->
+        <div *ngIf="opcion.nombre_opcion === 'Color'" class="color-section">
+          <div class="colores-grid">
+            <button
+              *ngFor="let valor of opcion.valores"
+              [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
+              class="color-btn"
+              (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
+            >
+              <span class="color-indicator" [style.background-color]="getColorCss(valor.valor)"></span>
+              <span class="color-nombre">{{ valor.valor }}</span>
+            </button>
+          </div>
         </div>
-        <p *ngIf="!tallaSeleccionada" class="error-message">Por favor selecciona una talla</p>
+
+        <!-- Si es Talla u otra opción, mostrar como botones -->
+        <div *ngIf="opcion.nombre_opcion !== 'Color'" class="talla-section">
+          <div class="tallas-grid">
+            <button
+              *ngFor="let valor of opcion.valores"
+              [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
+              class="talla-btn"
+              (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
+            >
+              {{ valor.valor }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Stock -->
@@ -86,7 +109,7 @@
         <div class="disponibilidad" [ngClass]="getStockClass()">
           <div class="stock-indicator">
             <div class="stock-dot"></div>
-            <span class="stock-text">{{getStockMessage()}}</span>
+            <span class="stock-text">{{ getStockMessage() }}</span>
           </div>
           <div class="stock-bar">
             <div class="stock-fill" [style.width.%]="getStockPercentage()"></div>
@@ -99,26 +122,38 @@
         <div class="cantidad-controls">
           <label>Cantidad:</label>
           <div class="cantidad-selector">
-            <button (click)="cambiarCantidad(-1)" 
-                    [disabled]="cantidad <= 1"
-                    class="cantidad-btn">
+            <button (click)="cambiarCantidad(-1)" [disabled]="cantidad <= 1" class="cantidad-btn">
               <i class="fas fa-minus"></i>
             </button>
-            <span class="cantidad-display">{{cantidad}}</span>
-            <button (click)="cambiarCantidad(1)" 
-                    [disabled]="cantidad >= producto.stock"
-                    class="cantidad-btn">
+            <span class="cantidad-display">{{ cantidad }}</span>
+            <button
+              (click)="cambiarCantidad(1)"
+              [disabled]="cantidad >= varianteSeleccionada.stock"
+              class="cantidad-btn"
+            >
               <i class="fas fa-plus"></i>
             </button>
           </div>
         </div>
-        
-        <button (click)="agregarAlCarrito()"
-                [disabled]="!puedeAgregar()"
-                class="btn-agregar-carrito">
+
+        <button
+          (click)="agregarAlCarrito()"
+          [disabled]="!puedeAgregar()"
+          class="btn-agregar-carrito"
+        >
           <i class="fas fa-shopping-cart"></i>
           Agregar al carrito
         </button>
+      </div>
+
+      <!-- SKU de la variante -->
+      <div
+        class="sku-section"
+        style="margin-top: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 6px"
+      >
+        <small style="color: #6c757d"
+          >SKU: <strong>{{ varianteSeleccionada.sku }}</strong></small
+        >
       </div>
 
       <!-- Métodos de pago -->
@@ -141,50 +176,73 @@
 
   <!-- Secciones expandibles -->
   <div class="secciones-expandibles">
-    <!-- Características -->
-    <div class="seccion-expandible">
-      <button class="seccion-header" (click)="toggleSeccion('caracteristicas')">
-        <h3>Características principales</h3>
-        <i class="fas" [class.fa-plus]="!seccionesAbiertas.caracteristicas" 
-           [class.fa-minus]="seccionesAbiertas.caracteristicas"></i>
-      </button>
-      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas.caracteristicas">
-        <ul class="caracteristicas-lista">
-          <li *ngFor="let caracteristica of producto.caracteristicas">
-            {{caracteristica}}
-          </li>
-        </ul>
-      </div>
-    </div>
-
     <!-- Descripción -->
     <div class="seccion-expandible">
       <button class="seccion-header" (click)="toggleSeccion('descripcion')">
-        <h3>Descripción detallada</h3>
-        <i class="fas" [class.fa-plus]="!seccionesAbiertas.descripcion" 
-           [class.fa-minus]="seccionesAbiertas.descripcion"></i>
+        <h3>Descripción del producto</h3>
+        <i
+          class="fas"
+          [class.fa-plus]="!seccionesAbiertas.descripcion"
+          [class.fa-minus]="seccionesAbiertas.descripcion"
+        ></i>
       </button>
       <div class="seccion-contenido" [class.abierta]="seccionesAbiertas.descripcion">
-        <p>{{producto.descripcion}}</p>
-        <p class="descripcion-adicional">
-          Este producto está diseñado con los más altos estándares de calidad para brindar 
-          el mejor rendimiento en tu actividad deportiva. Fabricado con materiales duraderos 
-          y tecnología avanzada.
-        </p>
+        <p>{{ producto.descripcion }}</p>
       </div>
     </div>
 
-
+    <!-- Características técnicas -->
+    <div class="seccion-expandible">
+      <button class="seccion-header" (click)="toggleSeccion('caracteristicas')">
+        <h3>Información del producto</h3>
+        <i
+          class="fas"
+          [class.fa-plus]="!seccionesAbiertas.caracteristicas"
+          [class.fa-minus]="seccionesAbiertas.caracteristicas"
+        ></i>
+      </button>
+      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas.caracteristicas">
+        <ul class="caracteristicas-lista">
+          <li><strong>Marca:</strong> {{ producto.nombre_marca }}</li>
+          <li><strong>Categoría:</strong> {{ producto.nombre_categoria }}</li>
+          <li><strong>Deporte:</strong> {{ producto.nombre_deporte }}</li>
+          <li *ngIf="producto.es_nuevo"><strong>Estado:</strong> Producto Nuevo</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <!-- Productos relacionados -->
-  <app-productos-relacionados [categoria]="producto.categoria"></app-productos-relacionados>
+  <app-productos-relacionados [categoria]="producto.nombre_categoria"></app-productos-relacionados>
 </div>
 
 <!-- Loading state -->
-<div *ngIf="!producto" class="loading-container">
+<div *ngIf="isLoading" class="loading-container">
   <div class="loading-spinner">
     <i class="fas fa-spinner fa-spin"></i>
     <p>Cargando producto...</p>
+  </div>
+</div>
+
+<!-- Error state (producto no existe) -->
+<div *ngIf="!isLoading && !producto" class="loading-container">
+  <div class="loading-spinner">
+    <i class="fas fa-exclamation-triangle" style="color: #e74c3c"></i>
+    <p>Producto no encontrado</p>
+    <button
+      class="btn-volver"
+      routerLink="/tienda"
+      style="
+        margin-top: 1rem;
+        padding: 0.75rem 1.5rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      "
+    >
+      Volver a la tienda
+    </button>
   </div>
 </div>

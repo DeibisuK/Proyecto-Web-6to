@@ -1,16 +1,102 @@
 import pool from "../config/db.js";
 
 // javascript
-export const findProducts = async ({
-  categoriaId = null,
-  deporteId = null,
-  marcaId = null,
+export const findAllProducts = async () => {
+  const result  = await pool.query("SELECT * FROM productos;");
+  return result.rows;
+};
+
+// Nueva función para búsqueda con filtros múltiples
+export const searchProducts = async ({
+  categoriasIds = null,
+  deportesIds = null,
+  marcasIds = null,
   q = null,
   is_new = null,
   sort = null,
   limit = 24,
   offset = 0,
 } = {}) => {
+  // Construir condiciones WHERE dinámicamente
+  const conditions = [];
+  const params = [];
+  let paramIndex = 1;
+
+  // Filtro por múltiples categorías
+  if (
+    categoriasIds &&
+    Array.isArray(categoriasIds) &&
+    categoriasIds.length > 0
+  ) {
+    conditions.push(`id_categoria = ANY($${paramIndex}::int[])`);
+    params.push(categoriasIds);
+    paramIndex++;
+  }
+
+  // Filtro por múltiples deportes
+  if (deportesIds && Array.isArray(deportesIds) && deportesIds.length > 0) {
+    conditions.push(`id_deporte = ANY($${paramIndex}::int[])`);
+    params.push(deportesIds);
+    paramIndex++;
+  }
+
+  // Filtro por múltiples marcas
+  if (marcasIds && Array.isArray(marcasIds) && marcasIds.length > 0) {
+    conditions.push(`id_marca = ANY($${paramIndex}::int[])`);
+    params.push(marcasIds);
+    paramIndex++;
+  }
+
+  // Filtro por búsqueda de texto
+  if (q) {
+    conditions.push(
+      `(LOWER(nombre) LIKE $${paramIndex} OR LOWER(descripcion) LIKE $${paramIndex})`
+    );
+    params.push(`%${q.toLowerCase()}%`);
+    paramIndex++;
+  }
+
+  // Filtro por productos nuevos
+  if (is_new !== null) {
+    conditions.push(`es_nuevo = $${paramIndex}`);
+    params.push(is_new);
+    paramIndex++;
+  }
+
+  // Construir cláusula WHERE
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  // Construir ORDER BY
+  let orderByClause = "ORDER BY id_producto ASC";
+  if (sort) {
+    switch (sort) {
+      case "price_asc":
+        orderByClause = "ORDER BY precio ASC, id_producto ASC";
+        break;
+      case "price_desc":
+        orderByClause = "ORDER BY precio DESC, id_producto ASC";
+        break;
+      case "newest":
+        orderByClause = "ORDER BY id_producto DESC";
+        break;
+      case "name_asc":
+        orderByClause = "ORDER BY nombre ASC";
+        break;
+      case "name_desc":
+        orderByClause = "ORDER BY nombre DESC";
+        break;
+    }
+  }
+
+  // Agregar LIMIT y OFFSET
+  params.push(limit);
+  const limitParam = `$${paramIndex}`;
+  paramIndex++;
+
+  params.push(offset);
+  const offsetParam = `$${paramIndex}`;
+
   const sql = `
     SELECT
       id_producto AS id,
@@ -29,30 +115,14 @@ export const findProducts = async ({
       (images ->> 0) AS imagen,
       COUNT(*) OVER() AS total_count
     FROM public.vw_productos_card
-    WHERE (
-      $1::int IS NULL OR id_categoria = $1::int
-    )
-    AND (
-      $2::int IS NULL OR id_deporte = $2::int
-    )
-    AND (
-      $3::int IS NULL OR id_marca = $3::int
-    )
-    AND (
-      $4::text IS NULL OR LOWER(nombre) LIKE '%' || LOWER($4) || '%' OR LOWER(descripcion) LIKE '%' || LOWER($4) || '%'
-    )
-    AND (
-      $5::boolean IS NULL OR es_nuevo = $5::boolean
-    )
-    ORDER BY
-      CASE WHEN $6 = 'price_asc' THEN precio END ASC,
-      CASE WHEN $6 = 'price_desc' THEN precio END DESC,
-      CASE WHEN $6 = 'newest' THEN id_producto END DESC,
-      id_producto ASC
-    LIMIT $7 OFFSET $8;
+    ${whereClause}
+    ${orderByClause}
+    LIMIT ${limitParam} OFFSET ${offsetParam};
   `;
 
-  const params = [categoriaId, deporteId, marcaId, q, is_new, sort, limit, offset];
+  console.debug("[searchProducts] SQL:", sql);
+  console.debug("[searchProducts] params:", params);
+
   const result = await pool.query(sql, params);
 
   const rows = result.rows.map((r) => {
@@ -60,7 +130,9 @@ export const findProducts = async ({
     return item;
   });
 
-  const total = result.rows.length ? parseInt(result.rows[0].total_count, 10) : 0;
+  const total = result.rows.length
+    ? parseInt(result.rows[0].total_count, 10)
+    : 0;
   const total_pages = Math.ceil(total / (limit || 1));
 
   return {
@@ -72,30 +144,50 @@ export const findProducts = async ({
   };
 };
 
-export const findProductsFiltre = async (id) => {
+/**
+ * Obtiene el detalle completo de un producto con todas sus variantes
+ * @param {number} id_producto - ID del producto
+ * @returns {Object} Producto con variantes, valores e imágenes
+ */
+export const getProductoDetalle = async (id_producto) => {
   const sql = `
-    SELECT
-      id_producto AS id,
+    SELECT 
+      id_producto,
       nombre,
-      descripcion AS caracteristicas,
+      descripcion,
       id_categoria,
       nombre_categoria,
       id_deporte,
-      nombre_deporte AS deporte,
+      nombre_deporte,
       id_marca,
-      nombre_marca AS marca,
+      nombre_marca,
       es_nuevo,
-      COALESCE(precio,0)::numeric(10,2) AS precio,
-      precio_anterior::numeric(10,2) AS precio_anterior,
-      stock,
-      images
-    FROM public.vw_productos_card
-    WHERE id_producto = $1::int
-    LIMIT 1;
+      variantes
+    FROM 
+      vw_producto_detalle
+    WHERE 
+      id_producto = $1;
   `;
 
-  const result = await pool.query(sql, [id]);
-  return result.rows[0] || null;
+  console.debug("[getProductoDetalle] Buscando producto ID:", id_producto);
+
+  const result = await pool.query(sql, [id_producto]);
+
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  const producto = result.rows[0];
+  
+  // Parsear el JSON de variantes si es necesario
+  if (typeof producto.variantes === 'string') {
+    producto.variantes = JSON.parse(producto.variantes);
+  }
+
+  console.debug("[getProductoDetalle] Producto encontrado:", producto.nombre);
+  console.debug(`[getProductoDetalle] Variantes: ${producto.variantes.length}`);
+
+  return producto;
 };
 
 export async function create(payload) {
@@ -205,53 +297,3 @@ export async function create(payload) {
     client.release();
   }
 }
-
-// Obtener productos para card usando la view vw_productos_card
-export const findAllProductosCard = async ({
-  categoriaId = null,
-  deporteId = null,
-  marcaId = null,
-  sort = null, // 'price_asc' | 'price_desc' | null
-  limit = 24,
-  offset = 0,
-} = {}) => {
-  const sql = `
-    SELECT
-      id_producto,
-      nombre,
-      descripcion,
-      id_categoria,
-      nombre_categoria,
-      id_deporte,
-      nombre_deporte,
-      id_marca,
-      nombre_marca,
-      es_nuevo,
-      precio,
-      precio_anterior,
-      stock,
-      images
-    FROM public.vw_productos_card
-    WHERE (
-      $1::int IS NULL
-      OR id_categoria = $1::int
-    )
-      AND (
-        $2::int IS NULL
-        OR id_deporte = $2::int
-      )
-      AND (
-        $3::int IS NULL
-        OR id_marca = $3::int
-      )
-    ORDER BY
-      CASE WHEN $4 = 'price_asc' THEN precio END ASC,
-      CASE WHEN $4 = 'price_desc' THEN precio END DESC,
-      id_producto ASC
-    LIMIT $5 OFFSET $6;
-  `;
-
-  const params = [categoriaId, deporteId, marcaId, sort, limit, offset];
-  const result = await pool.query(sql, params);
-  return result.rows;
-};
