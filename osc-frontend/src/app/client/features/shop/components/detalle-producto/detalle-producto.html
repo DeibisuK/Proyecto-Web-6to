@@ -83,7 +83,10 @@
               class="color-btn"
               (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
             >
-              <span class="color-indicator" [style.background-color]="getColorCss(valor.valor)"></span>
+              <span
+                class="color-indicator"
+                [style.background-color]="getColorCss(valor.valor)"
+              ></span>
               <span class="color-nombre">{{ valor.valor }}</span>
             </button>
           </div>
@@ -213,7 +216,7 @@
   </div>
 
   <!-- Productos relacionados -->
-  <app-productos-relacionados [categoria]="producto.nombre_categoria"></app-productos-relacionados>
+  <app-productos-relacionados [categoria]="producto.id_categoria" [excludeId]="producto.id_producto"></app-productos-relacionados>
 </div>
 
 <!-- Loading state -->

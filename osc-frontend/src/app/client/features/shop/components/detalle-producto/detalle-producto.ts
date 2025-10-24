@@ -50,6 +50,13 @@ export class DetalleProducto implements OnInit {
   private cargarProducto(id: number) {
     this.isLoading = true;
 
+    // Resetear estado que podría quedar entre navegaciones
+    this.opcionesSeleccionadas = new Map();
+    this.opcionesDisponibles = [];
+    this.varianteSeleccionada = undefined;
+    this.imagenPrincipal = '';
+    this.cantidad = 1;
+
     this.productoService.getProductoDetalle(id).subscribe({
       next: (producto) => {
         console.log('✅ Producto cargado:', producto);
@@ -109,12 +116,16 @@ export class DetalleProducto implements OnInit {
 
     const primeraVariante = this.producto.variantes[0];
 
-    // Pre-seleccionar los valores de la primera variante
+    // Limpiar y pre-seleccionar los valores de la primera variante
+    this.opcionesSeleccionadas = new Map();
     primeraVariante.valores.forEach(valor => {
       this.opcionesSeleccionadas.set(valor.id_opcion, valor.id_valor);
     });
 
-    this.actualizarVarianteSeleccionada();
+    // Establecer la primera variante como seleccionada por defecto
+    this.varianteSeleccionada = primeraVariante;
+    this.imagenPrincipal = this.getImagenUrl(primeraVariante.imagenes[0]);
+    this.cantidad = 1;
   }
 
   /**
@@ -148,6 +159,20 @@ export class DetalleProducto implements OnInit {
         precio: varianteEncontrada.precio,
         stock: varianteEncontrada.stock
       });
+    } else {
+      // Si no se encontró una variante que coincida (puede ocurrir cuando las opciones
+      // anteriores persisten), tomar la primera variante como fallback para evitar
+      // dejar la UI en un estado inconsistente.
+      const primera = this.producto.variantes[0];
+      if (primera) {
+        this.varianteSeleccionada = primera;
+        this.imagenPrincipal = this.getImagenUrl(primera.imagenes[0]);
+        this.cantidad = 1;
+        // Asegurar que las opciones seleccionadas reflejen la variante usada
+        this.opcionesSeleccionadas = new Map();
+        primera.valores.forEach(v => this.opcionesSeleccionadas.set(v.id_opcion, v.id_valor));
+        console.log('⚠️ Variante no encontrada por filtros — usando primera variante como fallback');
+      }
     }
   }
 

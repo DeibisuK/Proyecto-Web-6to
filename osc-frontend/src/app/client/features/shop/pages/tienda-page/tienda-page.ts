@@ -13,14 +13,15 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 @Component({
   selector: 'app-tienda-page',
   templateUrl: './tienda-page.html',
-  styleUrl: './tienda-page.css',
+  styleUrls: ['./tienda-page.css'],
   imports: [CommonModule, DeporteSelector, FiltroPanelComponent, ProductoCard],
 })
 export class TiendaPage implements OnInit {
   categorias: Categoria[] = [];
   productos: Productos[] = [];
   deporteSeleccionado: number = 1;
-  isLoading: boolean = false;
+  // Mostrar skeleton inicialmente hasta que la primera petición termine
+  isLoading: boolean = true;
   skeletonItems = Array(12).fill(0);
 
   // Filtros activos que se envían al backend

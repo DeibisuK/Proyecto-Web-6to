@@ -214,49 +214,6 @@ export class ProductoService {
     },
   ];
 
-  // getProductosFiltrados(filtros: FiltrosProducto): Producto[] {
-
-  //   if (filtros.categoria?.length) {
-  //     productos = productos.filter(p => filtros.categoria!.includes(p.categoria));
-  //   }
-
-  //   if (filtros.deporte && filtros.deporte !== 'todos') {
-  //     productos = productos.filter(p => p.deporte === filtros.deporte);
-  //   }
-
-  //   if (filtros.marca?.length) {
-  //     productos = productos.filter(p => filtros.marca!.includes(p.marca));
-  //   }
-
-  //   if (typeof filtros.precioMin === 'number' && filtros.precioMin > 0) {
-  //     productos = productos.filter(p => p.precio >= filtros.precioMin!);
-  //   }
-
-  //   if (typeof filtros.precioMax === 'number' && filtros.precioMax < Infinity) {
-  //     productos = productos.filter(p => p.precio <= filtros.precioMax!);
-  //   }
-
-  //   if (filtros.tallas?.length) {
-  //     productos = productos.filter(p =>
-  //       p.tallas.some(t => filtros.tallas!.includes(t))
-  //     );
-  //   }
-
-  //   if (filtros.color?.length) {
-  //     productos = productos.filter(p => filtros.color!.includes(p.color));
-  //   }
-
-  //   return productos;
-  // }
-
-  getProductosPorDeporte(deporte: string): Observable<Producto[]> {
-    return of(this.productosDemo.filter((p) => p.deporte === deporte));
-  }
-
-  getProductoPorId(id: string): Producto | undefined {
-    return this.productosDemo.find((p) => p.id === id);
-  }
-
   getProductos(): Observable<Producto[]> {
     return of(this.productosDemo);
   }

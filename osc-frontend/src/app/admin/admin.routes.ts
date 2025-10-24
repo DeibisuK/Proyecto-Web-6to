@@ -7,17 +7,23 @@ import { Anuncios } from "./features/anuncios/anuncios";
 import { ListSede } from "./features/sedes/list-sede/list-sede";
 import { CrearSede } from "./features/sedes/crear-sede/crear-sede";
 import { Equipos } from "./features/equipos/equipos";
+import { Productos } from "./features/productos/productos";
 
 export const adminRoutes: Routes = [
   {
-    path: '', 
-    redirectTo: 'dashboard', 
+    path: '',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {
     path: 'dashboard',
     component: Dashboard,
     title: 'Dashboard'
+  },
+  {
+    path: 'productos',
+    component: Productos,
+    title: 'Productos'
   },
   {
     path: 'sedes',
@@ -63,7 +69,7 @@ export const adminRoutes: Routes = [
     title: 'Anuncios'
   },
   {
-    path: '**', 
+    path: '**',
     redirectTo: 'dashboard'
   }
 ]
