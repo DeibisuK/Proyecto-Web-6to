@@ -6,7 +6,8 @@ import {
     updateArbitro,
     deleteArbitro,
 } from '../../controllers/arbitro.controller.js';
-
+import authenticate from "../../../../../middleware/authenticate.js";
+import authorizeRole from "../../../../../middleware/authorizeRole.js";
 const router = Router();
 
 router.get('/arbitros', getAllArbitros);

@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { Equipo } from '../../../core/models/equipo.model';
 import { EquipoService } from '../../../core/services/equipo.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { Deporte } from '../../../core/models/deporte.model';
+import { DeporteService } from '../../../core/services/deportes.service';
 
 @Component({
   selector: 'app-equipos',
@@ -16,44 +18,47 @@ export class Equipos implements OnInit {
   equipos: Equipo[] = [];
   equiposFiltrados: Equipo[] = [];
   equiposPaginados: Equipo[] = [];
-  
+
   searchTerm = '';
   filtroDeporte: number | null = null;
-  
+
   // Paginación
   currentPage = 1;
   itemsPerPage = 20;
   totalPages = 1;
   pages: number[] = [];
-  
+
   // Loading y modales
   isLoading = true;
   mostrarModalEliminar = false;
   mostrarModalEditar = false;
   equipoSeleccionado: Equipo | null = null;
-  
+
   // Logo preview para modal de edición
   logoPreviewEdit: string | null = null;
   selectedFileEdit: File | null = null;
-  
+
   // Skeleton loading
   skeletonItems = Array(20).fill(0);
 
-  deportes: { [key: number]: string } = {
-    1: 'Fútbol',
-    2: 'Básquetbol',
-    3: 'Voleibol',
-    4: 'Tenis',
-    5: 'Pádel'
-  };
+  deporte: Deporte[] = [];
 
   constructor(
     private equipoService: EquipoService,
+    private deporteService:DeporteService,
     private notificationService: NotificationService,
-    private router: Router
   ) {}
 
   ngOnInit() {
+    this.deporteService.getDeportes().subscribe({
+      next: (deportes) => {
+        this.deporte = deportes;
+      },
+      error: (error) => {
+        console.error('Error al cargar deportes:', error);
+        this.notificationService.error('Error al cargar los deportes');
+      }
+    });
     this.cargarEquipos();
   }
 
@@ -77,12 +82,12 @@ export class Equipos implements OnInit {
 
   filtrarEquipos() {
     this.equiposFiltrados = this.equipos.filter(equipo => {
-      const matchSearch = 
+      const matchSearch =
         equipo.nombre_equipo.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         equipo.descripcion.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
+
       const matchDeporte = !this.filtroDeporte || equipo.id_deporte === this.filtroDeporte;
-      
+
       return matchSearch && matchDeporte;
     });
 
@@ -93,7 +98,7 @@ export class Equipos implements OnInit {
   aplicarPaginacion() {
     this.totalPages = Math.ceil(this.equiposFiltrados.length / this.itemsPerPage);
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    
+
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     this.equiposPaginados = this.equiposFiltrados.slice(startIndex, endIndex);
@@ -121,7 +126,7 @@ export class Equipos implements OnInit {
 
   obtenerNombreDeporte(id?: number): string {
     if (!id) return 'Sin especificar';
-    return this.deportes[id] || 'Sin especificar';
+    return this.deporte.find(deporte => deporte.id_deporte === id)?.nombre_deporte || 'Desconocido';
   }
 
   abrirModalEditar(equipo: Equipo) {
@@ -142,7 +147,7 @@ export class Equipos implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFileEdit = input.files[0];
-      
+
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -181,7 +186,7 @@ export class Equipos implements OnInit {
   eliminarEquipo() {
     if (!this.equipoSeleccionado) return;
 
-    this.equipoService.deleteEquipo(this.equipoSeleccionado.id_equipo).subscribe({
+    this.equipoService.deleteEquipoAdmin(this.equipoSeleccionado.id_equipo).subscribe({
       next: () => {
         this.notificationService.success('Equipo eliminado exitosamente');
         this.cerrarModalEliminar();

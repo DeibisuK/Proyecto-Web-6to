@@ -6,12 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Equipo } from '../../../../../../core/models/equipo.model';
 import { EquipoService } from '../../../../../../core/services/equipo.service';
 import { NotificationService } from '../../../../../../core/services/notification.service';
+import { DeporteService } from '../../../../../../core/services/deportes.service';
+import { Deporte } from '../../../../../../core/models/deporte.model';
 
 @Component({
   selector: 'app-crear-equipo',
   imports: [CommonModule, FormsModule],
   templateUrl: './crear-equipo.html',
-  styleUrl: './crear-equipo.css'
+  styleUrl: './crear-equipo.css',
 })
 export class CrearEquipo implements OnInit {
   @Input() equipoEditar?: Equipo;
@@ -22,16 +24,10 @@ export class CrearEquipo implements OnInit {
     nombre_equipo: '',
     descripcion: '',
     logo_url: '',
-    id_deporte: null as number | null
+    id_deporte: null as number | null,
   };
 
-  deportes = [
-    { id: 1, nombre: 'Fútbol' },
-    { id: 2, nombre: 'Básquetbol' },
-    { id: 3, nombre: 'Voleibol' },
-    { id: 4, nombre: 'Tenis' },
-    { id: 5, nombre: 'Pádel' }
-  ];
+  deportes: Deporte[] = [];
 
   logoPreview: string | null = null;
   selectedFile: File | null = null;
@@ -44,10 +40,21 @@ export class CrearEquipo implements OnInit {
     private equipoService: EquipoService,
     private notificationService: NotificationService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private deporteService: DeporteService
   ) {}
 
   ngOnInit() {
+    this.deporteService.getDeportes().subscribe({
+      next: (deportes) => {
+        this.deportes = deportes;
+      },
+      error: (error) => {
+        console.error('Error al cargar deportes:', error);
+        this.notificationService.error('Error al cargar deportes');
+      },
+    });
+
     // Verificar si estamos en modo edición por ruta
     const id = this.route.snapshot.params['id'];
     if (id) {
@@ -62,7 +69,7 @@ export class CrearEquipo implements OnInit {
         nombre_equipo: this.equipoEditar.nombre_equipo,
         descripcion: this.equipoEditar.descripcion,
         logo_url: this.equipoEditar.logo_url || '',
-        id_deporte: this.equipoEditar.id_deporte || null
+        id_deporte: this.equipoEditar.id_deporte || null,
       };
       if (this.equipoEditar.logo_url) {
         this.logoPreview = this.equipoEditar.logo_url;
@@ -77,7 +84,7 @@ export class CrearEquipo implements OnInit {
           nombre_equipo: equipo.nombre_equipo,
           descripcion: equipo.descripcion,
           logo_url: equipo.logo_url || '',
-          id_deporte: equipo.id_deporte || null
+          id_deporte: equipo.id_deporte || null,
         };
         if (equipo.logo_url) {
           this.logoPreview = equipo.logo_url;
@@ -87,7 +94,7 @@ export class CrearEquipo implements OnInit {
         console.error('Error al cargar equipo:', error);
         this.notificationService.error('Error al cargar el equipo');
         this.router.navigate(['/mis-equipos']);
-      }
+      },
     });
   }
 
@@ -95,7 +102,7 @@ export class CrearEquipo implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
       if (!validTypes.includes(file.type)) {
@@ -154,7 +161,11 @@ export class CrearEquipo implements OnInit {
       const formData = new FormData();
       formData.append('logo', this.selectedFile!);
 
-      this.http.post<{ success: boolean, url: string }>('http://localhost:3000/i/imagen/upload-equipo', formData)
+      this.http
+        .post<{ success: boolean; url: string }>(
+          'http://localhost:3000/i/client/upload-equipo',
+          formData
+        )
         .subscribe({
           next: (response) => {
             if (response.success) {
@@ -167,7 +178,7 @@ export class CrearEquipo implements OnInit {
           error: (error) => {
             console.error('Error al subir logo:', error);
             reject(error);
-          }
+          },
         });
     });
   }
@@ -178,12 +189,13 @@ export class CrearEquipo implements OnInit {
       nombre_equipo: this.equipoData.nombre_equipo.trim(),
       descripcion: this.equipoData.descripcion.trim(),
       logo_url: this.equipoData.logo_url || undefined,
-      id_deporte: this.equipoData.id_deporte || undefined
+      id_deporte: this.equipoData.id_deporte || undefined,
     };
 
-    const operacion = this.isEditMode && this.equipoId
-      ? this.equipoService.updateEquipo(this.equipoId, equipoParaGuardar)
-      : this.equipoService.createEquipo(equipoParaGuardar);
+    const operacion =
+      this.isEditMode && this.equipoId
+        ? this.equipoService.updateEquipo(this.equipoId, equipoParaGuardar)
+        : this.equipoService.createEquipo(equipoParaGuardar);
 
     operacion.subscribe({
       next: (equipo) => {
@@ -206,7 +218,7 @@ export class CrearEquipo implements OnInit {
         console.error('Error al guardar equipo:', error);
         this.notificationService.error('Error al guardar el equipo');
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -214,4 +226,3 @@ export class CrearEquipo implements OnInit {
     this.cerrarModal.emit();
   }
 }
-

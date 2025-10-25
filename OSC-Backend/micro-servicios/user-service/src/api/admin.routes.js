@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import { AdminController } from '../controllers/admin.controller.js';
-import authenticate from '../../../../middleware/authenticate.js';
-import authorizeRole from '../../../../middleware/authorizeRole.js';
+import { Router } from "express";
+import { AdminController } from "../controllers/admin.controller.js";
+import authenticate from "../../../../middleware/authenticate.js";
+import authorizeRole from "../../../../middleware/authorizeRole.js";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ const router = Router();
  * Requiere: Autenticación + Rol de Admin (id_rol = 1)
  */
 router.get(
-  '/all-users',
+  "/all-users",
   authenticate(),
   authorizeRole(1),
   AdminController.getAllUsers
@@ -24,7 +24,7 @@ router.get(
  * Requiere: Autenticación + Rol de Admin (id_rol = 1)
  */
 router.post(
-  '/assign-role',
+  "/assign-role",
   authenticate(),
   authorizeRole(1),
   AdminController.assignRole

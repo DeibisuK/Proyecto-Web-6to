@@ -7,14 +7,16 @@ import {
   finishPartido,
   deletePartido,
 } from "../../controllers/partido.controller.js";
+import authenticate from "../../../../../middleware/authenticate.js";
+import authorizeRole from "../../../../../middleware/authorizeRole.js";
 
 const router = Router();
 
-router.get("/partidos", getAllPartidos);
-router.get("/partidos/:id", getPartidoById);
-router.post("/partidos", createPartido);
-router.put("/partidos/:id/status", updatePartidoStatus);
-router.put("/partidos/:id/finish", finishPartido);
-router.delete("/partidos/:id", deletePartido);
+router.get("/partidos",authenticate(),authorizeRole(1), getAllPartidos);
+router.get("/partidos/:id",authenticate(),authorizeRole(1), getPartidoById);
+router.post("/partidos",authenticate(),authorizeRole(1), createPartido);
+router.put("/partidos/:id/status",authenticate(),authorizeRole(1), updatePartidoStatus);
+router.put("/partidos/:id/finish",authenticate(),authorizeRole(1), finishPartido);
+router.delete("/partidos/:id",authenticate(),authorizeRole(1), deletePartido);
 
 export default router;

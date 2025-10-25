@@ -16,12 +16,10 @@ export default function authorizeRole(requiredRoleId) {
     try {
       const uid = req.user && req.user.uid;
       if (!uid) {
-        return res
-          .status(401)
-          .json({
-            error: "missing_user",
-            message: "Authenticated user not found",
-          });
+        return res.status(401).json({
+          error: "missing_user",
+          message: "Authenticated user not found",
+        });
       }
 
       // First: try to use token claims (fast path)
@@ -32,12 +30,10 @@ export default function authorizeRole(requiredRoleId) {
 
       if (claimIdRol !== null && typeof claimIdRol !== "undefined") {
         if (Number(claimIdRol) !== Number(requiredRoleId)) {
-          return res
-            .status(403)
-            .json({
-              error: "forbidden",
-              message: "Insufficient role (claims)",
-            });
+          return res.status(403).json({
+            error: "forbidden",
+            message: "Insufficient role (claims)",
+          });
         }
         return next();
       }
@@ -46,12 +42,10 @@ export default function authorizeRole(requiredRoleId) {
       // For simplicity, fallback to user-service lookup by uid.
       const userServiceUrl = process.env.USER_SERVICE_URL;
       if (!userServiceUrl) {
-        return res
-          .status(500)
-          .json({
-            error: "config_error",
-            message: "USER_SERVICE_URL not configured",
-          });
+        return res.status(500).json({
+          error: "config_error",
+          message: "USER_SERVICE_URL not configured",
+        });
       }
 
       const endpoint = `${userServiceUrl.replace(

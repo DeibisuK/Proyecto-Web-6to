@@ -14,12 +14,12 @@ app.use(cors());
 app.use(express.json());
 
 //CLIENT ROUTES
-app.use("/client", authenticate(), equipoClient);
-app.use("/client", authenticate(), partidoClient);
+app.use("/client", equipoClient);
+app.use("/client", partidoClient);
 
 //ADMIN ROUTES
-app.use("/admin", authorizeRole(3), arbitroAdmin);
-app.use("/admin", authorizeRole(1), equipoAdmin);
-app.use("/admin", authorizeRole(1), partidoAdmin);
+app.use("/admin", arbitroAdmin);
+app.use("/admin", equipoAdmin);
+app.use("/admin", partidoAdmin);
 
 export default app;

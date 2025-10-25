@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Rutas
-app.use('/admin/', authorizeRole(1), uploadAdmin);
-app.use('/client/', authenticate(), uploadClient);
+app.use('/admin/', uploadAdmin);
+app.use('/client/', uploadClient);
 
 export default app;

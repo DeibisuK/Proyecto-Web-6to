@@ -8,31 +8,35 @@ import { API_URL } from '../../shared/url';
   providedIn: 'root'
 })
 export class EquipoService {
-  private apiUrl = `${API_URL}/m/equipos`;
+  private clientUrl = `${API_URL}/m/client/equipos`;
+  private adminUrl = `${API_URL}/m/admin/equipos`;
 
   constructor(private http: HttpClient) {}
 
   getEquipos(): Observable<Equipo[]> {
-    return this.http.get<Equipo[]>(this.apiUrl);
+    return this.http.get<Equipo[]>(this.adminUrl);
   }
 
   getMisEquipos(): Observable<Equipo[]> {
-    return this.http.get<Equipo[]>(`${this.apiUrl}/mis-equipos`);
+    return this.http.get<Equipo[]>(`${this.clientUrl}/mis-equipos`);
   }
 
   getEquipoById(id: number): Observable<Equipo> {
-    return this.http.get<Equipo>(`${this.apiUrl}/${id}`);
+    return this.http.get<Equipo>(`${this.adminUrl}/${id}`);
   }
 
   createEquipo(equipo: Equipo): Observable<Equipo> {
-    return this.http.post<Equipo>(this.apiUrl, equipo);
+    return this.http.post<Equipo>(this.clientUrl, equipo);
   }
 
   updateEquipo(id: number, equipo: Equipo): Observable<Equipo> {
-    return this.http.put<Equipo>(`${this.apiUrl}/${id}`, equipo);
+    return this.http.put<Equipo>(`${this.adminUrl}/${id}`, equipo);
   }
 
-  deleteEquipo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  deleteEquipoClient(id: number): Observable<any> {
+    return this.http.delete(`${this.clientUrl}/${id}`);
+  }
+  deleteEquipoAdmin(id: number): Observable<any> {
+    return this.http.delete(`${this.adminUrl}/${id}`);
   }
 }

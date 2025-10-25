@@ -13,8 +13,8 @@
         <!-- Nombre del Equipo -->
         <div class="form-group">
           <label for="nombre">Nombre del Equipo</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="nombre"
             name="nombre"
             [(ngModel)]="equipoData.nombre_equipo"
@@ -25,17 +25,17 @@
           />
           <span class="char-count">{{ equipoData.nombre_equipo.length }}/50</span>
           @if (nombreInput.invalid && nombreInput.touched) {
-            <div class="error-message">
-              <span class="material-icons">error</span>
-              El nombre del equipo es obligatorio
-            </div>
+          <div class="error-message">
+            <span class="material-icons">error</span>
+            El nombre del equipo es obligatorio
+          </div>
           }
         </div>
 
         <!-- Deporte -->
         <div class="form-group">
           <label for="deporte">Deporte</label>
-          <select 
+          <select
             id="deporte"
             name="deporte"
             [(ngModel)]="equipoData.id_deporte"
@@ -43,17 +43,16 @@
             #deporteInput="ngModel"
           >
             <option [value]="null" disabled selected>Selecciona un deporte</option>
-            <option [value]="1">Fútbol</option>
-            <option [value]="2">Básquetbol</option>
-            <option [value]="3">Voleibol</option>
-            <option [value]="4">Tenis</option>
-            <option [value]="5">Pádel</option>
+            @for (deporte of deportes; track $index) {
+              <option [value]="deporte.id_deporte">{{ deporte.nombre_deporte }}</option>
+            }
+
           </select>
           @if (deporteInput.invalid && deporteInput.touched) {
-            <div class="error-message">
-              <span class="material-icons">error</span>
-              Debes seleccionar un deporte
-            </div>
+          <div class="error-message">
+            <span class="material-icons">error</span>
+            Debes seleccionar un deporte
+          </div>
           }
         </div>
       </div>
@@ -62,30 +61,22 @@
       <div class="logo-section-right">
         <div class="logo-preview" [class.has-image]="logoPreview || equipoData.logo_url">
           @if (logoPreview || equipoData.logo_url) {
-            <img 
-              [src]="logoPreview || equipoData.logo_url" 
-              alt="Logo del equipo"
-            />
-          }
-          @if (!logoPreview && !equipoData.logo_url) {
-            <div class="logo-placeholder">
-              <span class="material-icons">add_photo_alternate</span>
-              <p>Subir logo</p>
-            </div>
+          <img [src]="logoPreview || equipoData.logo_url" alt="Logo del equipo" />
+          } @if (!logoPreview && !equipoData.logo_url) {
+          <div class="logo-placeholder">
+            <span class="material-icons">add_photo_alternate</span>
+            <p>Subir logo</p>
+          </div>
           }
         </div>
-        <input 
-          type="file" 
-          #fileInput 
-          (change)="onFileSelected($event)" 
+        <input
+          type="file"
+          #fileInput
+          (change)="onFileSelected($event)"
           accept="image/*"
-          style="display: none;"
+          style="display: none"
         />
-        <button 
-          type="button" 
-          class="btn-upload" 
-          (click)="fileInput.click()"
-        >
+        <button type="button" class="btn-upload" (click)="fileInput.click()">
           <span class="material-icons">cloud_upload</span>
           {{ logoPreview || equipoData.logo_url ? 'Cambiar' : 'Subir' }}
         </button>
@@ -95,7 +86,7 @@
     <!-- Descripción (ancho completo) -->
     <div class="form-group">
       <label for="descripcion">Descripción</label>
-      <textarea 
+      <textarea
         id="descripcion"
         name="descripcion"
         [(ngModel)]="equipoData.descripcion"
@@ -109,19 +100,12 @@
 
     <!-- Botones de Acción -->
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="cerrar()">
-        Cancelar
-      </button>
-      <button 
-        type="submit" 
-        class="btn btn-primary" 
-        [disabled]="equipoForm.invalid || isLoading"
-      >
+      <button type="button" class="btn btn-secondary" (click)="cerrar()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="equipoForm.invalid || isLoading">
         @if (isLoading) {
-          <span class="spinner"></span>
-        }
-        @if (!isLoading) {
-          <span>{{ equipoEditar ? 'Actualizar' : 'Crear Equipo' }}</span>
+        <span class="spinner"></span>
+        } @if (!isLoading) {
+        <span>{{ equipoEditar ? 'Actualizar' : 'Crear Equipo' }}</span>
         }
       </button>
     </div>

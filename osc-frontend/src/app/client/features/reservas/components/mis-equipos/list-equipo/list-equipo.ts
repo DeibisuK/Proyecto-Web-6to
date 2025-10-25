@@ -64,7 +64,7 @@ export class ListEquipo implements OnInit {
 
   filtrarEquipos() {
     const term = this.searchTerm.toLowerCase().trim();
-    
+
     if (!term) {
       this.equiposFiltrados = [...this.equipos];
       return;
@@ -95,7 +95,7 @@ export class ListEquipo implements OnInit {
 
   confirmarEliminacion() {
     if (this.equipoAEliminar && this.equipoAEliminar.id_equipo) {
-      this.equipoService.deleteEquipo(this.equipoAEliminar.id_equipo).subscribe({
+      this.equipoService.deleteEquipoClient(this.equipoAEliminar.id_equipo).subscribe({
         next: () => {
           this.notificationService.success(`Equipo "${this.equipoAEliminar!.nombre_equipo}" eliminado correctamente`);
           this.cargarEquipos();
