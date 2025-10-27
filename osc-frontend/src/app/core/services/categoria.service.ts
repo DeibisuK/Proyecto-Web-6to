@@ -4,12 +4,12 @@ import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { Categoria } from '../models/categoria.model';
-import { API_URL } from '../../shared/url';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriaService {
-  private adminUrl = `${API_URL}/p/admin/categorias`;
-  private clientUrl = `${API_URL}/p/client/categorias`;
+  private adminUrl = `${environment.apiUrl}/p/admin/categorias`;
+  private clientUrl = `${environment.apiUrl}/p/client/categorias`;
 
   // Cache del Observable de categorías
   private categoriasCache$?: Observable<Categoria[]>;

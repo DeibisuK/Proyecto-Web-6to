@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipo } from '../models/equipo.model';
-import { API_URL } from '../../shared/url';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EquipoService {
-  private clientUrl = `${API_URL}/m/client/equipos`;
-  private adminUrl = `${API_URL}/m/admin/equipos`;
+  private clientUrl = `${environment.apiUrl}/m/client/equipos`;
+  private adminUrl = `${environment.apiUrl}/m/admin/equipos`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Cancha } from '../models/canchas.model';
-import { API_URL } from '../../shared/url';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CanchaService {
   // Usamos API_URL para definir la URL base de canchas para operaciones CRUD
-  private canchasUrl = `${API_URL}/c/canchas`;
+  private canchasUrl = `${environment.apiUrl}/c/canchas`;
 
   constructor(private http: HttpClient) {} // Obtener todas las canchas (GET /u/canchas)
 
@@ -23,7 +23,7 @@ export class CanchaService {
 
   getCanchasBySede(idSede: number): Observable<Cancha[]> {
     // Utilizamos API_URL directamente, ya que esta ruta tiene un prefijo diferente (/c)
-    return this.http.get<Cancha[]>(`${API_URL}/c/sedes/${idSede}/canchas`);
+    return this.http.get<Cancha[]>(`${environment.apiUrl}/c/sedes/${idSede}/canchas`);
   } // Crear una nueva cancha (POST /u/canchas)
 
   createCancha(cancha: Cancha): Observable<Cancha> {
@@ -39,6 +39,6 @@ export class CanchaService {
   }
 
   getCanchasByDeporte(idDeporte: string): Observable<Cancha[]> {
-    return this.http.get<Cancha[]>(`${API_URL}/c/deportes/${idDeporte}/canchas`);
+    return this.http.get<Cancha[]>(`${environment.apiUrl}/c/deportes/${idDeporte}/canchas`);
   }
 }

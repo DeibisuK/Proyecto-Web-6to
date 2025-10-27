@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_URL } from '../../shared/url';
 import { RolUsuario, Usuario } from '../models/usuario.model';
+import { environment } from '../../../environments/environment';
 
 export interface BackendUserPayload {
   uid: string;
@@ -45,30 +45,30 @@ export class UserApiService {
   // Create or update a user record in the user-service via API gateway (/u)
   createUser(payload: BackendUserPayload) {
     // The gateway proxies /u -> user-service
-    return this.http.post(`${API_URL}/u/users/`, payload);
+    return this.http.post(`${environment.apiUrl}/u/users/`, payload);
   }
 
   getUserByUid(uid: string): Observable<Usuario> {
-    return this.http.get<Usuario>(`${API_URL}/u/users/${uid}`);
+    return this.http.get<Usuario>(`${environment.apiUrl}/u/users/${uid}`);
   }
 
   // Get all users (Firebase + Database combined)
   getAllUsers(): Observable<AllUsersResponse> {
-    return this.http.get<AllUsersResponse>(`${API_URL}/u/admin/all-users`);
+    return this.http.get<AllUsersResponse>(`${environment.apiUrl}/u/admin/all-users`);
   }
 
   // Get all users from database with roles
   getAllUsersFromDB(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(`${API_URL}/u/users`);
+    return this.http.get<Usuario[]>(`${environment.apiUrl}/u/users`);
   }
 
   // Update user role
   updateUserRole(uid: string, id_rol: number): Observable<any> {
-    return this.http.post(`${API_URL}/u/admin/assign-role`, { uid, id_rol });
+    return this.http.post(`${environment.apiUrl}/u/admin/assign-role`, { uid, id_rol });
   }
 
   // Delete user
   deleteUser(uid: string): Observable<any> {
-    return this.http.delete(`${API_URL}/u/users/${uid}`);
+    return this.http.delete(`${environment.apiUrl}/u/users/${uid}`);
   }
 }

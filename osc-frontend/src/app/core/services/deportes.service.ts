@@ -2,12 +2,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Deporte } from '../models/deporte.model';
-import { API_URL } from '../../shared/url';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class DeporteService {
-  private clientUrl = `${API_URL}/p/client/deportes`;
-  private adminUrl = `${API_URL}/p/admin/deportes`;
+  private clientUrl = `${environment.apiUrl}/p/client/deportes`;
+  private adminUrl = `${environment.apiUrl}/p/admin/deportes`;
   constructor(private http: HttpClient) {}
 
   getDeportes() {

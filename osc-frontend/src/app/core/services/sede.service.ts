@@ -1,15 +1,15 @@
 import { Observable, shareReplay } from 'rxjs';
-import { API_URL } from '../../shared/url';
 import { Sede } from '../models/sede.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SedeService {
-  private clientUrl = `${API_URL}/c/client/sedes`;
-  private adminUrl = `${API_URL}/c/admin/sedes`;
+  private clientUrl = `${environment.apiUrl}/c/client/sedes`;
+  private adminUrl = `${environment.apiUrl}/c/admin/sedes`;
   private sedesCache$?: Observable<Sede[]>;
 
   constructor(private http: HttpClient) {}

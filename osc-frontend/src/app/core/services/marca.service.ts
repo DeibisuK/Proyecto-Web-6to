@@ -4,12 +4,12 @@ import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { Marca } from '../models/marca.model';
-import { API_URL } from '../../shared/url';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MarcaService {
-  private clientUrl = `${API_URL}/p/client/marcas`;
-  private adminUrl = `${API_URL}/p/admin/marcas`;
+  private clientUrl = `${environment.apiUrl}/p/client/marcas`;
+  private adminUrl = `${environment.apiUrl}/p/admin/marcas`;
 
   // Cache del Observable de marcas
   private marcasCache$?: Observable<Marca[]>;

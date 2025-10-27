@@ -1,16 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Producto, ProductosResponse, ProductoDetalle } from '../models/producto';
 import { FiltrosProducto } from '../models/filtros-producto';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { API_URL } from '../../../../shared/url';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductoService {
-  constructor(private http: HttpClient) {}
-
+  http = inject(HttpClient);
   // Datos para probar
   private productosDemo: Producto[] = [
     {
@@ -231,7 +230,7 @@ export class ProductoService {
    */
   searchProductos(filtros: FiltrosProducto = {}): Observable<ProductosResponse> {
     // API Gateway usa /p para el servicio de productos
-    const url = `${API_URL}/p/client/productos/search`;
+    const url = `${environment.apiUrl}/p/client/productos/search`;
 
     // Construir el body con valores por defecto
     const body: FiltrosProducto = {
@@ -279,7 +278,7 @@ export class ProductoService {
    * ```
    */
   getProductoDetalle(id: number): Observable<ProductoDetalle> {
-    const url = `${API_URL}/p/client/productos/${id}`;
+    const url = `${environment.apiUrl}/p/client/productos/${id}`;
     return this.http.get<ProductoDetalle>(url);
   }
 }
