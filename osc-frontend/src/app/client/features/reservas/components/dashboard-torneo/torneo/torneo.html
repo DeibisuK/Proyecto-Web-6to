@@ -1,31 +1,59 @@
 <div class="torneo-container">
-  <div class="torneo-header">
-    <h2 class="torneo-title">Torneos Disponibles</h2>
-    <button class="btn-crear-torneo">+ Crear Torneo</button>
-  </div>
-  
-  <div class="torneos-content" *ngIf="torneos.length > 0; else noTorneos">
-    <div class="torneo-card" *ngFor="let torneo of torneos">
-      <div class="torneo-image">
-        <img [src]="torneo.imagen || 'assets/default-torneo.png'" [alt]="torneo.nombre">
-      </div>
-      <div class="torneo-info">
-        <h3 class="torneo-nombre">{{ torneo.nombre }}</h3>
-        <p class="torneo-deporte">{{ torneo.deporte }}</p>
-        <div class="torneo-details">
-          <span class="torneo-fecha">📅 {{ torneo.fechaInicio | date:'dd/MM/yyyy' }}</span>
-          <span class="torneo-equipos">👥 {{ torneo.equiposInscritos }}/{{ torneo.maxEquipos }}</span>
-        </div>
-        <button class="btn-inscribirse">Inscribirse</button>
-      </div>
-    </div>
+  <!-- Pestañas de Deportes -->
+  <div class="deportes-tabs">
+    <button 
+      *ngFor="let deporte of deportes" 
+      class="deporte-tab"
+      [class.active]="deporteSeleccionado === deporte.id"
+      (click)="seleccionarDeporte(deporte.id)">
+      <div class="deporte-icono">{{ deporte.icono }}</div>
+      <div class="deporte-nombre">{{ deporte.nombre }}</div>
+    </button>
   </div>
 
-  <ng-template #noTorneos>
-    <div class="empty-state">
-      <div class="empty-icon">🏆</div>
-      <h3>No hay torneos disponibles</h3>
-      <p>Por el momento no hay torneos abiertos para inscripción</p>
+  <!-- Partidos Disponibles -->
+  <div class="partidos-section">
+    <h2 class="section-title">Partidos Disponibles</h2>
+    
+    <div class="torneos-list" *ngIf="torneos.length > 0; else noTorneos">
+      <div class="torneo-card" *ngFor="let torneo of torneos">
+        <!-- Header del Torneo -->
+        <div class="torneo-header">
+          <div class="torneo-info">
+            <span class="torneo-logo">{{ torneo.logo }}</span>
+            <div class="torneo-details">
+              <h3 class="torneo-nombre">{{ torneo.nombre }}</h3>
+              <p class="torneo-jornada">{{ torneo.jornada }}</p>
+            </div>
+          </div>
+          <button class="btn-clasificacion" (click)="verClasificacion(torneo.nombre)">
+            Ver la clasificación >>
+          </button>
+        </div>
+
+        <!-- Lista de Partidos -->
+        <div class="partidos-list">
+          <div class="partido-item" *ngFor="let partido of torneo.partidos">
+            <div class="partido-equipo">
+              <span class="equipo-logo">{{ partido.logoEquipo1 }}</span>
+              <span class="equipo-nombre">{{ partido.equipo1 }}</span>
+              <span class="equipo-goles" *ngIf="partido.golesEquipo1 !== undefined">{{ partido.golesEquipo1 }}</span>
+            </div>
+            <div class="partido-fecha">
+              <span class="fecha-texto">{{ partido.equipo2 }}</span>
+              <span class="fecha-estado">{{ partido.fecha }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </ng-template>
+
+    <ng-template #noTorneos>
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <h3>No hay torneos disponibles</h3>
+        <p>Por el momento no hay torneos abiertos para este deporte</p>
+      </div>
+    </ng-template>
+  </div>
 </div>
