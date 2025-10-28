@@ -22,8 +22,10 @@ import { SedesDetalle } from "./features/sedes/sedes-detalle/sedes-detalle";
 import { ListMetodo } from "./features/user-profile/metodos-pago/list-metodo/list-metodo";
 import { Perfil } from "./features/user-profile/perfil/perfil";
 import { ReservarCancha } from "./features/reservas/components/reservar-cancha/reservar-cancha";
-import { Torneo } from "./features/reservas/components/torneo/torneos/torneo";
 import { DetalleReservarCancha } from "./features/reservas/components/detalle-reservar-cancha/detalle-reservar-cancha";
+import { DashboardTorneo } from "./features/reservas/components/dashboard-torneo/dashboard-torneo";
+import { Torneo } from "./features/reservas/components/dashboard-torneo/torneo/torneo";
+import { Inscripciones } from "./features/reservas/components/dashboard-torneo/inscripciones/inscripciones";
 
 export const clienteRoutes: Routes = [
   {
@@ -121,7 +123,12 @@ export const clienteRoutes: Routes = [
     component: ReservarCancha
   },
   {
-    path: 'torneos',
-    component: Torneo
+    path: 'dashboard-torneo',
+    component: DashboardTorneo,
+    children: [
+      { path: '', redirectTo: 'dashboard-torneo', pathMatch: 'full' },
+      { path: 'torneos', component: Torneo },
+      { path: 'inscripciones', component: Inscripciones }
+    ]
   }
 ]

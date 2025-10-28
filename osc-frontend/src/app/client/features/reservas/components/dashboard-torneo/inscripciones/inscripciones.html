@@ -1,0 +1,18 @@
+<div class="inscripciones-container">
+  <h2 class="inscripciones-title">Mis Inscripciones</h2>
+  
+  <div class="inscripciones-content" *ngIf="inscripciones.length > 0; else noInscripciones">
+    <div class="inscripcion-card" *ngFor="let inscripcion of inscripciones">
+      <!-- Aquí irá el contenido de cada inscripción -->
+      <p>{{ inscripcion.nombre }}</p>
+    </div>
+  </div>
+
+  <ng-template #noInscripciones>
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No tienes inscripciones</h3>
+      <p>Aún no te has inscrito a ningún torneo</p>
+    </div>
+  </ng-template>
+</div>
