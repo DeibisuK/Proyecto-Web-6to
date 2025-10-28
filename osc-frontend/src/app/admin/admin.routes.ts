@@ -7,7 +7,7 @@ import { Anuncios } from "./features/anuncios/anuncios";
 import { ListSede } from "./features/sedes/list-sede/list-sede";
 import { CrearSede } from "./features/sedes/crear-sede/crear-sede";
 import { Equipos } from "./features/equipos/equipos";
-import { Productos } from "./features/productos/productos";
+import { ProductosComponent } from "./features/productos/productos";
 
 export const adminRoutes: Routes = [
   {
@@ -22,7 +22,7 @@ export const adminRoutes: Routes = [
   },
   {
     path: 'productos',
-    component: Productos,
+    component: ProductosComponent,
     title: 'Productos'
   },
   {
