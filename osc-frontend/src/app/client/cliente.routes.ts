@@ -126,7 +126,7 @@ export const clienteRoutes: Routes = [
     path: 'dashboard-torneo',
     component: DashboardTorneo,
     children: [
-      { path: '', redirectTo: 'dashboard-torneo', pathMatch: 'full' },
+      { path: '', redirectTo: 'torneos', pathMatch: 'full' },
       { path: 'torneos', component: Torneo },
       { path: 'inscripciones', component: Inscripciones }
     ]
