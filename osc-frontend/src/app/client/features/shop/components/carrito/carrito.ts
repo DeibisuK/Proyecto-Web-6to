@@ -51,7 +51,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   get subtotal(): number {
-    return this.total / 1.12; // Subtotal sin IVA
+    return this.total / 1.15; // Subtotal sin IVA
   }
 
   get iva(): number {
