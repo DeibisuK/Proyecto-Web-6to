@@ -292,4 +292,49 @@ export class ProductoService {
     const url = `${environment.apiUrl}/p/admin/productos/${id}`;
     return this.http.get<ProductoDetalle>(url);
   }
+
+  /**
+   * Crea sólo el producto (endpoint admin).
+   * Retorna el objeto devuelto por el backend (ej. { id_producto })
+   */
+  createProducto(producto: Partial<Producto>): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos`;
+    return this.http.post(url, producto);
+  }
+
+  /**
+   * Crea una o múltiples variantes para un producto (endpoint admin).
+   * body puede ser un objeto variante o un array de variantes.
+   */
+  createVariantes(productId: number, variantes: any[] | any): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos/${productId}/variantes`;
+    const body = Array.isArray(variantes) ? variantes : variantes;
+    return this.http.post(url, body);
+  }
+
+  /**
+   * Obtiene las opciones globales y sus valores (admin)
+   */
+  getOpciones(): Observable<any[]> {
+    const url = `${environment.apiUrl}/p/admin/productos/opciones`;
+    return this.http.get<any[]>(url);
+  }
+
+  /**
+   * Actualiza un producto (endpoint admin)
+   */
+  updateProducto(id: number, producto: Partial<Producto>): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos/${id}`;
+    return this.http.put(url, producto);
+  }
+
+  /**
+   * Elimina un producto (endpoint admin)
+   */
+  deleteProducto(id: number): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos/${id}`;
+    return this.http.delete(url);
+  }
+
+
 }

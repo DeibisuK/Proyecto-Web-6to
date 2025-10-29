@@ -14,7 +14,9 @@ export const getProductoDetalle = async (id_producto) => {
 };
 
 export const create = async (producto) => {
-    return await model.create(producto);
+    // By default create should only create the base product record.
+    // For creating product + variantes in one op use model.create (kept for backward compatibility)
+    return await model.createProducto(producto);
 };
 
 export const update = async (id, producto) => {
@@ -29,4 +31,14 @@ export const remove = async (id) => {
     const res = await model.deleteProducto(idNum);
     // normalize to boolean deleted
     return !!(res && res.deleted);
+};
+
+export const createVariantes = async (productId, variantesArray) => {
+    const idNum = Number(productId);
+    if (Number.isNaN(idNum)) throw new Error('Invalid product id');
+    return await model.createVariantes(idNum, variantesArray);
+};
+
+export const getOpciones = async () => {
+    return await model.getOpcionesConValores();
 };

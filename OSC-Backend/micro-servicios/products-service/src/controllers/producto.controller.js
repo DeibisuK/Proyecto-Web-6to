@@ -166,6 +166,37 @@ export const createProducto = async (req, res) => {
   }
 };
 
+/**
+ * POST /admin/productos/:id/variantes
+ * Acepta un objeto variante o un array de variantes. Inserta todas en una transacción.
+ */
+export const postVariantes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const idProducto = parseInt(id, 10);
+    if (isNaN(idProducto)) {
+      return res.status(400).json({ message: 'ID de producto inválido' });
+    }
+
+    const body = req.body;
+    const variantes = Array.isArray(body) ? body : [body];
+
+    if (variantes.length === 0) {
+      return res.status(400).json({ message: 'No se enviaron variantes' });
+    }
+    if (variantes.length > 500) {
+      return res.status(400).json({ message: 'Demasiadas variantes en una sola petición (máx 500)' });
+    }
+
+    const inserted = await service.createVariantes(idProducto, variantes);
+    res.status(201).json({ inserted_count: inserted.length, variantes: inserted });
+  } catch (error) {
+    console.error('[postVariantes] error:', error);
+    // errores de validación lanzados por el modelo pueden propagarse con mensajes legibles
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const updateProducto = async (req, res) => {
   try {
     const producto = await service.update(req.params.id, req.body);
@@ -187,6 +218,20 @@ export const deleteProducto = async (req, res) => {
       res.status(404).json({ message: "Producto not found" });
     }
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * GET /admin/productos/opciones
+ * Devuelve las opciones y valores disponibles para productos
+ */
+export const getOpciones = async (req, res) => {
+  try {
+    const opciones = await service.getOpciones();
+    res.json(opciones);
+  } catch (error) {
+    console.error('[getOpciones] error:', error);
     res.status(500).json({ message: error.message });
   }
 };
