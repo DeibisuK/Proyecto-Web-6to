@@ -1,266 +1,233 @@
-.torneo-container {
-  padding: 0;
-  max-width: 100%;
-}
 
 /* Pestañas de Deportes */
 .deportes-tabs {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 24px;
 }
 
 .deporte-tab {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 20px;
+  padding: 16px;
   background-color: white;
-  border: 2px solid #e0e0e0;
+  border: 2px solid transparent;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .deporte-tab:hover {
-  border-color: #007bff;
+  background-color: #f9fafb;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .deporte-tab.active {
-  border-color: #007bff;
-  background-color: #e7f3ff;
+  background-color: #d1fae5;
+  border-color: #6ee7b7;
 }
 
 .deporte-icono {
-  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.deporte-tab.active .deporte-icono {
+  background-color: #10b981;
 }
 
 .deporte-nombre {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
 }
 
-/* Sección de Partidos */
-.partidos-section {
-  padding: 0 20px 20px;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.torneos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-/* Tarjeta de Torneo */
-.torneo-card {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.torneo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.torneo-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.torneo-logo {
-  font-size: 2rem;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Título - Partidos Disponibles */
+.title-card {
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px 20px;
+  margin: 0 24px 24px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.torneo-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.torneo-nombre {
-  font-size: 1.3rem;
+.title-text {
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #333;
+  color: #111827;
   margin: 0;
 }
 
-.torneo-jornada {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0;
+/* Grid de Ligas */
+.leagues-grid {
+  display: grid;
+  /* Una columna: cada liga ocupa todo el ancho (volver a 1 columna) */
+  grid-template-columns: 1fr;
+  gap: 24px;
+  padding: 0 24px 24px;
 }
 
-.btn-clasificacion {
-  padding: 8px 16px;
-  background-color: transparent;
-  color: #007bff;
-  border: 1px solid #007bff;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.league-matches {
+  /* Mostrar los partidos apilados: 1 columna dentro de cada liga */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 0;
 }
 
-.btn-clasificacion:hover {
-  background-color: #007bff;
-  color: white;
+/* Contenedor de Liga */
+.league {
+  margin-bottom: 24px;
+  /* asegurar que la tarjeta de liga ocupe todo el ancho de su columna */
+  width: 100%;
 }
 
-/* Lista de Partidos */
-.partidos-list {
-  padding: 10px;
-}
-
-.partido-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s ease;
-}
-
-.partido-item:last-child {
-  border-bottom: none;
-}
-
-.partido-item:hover {
-  background-color: #f8f9fa;
-}
-
-.partido-equipo {
+/* Header de Liga */
+.league-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1;
+  padding: 0 0 16px 0;
+  background: transparent;
 }
 
-.equipo-logo {
-  font-size: 1.5rem;
-  width: 35px;
-  height: 35px;
+.league-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.league-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.league-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.league-sub {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Tarjeta de Partido */
+.match-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  box-sizing: border-box; 
+  width: 100%; 
+}
+
+.match-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.match-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.match-teams {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.team-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-}
-
-.equipo-nombre {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #333;
-  min-width: 120px;
-}
-
-.equipo-goles {
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #333;
-  min-width: 30px;
-  text-align: center;
+  color: #374151;
+  flex-shrink: 0;
 }
 
-.partido-fecha {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+.team-name {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.875rem;
+  flex: 1;
 }
 
-.fecha-texto {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.fecha-estado {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-/* Estado Vacío */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: #666;
-}
-
-.empty-icon {
-  font-size: 5rem;
-  margin-bottom: 20px;
-}
-
-.empty-state h3 {
+.team-score {
+  font-weight: 700;
   font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 10px;
+  color: #111827;
+  min-width: 30px;
+  text-align: right;
+  margin-left: auto;
 }
 
-.empty-state p {
-  font-size: 1rem;
-  color: #666;
+.match-status {
+  text-align: right;
+  min-width: 90px;
+  margin-left: 16px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .deportes-tabs {
-    flex-direction: column;
-  }
+.status-day {
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 2px;
+}
 
-  .deporte-tab {
-    flex-direction: row;
-    justify-content: center;
-  }
+.status-text {
+  color: #6b7280;
+  font-size: 0.75rem;
+  display: block;
+  white-space: nowrap;
+}
 
-  .torneo-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
+/* Enlace Ver Clasificación */
+.ver-clasificacion {
+  display: inline-block;
+  margin-top: 12px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
 
-  .btn-clasificacion {
-    width: 100%;
-  }
-
-  .partido-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .partido-fecha {
-    align-items: flex-start;
-    width: 100%;
-  }
+.ver-clasificacion:hover {
+  color: #1e40af;
+  text-decoration: underline;
 }
