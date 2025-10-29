@@ -17,10 +17,10 @@ app.use(cors());
 app.use(express.json());
 
 //RUTAS CLIENTE
-app.use('/client/categorias',  authenticate(),categoriaCliente);
-app.use('/client/deportes', authenticate(),deporteCliente);
-app.use('/client/marcas', authenticate(),marcaCliente);
-app.use('/client/productos', authenticate(),productoCliente);
+app.use('/client/categorias',  categoriaCliente);
+app.use('/client/deportes',deporteCliente);
+app.use('/client/marcas',marcaCliente);
+app.use('/client/productos',productoCliente);
 
 //RUTAS ADMIN
 app.use('/admin/categorias', authenticate(), authorizeRole(1), categoriaAdmin);

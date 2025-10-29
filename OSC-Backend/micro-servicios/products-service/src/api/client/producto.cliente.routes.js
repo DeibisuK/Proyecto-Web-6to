@@ -9,7 +9,7 @@ import authenticate from '../../../../../middleware/authenticate.js';
 const router = Router();
 
 // router.get('/', getAllProductos);
-router.post('/search', authenticate(), searchProductos); 
-router.get('/:id', authenticate(), getProductoDetalle);
+router.post('/search', searchProductos); 
+router.get('/:id', getProductoDetalle);
 
 export default router;
