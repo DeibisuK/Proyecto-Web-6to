@@ -68,9 +68,12 @@
           <h3>{{ usuario.displayName }}</h3>
           <p class="email">{{ usuario.email }}</p>
 
-          <!-- Badge de rol -->
-          <span class="rol-badge" [style.background]="getRolInfo($any(usuario.customClaims.role ?? '')).color">
-            {{ getRolInfo($any(usuario.customClaims.role ?? '')).label }}
+          <!-- Badge de rol (protecciones: evita leer propiedades de undefined) -->
+          <span
+            class="rol-badge"
+            [style.background]="getRolInfo($any(usuario.customClaims?.role ?? ''))?.color"
+          >
+            {{ getRolInfo($any(usuario.customClaims?.role ?? ''))?.label || 'Sin rol' }}
           </span>
         </div>
 

@@ -148,7 +148,7 @@ export class UsuarioComponent implements OnInit {
         usuario.displayName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         usuario.email.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      const matchRol = !this.filtroRol || usuario.customClaims.role === this.filtroRol;
+  const matchRol = !this.filtroRol || usuario.customClaims?.role === this.filtroRol;
 
       const matchTipo = this.filtroTipo === 'todos' || usuario.source === this.filtroTipo;
 
@@ -195,7 +195,7 @@ export class UsuarioComponent implements OnInit {
 
   abrirModalCambiarRol(usuario: CombinedUser) {
     this.usuarioSeleccionado = usuario;
-    this.nuevoRol = usuario.customClaims.role as RolUsuario;
+    this.nuevoRol = usuario.customClaims?.role as RolUsuario;
     this.mostrarModalCambiarRol = true;
   }
 
@@ -242,7 +242,7 @@ export class UsuarioComponent implements OnInit {
   }
 
   quitarRol(usuario: CombinedUser) {
-    if (usuario.customClaims.role === 'Cliente') {
+    if (usuario.customClaims?.role === 'Cliente') {
       this.notificationService.error('Los clientes ya tienen el rol base');
       return;
     }
@@ -319,7 +319,8 @@ export class UsuarioComponent implements OnInit {
   }
 
   getRolInfo(rol: RolUsuario): RolInfo {
-    return this.roles.find((r) => r.value === rol) || this.roles[3];
+    // Si no encuentra el rol, devolver un rol por defecto (Cliente)
+    return this.roles.find((r) => r.value === rol) || this.roles[2];
   }
 
   getNombre(usuario: CombinedUser): string {
