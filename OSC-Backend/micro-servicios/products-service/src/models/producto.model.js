@@ -1,11 +1,5 @@
 import pool from "../config/db.js";
 
-// javascript
-// export const findAllProducts = async () => {
-//   const result = await pool.query("SELECT * FROM productos;");
-//   return result.rows;
-// };
-
 // Nueva función para búsqueda con filtros múltiples
 export const searchProducts = async ({
   categoriasIds = null,
@@ -297,3 +291,108 @@ export async function create(payload) {
     client.release();
   }
 }
+
+/**
+ * Actualiza los campos de un producto
+ * @param {number} id_producto
+ * @param {Object} payload - campos a actualizar: nombre, descripcion, id_categoria, id_deporte, id_marca, es_nuevo
+ * @returns {Object|null} objeto con id_producto actualizado o null si no existe
+ */
+export const updateProducto = async (id_producto, payload = {}) => {
+  const allowed = [
+    "nombre",
+    "descripcion",
+    "id_categoria",
+    "id_deporte",
+    "id_marca",
+    "es_nuevo",
+  ];
+
+  const sets = [];
+  const params = [];
+  let idx = 1;
+
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      sets.push(`${key} = $${idx}`);
+      params.push(payload[key]);
+      idx++;
+    }
+  }
+
+  if (sets.length === 0) {
+    throw new Error("No hay campos válidos para actualizar");
+  }
+
+  params.push(id_producto);
+  const sql = `
+    UPDATE productos
+    SET ${sets.join(", ")}
+    WHERE id_producto = $${idx}
+    RETURNING id_producto;
+  `;
+
+  console.debug("[updateProducto] SQL:", sql);
+  console.debug("[updateProducto] params:", params);
+
+  const result = await pool.query(sql, params);
+  if (result.rowCount === 0) return null;
+  return { id_producto: result.rows[0].id_producto };
+};
+
+/**
+ * Elimina un producto y sus datos relacionados (variantes y valores asociados)
+ * Realiza la operación en una transacción para garantizar consistencia.
+ * @param {number} id_producto
+ * @returns {Object} { deleted: true }
+ */
+export const deleteProducto = async (id_producto) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Obtener variantes asociadas
+    const varsRes = await client.query(
+      "SELECT id_variante FROM variantes_productos WHERE id_producto = $1",
+      [id_producto]
+    );
+
+    const varIds = varsRes.rows.map((r) => r.id_variante);
+
+    if (varIds.length > 0) {
+      // Eliminar relaciones en variante_valores
+      const placeholders = varIds.map((_, i) => `$${i + 1}`).join(",");
+      await client.query(
+        `DELETE FROM variante_valores WHERE id_variante IN (${placeholders})`,
+        varIds
+      );
+
+      // Eliminar variantes
+      await client.query(
+        `DELETE FROM variantes_productos WHERE id_variante IN (${placeholders})`,
+        varIds
+      );
+    }
+
+    // Finalmente eliminar el producto
+    const delRes = await client.query(
+      "DELETE FROM productos WHERE id_producto = $1 RETURNING id_producto",
+      [id_producto]
+    );
+
+    if (delRes.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return { deleted: false };
+    }
+
+    await client.query("COMMIT");
+    return { deleted: true };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+

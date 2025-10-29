@@ -1,4 +1,4 @@
-import * as service from '../services/producto.service.js';
+import * as service from "../services/producto.service.js";
 
 export const getAllProductos = async (req, res) => {
   try {
@@ -10,8 +10,8 @@ export const getAllProductos = async (req, res) => {
       sort = null,
       q = null,
       is_new = undefined,
-      page = '1',
-      per_page = '24',
+      page = "1",
+      per_page = "24",
     } = req.query || {};
 
     const pageNum = Math.max(parseInt(page, 10) || 1, 1);
@@ -20,9 +20,12 @@ export const getAllProductos = async (req, res) => {
 
     // Helper to normalize single or repeated query params into arrays of strings
     const toArray = (v) => {
-      if (typeof v === 'undefined' || v === null) return [];
+      if (typeof v === "undefined" || v === null) return [];
       if (Array.isArray(v)) return v;
-      return String(v).split(',').map(s => s.trim()).filter(Boolean);
+      return String(v)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     };
 
     const opts = {
@@ -31,7 +34,8 @@ export const getAllProductos = async (req, res) => {
       deportes: toArray(deporte),
       sort: sort || null,
       q: q ? String(q).trim() : null,
-      is_new: typeof is_new === 'undefined' ? undefined : (String(is_new) === 'true'),
+      is_new:
+        typeof is_new === "undefined" ? undefined : String(is_new) === "true",
       page: pageNum,
       per_page: perPageNum,
     };
@@ -40,47 +44,10 @@ export const getAllProductos = async (req, res) => {
     const result = await service.searchProductos(opts);
     res.json(result);
   } catch (error) {
-    console.error('[getAllProductos] error:', error);
+    console.error("[getAllProductos] error:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
-// export const getProductosCard = async (req, res) => {
-//   try {
-//     const {
-//       categoria,
-//       deporte,
-//       marca,
-//       sort,
-//       q = null,
-//       is_new = undefined,
-//       page = '1',
-//       per_page = '10',
-//     } = req.query;
-
-//     const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-//     const perPageNum = Math.min(Math.max(parseInt(per_page, 10) || 24, 1), 100);
-//     const offset = (pageNum - 1) * perPageNum;
-
-//     const opts = {
-//       categoriaId: categoria ? parseInt(categoria, 10) : null,
-//       deporteId: deporte ? parseInt(deporte, 10) : null,
-//       marcaId: marca ? parseInt(marca, 10) : null,
-//       sort: sort || null,
-//       q: q ? String(q).trim() : null,
-//       is_new: is_new === undefined ? null : (String(is_new) === 'true'),
-//       limit: perPageNum,
-//       offset,
-//     };
-
-//     console.debug('[getProductosCard] opts (parsed):', opts);
-//     const result = await service.getAllCard(opts);
-//     console.debug('[getProductosCard] result:', { total: result.total, count: result.data.length });
-//     res.json(result);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 // Nuevo endpoint para búsqueda con filtros múltiples
 export const searchProductos = async (req, res) => {
@@ -102,16 +69,16 @@ export const searchProductos = async (req, res) => {
     const offset = (pageNum - 1) * perPageNum;
 
     // Convertir arrays a arrays de números, filtrando valores inválidos
-    const marcasIds = Array.isArray(marcas) 
-      ? marcas.map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+    const marcasIds = Array.isArray(marcas)
+      ? marcas.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
       : [];
-    
+
     const categoriasIds = Array.isArray(categorias)
-      ? categorias.map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+      ? categorias.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
       : [];
-    
+
     const deportesIds = Array.isArray(deportes)
-      ? deportes.map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+      ? deportes.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
       : [];
 
     const opts = {
@@ -125,12 +92,15 @@ export const searchProductos = async (req, res) => {
       offset,
     };
 
-    console.debug('[searchProductos] opts (parsed):', opts);
+    console.debug("[searchProductos] opts (parsed):", opts);
     const result = await service.searchProductos(opts);
-    console.debug('[searchProductos] result:', { total: result.total, count: result.data.length });
+    console.debug("[searchProductos] result:", {
+      total: result.total,
+      count: result.data.length,
+    });
     res.json(result);
   } catch (error) {
-    console.error('[searchProductos] error:', error);
+    console.error("[searchProductos] error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -142,39 +112,37 @@ export const searchProductos = async (req, res) => {
 export const getProductoDetalle = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validar que el ID sea un número
     const idProducto = parseInt(id, 10);
     if (isNaN(idProducto)) {
-      return res.status(400).json({ 
-        message: 'ID de producto inválido',
-        error: 'El ID debe ser un número entero'
+      return res.status(400).json({
+        message: "ID de producto inválido",
+        error: "El ID debe ser un número entero",
       });
     }
 
-    console.debug('[getProductoDetalle] Buscando producto ID:', idProducto);
-    
+    console.debug("[getProductoDetalle] Buscando producto ID:", idProducto);
+
     const producto = await service.getProductoDetalle(idProducto);
-    
+
     if (!producto) {
-      return res.status(404).json({ 
-        message: 'Producto no encontrado',
-        id: idProducto
+      return res.status(404).json({
+        message: "Producto no encontrado",
+        id: idProducto,
       });
     }
 
-    console.debug('[getProductoDetalle] Producto encontrado:', producto.nombre);
+    console.debug("[getProductoDetalle] Producto encontrado:", producto.nombre);
     res.json(producto);
-    
   } catch (error) {
-    console.error('[getProductoDetalle] error:', error);
-    res.status(500).json({ 
-      message: 'Error al obtener el detalle del producto',
-      error: error.message 
+    console.error("[getProductoDetalle] error:", error);
+    res.status(500).json({
+      message: "Error al obtener el detalle del producto",
+      error: error.message,
     });
   }
 };
-
 
 // export const getProductoById = async (req, res) => {
 //   try {
@@ -198,24 +166,27 @@ export const createProducto = async (req, res) => {
   }
 };
 
-// export const updateProducto = async (req, res) => {
-//   try {
-//     const producto = await service.update(req.params.id, req.body);
-//     res.json(producto);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+export const updateProducto = async (req, res) => {
+  try {
+    const producto = await service.update(req.params.id, req.body);
+    if (!producto) {
+      return res.status(404).json({ message: 'Producto not found' });
+    }
+    res.json(producto);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-// export const deleteProducto = async (req, res) => {
-//   try {
-//     const producto = await service.remove(req.params.id);
-//     if (producto) {
-//       res.json({ message: 'Producto deleted' });
-//     } else {
-//       res.status(404).json({ message: 'Producto not found' });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+export const deleteProducto = async (req, res) => {
+  try {
+    const producto = await service.remove(req.params.id);
+    if (producto) {
+      res.json({ message: "Producto deleted" });
+    } else {
+      res.status(404).json({ message: "Producto not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

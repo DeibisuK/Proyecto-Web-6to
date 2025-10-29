@@ -1,9 +1,5 @@
 import * as model from '../models/producto.model.js';
 
-// export const getAll = async () => {
-//     return await model.findAllProducts();
-// };
-
 export const searchProductos = async (opts) => {
     return await model.searchProducts(opts);
 };
@@ -21,3 +17,16 @@ export const create = async (producto) => {
     return await model.create(producto);
 };
 
+export const update = async (id, producto) => {
+    const idNum = Number(id);
+    if (Number.isNaN(idNum)) throw new Error('Invalid product id');
+    return await model.updateProducto(idNum, producto);
+};
+
+export const remove = async (id) => {
+    const idNum = Number(id);
+    if (Number.isNaN(idNum)) throw new Error('Invalid product id');
+    const res = await model.deleteProducto(idNum);
+    // normalize to boolean deleted
+    return !!(res && res.deleted);
+};
