@@ -2,9 +2,45 @@ import * as service from '../services/producto.service.js';
 
 export const getAllProductos = async (req, res) => {
   try {
-    const productos = await service.getAll();
-    res.json(productos);
+    // Soportar filtros opcionales vía query params para el listado admin
+    const {
+      marca,
+      categoria,
+      deporte,
+      sort = null,
+      q = null,
+      is_new = undefined,
+      page = '1',
+      per_page = '24',
+    } = req.query || {};
+
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const perPageNum = Math.min(Math.max(parseInt(per_page, 10) || 24, 1), 100);
+    const offset = (pageNum - 1) * perPageNum;
+
+    // Helper to normalize single or repeated query params into arrays of strings
+    const toArray = (v) => {
+      if (typeof v === 'undefined' || v === null) return [];
+      if (Array.isArray(v)) return v;
+      return String(v).split(',').map(s => s.trim()).filter(Boolean);
+    };
+
+    const opts = {
+      marcas: toArray(marca),
+      categorias: toArray(categoria),
+      deportes: toArray(deporte),
+      sort: sort || null,
+      q: q ? String(q).trim() : null,
+      is_new: typeof is_new === 'undefined' ? undefined : (String(is_new) === 'true'),
+      page: pageNum,
+      per_page: perPageNum,
+    };
+
+    // Reuse la lógica ya existente en el servicio de búsqueda (mismo formato de respuesta paginada)
+    const result = await service.searchProductos(opts);
+    res.json(result);
   } catch (error) {
+    console.error('[getAllProductos] error:', error);
     res.status(500).json({ message: error.message });
   }
 };

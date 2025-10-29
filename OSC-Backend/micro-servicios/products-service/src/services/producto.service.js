@@ -1,8 +1,8 @@
 import * as model from '../models/producto.model.js';
 
-export const getAll = async () => {
-    return await model.findAllProducts();
-};
+// export const getAll = async () => {
+//     return await model.findAllProducts();
+// };
 
 export const searchProductos = async (opts) => {
     return await model.searchProducts(opts);
