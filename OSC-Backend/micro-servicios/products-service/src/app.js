@@ -15,16 +15,17 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 //RUTAS CLIENTE
-app.use('/client/categorias', categoriaCliente);
-app.use('/client/deportes', deporteCliente);
-app.use('/client/marcas', marcaCliente);
-app.use('/client/productos', productoCliente);
+app.use('/client/categorias',  authenticate(),categoriaCliente);
+app.use('/client/deportes', authenticate(),deporteCliente);
+app.use('/client/marcas', authenticate(),marcaCliente);
+app.use('/client/productos', authenticate(),productoCliente);
 
 //RUTAS ADMIN
-app.use('/admin/categorias', authenticate(),  categoriaAdmin);
-app.use('/admin/deportes', authorizeRole(1), deporteAdmin);
-app.use('/admin/marcas', authorizeRole(1),marcaAdmin);
-app.use('/admin/productos', authenticate(),productoAdmin);
+app.use('/admin/categorias', authenticate(), authorizeRole(1), categoriaAdmin);
+app.use('/admin/deportes', authenticate(), authorizeRole(1), deporteAdmin);
+app.use('/admin/marcas', authenticate(), authorizeRole(1), marcaAdmin);
+app.use('/admin/productos', authenticate(), authorizeRole(1), productoAdmin);
 
 export default app;

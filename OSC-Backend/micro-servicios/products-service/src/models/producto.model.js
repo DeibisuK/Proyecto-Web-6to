@@ -1,10 +1,10 @@
 import pool from "../config/db.js";
 
 // javascript
-export const findAllProducts = async () => {
-  const result  = await pool.query("SELECT * FROM productos;");
-  return result.rows;
-};
+// export const findAllProducts = async () => {
+//   const result = await pool.query("SELECT * FROM productos;");
+//   return result.rows;
+// };
 
 // Nueva función para búsqueda con filtros múltiples
 export const searchProducts = async ({
@@ -178,9 +178,9 @@ export const getProductoDetalle = async (id_producto) => {
   }
 
   const producto = result.rows[0];
-  
+
   // Parsear el JSON de variantes si es necesario
-  if (typeof producto.variantes === 'string') {
+  if (typeof producto.variantes === "string") {
     producto.variantes = JSON.parse(producto.variantes);
   }
 

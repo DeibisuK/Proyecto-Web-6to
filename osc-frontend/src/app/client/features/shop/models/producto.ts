@@ -7,14 +7,14 @@ export interface ProductosResponse {
 }
 
 export interface Productos {
-  id: number;                    // Cambio: number (el backend devuelve número)
+  id: number; // Cambio: number (el backend devuelve número)
   nombre: string;
   caracteristicas: string;
-  id_categoria: number;          // Cambio: number
+  id_categoria: number; // Cambio: number
   nombre_categoria: string;
-  id_deporte: number;            // Cambio: number
+  id_deporte: number; // Cambio: number
   deporte: string;
-  id_marca: number;              // Cambio: number
+  id_marca: number; // Cambio: number
   marca: string;
   es_nuevo: boolean;
   precio: number;
@@ -28,9 +28,9 @@ export interface Productos {
  */
 export interface ValorOpcion {
   id_opcion: number;
-  nombre_opcion: string;  // "Color", "Talla"
+  nombre_opcion: string; // "Color", "Talla"
   id_valor: number;
-  valor: string;          // "Rojo", "S", etc.
+  valor: string; // "Rojo", "S", etc.
 }
 
 /**
@@ -43,7 +43,7 @@ export interface VarianteProducto {
   precio: number;
   precio_anterior: number | null;
   stock: number;
-  imagenes: string[];     // Array de URLs de imágenes
+  imagenes: string[]; // Array de URLs de imágenes
   valores: ValorOpcion[]; // Array de valores (Color: Rojo, Talla: M)
 }
 
@@ -78,10 +78,10 @@ export interface OpcionesProducto {
   }>;
 }
 
-
-
-
-// INTERFAZ DE PRUEBA QUE ESTA OBSOLETA
+/**
+ * Interface actualmente depreacada ya que fue una demo
+ * para mostrar el modelo Producto en el carrito de compras
+ */
 export interface Producto {
   id: string;
   nombre: string;

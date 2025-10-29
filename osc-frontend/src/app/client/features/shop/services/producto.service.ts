@@ -281,4 +281,15 @@ export class ProductoService {
     const url = `${environment.apiUrl}/p/client/productos/${id}`;
     return this.http.get<ProductoDetalle>(url);
   }
+
+  /**
+   * Obtiene el detalle completo de un producto usando el endpoint admin.
+   * Este endpoint normalmente requiere autorización (token) y devuelve
+   * la misma forma de datos que el endpoint cliente.
+   * @param id - ID del producto
+   */
+  getProductoDetalleAdmin(id: number): Observable<ProductoDetalle> {
+    const url = `${environment.apiUrl}/p/admin/productos/${id}`;
+    return this.http.get<ProductoDetalle>(url);
+  }
 }
