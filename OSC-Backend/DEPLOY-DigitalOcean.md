@@ -85,14 +85,6 @@ docker-compose ps
 docker-compose logs
 ```
 
-**Nota importante**: Si encuentras errores de "Cannot find module '/config/dotenv.js'", ejecuta:
-```bash
-# Copiar configuración de entorno a todos los servicios
-./copy-dotenv.sh
-# Luego reconstruir
-docker-compose up -d --build
-```
-
 ### 7. Configurar Nginx (Reverse Proxy)
 
 ```bash

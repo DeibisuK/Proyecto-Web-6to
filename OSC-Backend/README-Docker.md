@@ -25,7 +25,6 @@ Cada servicio tiene su propio `Dockerfile` optimizado:
 - Puerto específico expuesto para cada servicio
 - Instalación de dependencias de producción únicamente
 - Cache optimizado para builds rápidos
-- **Archivo `dotenv.js` copiado localmente** para configuración de entorno
 
 ### Red de comunicación:
 Todos los servicios están conectados a la red `osc-network` para comunicación interna entre servicios.
