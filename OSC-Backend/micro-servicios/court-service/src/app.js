@@ -20,8 +20,8 @@ app.use("/client", canchaCliente);
 app.use("/client", authorizeRole(2), reservaCliente);
 
 //ADMIN ROUTES
-app.use("/admin", authorizeRole(1), canchaAdmin);
-app.use("/admin", authorizeRole(1), reservaAdmin);
-app.use("/admin", authorizeRole(1), sedeAdmin);
+app.use("/admin", authenticate(),authorizeRole(1), canchaAdmin);
+app.use("/admin", authenticate(),authorizeRole(1), reservaAdmin);
+app.use("/admin", authenticate(),authorizeRole(1), sedeAdmin);
 
 export default app;
