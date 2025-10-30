@@ -1,13 +1,9 @@
 import express from "express";
 import multer from "multer";
 import {
-  testConexion,
-  uploadImagen,
-  uploadCancha,
   uploadEquipo,
   deleteImagen,
 } from "../controllers/upload.controller.js";
-import authenticate from "../../../../middleware/authenticate.js";
 
 const router = express.Router();
 
@@ -18,10 +14,9 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
 });
 
-
 //router.post("/upload-imagen", upload.single("imagen"), uploadImagen);
 //router.post("/upload-cancha", upload.single("imagen"), uploadCancha);
-router.post("/upload-equipo", authenticate(), upload.single("logo"), uploadEquipo);
-router.delete("/delete-imagen/", authenticate(), deleteImagen);
+router.post("/upload-equipo", upload.single("logo"), uploadEquipo);
+router.delete("/delete-imagen/", deleteImagen);
 
 export default router;

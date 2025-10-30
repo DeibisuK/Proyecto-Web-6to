@@ -28,6 +28,7 @@ const colors = {
 console.log(
   `${colors.blue}🚀 Configuración de Variables de Entorno - osc backend${colors.reset}`
 );
+console.log(`${colors.yellow}📝 Nuevo formato: .env raíz + .env específicos por servicio${colors.reset}`);
 console.log("=".repeat(60));
 console.log("");
 
@@ -143,6 +144,36 @@ function questionPassword(prompt) {
   });
 }
 
+function createRootEnvFile() {
+  const rootEnvPath = path.join(__dirname, ".env");
+
+  if (fs.existsSync(rootEnvPath)) {
+    console.log(
+      `${colors.yellow}⚠️  Ya existe .env raíz (se sobrescribirá)${colors.reset}`
+    );
+  }
+
+  let envContent = `# Variables comunes para todos los microservicios
+# Database configuration
+DB_HOST=${config.DB_HOST}
+DB_PORT=${config.DB_PORT}
+DB_USER=${config.DB_USER}
+DB_PASSWORD=${config.DB_PASSWORD}
+DB_NAME=${config.DB_NAME}
+`;
+
+  // Agregar GOOGLE si se proporcionó
+  if (extra.GOOGLE_APPLICATION_CREDENTIALS) {
+    envContent += `\nGOOGLE_APPLICATION_CREDENTIALS=${extra.GOOGLE_APPLICATION_CREDENTIALS}\n`;
+  }
+
+  // Escribir archivo .env raíz
+  fs.writeFileSync(rootEnvPath, envContent);
+  console.log(`${colors.green}✓ .env raíz creado con variables comunes${colors.reset}`);
+
+  return true;
+}
+
 function createEnvFile(service) {
   const servicePath = path.join(__dirname, 'micro-servicios', service.folder);
   const examplePath = path.join(servicePath, ".env.example");
@@ -165,111 +196,27 @@ function createEnvFile(service) {
   let envContent = fs.readFileSync(examplePath, "utf8");
 
   // Reemplazar valores según el servicio
-  // Reemplazar valores según el servicio (búsqueda por línea para evitar falsos positivos)
-  const specificPortRegex = new RegExp(`^${service.portVar}=.*$`, "m");
-  if (specificPortRegex.test(envContent)) {
-    envContent = envContent.replace(
-      specificPortRegex,
-      `${service.portVar}=${service.port}`
-    );
+  // Reemplazar PORT
+  const portRegex = /^PORT=.*/m;
+  if (portRegex.test(envContent)) {
+    envContent = envContent.replace(portRegex, `PORT=${service.port}`);
   } else {
-    // Intentar reemplazar la variable genérica PORT
-    const genericPortRegex = /^PORT=.*$/m;
-    if (genericPortRegex.test(envContent)) {
-      envContent = envContent.replace(genericPortRegex, `PORT=${service.port}`);
-    } else {
-      // Si no existe, añadir al inicio
-      envContent = `PORT=${service.port}\n` + envContent;
-    }
+    // Si no existe, añadir al inicio
+    envContent = `PORT=${service.port}\n` + envContent;
   }
 
-  // Solo reemplazar configuración de BD si el servicio la necesita
-  if (service.hasDB) {
-    envContent = envContent.replace(/DB_HOST=.*/, `DB_HOST=${config.DB_HOST}`);
-    envContent = envContent.replace(/DB_PORT=.*/, `DB_PORT=${config.DB_PORT}`);
-    envContent = envContent.replace(/DB_USER=.*/, `DB_USER=${config.DB_USER}`);
-    envContent = envContent.replace(
-      /DB_PASSWORD=.*/,
-      `DB_PASSWORD=${config.DB_PASSWORD}`
-    );
-    envContent = envContent.replace(/DB_NAME=.*/, `DB_NAME=${config.DB_NAME}`);
-  }
+  // Si es API Gateway, las URLs ya están en .env.example con localhost, no necesitamos cambiar
 
-  // Si es API Gateway, configurar URLs de microservicios
-  if (service.isGateway) {
-    envContent = envContent.replace(
-      /USER_SERVICE_URL=.*/m,
-      "USER_SERVICE_URL=http://localhost:3001"
-    );
-    envContent = envContent.replace(
-      /PRODUCT_SERVICE_URL=.*/m,
-      "PRODUCT_SERVICE_URL=http://localhost:3002"
-    );
-    envContent = envContent.replace(
-      /BUY_SERVICE_URL=.*/m,
-      "BUY_SERVICE_URL=http://localhost:3003"
-    );
-    envContent = envContent.replace(
-      /COURT_SERVICE_URL=.*/m,
-      "COURT_SERVICE_URL=http://localhost:3004"
-    );
-    envContent = envContent.replace(
-      /MATCH_SERVICE_URL=.*/m,
-      "MATCH_SERVICE_URL=http://localhost:3005"
-    );
-    // Asegurar CLOUDINARY si existe, o añadirla
-    if (/CLOUDINARY_SERVICE_URL=.*/m.test(envContent)) {
-      envContent = envContent.replace(
-        /CLOUDINARY_SERVICE_URL=.*/m,
-        "CLOUDINARY_SERVICE_URL=http://localhost:3006"
-      );
-    } else {
-      envContent += "\nCLOUDINARY_SERVICE_URL=http://localhost:3006\n";
-    }
-    // Reemplazar ruta a credenciales de Google si se proporcionó
-    if (extra.GOOGLE_APPLICATION_CREDENTIALS) {
-      if (/GOOGLE_APPLICATION_CREDENTIALS=.*/m.test(envContent)) {
-        envContent = envContent.replace(
-          /GOOGLE_APPLICATION_CREDENTIALS=.*/m,
-          `GOOGLE_APPLICATION_CREDENTIALS=${extra.GOOGLE_APPLICATION_CREDENTIALS}`
-        );
-      } else {
-        envContent += `\nGOOGLE_APPLICATION_CREDENTIALS=${extra.GOOGLE_APPLICATION_CREDENTIALS}\n`;
-      }
-    }
-  }
-
-  // Reemplazar claves de Cloudinary si se proporcionaron
+  // Reemplazar claves de Cloudinary si se proporcionaron y es cloudinary-service
   if (service.folder === "cloudinary-service") {
     if (extra.CLOUDINARY_CLOUD_NAME) {
-      if (/CLOUDINARY_CLOUD_NAME=.*/m.test(envContent)) {
-        envContent = envContent.replace(
-          /CLOUDINARY_CLOUD_NAME=.*/m,
-          `CLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}`
-        );
-      } else {
-        envContent += `\nCLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}\n`;
-      }
+      envContent = envContent.replace(/CLOUDINARY_CLOUD_NAME=.*/, `CLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}`);
     }
     if (extra.CLOUDINARY_API_KEY) {
-      if (/CLOUDINARY_API_KEY=.*/m.test(envContent)) {
-        envContent = envContent.replace(
-          /CLOUDINARY_API_KEY=.*/m,
-          `CLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}`
-        );
-      } else {
-        envContent += `\nCLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}\n`;
-      }
+      envContent = envContent.replace(/CLOUDINARY_API_KEY=.*/, `CLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}`);
     }
     if (extra.CLOUDINARY_API_SECRET) {
-      if (/CLOUDINARY_API_SECRET=.*/m.test(envContent)) {
-        envContent = envContent.replace(
-          /CLOUDINARY_API_SECRET=.*/m,
-          `CLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}`
-        );
-      } else {
-        envContent += `\nCLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}\n`;
-      }
+      envContent = envContent.replace(/CLOUDINARY_API_SECRET=.*/, `CLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}`);
     }
   }
 
@@ -403,8 +350,12 @@ async function setup() {
 
     console.log("");
 
-    console.log("");
     console.log(`${colors.blue}📦 Creando archivos .env...${colors.reset}`);
+    console.log("");
+
+    // Crear .env raíz primero
+    createRootEnvFile();
+
     console.log("");
 
     // Crear .env para cada servicio
@@ -433,9 +384,13 @@ async function setup() {
       `   DB_PASSWORD: ${"*".repeat(Math.min(config.DB_PASSWORD.length, 20))}`
     );
     console.log(`   DB_NAME: ${config.DB_NAME}`);
+    if (extra.GOOGLE_APPLICATION_CREDENTIALS) {
+      console.log(`   GOOGLE_APPLICATION_CREDENTIALS: ${extra.GOOGLE_APPLICATION_CREDENTIALS}`);
+    }
     console.log("");
 
     console.log(`${colors.blue}📌 Archivos .env creados:${colors.reset}`);
+    console.log(`   ✓ .env (raíz - variables comunes)`);
     for (const service of services) {
       const servicePath = path.join(__dirname, 'micro-servicios', service.folder);
       if (fs.existsSync(servicePath)) {
