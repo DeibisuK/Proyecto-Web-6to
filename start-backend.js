@@ -119,8 +119,16 @@ async function setupEnvFiles() {
 
 // Instalar dependencias en todos los servicios en secuencia
 async function installAll() {
-  console.log('📦 Installing dependencies in all services...\n');
+  console.log('📦 Installing dependencies...\n');
   
+  // Primero instalar dependencias en el directorio raíz OSC-BACKEND
+  if (fs.existsSync(path.join(oscBackendRoot, 'package.json'))) {
+    console.log('📦 Installing dependencies in OSC-BACKEND root...\n');
+    await runCommand('npm install', oscBackendRoot, 'OSC-BACKEND');
+  }
+  
+  // Luego instalar dependencias en cada servicio
+  console.log('📦 Installing dependencies in all services...\n');
   for (const service of services) {
     const servicePath = fs.existsSync(servicesRoot) ? path.join(servicesRoot, service) : path.join(oscBackendRoot, service);
     if (fs.existsSync(path.join(servicePath, 'package.json'))) {
