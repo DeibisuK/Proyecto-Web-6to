@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -17,7 +18,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   // Only attach token for API gateway requests
-  const isApiRequest = req.url.includes('localhost:3000') ||
+  const isApiRequest = req.url.includes(environment.apiUrl) ||
                        req.url.startsWith('/admin') ||
                        req.url.startsWith('/u') ||
                        req.url.startsWith('/p') ||
