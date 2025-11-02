@@ -11,7 +11,7 @@
   <!-- Tabla de Clasificación -->
   <div class="table-container">
     <h2 class="section-title">Clasificaciones</h2>
-    
+
     <div class="table-wrapper">
       <table class="standings-table">
         <thead>
@@ -29,10 +29,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr 
-            *ngFor="let team of leagueData.standings" 
+          <tr
+            *ngFor="let team of leagueData.standings"
             class="team-row"
-            [class]="getPositionClass(team.position)">
+            [class]="getPositionClass(team.position)"
+          >
             <td class="col-position">
               <div class="position-indicator" [class]="getPositionClass(team.position)">
                 {{ team.position }}
@@ -50,7 +51,11 @@
             <td class="col-stat">{{ team.lost }}</td>
             <td class="col-stat hide-mobile">{{ team.goalsFor }}</td>
             <td class="col-stat hide-mobile">{{ team.goalsAgainst }}</td>
-            <td class="col-stat" [class.positive]="team.goalDifference > 0" [class.negative]="team.goalDifference < 0">
+            <td
+              class="col-stat"
+              [class.positive]="team.goalDifference > 0"
+              [class.negative]="team.goalDifference < 0"
+            >
               {{ team.goalDifference > 0 ? '+' : '' }}{{ team.goalDifference }}
             </td>
             <td class="col-points">

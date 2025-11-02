@@ -20,7 +20,7 @@ import { createRoot, Root } from 'react-dom/client';
 export class ReactWrapperComponent implements OnInit, OnDestroy, OnChanges {
   // El componente React que se va a renderizar
   @Input() component!: React.ComponentType<any>;
-  
+
   // Las props que se le pasarán al componente React
   @Input() props: any = {};
 
@@ -36,8 +36,19 @@ export class ReactWrapperComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Re-renderizar cuando cambien las props
+    // Re-renderizar solo cuando cambien las props realmente
     if (changes['props'] && !changes['props'].firstChange) {
+      const prevProps = changes['props'].previousValue;
+      const currentProps = changes['props'].currentValue;
+
+      // Comparación simple para evitar re-renders innecesarios
+      if (JSON.stringify(prevProps) !== JSON.stringify(currentProps)) {
+        this.renderReactComponent();
+      }
+    }
+
+    // Re-renderizar si cambia el componente
+    if (changes['component'] && !changes['component'].firstChange) {
       this.renderReactComponent();
     }
   }

@@ -116,6 +116,7 @@
         <span class="material-icons">notifications</span>
       </button>
 
+      <!-- <button class="cart-btn" (click)="toggleCart()"> -->
       <button class="cart-btn" (click)="toggleCart()">
         <span class="material-icons">shopping_cart</span>
         @if (cartItemCount > 0) {
@@ -305,9 +306,9 @@
 
 <!-- Carrito Sidebar -->
 @if (showCart) {
-<div class="cart-overlay" [class.show]="showCart" (click)="closeCart()">
+<div class="cart-overlay show" (click)="closeCart()">
   <div class="cart-container" (click)="$event.stopPropagation()">
-    <app-carrito mode="sidebar" [showCloseButton]="true" (closeCart)="closeCart()"> </app-carrito>
+    <app-react-wrapper [component]="CartComponent" [props]="cartProps"></app-react-wrapper>
   </div>
 </div>
 }

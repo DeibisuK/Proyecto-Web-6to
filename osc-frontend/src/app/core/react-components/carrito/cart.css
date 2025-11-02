@@ -5,26 +5,25 @@
   box-shadow: 0 10px 30px rgba(39, 174, 96, 0.1);
   overflow: hidden;
   font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* Modos del carrito */
 .carrito-container.sidebar {
   width: 400px;
-  height: 85vh;
+  height: 80vh;
   position: fixed;
   right: 20px;
   top: 80px;
   z-index: 1000;
-  /* display: flex;
-  flex-direction: column; */
 }
 
 .carrito-container.page {
   max-width: 800px;
   margin: 0 auto;
   min-height: 600px;
-  display: flex;
-  flex-direction: column;
 }
 
 .carrito-container.mini {
@@ -447,8 +446,6 @@
   .carrito-container.sidebar {
     width: 100%;
     max-width: 400px;
-    right: 10px;
-    left: 10px;
   }
 
   .carrito-container.page {

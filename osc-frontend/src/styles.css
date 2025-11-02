@@ -2,6 +2,9 @@
 /* Importar fuentes de Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Importar estilos del carrito React */
+@import './app/core/react-components/carrito/cart.css';
+
 /* Variables CSS globales para reutilizar en toda la aplicación */
 :root {
   --color-primary: #2C3E50;

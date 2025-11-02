@@ -33,7 +33,7 @@ const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'defaul
   useEffect(() => {
     const handleToastEvent = (event: CustomEvent) => {
       const { message, type } = event.detail;
-      
+
       switch (type) {
         case 'success':
           toast.success(message);

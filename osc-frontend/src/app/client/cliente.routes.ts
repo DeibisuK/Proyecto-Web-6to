@@ -10,7 +10,7 @@ import { EstudioDeportivoCompletoComponent } from "./features/articulos/estudio-
 import { PadelBeneficiosCompletoComponent } from "./features/articulos/padel-beneficios-completo/padel-beneficios-completo";
 import { TiendaPage } from "./features/shop/pages/tienda-page/tienda-page";
 import { DetalleProducto } from "./features/shop/components/detalle-producto/detalle-producto";
-import { CarritoComponent } from "./features/shop/components/carrito/carrito";
+// import { CarritoComponent } from "./features/shop/components/carrito/carrito"; // Ya no se usa, el carrito ahora es un componente React en el navbar
 import { PoliticaDePrivacidad } from "./features/informacion/legal/politica-de-privacidad/politica-de-privacidad";
 import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
 import { PuntosLealtad } from "./features/informacion/puntos-lealtad/puntos-lealtad";
@@ -79,10 +79,11 @@ export const clienteRoutes: Routes = [
       { path: 'reservar-cancha/:id', component: DetalleReservarCancha}
     ]
   },
-  {
-    path: 'carrito',
-    component: CarritoComponent
-  },
+  // {
+  //   path: 'carrito',
+  //   component: CarritoComponent
+  // },
+  // Carrito ahora se muestra como overlay en el navbar, ya no necesita ruta propia
   {
     path: 'puntos-de-lealtad',
     component: PuntosLealtad

@@ -4,8 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Login } from '../../../auth/login/login';
 import { RecuperarPassword } from '../../../auth/recuperar-password/recuperar-password';
-import { CarritoComponent } from '../../../client/features/shop/components/carrito/carrito';
+import { ReactWrapperComponent } from '../../../shared/react-wrapper/react-wrapper.component';
+import Cart from '../../react-components/carrito/cart';
 import { CarritoService } from '../../../client/features/shop/services/carrito.service';
+import { setCarritoServiceInstance } from '../../services/carrito-bridge.service';
 import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
@@ -21,7 +23,7 @@ import { Sede } from '../../models/sede.model';
     Login,
     RecuperarPassword,
     FormsModule,
-    CarritoComponent,
+    ReactWrapperComponent,
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
@@ -35,8 +37,17 @@ export class Navbar implements OnInit, OnDestroy {
   mostrarRecuperarPassword = false;
   searchTerm = '';
   showSidebar = false;
-  showCart = false;
+  showCart:boolean = false;
   cartItemCount = 0;
+
+  // Componente React del carrito
+  CartComponent = Cart;
+
+  // Props del carrito - creadas una sola vez para evitar re-renderizados
+  cartProps = {
+    mode: 'sidebar' as const,
+    onClose: () => this.closeCart()
+  };
 
   user = this.authService.currentUser;
   isAdmin$!: Observable<boolean>;
@@ -67,6 +78,9 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Inicializar el puente del carrito para que React pueda acceder al servicio
+    setCarritoServiceInstance(this.carritoService);
+
     // Suscribirse al observable de usuario y gestionarlo dentro de this.subscriptions
     this.subscriptions.add(this.authService.user$.subscribe((u) => (this.user = u)));
     this.isAdmin$ = this.authService.isAdmin$;
@@ -153,16 +167,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   toggleCart() {
     this.showCart = !this.showCart;
-    if (this.showCart) {
-      document.body.classList.add('cart-open');
-    } else {
-      document.body.classList.remove('cart-open');
-    }
   }
 
   closeCart() {
     this.showCart = false;
-    document.body.classList.remove('cart-open');
   }
 
   onSearch() {
