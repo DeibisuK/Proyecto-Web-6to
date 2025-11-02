@@ -26,6 +26,8 @@ import { DetalleReservarCancha } from "./features/reservas/components/detalle-re
 import { DashboardTorneo } from "./features/reservas/components/dashboard-torneo/dashboard-torneo";
 import { Torneo } from "./features/reservas/components/dashboard-torneo/torneo/torneo";
 import { Inscripciones } from "./features/reservas/components/dashboard-torneo/inscripciones/inscripciones";
+import { DetallePartidoComponent } from "./features/reservas/components/dashboard-torneo/detalle-partido/detalle-partido";
+import { ClasificacionComponent } from "./features/reservas/components/dashboard-torneo/clasificacion/clasificacion";
 
 export const clienteRoutes: Routes = [
   {
@@ -128,7 +130,9 @@ export const clienteRoutes: Routes = [
     children: [
       { path: '', redirectTo: 'torneos', pathMatch: 'full' },
       { path: 'torneos', component: Torneo },
-      { path: 'inscripciones', component: Inscripciones }
+      { path: 'inscripciones', component: Inscripciones },
+      { path: 'partido/:id', component: DetallePartidoComponent },
+      { path: 'clasificacion/:id', component: ClasificacionComponent }
     ]
   }
 ]

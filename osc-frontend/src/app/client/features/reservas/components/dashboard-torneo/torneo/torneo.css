@@ -82,11 +82,19 @@
 }
 
 .league-matches {
-  /* Mostrar los partidos apilados: 1 columna dentro de cada liga */
+  /* Mostrar los partidos en 2 columnas dentro de cada liga (cada partido 50% ancho)
+     en pantallas pequeñas se adapta a 1 columna */
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   padding: 0;
+}
+
+/* Ajuste responsive: en pantallas estrechas usar 1 columna */
+@media (max-width: 768px) {
+  .league-matches {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Contenedor de Liga */
@@ -135,15 +143,18 @@
   background-color: white;
   border-radius: 8px;
   padding: 16px;
+  /* margin handled by grid gap when inside .league-matches */
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
   box-sizing: border-box; 
-  width: 100%; 
+  width: 100%;
+  cursor: pointer;
 }
 
 .match-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .match-content {

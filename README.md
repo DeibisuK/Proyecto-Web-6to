@@ -313,3 +313,5 @@ Para la **Universidad Técnica de Machala**.
 ---
 
 Este proyecto es parte de un desarrollo académico y está en constante evolución.
+
+---

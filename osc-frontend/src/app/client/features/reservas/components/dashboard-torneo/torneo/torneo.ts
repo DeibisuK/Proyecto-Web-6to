@@ -1,6 +1,7 @@
 // torneo.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 
 interface Match {
   home: string;
@@ -32,6 +33,11 @@ export class Torneo {
     { id: 'padel', nombre: 'Padel', icono: '🎾' },
     { id: 'basket', nombre: 'Basket', icono: '🏀' }
   ];
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   leagues: League[] = [
     {
@@ -69,5 +75,19 @@ export class Torneo {
   splitStatus(status: string): { day: string; text: string } {
     const [day, text] = status.split(' - ');
     return { day: day || '', text: text || '' };
+  }
+
+  viewMatchDetail(match: Match): void {
+    // Navegación relativa desde la ruta actual
+    const matchId = `${match.home.toLowerCase().replace(/\s+/g, '-')}-vs-${match.away.toLowerCase().replace(/\s+/g, '-')}`;
+    this.router.navigate(['../partido', matchId], { relativeTo: this.route });
+  }
+
+  viewClassification(league: League, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Navegación relativa desde la ruta actual
+    const leagueId = league.title.toLowerCase().replace(/\s+/g, '-');
+    this.router.navigate(['../clasificacion', leagueId], { relativeTo: this.route });
   }
 }

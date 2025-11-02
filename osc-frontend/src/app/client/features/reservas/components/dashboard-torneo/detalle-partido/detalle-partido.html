@@ -1,0 +1,128 @@
+<div class="detalle-partido-container">
+  <!-- Header con marcador -->
+  <div class="match-header">
+    <button class="back-button" (click)="goBack()">← Volver</button>
+    
+    <div class="score-container">
+      <div class="team home-team">
+        <span class="team-logo">{{ matchData.homeLogo }}</span>
+        <span class="team-name">{{ matchData.homeTeam }}</span>
+        <div class="team-cards">
+          <span class="card yellow" *ngFor="let c of [].constructor(matchData.homeCards.yellow)">▮</span>
+          <span class="card red" *ngFor="let c of [].constructor(matchData.homeCards.red)">▮</span>
+        </div>
+      </div>
+
+      <div class="score">
+        <span class="score-number">{{ matchData.homeScore }}</span>
+        <span class="score-separator">:</span>
+        <span class="score-number">{{ matchData.awayScore }}</span>
+      </div>
+
+      <div class="team away-team">
+        <span class="team-logo">{{ matchData.awayLogo }}</span>
+        <span class="team-name">{{ matchData.awayTeam }}</span>
+        <div class="team-cards">
+          <span class="card yellow" *ngFor="let c of [].constructor(matchData.awayCards.yellow)">▮</span>
+          <span class="card red" *ngFor="let c of [].constructor(matchData.awayCards.red)">▮</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="match-status-text">{{ matchData.status }}</div>
+  </div>
+
+  <!-- Tabs de Alineación / Estadísticas -->
+  <div class="tabs-container">
+    <button 
+      class="tab-button"
+      [class.active]="selectedTab === 'alineacion'"
+      (click)="selectTab('alineacion')">
+      Alineación
+    </button>
+    <button 
+      class="tab-button"
+      [class.active]="selectedTab === 'estadisticas'"
+      (click)="selectTab('estadisticas')">
+      Estadísticas
+    </button>
+  </div>
+
+  <!-- Contenido: Alineación -->
+  <div class="content-section" *ngIf="selectedTab === 'alineacion'">
+    <!-- Sustituciones confirmadas (placeholder) -->
+    <div class="substitutions-section">
+      <h3>SUSTITUCIONES CONFIRMADAS</h3>
+      <div class="substitutions-tabs">
+        <button class="sub-tab active">Sevilla</button>
+        <button class="sub-tab">Mallorca</button>
+      </div>
+    </div>
+
+    <!-- Campo de juego con alineación -->
+    <div class="field-container">
+      <div class="field">
+        <div 
+          class="player" 
+          *ngFor="let player of homeLineup"
+          [style.top]="player.position.top"
+          [style.left]="player.position.left">
+          <div class="player-avatar">👤</div>
+          <span class="player-name">{{ player.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimos partidos -->
+    <div class="last-matches-section">
+      <div class="team-last-matches">
+        <h3>{{ matchData.homeTeam }} - Últimos Partidos</h3>
+        <div class="matches-grid">
+          <div 
+            class="last-match-card" 
+            *ngFor="let match of sevillaLastMatches"
+            [class]="getStatusClass(match.status)">
+            <div class="match-status-badge">{{ match.status }}</div>
+            <div class="match-teams-mini">
+              <span class="mini-logo">{{ match.homeTeam }}</span>
+              <span class="mini-logo">{{ match.awayTeam }}</span>
+            </div>
+            <div class="match-score-mini">
+              <span>{{ match.homeScore }}</span>
+              <span>{{ match.awayScore }}</span>
+            </div>
+            <div class="match-time">{{ match.date }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-last-matches">
+        <h3>{{ matchData.awayTeam }} - Últimos Partidos</h3>
+        <div class="matches-grid">
+          <div 
+            class="last-match-card" 
+            *ngFor="let match of mallorcaLastMatches"
+            [class]="getStatusClass(match.status)">
+            <div class="match-status-badge">{{ match.status }}</div>
+            <div class="match-teams-mini">
+              <span class="mini-logo">{{ match.homeTeam }}</span>
+              <span class="mini-logo">{{ match.awayTeam }}</span>
+            </div>
+            <div class="match-score-mini">
+              <span>{{ match.homeScore }}</span>
+              <span>{{ match.awayScore }}</span>
+            </div>
+            <div class="match-time">{{ match.date }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido: Estadísticas (placeholder) -->
+  <div class="content-section" *ngIf="selectedTab === 'estadisticas'">
+    <div class="stats-placeholder">
+      <p>Estadísticas del partido próximamente...</p>
+    </div>
+  </div>
+</div>

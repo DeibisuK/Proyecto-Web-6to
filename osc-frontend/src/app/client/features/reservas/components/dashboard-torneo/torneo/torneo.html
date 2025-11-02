@@ -30,8 +30,9 @@
       </div>
 
       <!-- Lista de Partidos -->
-      <div class="match-card" *ngFor="let match of league.matches">
-        <div class="match-content">
+      <div class="league-matches">
+        <div class="match-card" *ngFor="let match of league.matches" (click)="viewMatchDetail(match)">
+          <div class="match-content">
           <div class="match-teams">
             <!-- Equipo Local -->
             <div class="team-row">
@@ -48,15 +49,16 @@
             </div>
           </div>
 
-          <!-- Estado del Partido -->
-          <div class="match-status">
-            <span class="status-day">{{ splitStatus(match.status).day }}</span>
-            <span class="status-text">{{ splitStatus(match.status).text }}</span>
+            <!-- Estado del Partido -->
+            <div class="match-status">
+              <span class="status-day">{{ splitStatus(match.status).day }}</span>
+              <span class="status-text">{{ splitStatus(match.status).text }}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Enlace Ver Clasificación -->
-      <a href="#" class="ver-clasificacion">Ver la clasificación →</a>
+      <a href="#" class="ver-clasificacion" (click)="viewClassification(league, $event)">Ver la clasificación →</a>
     </div>
   </div>
