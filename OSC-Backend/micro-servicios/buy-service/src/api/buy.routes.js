@@ -16,15 +16,15 @@ import {
 const router = Router();
 
 // Rutas del carrito
-router.get('/cart/:id_usuario', getCart);
-router.post('/cart/:id_usuario/items', addItemToCart);
+router.get('/cart/:uid', getCart);
+router.post('/cart/:uid/items', addItemToCart);
 router.put('/cart/items/:id_item', updateItemInCart);
 router.delete('/cart/items/:id_item', removeItemFromCart);
-router.delete('/cart/:id_usuario', clearCart);
+router.delete('/cart/:uid', clearCart);
 
 // Rutas de pedidos
-router.post('/orders/user/:id_usuario', createOrderFromCart);
-router.get('/orders/user/:id_usuario', getOrders);
+router.post('/orders/user/:uid', createOrderFromCart);
+router.get('/orders/user/:uid', getOrders);
 router.get('/orders/:id_pedido', getOrder);
 router.put('/orders/:id_pedido/status', updateOrderStatus);
 

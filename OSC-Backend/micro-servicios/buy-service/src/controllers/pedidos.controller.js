@@ -4,26 +4,29 @@ import * as itemsCarritoService from '../services/items_carrito.service.js';
 
 export const createOrderFromCart = async (req, res) => {
     try {
-        const { id_usuario } = req.params;
+        const id_usuario = req.params.uid; // uid del usuario desde Firebase Auth
         const cart = await carritoService.getCartByUserId(id_usuario);
-        const items = await itemsCarritoService.getItemsByCartId(cart.id_carrito);
+        
+        // Usar el nuevo método que valida stock y limpia el carrito
+        const pedido = await pedidosService.createOrderFromCart(id_usuario, cart.id_carrito);
 
-        if (items.length === 0) {
-            return res.status(400).json({ message: 'El carrito está vacío' });
-        }
-
-        const pedido = await pedidosService.createOrder(id_usuario, items);
-        await itemsCarritoService.clearCart(cart.id_carrito);
-
-        res.status(201).json(pedido);
+        res.status(201).json({
+            message: 'Pedido creado exitosamente',
+            pedido
+        });
     } catch (error) {
+        // Manejo de errores específicos
+        if (error.message.includes('carrito está vacío') || error.message.includes('Stock insuficiente')) {
+            return res.status(400).json({ message: error.message });
+        }
         res.status(500).json({ message: error.message });
     }
 };
 
 export const getOrders = async (req, res) => {
     try {
-        const orders = await pedidosService.getOrdersByUserId(req.params.id_usuario);
+        const id_usuario = req.params.uid; // uid del usuario desde Firebase Auth
+        const orders = await pedidosService.getOrdersByUserId(id_usuario);
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
