@@ -71,9 +71,9 @@
           <!-- Badge de rol (protecciones: evita leer propiedades de undefined) -->
           <span
             class="rol-badge"
-            [style.background]="getRolInfo($any(usuario.customClaims?.role ?? ''))?.color"
+            [style.background]="getRolInfo($any(usuario.customClaims.role ?? '')).color"
           >
-            {{ getRolInfo($any(usuario.customClaims?.role ?? ''))?.label || 'Sin rol' }}
+            {{ getRolInfo($any(usuario.customClaims.role ?? '')).label || 'Sin rol' }}
           </span>
         </div>
 

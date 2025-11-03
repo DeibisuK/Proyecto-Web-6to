@@ -1,7 +1,4 @@
 @import "tailwindcss";
-/* Importar fuentes de Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 /* Importar estilos del carrito React */
 @import './app/core/react-components/carrito/cart.css';
 
@@ -27,6 +24,7 @@
   --font-primary: 'Inter', sans-serif;
   --font-secondary: 'Poppins', sans-serif;
 }
+
 /*
 * {
   margin: 0;
