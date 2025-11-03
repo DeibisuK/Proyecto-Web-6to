@@ -10,6 +10,9 @@ import { EstudioDeportivoCompletoComponent } from "./features/articulos/estudio-
 import { PadelBeneficiosCompletoComponent } from "./features/articulos/padel-beneficios-completo/padel-beneficios-completo";
 import { TiendaPage } from "./features/shop/pages/tienda-page/tienda-page";
 import { DetalleProducto } from "./features/shop/components/detalle-producto/detalle-producto";
+import { CheckoutPage } from "./features/shop/pages/checkout-page/checkout-page";
+import { MisPedidosPage } from "./features/shop/pages/mis-pedidos-page/mis-pedidos-page";
+import { DetallePedidoPage } from "./features/shop/pages/detalle-pedido-page/detalle-pedido-page";
 // import { CarritoComponent } from "./features/shop/components/carrito/carrito"; // Ya no se usa, el carrito ahora es un componente React en el navbar
 import { PoliticaDePrivacidad } from "./features/informacion/legal/politica-de-privacidad/politica-de-privacidad";
 import { TerminosYCondiciones } from "./features/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
@@ -76,6 +79,7 @@ export const clienteRoutes: Routes = [
     children: [
       { path: '', component: TiendaPage },
       { path: 'producto/:id', component: DetalleProducto},
+      { path: 'checkout', component: CheckoutPage },
       { path: 'reservar-cancha/:id', component: DetalleReservarCancha}
     ]
   },
@@ -84,6 +88,13 @@ export const clienteRoutes: Routes = [
   //   component: CarritoComponent
   // },
   // Carrito ahora se muestra como overlay en el navbar, ya no necesita ruta propia
+  {
+    path: 'mis-pedidos',
+    children: [
+      { path: '', component: MisPedidosPage },
+      { path: ':id_pedido', component: DetallePedidoPage }
+    ]
+  },
   {
     path: 'puntos-de-lealtad',
     component: PuntosLealtad

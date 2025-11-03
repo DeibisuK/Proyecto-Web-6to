@@ -1,0 +1,163 @@
+<div class="checkout-container">
+  <div class="checkout-wrapper">
+    <!-- Header -->
+    <div class="checkout-header">
+      <button class="back-btn" (click)="volverATienda()">
+        <span class="material-icons">arrow_back</span>
+        Volver a la tienda
+      </button>
+      <h1 class="checkout-title">Finalizar Compra</h1>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando información...</p>
+      </div>
+    }
+
+    <!-- Main Content -->
+    @if (!isLoading()) {
+      <div class="checkout-content">
+        <!-- Columna Izquierda: Resumen del Pedido -->
+        <div class="order-summary-section">
+          <div class="section-card">
+            <h2 class="section-title">
+              <span class="material-icons">shopping_bag</span>
+              Resumen del Pedido
+            </h2>
+
+            <div class="cart-items-list">
+              @for (item of cartItems(); track item.id_item) {
+                <div class="checkout-item">
+                  <div class="item-image">
+                    <img
+                      [src]="item.imagen_producto"
+                      [alt]="item.nombre_producto"
+                      (error)="$event.target.src = 'assets/placeholder.png'"
+                    />
+                  </div>
+                  <div class="item-info">
+                    <h4 class="item-name">{{ item.nombre_producto }}</h4>
+                    <p class="item-variant">{{ getVariantDescription(item) }}</p>
+                    <p class="item-sku">SKU: {{ item.sku }}</p>
+                    <div class="item-quantity-price">
+                      <span class="quantity">Cantidad: {{ item.cantidad }}</span>
+                      <span class="price">${{ item.precio_unitario.toFixed(2) }}</span>
+                    </div>
+                  </div>
+                  <div class="item-total">
+                    ${{ item.subtotal.toFixed(2) }}
+                  </div>
+                </div>
+              }
+
+              @if (cartItems().length === 0) {
+                <div class="empty-cart">
+                  <p>No hay productos en el carrito</p>
+                </div>
+              }
+            </div>
+
+            <!-- Resumen de Precios -->
+            <div class="price-summary">
+              <div class="price-row">
+                <span>Subtotal:</span>
+                <span>${{ subtotal.toFixed(2) }}</span>
+              </div>
+              <div class="price-row">
+                <span>IVA (15%):</span>
+                <span>${{ iva.toFixed(2) }}</span>
+              </div>
+              <div class="price-row total-row">
+                <strong>Total:</strong>
+                <strong>${{ total().toFixed(2) }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Método de Pago -->
+        <div class="payment-section">
+          <div class="section-card">
+            <h2 class="section-title">
+              <span class="material-icons">credit_card</span>
+              Método de Pago
+            </h2>
+
+            @if (metodosPago().length === 0) {
+              <div class="no-payment-methods">
+                <span class="material-icons">payment</span>
+                <p>No tienes métodos de pago registrados</p>
+                <button class="add-payment-btn" (click)="agregarMetodoPago()">
+                  <span class="material-icons">add</span>
+                  Agregar Método de Pago
+                </button>
+              </div>
+            }
+
+            @if (metodosPago().length > 0) {
+              <div class="payment-methods-list">
+                @for (metodo of metodosPago(); track metodo.id_metodo_pago) {
+                  <div
+                    class="payment-method-card"
+                    [class.selected]="metodoSeleccionado() === metodo.id_metodo_pago"
+                    (click)="seleccionarMetodo(metodo.id_metodo_pago)"
+                  >
+                    <input
+                      type="radio"
+                      [name]="'payment-method'"
+                      [value]="metodo.id_metodo_pago"
+                      [checked]="metodoSeleccionado() === metodo.id_metodo_pago"
+                    />
+                    <div class="payment-info">
+                      <div class="card-type">
+                        <span class="material-icons">credit_card</span>
+                        <strong>{{ metodo.tipo_tarjeta }}</strong>
+                      </div>
+                      <div class="card-details">
+                        <p>{{ metodo.banco }}</p>
+                        <p class="card-number">{{ metodo.numero_tarjeta }}</p>
+                        <p class="card-expiry">Vence: {{ metodo.fecha_expiracion }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <button class="add-payment-link" (click)="agregarMetodoPago()">
+                <span class="material-icons">add</span>
+                Agregar otro método de pago
+              </button>
+            }
+          </div>
+
+          <!-- Botón de Confirmación -->
+          @if (metodosPago().length > 0) {
+            <div class="checkout-actions">
+              <button
+                class="checkout-btn"
+                [disabled]="!metodoSeleccionado() || isProcessing() || cartItems().length === 0"
+                (click)="procesarPedido()"
+              >
+                @if (isProcessing()) {
+                  <span class="spinner-small"></span>
+                  Procesando...
+                } @else {
+                  <span class="material-icons">lock</span>
+                  Confirmar Pedido
+                }
+              </button>
+
+              <div class="security-note">
+                <span class="material-icons">verified_user</span>
+                <p>Tu pago está protegido y encriptado</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

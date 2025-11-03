@@ -1,19 +1,28 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getCarritoServiceInstance } from '../../services/carrito-bridge.service';
+import { navigateFromReact } from '../../services/router-bridge.service';
 
-interface Producto {
-  id: string;
-  nombre: string;
-  categoria: string;
-  precio: number;
-  descuento?: number;
-  imagen: string;
-  stock: number;
-}
-
-interface CartItem {
-  producto: Producto;
+/**
+ * Interface que representa un item del carrito desde el backend
+ * Estructura actualizada con id_variante y datos de la variante
+ */
+interface CartItemDetail {
+  id_item: number;
+  id_carrito: number;
+  id_variante: number;
   cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+  created_at: string;
+  updated_at: string;
+
+  // Información de la variante (desde JOIN con vista)
+  sku: string;
+  nombre_producto: string;
+  imagen_producto: string;
+  color: string | null;
+  talla: string | null;
+  stock_variante: number;
 }
 
 interface CartProps {
@@ -22,7 +31,7 @@ interface CartProps {
 }
 
 const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItemDetail[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -30,24 +39,22 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
     try {
       const carritoService = getCarritoServiceInstance();
 
-      // Suscribirse a los cambios del carrito
-      const itemsSubscription = carritoService.items$.subscribe((items) => {
-        setCartItems(items);
+      const itemsSubscription = carritoService.items$.subscribe((items: CartItemDetail[]) => {
+        const itemsArray = Array.isArray(items) ? items : [];
+        setCartItems(itemsArray);
       });
 
-      const totalSubscription = carritoService.total$.subscribe((total) => {
+      const totalSubscription = carritoService.total$.subscribe((total: number) => {
         setTotal(total);
       });
 
       setIsInitialized(true);
 
-      // Cleanup al desmontar
       return () => {
         itemsSubscription.unsubscribe();
         totalSubscription.unsubscribe();
       };
     } catch (error) {
-      console.error('Error al inicializar el carrito:', error);
       setIsInitialized(true);
       return () => {};
     }
@@ -55,69 +62,93 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
 
   // Memoizar cálculos para evitar re-cálculos innecesarios
   const totalItems = useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.cantidad, 0);
+    if (!Array.isArray(cartItems)) return 0;
+    return cartItems.reduce((sum, item) => sum + (item.cantidad || 0), 0);
   }, [cartItems]);
 
   const subtotal = useMemo(() => total / 1.15, [total]);
   const iva = useMemo(() => total - subtotal, [total, subtotal]);
 
   // Memoizar handlers para evitar re-creaciones
-  const handleUpdateQuantity = useCallback((item: CartItem, newQuantity: number) => {
+  const handleUpdateQuantity = useCallback((item: CartItemDetail, newQuantity: number) => {
     try {
       const carritoService = getCarritoServiceInstance();
       const quantity = parseInt(newQuantity.toString());
 
       if (quantity <= 0) {
-        carritoService.eliminarProducto(item.producto.id);
+        carritoService.eliminarItem(item.id_item).subscribe();
         return;
       }
 
-      if (quantity > item.producto.stock) {
-        carritoService.actualizarCantidad(item.producto.id, item.producto.stock);
+      if (quantity > item.stock_variante) {
+        carritoService.actualizarCantidad(item.id_item, item.stock_variante).subscribe();
         return;
       }
 
-      carritoService.actualizarCantidad(item.producto.id, quantity);
+      carritoService.actualizarCantidad(item.id_item, quantity).subscribe();
     } catch (error) {
-      console.error('Error al actualizar cantidad:', error);
+      // Error manejado por el servicio con NotificationService
     }
   }, []);
 
-  const handleRemoveItem = useCallback((item: CartItem) => {
+  const handleRemoveItem = useCallback((item: CartItemDetail) => {
     try {
       const carritoService = getCarritoServiceInstance();
-      carritoService.eliminarProducto(item.producto.id);
+      carritoService.eliminarItem(item.id_item).subscribe();
     } catch (error) {
-      console.error('Error al eliminar producto:', error);
+      // Error manejado por el servicio con NotificationService
     }
   }, []);
 
-  const handleIncreaseQuantity = useCallback((item: CartItem) => {
-    if (item.cantidad < item.producto.stock) {
-      handleUpdateQuantity(item, item.cantidad + 1);
-    }
-  }, [handleUpdateQuantity]);
+  const handleIncreaseQuantity = useCallback((itemId: number) => {
+    const currentItem = cartItems.find((i: CartItemDetail) => i.id_item === itemId);
 
-  const handleDecreaseQuantity = useCallback((item: CartItem) => {
-    if (item.cantidad > 1) {
-      handleUpdateQuantity(item, item.cantidad - 1);
-    } else {
-      handleRemoveItem(item);
+    if (!currentItem) {
+      return;
     }
-  }, [handleUpdateQuantity, handleRemoveItem]);
+
+    if (!currentItem.stock_variante) {
+      handleUpdateQuantity(currentItem, currentItem.cantidad + 1);
+      return;
+    }
+
+    if (currentItem.cantidad < currentItem.stock_variante) {
+      handleUpdateQuantity(currentItem, currentItem.cantidad + 1);
+    } else {
+      alert(`⚠️ Stock máximo disponible: ${currentItem.stock_variante} unidades`);
+    }
+  }, [cartItems, handleUpdateQuantity]);
+
+  const handleDecreaseQuantity = useCallback((itemId: number) => {
+    const currentItem = cartItems.find((i: CartItemDetail) => i.id_item === itemId);
+
+    if (!currentItem) {
+      return;
+    }
+
+    if (currentItem.cantidad > 1) {
+      handleUpdateQuantity(currentItem, currentItem.cantidad - 1);
+    } else {
+      handleRemoveItem(currentItem);
+    }
+  }, [cartItems, handleUpdateQuantity, handleRemoveItem]);
 
   const handleClearCart = useCallback(() => {
+    const confirmacion = confirm('¿Estás seguro de que deseas vaciar el carrito?');
+    if (!confirmacion) return;
+
     try {
       const carritoService = getCarritoServiceInstance();
-      carritoService.limpiarCarrito();
+      carritoService.limpiarCarrito().subscribe();
     } catch (error) {
-      console.error('Error al limpiar carrito:', error);
+      // Error manejado por el servicio con NotificationService
     }
   }, []);
 
   const handleCheckout = useCallback(() => {
-    alert('Funcionalidad a agregar para otro dia');
-  }, []);
+    navigateFromReact('/tienda/checkout');
+    if (onClose) onClose();
+  }, [onClose]);
 
   const handleContinueShopping = useCallback(() => {
     if (onClose) onClose();
@@ -127,14 +158,29 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
     if (onClose) onClose();
   }, [onClose]);
 
-  const getItemPrice = useCallback((item: CartItem) => {
-    return item.producto.descuento
-      ? item.producto.precio * (1 - item.producto.descuento / 100)
-      : item.producto.precio;
+  /**
+   * Obtiene el precio unitario del item
+   * Ya viene calculado desde el backend (precio_unitario)
+   */
+  const getItemPrice = useCallback((item: CartItemDetail) => {
+    return item.precio_unitario;
   }, []);
 
+  /**
+   * Formatea el precio con 2 decimales
+   */
   const formatPrice = useCallback((price: number) => {
     return price.toFixed(2);
+  }, []);
+
+  /**
+   * Obtiene la descripción de la variante (Color, Talla, etc.)
+   */
+  const getVariantDescription = useCallback((item: CartItemDetail) => {
+    const parts: string[] = [];
+    if (item.color) parts.push(item.color);
+    if (item.talla) parts.push(`Talla ${item.talla}`);
+    return parts.length > 0 ? parts.join(' • ') : '';
   }, []);
 
   // Mostrar loading mientras se inicializa
@@ -168,18 +214,19 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
         </div>
         <div className="mini-items">
           {cartItems.slice(0, 3).map((item) => (
-            <div key={item.producto.id} className="mini-item">
+            <div key={item.id_item} className="mini-item">
               <img
-                src={item.producto.imagen}
-                alt={item.producto.nombre}
+                src={item.imagen_producto}
+                alt={item.nombre_producto}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/assets/images/placeholder.jpg';
                 }}
               />
               <div className="mini-item-info">
-                <span className="mini-item-name">{item.producto.nombre}</span>
+                <span className="mini-item-name">{item.nombre_producto}</span>
+                <span className="mini-item-variant">{getVariantDescription(item)}</span>
                 <span className="mini-item-price">
-                  ${formatPrice(item.producto.precio)} x {item.cantidad}
+                  ${formatPrice(item.precio_unitario)} x {item.cantidad}
                 </span>
               </div>
             </div>
@@ -233,11 +280,11 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
           <>
             <div className="cart-items">
               {cartItems.map((item) => (
-                <div key={item.producto.id} className="cart-item">
+                <div key={item.id_item} className="cart-item">
                   <div className="item-image">
                     <img
-                      src={item.producto.imagen}
-                      alt={item.producto.nombre}
+                      src={item.imagen_producto}
+                      alt={item.nombre_producto}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/assets/images/placeholder.jpg';
                       }}
@@ -245,14 +292,18 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
                   </div>
 
                   <div className="item-details">
-                    <h4 className="item-name">{item.producto.nombre}</h4>
-                    <p className="item-category">{item.producto.categoria}</p>
-                    <div className="item-price">${formatPrice(item.producto.precio)}</div>
+                    <h4 className="item-name">{item.nombre_producto}</h4>
+                    <p className="item-variant">{getVariantDescription(item)}</p>
+                    {item.sku && <p className="item-sku">SKU: {item.sku}</p>}
+                    <div className="item-price">${formatPrice(item.precio_unitario)}</div>
+                    {item.stock_variante < 5 && item.stock_variante > 0 && (
+                      <p className="stock-warning">⚠️ Solo {item.stock_variante} disponibles</p>
+                    )}
                   </div>
 
                   <div className="item-controls">
                     <div className="quantity-controls">
-                      <button className="qty-btn" onClick={() => handleDecreaseQuantity(item)}>
+                      <button className="qty-btn" onClick={() => handleDecreaseQuantity(item.id_item)}>
                         <span className="material-icons">remove</span>
                       </button>
                       <input
@@ -261,15 +312,15 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
                         value={item.cantidad}
                         onChange={(e) => handleUpdateQuantity(item, parseInt(e.target.value) || 0)}
                         min="1"
-                        max={item.producto.stock}
+                        max={item.stock_variante}
                       />
-                      <button className="qty-btn" onClick={() => handleIncreaseQuantity(item)}>
+                      <button className="qty-btn" onClick={() => handleIncreaseQuantity(item.id_item)}>
                         <span className="material-icons">add</span>
                       </button>
                     </div>
 
                     <div className="item-total">
-                      <strong>${formatPrice(getItemPrice(item) * item.cantidad)}</strong>
+                      <strong>${formatPrice(item.subtotal)}</strong>
                     </div>
 
                     <button className="remove-btn" onClick={() => handleRemoveItem(item)}>

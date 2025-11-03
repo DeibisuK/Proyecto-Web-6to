@@ -1,0 +1,128 @@
+<div class="mis-pedidos-container">
+  <div class="mis-pedidos-wrapper">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">
+          <span class="material-icons">receipt_long</span>
+          Mis Pedidos
+        </h1>
+        <p class="page-subtitle">Historial de compras y seguimiento de pedidos</p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-container">
+      <h3 class="filtros-title">Filtrar por estado:</h3>
+      <div class="filtros-buttons">
+        @for (estado of estados; track estado) {
+        <button
+          class="filtro-btn"
+          [class.active]="filtroEstado() === estado"
+          (click)="cambiarFiltro(estado)"
+        >
+          @if (estado !== 'Todos') {
+          <span class="material-icons">{{ getEstadoIcon(estado) }}</span>
+          }
+          {{ estado }} ({{ contarPedidosPorEstado(estado) }})
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando pedidos...</p>
+    </div>
+    }
+
+    <!-- Lista de Pedidos -->
+    @if (!isLoading()) { @if (pedidosFiltrados.length === 0) {
+    <div class="empty-state">
+      <span class="material-icons">shopping_bag</span>
+      <h3>
+        No hay pedidos {{ filtroEstado() !== 'Todos' ? 'con estado: ' + filtroEstado() : '' }}
+      </h3>
+      <p>Cuando realices compras, aparecerán aquí</p>
+      <a href="/tienda" class="btn-ir-tienda">
+        <span class="material-icons">store</span>
+        Ir a la Tienda
+      </a>
+    </div>
+    } @else {
+    <div class="pedidos-grid">
+      @for (pedido of pedidosFiltrados; track pedido.id_pedido) {
+      <div class="pedido-card" (click)="verDetalle(pedido.id_pedido)">
+        <!-- Header del Pedido -->
+        <div class="pedido-header">
+          <div class="pedido-info">
+            <h3 class="pedido-numero">
+              Pedido #{{ pedido.factura ? pedido.factura.substring(0, 8) : pedido.id_pedido }}
+            </h3>
+            <p class="pedido-fecha">{{ formatFecha(pedido.created_at) }}</p>
+          </div>
+          <div class="pedido-estado" [ngClass]="getEstadoClass(pedido.estado_pedido)">
+            <span class="material-icons">{{ getEstadoIcon(pedido.estado_pedido) }}</span>
+            <span>{{ pedido.estado_pedido }}</span>
+          </div>
+        </div>
+
+        <!-- Detalles del Pedido -->
+        <div class="pedido-body">
+          @if (pedido.items && pedido.items.length > 0) {
+          <div class="pedido-items-preview">
+            @for (item of pedido.items.slice(0, 3); track item.id_detalle) {
+            <div class="item-preview">
+              @if (item.imagen_producto) {
+              <img
+                [src]="item.imagen_producto"
+                [alt]="item.nombre_producto"
+                (error)="$event.target.src = '/assets/images/placeholder.jpg'"
+              />
+              }
+              <div class="item-info">
+                <p class="item-nombre">{{ item.nombre_producto }}</p>
+                <p class="item-cantidad">x{{ item.cantidad }}</p>
+              </div>
+            </div>
+            } @if (pedido.items.length > 3) {
+            <p class="mas-items">+{{ pedido.items.length - 3 }} más...</p>
+            }
+          </div>
+          }
+
+          <div class="pedido-total">
+            <span>Total:</span>
+            <strong>${{ formatPrice(pedido.total) }}</strong>
+          </div>
+
+          @if (pedido.nombre_metodo_pago) {
+          <div class="pedido-pago">
+            <span class="material-icons">credit_card</span>
+            <span>{{ pedido.nombre_metodo_pago }}</span>
+          </div>
+          }
+        </div>
+
+        <!-- Acciones -->
+        <div class="pedido-footer">
+          <button class="btn-ver-detalle" (click)="verDetalle(pedido.id_pedido)">
+            <span class="material-icons">visibility</span>
+            Ver Detalle
+          </button>
+
+          @if (pedido.estado_pedido === 'Pendiente') {
+          <button class="btn-cancelar" (click)="cancelarPedido(pedido, $event)">
+            <span class="material-icons">cancel</span>
+            Cancelar
+          </button>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    } }
+  </div>
+</div>

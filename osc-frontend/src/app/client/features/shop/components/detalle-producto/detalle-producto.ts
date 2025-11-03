@@ -258,37 +258,23 @@ export class DetalleProducto implements OnInit {
   }
 
   /**
-   * Agrega el producto al carrito
+   * Agrega el producto al carrito usando el nuevo backend
    */
   agregarAlCarrito() {
     if (!this.puedeAgregar() || !this.producto || !this.varianteSeleccionada) {
       return;
     }
 
-    // Adaptar a la interfaz del carrito (temporal, hasta que actualicemos el carrito)
-    const productoParaCarrito = {
-      id: String(this.producto.id_producto),
-      nombre: this.producto.nombre,
-      descripcion: this.producto.descripcion,
-      caracteristicas: [this.producto.descripcion],
-      precio: this.varianteSeleccionada.precio,
-      precioAnterior: this.varianteSeleccionada.precio_anterior || undefined,
-      imagen: this.imagenPrincipal,
-      categoria: this.producto.nombre_categoria,
-      deporte: this.producto.nombre_deporte,
-      marca: this.producto.nombre_marca,
-      color: this.getValorOpcion(1) || '', // Asumiendo que id_opcion 1 es Color
-      tallas: [this.getValorOpcion(2) || ''], // Asumiendo que id_opcion 2 es Talla
-      stock: this.varianteSeleccionada.stock,
-      descuento: this.calcularDescuento(),
-      nuevo: this.producto.es_nuevo,
-      oferta: this.calcularDescuento() > 0
-    };
-
-    this.carritoService.agregarProducto(productoParaCarrito, this.cantidad);
-    console.log('✅ Producto agregado al carrito:', {
-      sku: this.varianteSeleccionada.sku,
-      cantidad: this.cantidad
+    this.carritoService.agregarItem(this.varianteSeleccionada.id_variante, this.cantidad).subscribe({
+      next: () => {
+        // La notificación ya se muestra en el servicio
+      },
+      error: (error) => {
+        // Los errores ya se manejan en el servicio con notificaciones
+        if (error.message !== 'Usuario no autenticado') {
+          console.error('Error al agregar al carrito:', error);
+        }
+      }
     });
   }
 

@@ -1,0 +1,199 @@
+<div class="detalle-pedido-container">
+  <div class="detalle-pedido-wrapper">
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando pedido...</p>
+    </div>
+    }
+
+    <!-- Contenido -->
+    @if (!isLoading() && pedidoInfo) {
+    <!-- Header -->
+    <div class="page-header">
+      <button class="back-btn" (click)="volverALista()">
+        <span class="material-icons">arrow_back</span>
+        Volver a Mis Pedidos
+      </button>
+      <div class="header-content">
+        <div class="title-section">
+          <h1 class="page-title">
+            Pedido #{{
+              pedidoInfo.uuid_factura
+                ? pedidoInfo.uuid_factura.substring(0, 8)
+                : pedidoInfo.id_pedido
+            }}
+          </h1>
+          <div class="pedido-estado" [ngClass]="getEstadoClass(pedidoInfo.estado_pedido)">
+            <span class="material-icons">{{ getEstadoIcon(pedidoInfo.estado_pedido) }}</span>
+            <span>{{ pedidoInfo.estado_pedido }}</span>
+          </div>
+        </div>
+        <p class="pedido-fecha">Realizado el {{ formatFecha(pedidoInfo.fecha_pedido) }}</p>
+      </div>
+    </div>
+
+    <!-- Barra de Progreso del Pedido -->
+    @if (pedidoInfo.estado_pedido !== 'Cancelado') {
+    <div class="progress-container">
+      <h2 class="section-title">
+        <span class="material-icons">local_shipping</span>
+        Seguimiento del Pedido
+      </h2>
+
+      <div class="progress-bar-wrapper">
+        @for (estado of estadosTimeline; track estado; let i = $index; let isLast = $last) {
+        <div
+          class="progress-step"
+          [class.completed]="isEstadoCompletado(estado)"
+          [class.active]="isEstadoActual(estado)"
+        >
+          <div class="step-circle">
+            <span class="material-icons">{{ getEstadoIcon(estado) }}</span>
+          </div>
+
+          <div class="step-label">{{ estado }}</div>
+
+          @if (!isLast) {
+          <div
+            class="step-line"
+            [class.completed]="isEstadoCompletado(estadosTimeline[i + 1])"
+          ></div>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="estado-mensaje">
+        @if (pedidoInfo.estado_pedido === 'Entregado') {
+        <div class="mensaje-entregado">
+          <span class="material-icons">check_circle</span>
+          <strong>¡Tu pedido ha sido entregado!</strong>
+          <p>Gracias por tu compra</p>
+        </div>
+        } @else {
+        <div class="mensaje-progreso">
+          <span class="material-icons rotating">sync</span>
+          <strong>Estado actual: {{ pedidoInfo.estado_pedido }}</strong>
+          <p>Tu pedido está siendo procesado y se actualizará automáticamente</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Mensaje de Cancelado -->
+    @if (pedidoInfo.estado_pedido === 'Cancelado') {
+    <div class="cancelado-message">
+      <span class="material-icons">cancel</span>
+      <h3>Pedido Cancelado</h3>
+      <p>Este pedido fue cancelado</p>
+    </div>
+    }
+
+    <!-- Grid de Información -->
+    <div class="info-grid">
+      <!-- Productos -->
+      <div class="section-card productos-section">
+        <h2 class="section-title">
+          <span class="material-icons">shopping_bag</span>
+          Productos ({{ pedidoDetalles.length }})
+        </h2>
+        <div class="productos-list">
+          @for (item of pedidoDetalles; track item.id_detalle) {
+          <div class="producto-item">
+            <div class="producto-image">
+              <img
+                [src]="item.imagen_url"
+                [alt]="item.nombre_producto"
+                (error)="$event.target.src = '/assets/placeholder.png'"
+              />
+            </div>
+            <div class="producto-info">
+              <h4 class="producto-nombre">{{ item.nombre_producto }}</h4>
+              <p class="producto-variant">{{ getVariantDescription(item) }}</p>
+              <p class="producto-sku">SKU: {{ item.sku }}</p>
+              <div class="producto-precio">
+                <span class="precio-unitario">${{ formatPrice(item.precio_unitario) }}</span>
+                <span class="cantidad">x {{ item.cantidad }}</span>
+              </div>
+            </div>
+            <div class="producto-subtotal">${{ formatPrice(item.subtotal) }}</div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Resumen y Pago -->
+      <div class="sidebar-info">
+        <!-- Resumen del Pedido -->
+        <div class="section-card">
+          <h2 class="section-title">
+            <span class="material-icons">receipt</span>
+            Resumen
+          </h2>
+          <div class="resumen-content">
+            <div class="resumen-row">
+              <span>Subtotal:</span>
+              <span>${{ formatPrice(subtotal) }}</span>
+            </div>
+            <div class="resumen-row">
+              <span>IVA (15%):</span>
+              <span>${{ formatPrice(iva) }}</span>
+            </div>
+            <div class="resumen-row total-row">
+              <strong>Total:</strong>
+              <strong>${{ formatPrice(pedidoInfo.total) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Método de Pago -->
+        <div class="section-card">
+          <h2 class="section-title">
+            <span class="material-icons">credit_card</span>
+            Método de Pago
+          </h2>
+          <div class="pago-content">
+            <p class="metodo-nombre">{{ pedidoInfo.nombre_metodo_pago || 'Método de pago' }}</p>
+            <p class="pago-fecha">Pagado el {{ formatFecha(pedidoInfo.fecha_pedido) }}</p>
+          </div>
+        </div>
+
+        <!-- Información del Pedido -->
+        <div class="section-card">
+          <h2 class="section-title">
+            <span class="material-icons">info</span>
+            Información
+          </h2>
+          <div class="info-content">
+            <div class="info-item">
+              <strong>ID Pedido:</strong>
+              <span>{{ pedidoInfo.id_pedido }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Factura:</strong>
+              <span>{{ pedidoInfo.uuid_factura }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Fecha de Creación:</strong>
+              <span>{{ formatFecha(pedidoInfo.fecha_pedido) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        @if (pedidoInfo.estado_pedido === 'Pendiente') {
+        <div class="acciones-card">
+          <button class="btn-cancelar-pedido" (click)="cancelarPedido()">
+            <span class="material-icons">cancel</span>
+            Cancelar Pedido
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</div>

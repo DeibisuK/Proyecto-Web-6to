@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Productos } from '../../models/producto';
-import { CarritoService } from '../../services/carrito.service';
 
 @Component({
   selector: 'app-producto-card',
@@ -14,7 +13,6 @@ export class ProductoCard {
   @Input() producto!: Productos;
 
   constructor(
-    private carritoService: CarritoService,
     private router: Router
   ) {}
 
@@ -26,47 +24,17 @@ export class ProductoCard {
   }
 
   /**
-   * Agrega el producto al carrito
-   * Detiene la propagación del evento para no navegar al detalle
+   * Redirige al detalle del producto para seleccionar variante
+   * Ya no se puede agregar directamente desde la tarjeta porque
+   * se necesita seleccionar la variante (color, talla, etc.)
    */
   agregarAlCarrito(event: Event) {
     event.stopPropagation();
 
-    // Adaptar Productos (listado) a Producto (carrito)
-    const productoParaCarrito = this.adaptarProductoParaCarrito(this.producto);
-    this.carritoService.agregarProducto(productoParaCarrito);
+    // Navegar al detalle del producto para que el usuario seleccione la variante
+    this.router.navigate(['/tienda/producto', this.producto.id]);
 
-    console.log('✅ Producto agregado al carrito:', {
-      id: this.producto.id,
-      nombre: this.producto.nombre,
-      precio: this.producto.precio
-    });
-  }
-
-  /**
-   * Adapta el modelo Productos (listado) al modelo Producto (carrito)
-   * @param producto Producto del listado
-   * @returns Producto adaptado para el carrito
-   */
-  private adaptarProductoParaCarrito(producto: Productos) {
-    return {
-      id: String(producto.id),
-      nombre: producto.nombre,
-      descripcion: producto.caracteristicas, // Usamos características como descripción
-      caracteristicas: producto.caracteristicas ? [producto.caracteristicas] : [],
-      precio: producto.precio,
-      precioAnterior: producto.precio_anterior > producto.precio ? producto.precio_anterior : undefined,
-      imagen: producto.imagen,
-      categoria: producto.nombre_categoria,
-      deporte: producto.deporte,
-      marca: producto.marca,
-      color: '', // No disponible en el listado
-      tallas: [], // No disponible en el listado
-      stock: producto.stock,
-      descuento: this.calcularDescuento(),
-      nuevo: producto.es_nuevo,
-      oferta: producto.precio_anterior > producto.precio
-    };
+    console.log('ℹ️ Redirigiendo a detalle para seleccionar variante del producto:', this.producto.id);
   }
 
   /**

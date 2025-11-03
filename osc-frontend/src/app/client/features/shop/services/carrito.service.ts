@@ -1,81 +1,217 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { Producto } from '../models/producto';
-
-interface ItemCarrito {
-  producto: Producto;
-  cantidad: number;
-}
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, tap, catchError, of, throwError } from 'rxjs';
+import { User } from '@angular/fire/auth';
+import { environment } from '../../../../../environments/environment';
+import { AuthService } from '../../../../core/services/auth.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import {
+  CartItemDetail,
+  AddToCartRequest,
+  UpdateCartItemRequest,
+  CartSummary
+} from '../../../../core/models/cart.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarritoService {
-  private items = new BehaviorSubject<ItemCarrito[]>([]);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private notificationService = inject(NotificationService);
+
+  private readonly API_URL = `${environment.apiUrl}/b/client/cart`;
+
+  // Estado local del carrito
+  private items = new BehaviorSubject<CartItemDetail[]>([]);
   private total = new BehaviorSubject<number>(0);
+  private cantidadTotal = new BehaviorSubject<number>(0);
 
   items$ = this.items.asObservable();
   total$ = this.total.asObservable();
+  cantidadTotal$ = this.cantidadTotal.asObservable();
 
-  constructor() {}
+  constructor() {
+    // Cargar carrito al inicializar si hay usuario autenticado
+    this.authService.user$.subscribe((user: User | null) => {
+      if (user?.uid) {
+        this.cargarCarrito(user.uid);
+      } else {
+        this.limpiarEstadoLocal();
+      }
+    });
+  }
 
-  agregarProducto(producto: Producto, cantidad: number = 1) {
-    const itemsActuales = this.items.value;
-    const itemExistente = itemsActuales.find(item => item.producto.id === producto.id);
+  /**
+   * Obtiene el UID del usuario actual
+   */
+  private getCurrentUid(): string | null {
+    return this.authService.currentUser?.uid || null;
+  }
 
-    if (itemExistente) {
-      // Actualizar cantidad si el producto ya está en el carrito
-      itemExistente.cantidad += cantidad;
-      this.items.next([...itemsActuales]);
-    } else {
-      // Agregar nuevo item al carrito
-      this.items.next([...itemsActuales, { producto, cantidad }]);
+  /**
+   * Carga el carrito desde el backend
+   */
+  cargarCarrito(uid?: string): Observable<CartItemDetail[]> {
+    const userUid = uid || this.getCurrentUid();
+    if (!userUid) {
+      return of([]);
     }
 
-    this.actualizarTotal();
+    return this.http.get<any>(`${this.API_URL}/${userUid}`).pipe(
+      tap(response => {
+        const items = Array.isArray(response) ? response : (response?.items || []);
+        this.items.next(items);
+        this.actualizarTotales(items);
+      }),
+      catchError(err => {
+        this.notificationService.error('Error al cargar el carrito');
+        this.limpiarEstadoLocal();
+        return of([]);
+      })
+    );
   }
 
-  eliminarProducto(productoId: string) {
-    const itemsActuales = this.items.value;
-    const nuevosItems = itemsActuales.filter(item => item.producto.id !== productoId);
-    this.items.next(nuevosItems);
-    this.actualizarTotal();
+  /**
+   * Agrega un item al carrito
+   * @param id_variante ID de la variante del producto
+   * @param cantidad Cantidad a agregar
+   */
+  agregarItem(id_variante: number, cantidad: number = 1): Observable<CartItemDetail> {
+    const uid = this.getCurrentUid();
+
+    if (!uid) {
+      this.notificationService.error('Debes iniciar sesión para agregar productos al carrito');
+      this.router.navigate(['/inicio'], { queryParams: { openLogin: 'true' } });
+      return throwError(() => new Error('Usuario no autenticado'));
+    }
+
+    const body: AddToCartRequest = { id_variante, cantidad };
+
+    return this.http.post<CartItemDetail>(`${this.API_URL}/${uid}/items`, body).pipe(
+      tap(() => {
+        this.notificationService.success('Producto agregado al carrito');
+        this.cargarCarrito(uid).subscribe();
+      }),
+      catchError(err => {
+        this.notificationService.error(err.error?.message || 'Error al agregar al carrito');
+        throw err;
+      })
+    );
   }
 
-  actualizarCantidad(productoId: string, cantidad: number) {
+  /**
+   * Actualiza la cantidad de un item del carrito
+   */
+  actualizarCantidad(id_item: number, cantidad: number): Observable<any> {
     if (cantidad <= 0) {
-      this.eliminarProducto(productoId);
+      return this.eliminarItem(id_item);
+    }
+
+    const body: UpdateCartItemRequest = { cantidad };
+
+    return this.http.put(`${this.API_URL}/items/${id_item}`, body).pipe(
+      tap(() => {
+        const uid = this.getCurrentUid();
+        if (uid) {
+          this.cargarCarrito(uid).subscribe();
+        }
+      }),
+      catchError((error) => {
+        this.notificationService.error(error.error?.message || 'Error al actualizar cantidad');
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Elimina un item del carrito
+   */
+  eliminarItem(id_item: number): Observable<any> {
+    const uid = this.getCurrentUid();
+    if (!uid) {
+      this.notificationService.error('Usuario no autenticado');
+      throw new Error('Usuario no autenticado');
+    }
+
+    return this.http.delete(`${this.API_URL}/items/${id_item}`).pipe(
+      tap(() => {
+        this.notificationService.success('Producto eliminado del carrito');
+        this.cargarCarrito(uid).subscribe();
+      }),
+      catchError(err => {
+        this.notificationService.error('Error al eliminar producto');
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Vacía completamente el carrito
+   */
+  limpiarCarrito(): Observable<any> {
+    const uid = this.getCurrentUid();
+    if (!uid) {
+      this.notificationService.error('Usuario no autenticado');
+      throw new Error('Usuario no autenticado');
+    }
+
+    return this.http.delete(`${this.API_URL}/${uid}`).pipe(
+      tap(() => {
+        this.notificationService.success('Carrito vaciado');
+        this.limpiarEstadoLocal();
+      }),
+      catchError(err => {
+        this.notificationService.error('Error al vaciar carrito');
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Obtiene el resumen del carrito
+   */
+  obtenerResumen(): Observable<CartSummary | null> {
+    const uid = this.getCurrentUid();
+    if (!uid) {
+      return of(null);
+    }
+
+    return this.http.get<CartSummary>(`${this.API_URL}/${uid}/summary`);
+  }
+
+  /**
+   * Actualiza los totales del carrito
+   */
+  private actualizarTotales(items: CartItemDetail[]) {
+    if (!Array.isArray(items)) {
+      this.total.next(0);
+      this.cantidadTotal.next(0);
       return;
     }
 
-    const itemsActuales = this.items.value;
-    const item = itemsActuales.find(item => item.producto.id === productoId);
-    
-    if (item) {
-      item.cantidad = cantidad;
-      this.items.next([...itemsActuales]);
-      this.actualizarTotal();
-    }
+    const total = items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+    const cantidad = items.reduce((sum, item) => sum + (item.cantidad || 0), 0);
+
+    this.total.next(total);
+    this.cantidadTotal.next(cantidad);
   }
 
-  limpiarCarrito() {
+  /**
+   * Limpia el estado local del carrito (público para uso externo)
+   */
+  limpiarEstadoLocal() {
     this.items.next([]);
     this.total.next(0);
+    this.cantidadTotal.next(0);
   }
 
-  private actualizarTotal() {
-    const total = this.items.value.reduce((sum, item) => {
-      const precio = item.producto.descuento 
-        ? item.producto.precio * (1 - item.producto.descuento / 100)
-        : item.producto.precio;
-      return sum + (precio * item.cantidad);
-    }, 0);
-    this.total.next(total);
-  }
-
+  /**
+   * Obtiene la cantidad total de items (para compatibilidad)
+   */
   obtenerCantidadTotal(): Observable<number> {
-    return this.items.pipe(
-      map(items => items.reduce((sum, item) => sum + item.cantidad, 0))
-    );
+    return this.cantidadTotal$;
   }
 }

@@ -12,12 +12,10 @@
 
 /* Modos del carrito */
 .carrito-container.sidebar {
-  width: 400px;
-  height: 80vh;
-  position: fixed;
-  right: 20px;
-  top: 80px;
-  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  position: relative; /* Cambiado de fixed a relative */
+  border-radius: 0; /* Sin bordes redondeados en sidebar */
 }
 
 .carrito-container.page {
@@ -204,6 +202,30 @@
   margin: 0 0 0.5rem 0;
   font-size: 0.875rem;
   color: #27ae60;
+  font-weight: 500;
+}
+
+/* Descripción de variante (Color, Talla) */
+.item-variant {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* SKU del producto */
+.item-sku {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.75rem;
+  color: #95a5a6;
+  font-family: 'Courier New', monospace;
+}
+
+/* Advertencia de stock bajo */
+.stock-warning {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.75rem;
+  color: #e67e22;
   font-weight: 500;
 }
 
@@ -425,6 +447,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-bottom: 0.25rem;
+}
+
+/* Variante en vista mini */
+.mini-item-variant {
+  display: block;
+  font-size: 0.7rem;
+  color: #95a5a6;
+  font-style: italic;
   margin-bottom: 0.25rem;
 }
 

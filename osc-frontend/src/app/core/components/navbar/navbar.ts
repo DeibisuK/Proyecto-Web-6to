@@ -8,6 +8,7 @@ import { ReactWrapperComponent } from '../../../shared/react-wrapper/react-wrapp
 import Cart from '../../react-components/carrito/cart';
 import { CarritoService } from '../../../client/features/shop/services/carrito.service';
 import { setCarritoServiceInstance } from '../../services/carrito-bridge.service';
+import { setRouterInstance } from '../../services/router-bridge.service';
 import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
@@ -78,14 +79,24 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Inicializar el puente del carrito para que React pueda acceder al servicio
     setCarritoServiceInstance(this.carritoService);
+    setRouterInstance(this.router);
 
-    // Suscribirse al observable de usuario y gestionarlo dentro de this.subscriptions
-    this.subscriptions.add(this.authService.user$.subscribe((u) => (this.user = u)));
+    this.subscriptions.add(
+      this.authService.user$.subscribe((u) => {
+        this.user = u;
+
+        if (u) {
+          this.carritoService.cargarCarrito(u.uid).subscribe();
+        } else {
+          this.carritoService.limpiarEstadoLocal();
+        }
+      })
+    );
+
     this.isAdmin$ = this.authService.isAdmin$;
     this.isArbitro$ = this.authService.isArbitro$;
-    // Comprobar la URL actual al iniciar (caso de carga inicial)
+
     const initialUrlTree = this.router.parseUrl(this.router.url || '');
     const initialOpen = initialUrlTree.queryParams['openLogin'] === 'true';
     if (initialOpen && !this.mostrarLogin) {
@@ -93,21 +104,32 @@ export class Navbar implements OnInit, OnDestroy {
       this.router.navigate([], { queryParams: { openLogin: null }, queryParamsHandling: 'merge' });
     }
 
-    // Suscribirse al contador de items del carrito
+    this.subscriptions.add(
+      this.router.events.pipe(
+        filter((event) => event instanceof NavigationEnd)
+      ).subscribe(() => {
+        const urlTree = this.router.parseUrl(this.router.url || '');
+        const shouldOpenLogin = urlTree.queryParams['openLogin'] === 'true';
+
+        if (shouldOpenLogin && !this.mostrarLogin) {
+          this.abrirLoginModal();
+          this.router.navigate([], {
+            queryParams: { openLogin: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+          });
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+    );
+
     this.subscriptions.add(
       this.carritoService.obtenerCantidadTotal().subscribe((count) => {
         this.cartItemCount = count;
       })
     );
 
-    // Scroll al inicio cuando se navega a una nueva ruta
-    this.subscriptions.add(
-      this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      })
-    );
-
-    // Cargar sedes dinámicamente
     this.cargarSedes();
   }
 
