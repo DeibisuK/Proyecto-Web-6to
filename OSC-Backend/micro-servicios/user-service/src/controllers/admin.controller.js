@@ -7,15 +7,9 @@ import * as adminService from '../services/admin.service.js';
 export class AdminController {
   static async getAllUsers(req, res) {
     try {
-      console.log('📊 [AdminController] Obteniendo todos los usuarios...');
-      
       const result = await adminService.getAllUsersCombined();
-      
-      console.log(`✅ [AdminController] ${result.total} usuarios devueltos`);
-      
       res.status(200).json(result);
     } catch (error) {
-      console.error('❌ [AdminController] Error en getAllUsers:', error);
       res.status(500).json({
         error: 'internal_error',
         message: error.message || String(error)
@@ -47,16 +41,10 @@ export class AdminController {
         });
       }
 
-      console.log(`🔧 [AdminController] Asignando rol ${id_rol} a usuario ${uid}...`);
-
       const result = await adminService.assignRole(uid, id_rol);
-
-      console.log(`✅ [AdminController] Rol asignado exitosamente`);
 
       res.status(200).json(result);
     } catch (error) {
-      console.error('❌ [AdminController] Error en assignRole:', error);
-      
       // Manejar errores específicos
       if (error.message.includes('no encontrado')) {
         return res.status(404).json({

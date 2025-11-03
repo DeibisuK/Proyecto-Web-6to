@@ -55,7 +55,6 @@ export const addItem = async (item) => {
 };
 
 export const updateItem = async (id, item) => {
-    console.log('🟡 [SERVICE updateItem] ID:', id, 'Tipo:', typeof id, 'Datos:', item);
     const { cantidad, id_variante } = item;
     
     // Si se proporciona id_variante, validar stock
@@ -68,26 +67,12 @@ export const updateItem = async (id, item) => {
     
     // Actualizar el item
     const updatedItem = await model.update(id, item);
-    console.log('🟡 [SERVICE updateItem] Item básico actualizado:', updatedItem);
     
     // Obtener la información completa del item actualizado con detalles de producto/variante
     const itemsDetallados = await model.findByCartIdDetailed(updatedItem.id_carrito);
-    console.log('🟡 [SERVICE updateItem] Items detallados del carrito:', itemsDetallados.length);
-    console.log('🟡 [SERVICE updateItem] Todos los items:', itemsDetallados.map(i => ({
-        id_item: i.id_item,
-        tipo_id_item: typeof i.id_item,
-        stock_variante: i.stock_variante
-    })));
     
     const itemDetallado = itemsDetallados.find(i => {
-        console.log(`🟡 [SERVICE] Comparando: ${i.id_item} (${typeof i.id_item}) === ${id} (${typeof id})`);
         return i.id_item == id; // Usar == para comparación no estricta
-    });
-    
-    console.log('🟡 [SERVICE updateItem] Item detallado encontrado:', {
-        encontrado: !!itemDetallado,
-        stock_variante: itemDetallado?.stock_variante,
-        keys: itemDetallado ? Object.keys(itemDetallado) : []
     });
     
     return itemDetallado || updatedItem;

@@ -21,7 +21,6 @@ export const encriptar = (texto) => {
         // Retorna: iv:datosEncriptados
         return `${iv.toString('hex')}:${encriptado}`;
     } catch (error) {
-        console.error('Error al encriptar:', error);
         throw new Error('Error en el proceso de encriptación');
     }
 };
@@ -49,7 +48,6 @@ export const desencriptar = (textoEncriptado) => {
         
         return desencriptado;
     } catch (error) {
-        console.error('Error al desencriptar:', error);
         throw new Error('Error en el proceso de desencriptación');
     }
 };

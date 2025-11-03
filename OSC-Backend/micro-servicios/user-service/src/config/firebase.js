@@ -10,7 +10,7 @@ let firebaseAdmin = null;
 const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 if (!serviceAccountPath) {
-    console.warn('GOOGLE_APPLICATION_CREDENTIALS no está definida. Firebase Admin no estará disponible.');
+    // Firebase Admin no estará disponible
 } else {
     try {
         const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
@@ -23,9 +23,8 @@ if (!serviceAccountPath) {
         }
 
         firebaseAdmin = admin;
-        console.log('Firebase Admin SDK inicializado correctamente');
     } catch (error) {
-        console.error('Error al inicializar Firebase Admin:', error.message);
+        // Error al inicializar Firebase Admin
     }
 }
 

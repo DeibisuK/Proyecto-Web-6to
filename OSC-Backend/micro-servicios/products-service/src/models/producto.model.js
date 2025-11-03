@@ -114,9 +114,6 @@ export const searchProducts = async ({
     LIMIT ${limitParam} OFFSET ${offsetParam};
   `;
 
-  console.debug("[searchProducts] SQL:", sql);
-  console.debug("[searchProducts] params:", params);
-
   const result = await pool.query(sql, params);
 
   const rows = result.rows.map((r) => {
@@ -163,8 +160,6 @@ export const getProductoDetalle = async (id_producto) => {
       id_producto = $1;
   `;
 
-  console.debug("[getProductoDetalle] Buscando producto ID:", id_producto);
-
   const result = await pool.query(sql, [id_producto]);
 
   if (result.rows.length === 0) {
@@ -177,9 +172,6 @@ export const getProductoDetalle = async (id_producto) => {
   if (typeof producto.variantes === "string") {
     producto.variantes = JSON.parse(producto.variantes);
   }
-
-  console.debug("[getProductoDetalle] Producto encontrado:", producto.nombre);
-  console.debug(`[getProductoDetalle] Variantes: ${producto.variantes.length}`);
 
   return producto;
 };
@@ -457,9 +449,6 @@ export const updateProducto = async (id_producto, payload = {}) => {
     WHERE id_producto = $${idx}
     RETURNING id_producto;
   `;
-
-  console.debug("[updateProducto] SQL:", sql);
-  console.debug("[updateProducto] params:", params);
 
   const result = await pool.query(sql, params);
   if (result.rowCount === 0) return null;

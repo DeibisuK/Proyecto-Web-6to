@@ -6,7 +6,6 @@ export class UserController {
       const users = await service.getAll();
       res.status(200).json(users);
     } catch (error) {
-      console.error("[UserController Error]", error);
       res.status(500).json({ error: "Failed to fetch users" });
     }
   }
@@ -21,7 +20,6 @@ export class UserController {
         res.status(404).json({ error: "User not found" });
       }
     } catch (error) {
-      console.error("[UserController Error]", error);
       res.status(500).json({ error: "Failed to fetch user" });
     }
   }
@@ -29,14 +27,9 @@ export class UserController {
   static async createUser(req, res) {
     try {
       const user = req.body;
-      // Helpful debug: log incoming payload (avoid logging sensitive data in prod)
-      console.log('[UserController] createUser payload:', JSON.stringify(user));
-      // Expect minimal payload: { uid, nombre, email, id_rol }
       const newUser = await service.create(user);
       res.status(201).json(newUser);
     } catch (error) {
-      // Log full error with stack for easier debugging
-      console.error('[UserController Error]', error && error.stack ? error.stack : error);
       res.status(500).json({ error: "Failed to create user" });
     }
   }
@@ -57,7 +50,6 @@ export class UserController {
         res.status(404).json({ error: "User not found" });
       }
     } catch (error) {
-      console.error("[UserController Error]", error);
       res.status(500).json({ error: "Failed to update user" });
     }
   }
@@ -72,7 +64,6 @@ export class UserController {
         res.status(404).json({ error: "User not found" });
       }
     } catch (error) {
-      console.error("[UserController Error]", error);
       res.status(500).json({ error: "Failed to delete user" });
     }
   }
@@ -93,7 +84,6 @@ export class UserController {
         res.status(404).json({ error: "User not found" });
       }
     } catch (error) {
-      console.error("[UserController Error]", error);
       res.status(500).json({ error: "Failed to update user role" });
     }
   }

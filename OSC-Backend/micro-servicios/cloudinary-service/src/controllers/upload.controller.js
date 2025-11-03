@@ -43,7 +43,6 @@ export const uploadImagen = async (req, res) => {
       public_id: resultado.public_id,
     });
   } catch (error) {
-    console.error("Error al subir imagen:", error);
     res.status(500).json({
       error: "Error al subir la imagen",
       details: error.message,
@@ -82,7 +81,6 @@ export const uploadCancha = async (req, res) => {
       public_id: resultado.public_id,
     });
   } catch (error) {
-    console.error("Error al subir imagen de cancha:", error);
     res.status(500).json({
       error: "Error al subir la imagen",
       details: error.message,
@@ -121,7 +119,6 @@ export const uploadEquipo = async (req, res) => {
       public_id: resultado.public_id,
     });
   } catch (error) {
-    console.error("Error al subir logo de equipo:", error);
     res.status(500).json({
       error: "Error al subir la imagen",
       details: error.message,
@@ -139,7 +136,6 @@ export const deleteImagen = async (req, res) => {
     await cloudinary.uploader.destroy(publicId);
     res.json({ success: true, message: "Imagen eliminada" });
   } catch (error) {
-    console.error("¡FALLÓ EL ENDPOINT DELETE!:", error);
     res.status(500).json({
       error: error.message,
       fullError: error,

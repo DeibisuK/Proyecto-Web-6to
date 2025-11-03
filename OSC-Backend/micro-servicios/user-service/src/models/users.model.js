@@ -19,21 +19,18 @@ export const findAll = async () => {
     const admin = firebaseModule.default;
     
     if (!admin || !admin.auth) {
-      console.warn('Firebase Admin no está disponible, retornando usuarios sin fotos');
       return res.rows.map(user => ({ ...user, foto_perfil: null }));
     }
     
     const usersWithPhotos = await Promise.all(res.rows.map(async (user) => {
       try {
         const userRecord = await admin.auth().getUser(user.uid);
-        console.log(`Usuario ${user.uid}: foto =`, userRecord.photoURL || 'sin foto');
         return {
           ...user,
           foto_perfil: userRecord.photoURL || null,
           displayName: userRecord.displayName || user.nombre
         };
       } catch (error) {
-        console.warn(`No se pudo obtener datos de Firebase para UID ${user.uid}:`, error.message);
         return {
           ...user,
           foto_perfil: null
@@ -43,7 +40,6 @@ export const findAll = async () => {
     
     return usersWithPhotos;
   } catch (error) {
-    console.error('Error al enriquecer con Firebase:', error.message);
     return res.rows.map(user => ({ ...user, foto_perfil: null }));
   }
 };
@@ -73,12 +69,6 @@ export const create = async (user) => {
     );
     return res.rows[0];
   } catch (err) {
-    // Log query context to help identify constraint/connection errors
-    console.error('[users.model] create query failed:', {
-      sql: 'INSERT INTO usuarios (uid, name_user, email_user, id_rol) VALUES ($1, $2, $3, $4) RETURNING *',
-      params: [uid, nombre, email, id_rol],
-      error: err && err.stack ? err.stack : err,
-    });
     throw err;
   }
 };
@@ -92,11 +82,6 @@ export const update = async (uid, user) => {
     );
     return res.rows[0];
   } catch (err) {
-    console.error('[users.model] update query failed:', {
-      sql: 'UPDATE usuarios SET id_rol = $1 WHERE uid = $2 RETURNING *',
-      params: [id_rol, uid],
-      error: err && err.stack ? err.stack : err,
-    });
     throw err;
   }
 };
@@ -114,11 +99,6 @@ export const updateRole = async (uid, id_rol) => {
     );
     return res.rows[0];
   } catch (err) {
-    console.error('[users.model] updateRole query failed:', {
-      sql: 'UPDATE usuarios SET id_rol = $1 WHERE uid = $2 RETURNING *',
-      params: [id_rol, uid],
-      error: err && err.stack ? err.stack : err,
-    });
     throw err;
   }
 };

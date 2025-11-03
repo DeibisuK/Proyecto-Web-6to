@@ -17,12 +17,8 @@ export const getAllUsersCombined = async () => {
           firebaseUsers.push(...listResult.users);
           nextPageToken = listResult.pageToken;
         } while (nextPageToken);
-        console.log(`✅ Firebase: ${firebaseUsers.length} usuarios obtenidos`);
-      } else {
-        console.warn('⚠️ Firebase Admin no disponible');
       }
     } catch (firebaseError) {
-      console.error('❌ Error obteniendo usuarios de Firebase:', firebaseError);
       // Continuar aunque Firebase falle
     }
 
@@ -30,9 +26,7 @@ export const getAllUsersCombined = async () => {
     let dbUsers = [];
     try {
       dbUsers = await adminModel.getAllUsersFromDB();
-      console.log(`✅ BD: ${dbUsers.length} usuarios obtenidos`);
     } catch (dbError) {
-      console.error('❌ Error obteniendo usuarios de BD:', dbError);
       throw dbError; // Si falla la BD, no podemos continuar
     }
 
@@ -114,7 +108,6 @@ export const getAllUsersCombined = async () => {
       users: allUsers
     };
   } catch (error) {
-    console.error('[admin.service] Error in getAllUsersCombined:', error);
     throw error;
   }
 };
@@ -134,8 +127,6 @@ export const assignRole = async (uid, id_rol) => {
       throw new Error('Usuario no encontrado en la base de datos');
     }
 
-    console.log(`✅ Rol actualizado en BD para usuario ${uid}: id_rol=${id_rol}`);
-
     // 2. Obtener información del rol
     let roleName = String(id_rol);
     let claimsSynced = false;
@@ -145,10 +136,9 @@ export const assignRole = async (uid, id_rol) => {
       const roleInfo = await adminModel.getRoleById(id_rol);
       if (roleInfo && roleInfo.nombre_rol) {
         roleName = roleInfo.nombre_rol;
-        console.log(`✅ Rol obtenido: ${roleName} (ID: ${id_rol})`);
       }
     } catch (roleError) {
-      console.warn('⚠️ No se pudo obtener nombre del rol:', roleError.message);
+      // Ignorar error al obtener nombre del rol
     }
 
     // 3. Sincronizar con Firebase Custom Claims
@@ -159,14 +149,11 @@ export const assignRole = async (uid, id_rol) => {
           id_rol: Number(id_rol)
         });
         claimsSynced = true;
-        console.log(`✅ Custom claims actualizados en Firebase para ${uid}`);
       } else {
         claimWarning = 'Firebase Admin no disponible';
-        console.warn('⚠️', claimWarning);
       }
     } catch (claimError) {
       claimWarning = `Error al sincronizar claims: ${claimError.message}`;
-      console.error('❌', claimWarning);
     }
 
     return {
@@ -177,7 +164,6 @@ export const assignRole = async (uid, id_rol) => {
       claimWarning
     };
   } catch (error) {
-    console.error('[admin.service] Error in assignRole:', error);
     throw error;
   }
 };

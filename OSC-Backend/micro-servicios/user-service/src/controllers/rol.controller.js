@@ -6,7 +6,6 @@ export class RolController {
       const roles = await service.getAll();
       res.status(200).json(roles);
     } catch (error) {
-      console.error('[RolController Error]', error);
       res.status(500).json({ error: 'Failed to fetch roles' });
     }
   }
@@ -16,7 +15,6 @@ export class RolController {
       const newRol = await service.create(req.body);
       res.status(201).json(newRol);
     } catch (error) {
-      console.error('[RolController Error]', error);
       res.status(500).json({ error: 'Failed to create rol' });
     }
   }
@@ -29,7 +27,6 @@ export class RolController {
       }
       res.status(200).json(rol);
     } catch (error) {
-      console.error('[RolController Error]', error);
       res.status(500).json({ error: 'Failed to fetch rol' });
     }
   }
@@ -42,7 +39,6 @@ export class RolController {
       }
       res.status(200).json(updatedRol);
     } catch (error) {
-      console.error('[RolController Error]', error);
       res.status(500).json({ error: 'Failed to update rol' });
     }
   }
@@ -55,7 +51,6 @@ export class RolController {
       }
       res.status(204).send();
     } catch (error) {
-      console.error('[RolController Error]', error);
       res.status(500).json({ error: 'Failed to delete rol' });
     }
   }

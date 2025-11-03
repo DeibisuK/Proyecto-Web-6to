@@ -17,7 +17,6 @@ export const getMisEquipos = async (req, res) => {
         const equipos = await service.getMisEquipos(req.user);
         res.json(equipos);
     } catch (error) {
-        console.error('Error al obtener mis equipos:', error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -43,7 +42,6 @@ export const createEquipo = async (req, res) => {
         const equipo = await service.create(req.body, req.user);
         res.status(201).json(equipo);
     } catch (error) {
-        console.error('Error al crear equipo:', error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -55,7 +53,6 @@ export const updateEquipo = async (req, res) => {
         const equipo = await service.update(req.params.id, req.body, req.user);
         res.json(equipo);
     } catch (error) {
-        console.error('Error al actualizar equipo:', error);
         res.status(403).json({ message: error.message });
     }
 };
@@ -71,7 +68,6 @@ export const deleteEquipo = async (req, res) => {
             res.status(404).json({ message: 'Equipo not found' });
         }
     } catch (error) {
-        console.error('Error al eliminar equipo:', error);
         res.status(403).json({ message: error.message });
     }
 };

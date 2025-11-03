@@ -21,7 +21,6 @@ export const getMetodosPagoByUser = async (req, res) => {
 
         res.json(metodosSeguros);
     } catch (error) {
-        console.error('Error al obtener métodos de pago:', error);
         res.status(500).json({ error: 'No se pudieron obtener los métodos de pago' });
     }
 };
@@ -51,7 +50,6 @@ export const getMetodoPagoById = async (req, res) => {
 
         res.json(metodoSeguro);
     } catch (error) {
-        console.error('Error al obtener método de pago:', error);
         res.status(500).json({ error: 'No se pudo obtener el método de pago' });
     }
 };
@@ -114,7 +112,6 @@ export const createMetodoPago = async (req, res) => {
             metodo: metodoSeguro
         });
     } catch (error) {
-        console.error('Error al crear método de pago:', error);
         res.status(500).json({ error: 'No se pudo crear el método de pago' });
     }
 };
@@ -183,7 +180,6 @@ export const updateMetodoPago = async (req, res) => {
             metodo: metodoSeguro
         });
     } catch (error) {
-        console.error('Error al actualizar método de pago:', error);
         res.status(500).json({ error: 'No se pudo actualizar el método de pago' });
     }
 };
@@ -207,7 +203,6 @@ export const deleteMetodoPago = async (req, res) => {
         await metodoPagoService.deleteMetodoPago(id);
         res.json({ message: 'Método de pago eliminado correctamente' });
     } catch (error) {
-        console.error('Error al eliminar método de pago:', error);
         res.status(500).json({ error: 'No se pudo eliminar el método de pago' });
     }
 };

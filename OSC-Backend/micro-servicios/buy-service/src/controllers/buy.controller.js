@@ -63,7 +63,6 @@ export const addItemToCart = async (req, res) => {
 
 export const updateItemInCart = async (req, res) => {
     try {
-        console.log('🔵 [UPDATE ITEM] ID:', req.params.id_item, 'Cantidad:', req.body.cantidad);
         const { cantidad } = req.body;
         
         if (!cantidad || cantidad < 1) {
@@ -71,19 +70,12 @@ export const updateItemInCart = async (req, res) => {
         }
         
         const item = await itemsCarritoService.updateItem(req.params.id_item, req.body);
-        console.log('✅ [UPDATE ITEM] Item actualizado:', {
-            id_item: item.id_item,
-            cantidad: item.cantidad,
-            stock_variante: item.stock_variante,
-            tiene_stock: item.hasOwnProperty('stock_variante')
-        });
         
         res.json({
             message: 'Item actualizado exitosamente',
             item
         });
     } catch (error) {
-        console.error('❌ [UPDATE ITEM] Error:', error.message);
         if (error.message.includes('Stock insuficiente')) {
             return res.status(400).json({ message: error.message });
         }

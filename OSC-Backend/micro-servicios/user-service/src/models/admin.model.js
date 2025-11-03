@@ -20,7 +20,6 @@ export const getAllUsersFromDB = async () => {
     
     return res.rows;
   } catch (error) {
-    console.error('[admin.model] Error fetching DB users:', error);
     throw error;
   }
 };
@@ -47,11 +46,6 @@ export const updateUserRole = async (uid, id_rol) => {
     
     return res.rows[0];
   } catch (error) {
-    console.error('[admin.model] Error updating user role:', {
-      uid,
-      id_rol,
-      error: error.message
-    });
     throw error;
   }
 };
@@ -70,10 +64,6 @@ export const getRoleById = async (id_rol) => {
     
     return res.rows[0] || null;
   } catch (error) {
-    console.error('[admin.model] Error fetching role:', {
-      id_rol,
-      error: error.message
-    });
     throw error;
   }
 };

@@ -44,7 +44,6 @@ export const getAllProductos = async (req, res) => {
     const result = await service.searchProductos(opts);
     res.json(result);
   } catch (error) {
-    console.error("[getAllProductos] error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -92,15 +91,9 @@ export const searchProductos = async (req, res) => {
       offset,
     };
 
-    console.debug("[searchProductos] opts (parsed):", opts);
     const result = await service.searchProductos(opts);
-    console.debug("[searchProductos] result:", {
-      total: result.total,
-      count: result.data.length,
-    });
     res.json(result);
   } catch (error) {
-    console.error("[searchProductos] error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -122,8 +115,6 @@ export const getProductoDetalle = async (req, res) => {
       });
     }
 
-    console.debug("[getProductoDetalle] Buscando producto ID:", idProducto);
-
     const producto = await service.getProductoDetalle(idProducto);
 
     if (!producto) {
@@ -133,10 +124,8 @@ export const getProductoDetalle = async (req, res) => {
       });
     }
 
-    console.debug("[getProductoDetalle] Producto encontrado:", producto.nombre);
     res.json(producto);
   } catch (error) {
-    console.error("[getProductoDetalle] error:", error);
     res.status(500).json({
       message: "Error al obtener el detalle del producto",
       error: error.message,
@@ -191,7 +180,6 @@ export const postVariantes = async (req, res) => {
     const inserted = await service.createVariantes(idProducto, variantes);
     res.status(201).json({ inserted_count: inserted.length, variantes: inserted });
   } catch (error) {
-    console.error('[postVariantes] error:', error);
     // errores de validación lanzados por el modelo pueden propagarse con mensajes legibles
     res.status(400).json({ message: error.message });
   }
@@ -231,7 +219,6 @@ export const getOpciones = async (req, res) => {
     const opciones = await service.getOpciones();
     res.json(opciones);
   } catch (error) {
-    console.error('[getOpciones] error:', error);
     res.status(500).json({ message: error.message });
   }
 };
