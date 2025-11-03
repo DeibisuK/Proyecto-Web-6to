@@ -87,60 +87,9 @@ export class UsuarioComponent implements OnInit {
       });
       // Filtrar el usuario actual de la lista
     } catch (error) {
-      console.error('Error:', error);
       this.isLoading = false;
     }
   }
-
-  // async cargarUsuarios() {
-  //   this.isLoading = true;
-  //   try {
-  //     const currentUser = this.auth.currentUser;
-
-  //     this.userApiService.getAllUsersFromDB().subscribe({
-  //       next: (data) => {
-  //         //          console.log('Usuarios desde BD:', data);
-
-  //         // Transformar los datos al formato esperado
-  //         this.usuarios = data.map((u, index) => ({
-  //           id_usuario: index + 1, // ID temporal para el frontend
-  //           uid: u.uid,
-  //           nombre: u.nombre || 'Sin nombre',
-  //           apellido: '',
-  //           email: u.email,
-  //           foto_perfil:
-  //             u.foto_perfil ||
-  //             'https://ui-avatars.com/api/?name=' +
-  //               encodeURIComponent(u.nombre || 'User') +
-  //               '&background=random',
-  //           rol: u.rol || this.rolMap[(u as any).id_rol] || 'Cliente',
-  //           fecha_registro: new Date().toISOString(),
-  //           estado: 'activo',
-  //           source: 'db-only',
-  //           emailVerified: true,
-  //           providerData: [],
-  //         }));
-
-  //         // Filtrar el usuario actual de la lista
-  //         if (currentUser) {
-  //           this.usuarios = this.usuarios.filter((u) => u.uid !== currentUser.uid);
-  //         }
-
-  //         //this.usuariosFiltrados = [...this.usuarios];
-  //         this.aplicarPaginacion();
-  //         this.isLoading = false;
-  //       },
-  //       error: (error) => {
-  //         console.error('Error al cargar usuarios:', error);
-  //         this.notificationService.error('Error al cargar usuarios');
-  //         this.isLoading = false;
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //     this.isLoading = false;
-  //   }
-  // }
 
   filtrarUsuarios() {
     this.usuariosFiltrados = this.usuariosCombinados!.users.filter((usuario) => {
@@ -216,8 +165,6 @@ export class UsuarioComponent implements OnInit {
 
     this.userApiService.updateUserRole(uid, rolInfo.id).subscribe({
       next: (data) => {
-        console.log('Rol actualizado:', data);
-
         // Actualizar en la lista combinada
         if (this.usuariosCombinados) {
           const index = this.usuariosCombinados.users.findIndex(
@@ -235,7 +182,6 @@ export class UsuarioComponent implements OnInit {
         this.cerrarModalCambiarRol();
       },
       error: (error) => {
-        console.error('Error al actualizar rol:', error);
         this.notificationService.error('Error al actualizar el rol');
       },
     });
@@ -256,7 +202,6 @@ export class UsuarioComponent implements OnInit {
     // id_rol 2 = Cliente
     this.userApiService.updateUserRole(uid, 2).subscribe({
       next: (data) => {
-        console.log('Rol removido:', data);
         if (this.usuariosCombinados) {
           const index = this.usuariosCombinados.users.findIndex((u) => u.uid === usuario.uid);
           if (index !== -1) {
@@ -269,7 +214,6 @@ export class UsuarioComponent implements OnInit {
         this.notificationService.success('Rol removido correctamente');
       },
       error: (error) => {
-        console.error('Error al remover rol:', error);
         this.notificationService.error('Error al remover el rol');
       },
     });
@@ -291,8 +235,6 @@ export class UsuarioComponent implements OnInit {
 
     this.userApiService.deleteUser(uid).subscribe({
       next: () => {
-        console.log('Usuario eliminado');
-
         this.usuarios = this.usuarios.filter((u) => u.uid !== this.usuarioSeleccionado!.uid);
         this.filtrarUsuarios();
 
@@ -300,7 +242,6 @@ export class UsuarioComponent implements OnInit {
         this.cerrarModalEliminar();
       },
       error: (error) => {
-        console.error('Error al eliminar usuario:', error);
         this.notificationService.error('Error al eliminar el usuario');
         this.cerrarModalEliminar();
       },

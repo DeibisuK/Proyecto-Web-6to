@@ -43,10 +43,8 @@ export class ListCancha implements OnInit {
       next: (data) => {
         this.canchas = data;
         this.isLoading = false;
-        console.log('Canchas cargadas:', data);
       },
       error: (error) => {
-        console.error('Error al cargar canchas:', error);
         this.notificationService.error('Error al cargar las canchas');
         this.isLoading = false;
       }
@@ -91,7 +89,6 @@ export class ListCancha implements OnInit {
         this.cargarCanchas();
       },
       error: (error) => {
-        console.error('Error al eliminar cancha:', error);
         this.notificationService.error('Error al eliminar la cancha');
         this.cerrarModalEliminar();
       }
@@ -108,7 +105,7 @@ export class ListCancha implements OnInit {
     // Filtrar por búsqueda
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      resultado = resultado.filter(cancha => 
+      resultado = resultado.filter(cancha =>
         cancha.nombre_cancha.toLowerCase().includes(term) ||
         cancha.tipo_superficie.toLowerCase().includes(term) ||
         cancha.estado.toLowerCase().includes(term)

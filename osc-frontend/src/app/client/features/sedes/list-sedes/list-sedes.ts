@@ -27,7 +27,6 @@ export class ListSedes implements OnInit {
   }
 
   cargarSedes(): void {
-    console.log('listar sedes de cliente');
     this.isLoading = true;
     this.sedeService.getSedes().subscribe({
       next: (data) => {
@@ -36,7 +35,6 @@ export class ListSedes implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error cargando sedes', err);
         this.notificationService.notify({
           message: 'No se pudieron cargar las sedes',
           type: 'error'

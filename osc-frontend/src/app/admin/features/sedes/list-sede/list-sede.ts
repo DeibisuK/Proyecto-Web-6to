@@ -37,7 +37,6 @@ export class ListSede implements OnInit {
         this.sedesFiltradas = [...this.sedes];
       },
       error: (err) => {
-        console.error('Error cargando sedes', err);
         this.notificationService.notify({
           message: 'No se pudieron cargar las sedes',
           type: 'error'
@@ -48,7 +47,7 @@ export class ListSede implements OnInit {
 
   filtrarSedes(): void {
     this.sedesFiltradas = this.sedes.filter(sede => {
-      const matchSearch = !this.searchTerm || 
+      const matchSearch = !this.searchTerm ||
         sede.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         sede.direccion.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         sede.ciudad?.toLowerCase().includes(this.searchTerm.toLowerCase());
@@ -79,12 +78,12 @@ export class ListSede implements OnInit {
 
   eliminarSede(id: number | undefined): void {
     if (id === undefined) return;
-    
+
     const sede = this.sedes.find(s => s.id_sede === id);
     if (!sede) return;
 
     const confirmDelete = confirm(`¿Estás seguro de eliminar la sede "${sede.nombre}"? Esta acción no se puede deshacer.`);
-    
+
     if (confirmDelete) {
       this.notificationService.notify({
         message: 'Eliminando sede...',
@@ -101,7 +100,6 @@ export class ListSede implements OnInit {
           });
         },
         error: (err) => {
-          console.error('Error eliminando sede', err);
           this.notificationService.notify({
             message: `No se pudo eliminar la sede: ${err.error?.message || 'Error desconocido'}`,
             type: 'error'

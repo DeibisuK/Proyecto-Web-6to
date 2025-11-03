@@ -149,7 +149,6 @@ export class AuthService {
       } catch (err) {
         console.error('Error al refrescar token después del registro', err);
       }
-      console.log('Usuario creado en el backend', resp);
     } catch (err) {
       console.error('Error al persistir usuario en el backend', err);
     }
@@ -221,7 +220,6 @@ export class AuthService {
         };
         try {
           const resp = await firstValueFrom(this.userApi.createUser(payload));
-          console.log('Usuario creado en backend con proveedor', resp);
         } catch (err) {
           console.error('Error al crear usuario en backend con proveedor', err);
         }

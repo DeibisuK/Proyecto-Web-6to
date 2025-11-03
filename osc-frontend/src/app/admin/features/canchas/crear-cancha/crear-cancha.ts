@@ -68,7 +68,7 @@ export class CrearCancha implements OnInit {
 
   ngOnInit() {
     this.cargarSedes();
-    
+
     // Verificar si estamos en modo edición
     const id = this.route.snapshot.params['id'];
     if (id) {
@@ -89,7 +89,6 @@ export class CrearCancha implements OnInit {
           }));
       },
       error: (error) => {
-        console.error('Error al cargar sedes:', error);
         this.notificationService.error('Error al cargar las sedes');
       }
     });
@@ -104,7 +103,6 @@ export class CrearCancha implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar cancha:', error);
         this.notificationService.error('Error al cargar la cancha');
         this.router.navigate(['/admin/canchas']);
       }
@@ -143,7 +141,6 @@ export class CrearCancha implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error al subir imagen:', error);
           this.notificationService.error('Error al subir la imagen');
           this.isLoading = false;
         }
@@ -151,7 +148,7 @@ export class CrearCancha implements OnInit {
   }
 
   ejecutarGuardado(): void {
-    const operacion = this.isEditMode 
+    const operacion = this.isEditMode
       ? this.canchaService.updateCancha(this.canchaData.id_cancha!, this.canchaData)
       : this.canchaService.createCancha(this.canchaData);
 
@@ -165,7 +162,6 @@ export class CrearCancha implements OnInit {
         }, 1500);
       },
       error: (error) => {
-        console.error('Error al guardar cancha:', error);
         this.notificationService.error(error.error?.message || 'Error al guardar la cancha');
         this.isLoading = false;
       }
@@ -204,7 +200,7 @@ export class CrearCancha implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {

@@ -25,10 +25,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 // Función factory para inicializar la autenticación
 export function initializeAuth(authService: AuthService) {
-  console.log('APP_INITIALIZER: Esperando estado de autenticación...');
-  return firstValueFrom(authService.authReady$).then(() => {
-    console.log('APP_INITIALIZER: Estado de autenticación cargado');
-  });
+  return firstValueFrom(authService.authReady$).then();
 }
 
 export const appConfig: ApplicationConfig = {

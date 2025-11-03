@@ -57,7 +57,6 @@ export class MisPedidosPage implements OnInit, OnDestroy {
       error: (error) => {
         this.isLoading.set(false);
         this.notificationService.error('Error al cargar pedidos');
-        console.error('Error cargando pedidos:', error);
       }
     });
   }
@@ -75,7 +74,7 @@ export class MisPedidosPage implements OnInit, OnDestroy {
           this.pedidos.set(pedidos);
         },
         error: (error) => {
-          console.error('Error en actualización automática:', error);
+          this.notificationService.error('Error en actualización automática');
         }
       });
   }
@@ -135,7 +134,6 @@ export class MisPedidosPage implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.notificationService.error('Error al cancelar el pedido');
-        console.error('Error cancelando pedido:', error);
       }
     });
   }

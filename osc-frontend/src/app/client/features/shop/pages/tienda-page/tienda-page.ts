@@ -61,17 +61,13 @@ export class TiendaPage implements OnInit {
             // Validar que exista la categoria por id_categoria
             const found = this.categorias.find((c) => c.id_categoria === categoriaId);
             if (found) {
-              console.log(`✅ Categoría encontrada: ${found.nombre_categoria} (ID: ${categoriaId})`);
               this.filtrosActivos.categorias = [categoriaId];
-            } else {
-              console.warn(`⚠️ Categoría no encontrada con ID: ${categoriaId}`);
             }
           }
           this.cargarProductos();
         });
       },
       (err: any) => {
-        console.error('Error cargando categorias en TiendaPage', err);
         // aunque fallen las categorias, seguimos cargando productos sin filtrar por categoria
         this.route.queryParams.subscribe((params) => {
           const qcat = params['categoria'];
@@ -90,16 +86,10 @@ export class TiendaPage implements OnInit {
    * Cuando cambia el deporte, se resetea a la página 1 y se recargan productos
    */
   onDeporteChange(deporte: number) {
-    console.log('\n🎾 === CAMBIO DE DEPORTE ===');
-    console.log('Deporte recibido:', deporte);
 
     this.deporteSeleccionado = deporte;
     this.filtrosActivos.deportes = [deporte];
     this.filtrosActivos.page = 1; // Resetear a página 1 al cambiar filtro
-
-    console.log('Filtros activos actualizados:', this.filtrosActivos);
-    console.log('===========================\n');
-
     this.cargarProductos();
   }
 
@@ -108,18 +98,12 @@ export class TiendaPage implements OnInit {
    * Cuando cambian los filtros, se resetea a la página 1 y se recargan productos
    */
   onFiltrosChange(filtros: FiltrosProducto) {
-    console.log('\n🔧 === CAMBIO DE FILTROS ===');
-    console.log('Filtros recibidos:', filtros);
-
     // Mergear filtros nuevos con los actuales
     this.filtrosActivos = {
       ...this.filtrosActivos,
       ...filtros,
       page: 1 // Resetear a página 1 cuando cambian filtros
     };
-
-    console.log('Filtros activos actualizados:', this.filtrosActivos);
-    console.log('============================\n');
 
     this.cargarProductos();
   }
@@ -139,26 +123,16 @@ export class TiendaPage implements OnInit {
   private cargarProductos() {
     this.isLoading = true;
 
-    console.log('🔵 === CARGANDO PRODUCTOS DESDE BACKEND ===');
-    console.log('🎯 Filtros enviados al backend:', this.filtrosActivos);
-
     // Llamar al nuevo endpoint que hace el filtrado en el backend
     this.productoService.searchProductos(this.filtrosActivos).subscribe({
       next: (response) => {
-        console.log('✅ Respuesta del backend:', response);
-        console.log(`� Productos recibidos: ${response.data.length} de ${response.total} totales`);
-        console.log(`📄 Página ${response.page} de ${response.total_pages}`);
-
         // Asignar productos ya filtrados por el backend
         this.productos = response.data;
         this.totalProductos = response.total;
         this.totalPaginas = response.total_pages;
         this.isLoading = false;
-
-        console.log('===========================================\n');
       },
       error: (error) => {
-        console.error('❌ Error cargando productos:', error);
         this.productos = [];
         this.totalProductos = 0;
         this.totalPaginas = 0;

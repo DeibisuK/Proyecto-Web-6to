@@ -134,13 +134,10 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   cargarSedes() {
-        console.log('listar sedes de navbar');
 
     this.sedeService.getSedes().subscribe({
       next: (sedes) => {
-        console.log('Sedes recibidas en navbar:', sedes);
         this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
-        console.log('Sedes agrupadas:', this.sedesAgrupadas);
       },
       error: (error) => {
         console.error('Error al cargar sedes en navbar:', error);

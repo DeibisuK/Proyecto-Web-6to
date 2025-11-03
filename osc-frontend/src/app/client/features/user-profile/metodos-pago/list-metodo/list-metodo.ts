@@ -29,14 +29,14 @@ export class ListMetodo implements OnInit {
 
   loadCards() {
     const currentUser = this.authService.currentUser;
-    
+
     if (!currentUser) {
       this.notificationService.error('Debes iniciar sesión para ver tus métodos de pago');
       return;
     }
 
     this.isLoading = true;
-    
+
     this.metodoPagoService.getMetodosPagoByUser(currentUser.uid).subscribe({
       next: (metodos) => {
         this.cards = metodos;
@@ -44,7 +44,6 @@ export class ListMetodo implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error al cargar métodos de pago:', error);
         this.notificationService.error('Error al cargar los métodos de pago');
         this.isLoading = false;
       }
@@ -60,14 +59,13 @@ export class ListMetodo implements OnInit {
   }
 
   onCardAdded(metodo: MetodoPago) {
-    console.log('Tarjeta agregada:', metodo);
     this.loadCards(); // Recargar lista
     this.closeModal();
   }
 
   deleteCard(card: MetodoPago) {
     const currentUser = this.authService.currentUser;
-    
+
     if (!currentUser) {
       this.notificationService.error('Debes iniciar sesión');
       return;
@@ -80,7 +78,6 @@ export class ListMetodo implements OnInit {
           this.loadCards();
         },
         error: (error) => {
-          console.error('Error al eliminar tarjeta:', error);
           this.notificationService.error('No se pudo eliminar la tarjeta');
         }
       });

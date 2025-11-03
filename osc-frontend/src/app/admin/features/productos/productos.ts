@@ -109,7 +109,6 @@ export class ProductosComponent implements OnInit {
           this.cargando.set(false);
         },
         error: (error) => {
-          console.error('Error al buscar producto:', error);
           this.error.set('Error al buscar producto');
           this.cargando.set(false);
         },
@@ -140,7 +139,6 @@ export class ProductosComponent implements OnInit {
       error: (err) => {
         this.error.set('Ocurrió un error al cargar los datos.');
         this.cargando.set(false);
-        console.error('Error cargando datos:', err);
       },
     });
   }
@@ -204,7 +202,6 @@ export class ProductosComponent implements OnInit {
               this.cargandoVariantes.set(false);
             },
             error: (err) => {
-              console.error('Error cargando detalle tras crear producto:', err);
               this.cargandoVariantes.set(false);
             },
           });
@@ -212,7 +209,6 @@ export class ProductosComponent implements OnInit {
         this.cargando.set(false);
       },
       error: (err) => {
-        console.error('Error creando producto:', err);
         this.error.set('Error al crear el producto');
         this.cargando.set(false);
       },
@@ -460,7 +456,6 @@ export class ProductosComponent implements OnInit {
         this.cargandoVariantes.set(false);
       },
       error: (err) => {
-        console.error('Error creando variantes:', err);
         this.error.set('Error al crear variantes');
         this.cargandoVariantes.set(false);
       },
@@ -485,7 +480,6 @@ export class ProductosComponent implements OnInit {
         this.cargandoVariantes.set(false);
       },
       error: (error) => {
-        console.error('Error al cargar variantes:', error);
         this.error.set('Error al cargar las variantes del producto');
         this.cargandoVariantes.set(false);
         this.productoExpandido.set(null);
@@ -518,7 +512,6 @@ export class ProductosComponent implements OnInit {
       window.open('/admin/opciones', '_blank');
       this.error.set('Abriendo panel de opciones en una nueva pestaña (si existe).');
     } catch (err) {
-      console.warn('No se pudo abrir el panel de opciones:', err);
       this.error.set('No se pudo abrir el panel de opciones automáticamente.');
     }
   }

@@ -19,10 +19,10 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
   isLoading = false;
   latitud: number = -3.258095;
   longitud: number = -79.959908;
-  
+
   private map!: L.Map;
   private marker!: L.Marker;
-  
+
   estados: string[] = ['Activo', 'Mantenimiento', 'Inactivo'];
 
   constructor(
@@ -35,7 +35,7 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.inicializarFormulario();
-    
+
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.isEditMode = true;
@@ -78,7 +78,6 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
         this.initMap();
       },
       error: (err) => {
-        console.error('Error cargando sede', err);
         this.notificationService.notify({
           message: 'No se pudo cargar la sede',
           type: 'error'
@@ -164,7 +163,6 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
         }
       })
       .catch((error) => {
-        console.error('Error al obtener dirección desde coordenadas', error);
         // Fallback
         this.sedeForm.patchValue({
           direccion: `Coordenadas: ${lat.toFixed(6)}, ${lon.toFixed(6)}`,
@@ -206,7 +204,7 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
       type: 'loading'
     });
 
-    const operation = this.isEditMode 
+    const operation = this.isEditMode
       ? this.sedeService.updateSede(Number(this.route.snapshot.params['id']), sedeData)
       : this.sedeService.createSede(sedeData);
 
@@ -216,13 +214,12 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
           message: this.isEditMode ? 'Sede actualizada correctamente' : 'Sede creada correctamente',
           type: 'success'
         });
-        
+
         setTimeout(() => {
           this.router.navigate(['/admin/sedes']);
         }, 1500);
       },
       error: (err) => {
-        console.error('Error al guardar sede', err);
         this.notificationService.notify({
           message: `Error al ${this.isEditMode ? 'actualizar' : 'crear'} la sede: ${err.error?.message || 'Error desconocido'}`,
           type: 'error'

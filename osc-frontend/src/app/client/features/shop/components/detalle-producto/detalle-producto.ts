@@ -59,14 +59,12 @@ export class DetalleProducto implements OnInit {
 
     this.productoService.getProductoDetalle(id).subscribe({
       next: (producto) => {
-        console.log('✅ Producto cargado:', producto);
         this.producto = producto;
         this.extraerOpciones();
         this.seleccionarPrimeraVariante();
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('❌ Error cargando producto:', error);
         this.isLoading = false;
         // Redirigir a tienda si el producto no existe
         this.router.navigate(['/tienda']);
@@ -105,7 +103,6 @@ export class DetalleProducto implements OnInit {
     });
 
     this.opcionesDisponibles = Array.from(opcionesMap.values());
-    console.log('🎨 Opciones extraídas:', this.opcionesDisponibles);
   }
 
   /**
@@ -153,12 +150,6 @@ export class DetalleProducto implements OnInit {
       this.varianteSeleccionada = varianteEncontrada;
       this.imagenPrincipal = this.getImagenUrl(varianteEncontrada.imagenes[0]);
       this.cantidad = 1; // Resetear cantidad al cambiar variante
-
-      console.log('🔄 Variante seleccionada:', {
-        sku: varianteEncontrada.sku,
-        precio: varianteEncontrada.precio,
-        stock: varianteEncontrada.stock
-      });
     } else {
       // Si no se encontró una variante que coincida (puede ocurrir cuando las opciones
       // anteriores persisten), tomar la primera variante como fallback para evitar
@@ -171,7 +162,6 @@ export class DetalleProducto implements OnInit {
         // Asegurar que las opciones seleccionadas reflejen la variante usada
         this.opcionesSeleccionadas = new Map();
         primera.valores.forEach(v => this.opcionesSeleccionadas.set(v.id_opcion, v.id_valor));
-        console.log('⚠️ Variante no encontrada por filtros — usando primera variante como fallback');
       }
     }
   }
@@ -265,17 +255,7 @@ export class DetalleProducto implements OnInit {
       return;
     }
 
-    this.carritoService.agregarItem(this.varianteSeleccionada.id_variante, this.cantidad).subscribe({
-      next: () => {
-        // La notificación ya se muestra en el servicio
-      },
-      error: (error) => {
-        // Los errores ya se manejan en el servicio con notificaciones
-        if (error.message !== 'Usuario no autenticado') {
-          console.error('Error al agregar al carrito:', error);
-        }
-      }
-    });
+    this.carritoService.agregarItem(this.varianteSeleccionada.id_variante, this.cantidad).subscribe();
   }
 
   /**

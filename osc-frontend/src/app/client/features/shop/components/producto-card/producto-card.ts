@@ -30,11 +30,7 @@ export class ProductoCard {
    */
   agregarAlCarrito(event: Event) {
     event.stopPropagation();
-
-    // Navegar al detalle del producto para que el usuario seleccione la variante
     this.router.navigate(['/tienda/producto', this.producto.id]);
-
-    console.log('ℹ️ Redirigiendo a detalle para seleccionar variante del producto:', this.producto.id);
   }
 
   /**
@@ -45,7 +41,6 @@ export class ProductoCard {
     const img = event.target as HTMLImageElement;
     if (img) {
       img.src = '/assets/placeholder.png';
-      console.warn('⚠️ Error al cargar imagen del producto:', this.producto.id);
     }
   }
 

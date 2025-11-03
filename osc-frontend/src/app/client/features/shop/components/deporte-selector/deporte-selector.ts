@@ -18,15 +18,11 @@ export class DeporteSelector implements OnInit {
   ngOnInit(): void {
     this.deporteService.getDeportes().subscribe((deportes) => {
       this.deportes = deportes;
-      console.log('⚽ Deportes cargados en DeporteSelector:', deportes);
-      console.log('   Tipos de ID:', deportes?.map(d => ({ id: d.id_deporte, tipo: typeof d.id_deporte })));
     });
   }
 
   seleccionarDeporte(id: number) { // Cambio: parámetro ahora es number
-    console.log('⚽ DeporteSelector - ID seleccionado:', id, '(tipo:', typeof id + ')');
     this.deporteActivo = id;
-    console.log('📤 DeporteSelector - Emitiendo deporte:', id);
     this.deporteChange.emit(id); // Emite el número directamente
   }
 }

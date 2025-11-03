@@ -66,7 +66,7 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
             // La actualización automática recogerá el cambio
           },
           error: (error) => {
-            console.error('Error actualizando estado:', error);
+            this.notificationService.error('Error actualizando estado');
           },
         });
       }
@@ -101,14 +101,11 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
 
     this.orderService.obtenerPedido(id_pedido).subscribe({
       next: (response) => {
-        console.log('Detalle del pedido recibido:', response);
-        console.log('Cantidad de items:', response?.detalles?.length);
         this.pedido.set(response);
         this.isLoading.set(false);
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('Error completo:', error);
         this.notificationService.error('Error al cargar el pedido');
         this.router.navigate(['/mis-pedidos']);
       },
@@ -126,7 +123,7 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
           this.pedido.set(response);
         },
         error: (error) => {
-          console.error('Error en actualización automática:', error);
+          this.notificationService.error('Error en actualización automática');
         },
       });
   }
@@ -265,7 +262,6 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.notificationService.error('Error al cancelar el pedido');
-        console.error('Error cancelando pedido:', error);
       },
     });
   }

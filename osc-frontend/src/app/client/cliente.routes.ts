@@ -1,7 +1,6 @@
 import { Routes } from "@angular/router";
 import { Contact } from "./features/contact/contact";
 import { Home } from "./features/home/pages/home-page/home-page";
-//import { Productos } from "./features/productos/productos";
 import { MisionVision } from "./features/informacion/nosotros/mision-vision/mision-vision";
 import { Equipo } from "./features/informacion/nosotros/equipo/equipo";
 import { Historia } from "./features/informacion/nosotros/historia/historia";

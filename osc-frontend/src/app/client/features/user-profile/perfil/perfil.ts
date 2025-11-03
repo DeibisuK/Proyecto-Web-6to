@@ -58,7 +58,7 @@ export class Perfil implements OnInit {
     });
 
     this.providerData = this.user.providerData || [];
-    
+
     // Formatear fechas
     if (this.user.metadata.creationTime) {
       this.creationTime = new Date(this.user.metadata.creationTime).toLocaleDateString('es-ES', {
@@ -84,12 +84,11 @@ export class Perfil implements OnInit {
 
   async getUserRole() {
     if (!this.user) return;
-    
+
     try {
       const token = await this.user.getIdTokenResult();
       this.userRole = token.claims['role'] as string || 'cliente';
     } catch (error) {
-      console.error('Error obteniendo rol:', error);
       this.userRole = 'cliente';
     }
   }
@@ -104,11 +103,10 @@ export class Perfil implements OnInit {
 
       this.notificationService.success('Perfil actualizado correctamente');
       this.isEditing = false;
-      
+
       // Recargar datos
       this.loadUserData();
     } catch (error: any) {
-      console.error('Error actualizando perfil:', error);
       this.notificationService.error('Error al actualizar el perfil');
     }
   }
@@ -139,8 +137,8 @@ export class Perfil implements OnInit {
       this.isChangingPassword = false;
       this.passwordForm.reset();
     } catch (error: any) {
-      console.error('Error cambiando contraseña:', error);
-      
+      this.notificationService.error('Error cambiando contraseña');
+
       if (error.code === 'auth/wrong-password') {
         this.notificationService.error('Contraseña actual incorrecta');
       } else {

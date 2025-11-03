@@ -55,7 +55,6 @@ export class Equipos implements OnInit {
         this.deporte = deportes;
       },
       error: (error) => {
-        console.error('Error al cargar deportes:', error);
         this.notificationService.error('Error al cargar los deportes');
       }
     });
@@ -73,7 +72,6 @@ export class Equipos implements OnInit {
         this.aplicarPaginacion();
       },
       error: (error) => {
-        console.error('Error al cargar equipos:', error);
         this.notificationService.error('Error al cargar los equipos');
         this.isLoading = false;
       }
@@ -167,7 +165,6 @@ export class Equipos implements OnInit {
         this.cargarEquipos();
       },
       error: (error) => {
-        console.error('Error al actualizar equipo:', error);
         this.notificationService.error('Error al actualizar el equipo');
       }
     });
@@ -193,7 +190,6 @@ export class Equipos implements OnInit {
         this.cargarEquipos();
       },
       error: (error) => {
-        console.error('Error al eliminar equipo:', error);
         this.notificationService.error('Error al eliminar el equipo');
       }
     });

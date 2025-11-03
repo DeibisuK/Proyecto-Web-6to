@@ -47,21 +47,11 @@ export class FiltroPanelComponent implements OnInit {
     // Cargar categorias desde el servicio (tipadas)
     this.categoriaService.getCategorias().subscribe((categorias: Categoria[]) => {
       this.categorias = categorias;
-      console.log('📁 Categorías cargadas en FiltroPanelComponent:', categorias);
-      console.log(
-        '   Tipos de ID:',
-        categorias.map((c) => ({ id: c.id_categoria, tipo: typeof c.id_categoria }))
-      );
     });
 
     // Cargar marcas desde el servicio (tipadas)
     this.marcaService.getMarcas().subscribe((marcas: Marca[]) => {
       this.marcas = marcas;
-      console.log('🏷️ Marcas cargadas en FiltroPanelComponent:', marcas);
-      console.log(
-        '   Tipos de ID:',
-        marcas.map((m) => ({ id: m.id_marca, tipo: typeof m.id_marca }))
-      );
     });
   }
 
@@ -81,39 +71,25 @@ export class FiltroPanelComponent implements OnInit {
   }
 
   toggleCategoria(categoriaId: number) {
-    console.log(
-      '📁 Toggle Categoría - ID recibido:',
-      categoriaId,
-      '(tipo:',
-      typeof categoriaId + ')'
-    );
 
     const index = this.filtros.categorias?.indexOf(categoriaId) ?? -1;
     if (index === -1) {
       this.filtros.categorias?.push(categoriaId);
-      console.log('  ✅ Categoría agregada');
     } else {
       this.filtros.categorias?.splice(index, 1);
-      console.log('  ❌ Categoría removida');
     }
-
-    console.log('  Categorías actuales:', this.filtros.categorias);
     this.aplicarFiltros();
   }
 
   toggleMarca(marcaId: number) {
-    console.log('🏷️ Toggle Marca - ID recibido:', marcaId, '(tipo:', typeof marcaId + ')');
 
     const index = this.filtros.marcas?.indexOf(marcaId) ?? -1;
     if (index === -1) {
       this.filtros.marcas?.push(marcaId);
-      console.log('  ✅ Marca agregada');
     } else {
       this.filtros.marcas?.splice(index, 1);
-      console.log('  ❌ Marca removida');
     }
 
-    console.log('  Marcas actuales:', this.filtros.marcas);
     this.aplicarFiltros();
   }
 
@@ -157,7 +133,6 @@ export class FiltroPanelComponent implements OnInit {
   }
 
   private aplicarFiltros() {
-    console.log('📤 FiltroPanelComponent - Emitiendo filtros:', this.filtros);
     this.filtrosChange.emit(this.filtros);
   }
 }

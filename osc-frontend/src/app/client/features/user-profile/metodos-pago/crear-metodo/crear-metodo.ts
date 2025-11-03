@@ -72,14 +72,14 @@ export class CrearMetodo implements OnInit, OnChanges, OnDestroy {
     }
 
     const currentUser = this.authService.currentUser;
-    
+
     if (!currentUser) {
       this.notificationService.error('Debes iniciar sesión');
       return;
     }
 
     const cardData = this.cardForm.value;
-    
+
     // Validar número de tarjeta
     if (!this.metodoPagoService.validarNumeroTarjeta(cardData.cardNumber)) {
       this.notificationService.error('Número de tarjeta no válido');
@@ -113,7 +113,6 @@ export class CrearMetodo implements OnInit, OnChanges, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error al agregar tarjeta:', error);
         const errorMessage = error.error?.error || 'No se pudo agregar la tarjeta';
         this.notificationService.error(errorMessage);
         this.isLoading = false;
@@ -126,26 +125,26 @@ export class CrearMetodo implements OnInit, OnChanges, OnDestroy {
     const matches = value.match(/\d{4,16}/g);
     const match = matches && matches[0] || '';
     const parts = [];
-    
+
     for (let i = 0, len = match.length; i < len; i += 4) {
       parts.push(match.substring(i, i + 4));
     }
-    
+
     if (parts.length) {
       value = parts.join(' ');
     }
-    
+
     event.target.value = value;
     this.cardForm.patchValue({ cardNumber: value }, { emitEvent: false });
   }
 
   formatExpiryDate(event: any) {
     let value = event.target.value.replace(/\D/g, '');
-    
+
     if (value.length >= 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
-    
+
     event.target.value = value;
     this.cardForm.patchValue({ expiryDate: value }, { emitEvent: false });
   }

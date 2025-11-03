@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { NotificationService } from './../../../../../core/services/notification.service';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // import { Component, Input, OnInit } from '@angular/core';
 // import { CommonModule } from '@angular/common';
@@ -25,7 +26,7 @@ export class ProductosRelacionados implements OnInit {
   currentIndex = 0;
   itemsPerView = 4;
   maxIndex = 0;
-
+  private notificationService = inject(NotificationService);
   constructor(
     private productoService: ProductoService,
     private router: Router
@@ -67,7 +68,7 @@ export class ProductosRelacionados implements OnInit {
         this.maxIndex = Math.max(0, this.productosRelacionados.length - this.itemsPerView);
       },
       error: (err) => {
-        console.error('Error cargando productos relacionados', err);
+        this.notificationService.error('Error cargando productos relacionados');
         // Caer en empty list para no romper la UI
         this.productosRelacionados = [];
         this.maxIndex = 0;

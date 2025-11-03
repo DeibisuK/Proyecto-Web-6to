@@ -50,7 +50,6 @@ export class Contact implements OnInit {
   ];
 
   cargarSedes() {
-    console.log('listar sedes de contact');
     setTimeout(() => {
       this.sedeService.getSedes().subscribe({
         next: (sedes: Sede[]) => {
@@ -58,7 +57,6 @@ export class Contact implements OnInit {
           this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
         },
         error: (error: any) => {
-          console.error('Error al cargar sedes:', error);
           this.notificationService.notify({
             message: 'No se pudieron cargar las sedes disponibles',
             type: 'error',
@@ -138,7 +136,6 @@ export class Contact implements OnInit {
         this.resetForm();
       },
       error: (error: any) => {
-        console.error('Error al enviar:', error);
         this.notificationService.notify({
           message: 'No se pudo enviar el mensaje. Por favor intente nuevamente',
           type: 'error',
