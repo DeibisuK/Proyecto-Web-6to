@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 
@@ -23,7 +23,7 @@ export class MiniMapComponent implements AfterViewInit, OnDestroy {
   @Input() longitud!: number;
   @Input() zoom: number = 14;
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
-  
+
   private map?: L.Map;
   private marker?: L.Marker;
 

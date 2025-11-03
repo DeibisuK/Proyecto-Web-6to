@@ -1,6 +1,6 @@
 @import "tailwindcss";
 /* Importar estilos del carrito React */
-@import './app/core/react-components/carrito/cart.css';
+@import './app/shared/components/carrito/cart.css';
 
 /* Variables CSS globales para reutilizar en toda la aplicación */
 :root {

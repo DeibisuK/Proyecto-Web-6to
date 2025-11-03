@@ -22,7 +22,7 @@ import {
   Observable,
   from,
 } from 'rxjs';
-import { UserApiService } from './user-api.service';
+import { UserApiService } from '@shared/services/index';
 
 interface CustomClaims {
   role?: string;

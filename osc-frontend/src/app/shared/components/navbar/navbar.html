@@ -1,0 +1,314 @@
+<nav class="navbar-ecommerce">
+  <div class="navbar-container">
+    <!-- Logo alineado verticalmente -->
+    <div class="logo-section">
+      <a class="logo" routerLink="/inicio">
+        <img src="Imagotipo Oro Sport Club Blanco.png" alt="Sports Club" />
+      </a>
+    </div>
+
+    <!-- Enlaces de navegación -->
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/inicio" routerLinkActive="active-link">
+          <span class="material-icons">home</span> Inicio
+        </a>
+      </li>
+
+      <li
+        class="dropdown"
+        (mouseenter)="toggleDropdown('productos', true)"
+        (mouseleave)="toggleDropdown('productos', false)"
+      >
+        <a class="dropdown-toggle">
+          <span class="material-icons">shopping_bag</span> Tienda
+          <span class="material-icons arrow">expand_more</span>
+        </a>
+        <div class="dropdown-menu" [class.show]="dropdowns.productos">
+          <div class="dropdown-section">
+            <h4><i class="fas fa-list"></i> Categorías</h4>
+            <a routerLink="/tienda" [queryParams]="{ categoria: 4 }"
+              ><i class="fas fa-futbol"></i> Equipamiento</a
+            >
+            <a routerLink="/tienda" [queryParams]="{ categoria: 2 }"
+              ><i class="fas fa-tools"></i> Accesorios</a
+            >
+            <a routerLink="/tienda" [queryParams]="{ categoria: 1 }"
+              ><i class="fas fa-tshirt"></i> Ropa Deportiva</a
+            >
+            <a routerLink="/tienda" [queryParams]="{ categoria: 3 }"
+              ><i class="fas fa-shoe-prints"></i> Calzado</a
+            >
+            <div class="dropdown-divider"></div>
+            <a routerLink="/tienda"><i class="fas fa-store"></i> Ver todo el catálogo</a>
+            <a routerLink="/mis-pedidos"><i class="fas fa-box"></i> Mis Pedidos</a>
+            <!-- <a routerLink="/tienda/cupones"><i class="fas fa-ticket-alt"></i> Cupones y Descuentos</a> -->
+          </div>
+        </div>
+      </li>
+
+      <li
+        class="dropdown"
+        (mouseenter)="toggleDropdown('reservas', true)"
+        (mouseleave)="toggleDropdown('reservas', false)"
+      >
+        <a class="dropdown-toggle">
+          <span class="material-icons">event</span> Reservas
+          <span class="material-icons arrow">expand_more</span>
+        </a>
+        <div class="dropdown-menu" [class.show]="dropdowns.reservas">
+          <div class="dropdown-section">
+            <h4><i class="fas fa-calendar-alt"></i> Reservas</h4>
+            <a routerLink="/reservar-cancha"><i class="fas fa-plus-circle"></i> Reservar Cancha</a>
+            <a routerLink="/mis-reservas"><i class="fas fa-list-alt"></i> Mis Reservas</a>
+            <a routerLink="/dashboard-torneo"><i class="fas fa-trophy"></i> Torneos</a>
+            <a routerLink="/historial-partidos"><i class="fas fa-history"></i> Historial</a>
+            <a routerLink="/mis-equipos"><i class="fas fa-users"></i> Mis Equipos</a>
+            <a routerLink="/reservas/canchas"><i class="fas fa-star"></i> Canchas y Reseñas</a>
+          </div>
+        </div>
+      </li>
+
+      <li
+        class="dropdown"
+        (mouseenter)="toggleDropdown('sedes', true)"
+        (mouseleave)="toggleDropdown('sedes', false)"
+      >
+        <a class="dropdown-toggle">
+          <span class="material-icons">location_on</span> Sedes
+          <span class="material-icons arrow">expand_more</span>
+        </a>
+        <div class="dropdown-menu" [class.show]="dropdowns.sedes">
+          <div class="dropdown-section">
+            @for (grupo of sedesAgrupadas; track grupo.nombre; let isLast = $last) {
+            <h4 class="ciudad-clickeable" (click)="navegarSedesPorCiudad(grupo.nombre)">
+              <i class="fas fa-map-marker-alt"></i> {{ grupo.nombre }}
+            </h4>
+            @for (sede of grupo.sedes; track sede.id_sede) {
+            <div class="sede-item"><i class="fas fa-building"></i> {{ sede.nombre_sede }}</div>
+            } @if (!isLast) {
+            <div class="dropdown-divider"></div>
+            } }
+            <div class="dropdown-divider"></div>
+            <a routerLink="/todas-las-sedes"><i class="fas fa-list"></i> Ver todas las sedes</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <a routerLink="/contacto" routerLinkActive="active-link">
+          <span class="material-icons">contact_support</span> Contacto
+        </a>
+      </li>
+    </ul>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+      <input type="text" placeholder="Buscar productos..." [(ngModel)]="searchTerm" />
+      <button type="button" class="search-btn" (click)="onSearch()">
+        <span class="material-icons">search</span>
+      </button>
+    </div>
+
+    <!-- Acciones del usuario -->
+    <div class="user-actions">
+      <button class="notification-btn">
+        <span class="material-icons">notifications</span>
+      </button>
+
+      <!-- <button class="cart-btn" (click)="toggleCart()"> -->
+      <button class="cart-btn" (click)="toggleCart()">
+        <span class="material-icons">shopping_cart</span>
+        @if (cartItemCount > 0) {
+        <span class="cart-count">{{ cartItemCount }}</span>
+        }
+      </button>
+
+      @if (user) {
+      <div
+        class="dropdown user-dropdown"
+        (mouseenter)="toggleDropdown('usuario', true)"
+        (mouseleave)="toggleDropdown('usuario', false)"
+      >
+        <a class="dropdown-toggle user-toggle">
+          @if(isArbitro$ | async){
+          <div class="user-btn" style="border: 2px solid orange; background-color: orange">
+            @if (user.photoURL) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            } @else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+          }@else{
+          <div class="user-btn">
+            @if (user.photoURL) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            } @else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+          }
+        </a>
+
+        <div class="dropdown-menu user-menu" [class.show]="dropdowns.usuario">
+          <div class="dropdown-section">
+            <a routerLink="/ver-perfil" (click)="toggleDropdown('usuario', false)">
+              <i class="fas fa-user"></i> Ver Perfil
+            </a>
+            @if (isAdmin$ | async) {
+            <a routerLink="/admin" (click)="toggleSidebar()"
+              ><i class="fas fa-cog"></i> Panel Admin</a
+            >
+            } @if (isArbitro$ | async) {
+            <a routerLink="/admin" (click)="toggleSidebar()"
+              ><i class="fas fa-gavel"></i> Panel Árbitro</a
+            >
+            }
+
+            <a routerLink="/metodos-de-pago" (click)="toggleDropdown('usuario', false)">
+              <i class="fas fa-user"></i> Métodos de Pago
+            </a>
+            <a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <button (click)="abrirLoginModal()" class="user-btn">
+        <span class="material-icons">account_circle</span>
+      </button>
+      }
+      <button class="hamburger-btn" (click)="toggleSidebar()">
+        <span class="material-icons">menu</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Menú lateral -->
+<div class="mobile-menu-overlay" [class.show]="showSidebar" (click)="toggleSidebar()"></div>
+<div class="mobile-menu" [class.show]="showSidebar">
+  <div class="menu-header">
+    <h2>Menú adicional</h2>
+    <button class="close-menu" (click)="toggleSidebar()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <section class="menu-section">
+    <h3>ACERCA DE NOSOTROS</h3>
+    <ul>
+      <li>
+        <a routerLink="/historia" (click)="toggleSidebar()"
+          ><i class="fas fa-history"></i> Historia</a
+        >
+      </li>
+      <li>
+        <a routerLink="/mision-y-vision" (click)="toggleSidebar()"
+          ><i class="fas fa-eye"></i> Misión y Visión</a
+        >
+      </li>
+      <li>
+        <a routerLink="/nuestro-equipo" (click)="toggleSidebar()"
+          ><i class="fas fa-users"></i> Nuestro Equipo</a
+        >
+      </li>
+    </ul>
+  </section>
+
+  <hr class="menu-divider" />
+
+  <section class="menu-section">
+    <h3>ENLACES RÁPIDOS</h3>
+    <ul>
+      <li>
+        <a routerLink="/tienda" (click)="toggleSidebar()"><i class="fas fa-box"></i> Tienda</a>
+      </li>
+      <li>
+        <a routerLink="/reservas" (click)="toggleSidebar()"
+          ><i class="fas fa-calendar-alt"></i> Reservas</a
+        >
+      </li>
+      <li>
+        <a routerLink="/contacto" (click)="toggleSidebar()"
+          ><i class="fas fa-envelope"></i> Contacto</a
+        >
+      </li>
+      <li>
+        <a routerLink="/torneos" (click)="toggleSidebar()"><i class="fas fa-trophy"></i> Torneos</a>
+      </li>
+      <li>
+        <a routerLink="/puntos-de-lealtad" (click)="toggleSidebar()"
+          ><i class="fas fa-gift"></i> Puntos de Lealtad</a
+        >
+      </li>
+    </ul>
+  </section>
+
+  <!-- Opciones Staff - COMENTADO -->
+  <!--
+  <hr class="menu-divider" />
+  <section class="menu-section" *ngIf="showStaffOptions()">
+    <h3>STAFF</h3>
+    <ul>
+      <li><a routerLink="/staff/canchas" (click)="toggleSidebar()"><i class="fas fa-building"></i> Gestión Canchas</a></li>
+      <li><a routerLink="/arbitro/partidos" (click)="toggleSidebar()"><i class="fas fa-whistle"></i> Gestión Partidos</a></li>
+    </ul>
+  </section>
+  -->
+
+  <!-- Opciones Admin - COMENTADO -->
+  <!--
+  <hr class="menu-divider" />
+  <section class="menu-section" *ngIf="showAdminOptions()">
+    <h3>ADMINISTRACIÓN</h3>
+    <ul>
+      <li><a routerLink="/admin/reportes" (click)="toggleSidebar()"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+      <li><a routerLink="/admin/usuarios" (click)="toggleSidebar()"><i class="fas fa-user-cog"></i> Gestión Usuarios</a></li>
+      <li><a routerLink="/admin/config" (click)="toggleSidebar()"><i class="fas fa-cogs"></i> Configuración</a></li>
+      <li><a routerLink="/admin/anuncios" (click)="toggleSidebar()"><i class="fas fa-bullhorn"></i> Gestión Anuncios</a></li>
+    </ul>
+  </section>
+  -->
+</div>
+
+<!-- Modal de login -->
+@if (mostrarLogin) {
+<div class="modal-overlay" [class.show]="mostrarLogin" (click)="cerrarLoginModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="cerrarLoginModal()">
+      <span class="material-icons">close</span>
+    </button>
+    <app-login
+      (cerrarModal)="cerrarLoginModal()"
+      (abrirRecuperarPassword)="abrirRecuperarPasswordModal()"
+    >
+    </app-login>
+  </div>
+</div>
+}
+
+<!-- Modal de recuperar contraseña -->
+@if (mostrarRecuperarPassword) {
+<div
+  class="modal-overlay"
+  [class.show]="mostrarRecuperarPassword"
+  (click)="cerrarRecuperarPasswordModal()"
+>
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <app-recuperar-password
+      (cerrarModal)="cerrarRecuperarPasswordModal()"
+      (volverLogin)="volverAlLoginDesdeRecuperacion()"
+    >
+    </app-recuperar-password>
+  </div>
+</div>
+}
+
+<!-- Carrito Sidebar -->
+@if (showCart) {
+<div class="cart-overlay show" (click)="closeCart()">
+  <div class="cart-container" (click)="$event.stopPropagation()">
+    <app-react-wrapper [component]="CartComponent" [props]="cartProps"></app-react-wrapper>
+  </div>
+</div>
+}
