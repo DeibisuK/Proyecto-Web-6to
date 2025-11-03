@@ -33,7 +33,6 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
     if (id) {
       this.cargarDetallePedido(parseInt(id));
       this.iniciarActualizacionAutomatica(parseInt(id));
-      this.iniciarProgresionAutomatica(parseInt(id));
     }
   }
 
@@ -103,6 +102,14 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
       next: (response) => {
         this.pedido.set(response);
         this.isLoading.set(false);
+
+        // Iniciar auto-progresión solo si el estado NO es Entregado ni Cancelado
+        if (
+          response.estado_pedido !== 'Entregado' &&
+          response.estado_pedido !== 'Cancelado'
+        ) {
+          this.iniciarProgresionAutomatica(id_pedido);
+        }
       },
       error: (error) => {
         this.isLoading.set(false);
