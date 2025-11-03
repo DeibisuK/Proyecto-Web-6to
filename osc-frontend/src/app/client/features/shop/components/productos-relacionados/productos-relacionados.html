@@ -3,14 +3,14 @@
     <div class="header">
       <h3>Productos relacionados</h3>
       <div class="controles">
-        <button 
-          class="btn-control" 
+        <button
+          class="btn-control"
           [disabled]="!canGoPrev"
           (click)="anterior()">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <button 
-          class="btn-control" 
+        <button
+          class="btn-control"
           [disabled]="!canGoNext"
           (click)="siguiente()">
           <i class="fas fa-chevron-right"></i>
@@ -21,31 +21,31 @@
     <div class="carrusel-container">
       <div class="carrusel-track" [style.transform]="transformX">
         @for (producto of productosRelacionados; track producto.id) {
-          <div 
+          <div
             class="producto-card"
             (click)="verDetalle(producto)">
-            
+
             <div class="producto-imagen">
               <img [src]="producto.imagen" [alt]="producto.nombre">
               <div class="badges">
-                @if (producto.nuevo) {
+                @if (producto.es_nuevo) {
                   <span class="badge nuevo">Nuevo</span>
                 }
-                @if (producto.precioAnterior) {
+                @if (producto.precio_anterior) {
                   <span class="badge descuento">
                     -{{calcularDescuento(producto)}}%
                   </span>
                 }
               </div>
             </div>
-            
+
             <div class="producto-info">
               <h4 class="producto-nombre">{{producto.nombre}}</h4>
               <div class="producto-precios">
                 <span class="precio-actual">${{producto.precio}}</span>
-                @if (producto.precioAnterior) {
+                @if (producto.precio_anterior) {
                   <span class="precio-anterior">
-                    ${{producto.precioAnterior}}
+                    ${{producto.precio_anterior}}
                   </span>
                 }
               </div>

@@ -17,6 +17,7 @@ import { CategoriaService } from '../../../core/services/categoria.service';
 import { forkJoin, Subject } from 'rxjs';
 import { MarcaService } from '../../../core/services/marca.service';
 import { DeporteService } from '../../../core/services/deportes.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-productos',
@@ -29,6 +30,34 @@ import { DeporteService } from '../../../core/services/deportes.service';
         background-color: #f9fafb;
         min-height: 100vh;
       }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      .animate-slideUp {
+        animation: slideUp 0.3s ease-out;
+      }
     `,
   ],
 })
@@ -38,6 +67,7 @@ export class ProductosComponent implements OnInit {
   categoriaService = inject(CategoriaService);
   marcaService = inject(MarcaService);
   deporteService = inject(DeporteService);
+  notificationService = inject(NotificationService);
 
   private searchSubject = new Subject<string>();
   productos = signal<ProductosResponse>({
@@ -58,7 +88,6 @@ export class ProductosComponent implements OnInit {
 
   cargando = signal(true);
   cargandoVariantes = signal(false);
-  error = signal<string | null>(null);
 
   // Formulario temporal para crear producto (template-driven)
   productForm: any = {
@@ -82,6 +111,7 @@ export class ProductosComponent implements OnInit {
     this.cargarTodo();
     this.setupSearch();
   }
+
   ngOnDestroy() {
     this.searchSubject.complete();
   }
@@ -109,7 +139,7 @@ export class ProductosComponent implements OnInit {
           this.cargando.set(false);
         },
         error: (error) => {
-          this.error.set('Error al buscar producto');
+          this.notificationService.error('Error al buscar producto');
           this.cargando.set(false);
         },
       });
@@ -137,7 +167,7 @@ export class ProductosComponent implements OnInit {
         this.cargando.set(false);
       },
       error: (err) => {
-        this.error.set('Ocurrió un error al cargar los datos.');
+        this.notificationService.error('Ocurrió un error al cargar los datos.');
         this.cargando.set(false);
       },
     });
@@ -159,41 +189,71 @@ export class ProductosComponent implements OnInit {
     this.abrirModalAddProducto.set(opening);
     if (opening) {
       // reset form
-      this.productForm = {
-        nombre: '',
-        descripcion: '',
-        id_categoria: null,
-        id_deporte: null,
-        id_marca: null,
-        es_nuevo: false,
-      };
+      this.resetProductForm();
     }
   }
 
-  saveProducto() {
-    // Basic validation
+  private resetProductForm(): void {
+    this.productForm = {
+      nombre: '',
+      descripcion: '',
+      id_categoria: null,
+      id_deporte: null,
+      id_marca: null,
+      es_nuevo: false,
+    };
+  }
+
+  private validateProductForm(): string | null {
     if (!this.productForm.nombre || this.productForm.nombre.trim() === '') {
-      this.error.set('El nombre del producto es obligatorio');
+      return 'El nombre del producto es obligatorio';
+    }
+    if (this.productForm.nombre.trim().length < 3) {
+      return 'El nombre debe tener al menos 3 caracteres';
+    }
+    if (!this.productForm.id_categoria) {
+      return 'Debes seleccionar una categoría';
+    }
+    if (!this.productForm.id_marca) {
+      return 'Debes seleccionar una marca';
+    }
+    if (!this.productForm.id_deporte) {
+      return 'Debes seleccionar un deporte';
+    }
+    return null;
+  }
+
+  saveProducto() {
+    // Validación del formulario
+    const validationError = this.validateProductForm();
+    if (validationError) {
+      this.notificationService.error(validationError);
       return;
     }
 
     this.cargando.set(true);
     const payload = {
-      ...this.productForm,
-      id_categoria: this.productForm.id_categoria ? Number(this.productForm.id_categoria) : null,
-      id_marca: this.productForm.id_marca ? Number(this.productForm.id_marca) : null,
-      id_deporte: this.productForm.id_deporte ? Number(this.productForm.id_deporte) : null,
-      es_nuevo: !!this.productForm.es_nuevo,
+      nombre: this.productForm.nombre.trim(),
+      descripcion: this.productForm.descripcion?.trim() || '',
+      id_categoria: Number(this.productForm.id_categoria),
+      id_marca: Number(this.productForm.id_marca),
+      id_deporte: Number(this.productForm.id_deporte),
+      es_nuevo: Boolean(this.productForm.es_nuevo),
     };
 
     this.productoService.createProducto(payload).subscribe({
       next: (res) => {
         const id = res?.id_producto || res?.id || null;
         this.abrirModalAddProducto.set(false);
-        // refrescar lista y abrir detalle para agregar variantes
+        this.resetProductForm();
+
+        this.notificationService.success('Producto creado exitosamente');
+
+        // Refrescar lista
         this.cargarTodo();
+
+        // Si se obtuvo ID, abrir detalle para agregar variantes
         if (id) {
-          // abrir detalle y cargar variantes
           this.productoExpandido.set(id);
           this.cargandoVariantes.set(true);
           this.productoService.getProductoDetalleAdmin(id).subscribe({
@@ -202,14 +262,42 @@ export class ProductosComponent implements OnInit {
               this.cargandoVariantes.set(false);
             },
             error: (err) => {
-              this.cargandoVariantes.set(false);
+              // Si es un 404, significa que el producto no tiene variantes aún (caso normal para productos nuevos)
+              if (err?.status === 404) {
+                // Crear un objeto detalle vacío para permitir agregar variantes
+                this.detalleProducto.set({
+                  id_producto: id,
+                  nombre: payload.nombre,
+                  descripcion: payload.descripcion,
+                  id_categoria: payload.id_categoria,
+                  nombre_categoria:
+                    this.categorias().find((c) => c.id_categoria === payload.id_categoria)
+                      ?.nombre_categoria || '',
+                  id_deporte: payload.id_deporte,
+                  nombre_deporte:
+                    this.deportes().find((d) => d.id_deporte === payload.id_deporte)
+                      ?.nombre_deporte || '',
+                  id_marca: payload.id_marca,
+                  nombre_marca:
+                    this.marcas().find((m) => m.id_marca === payload.id_marca)?.nombre_marca || '',
+                  es_nuevo: payload.es_nuevo,
+                  variantes: [], // Sin variantes inicialmente
+                });
+                this.cargandoVariantes.set(false);
+              } else {
+                // Otros errores sí son problemáticos
+                this.notificationService.error('Error al cargar el detalle del producto');
+                this.cargandoVariantes.set(false);
+                this.productoExpandido.set(null);
+              }
             },
           });
         }
         this.cargando.set(false);
       },
       error: (err) => {
-        this.error.set('Error al crear el producto');
+        const errorMsg = err?.error?.message || 'Error al crear el producto';
+        this.notificationService.error(errorMsg);
         this.cargando.set(false);
       },
     });
@@ -229,7 +317,7 @@ export class ProductosComponent implements OnInit {
   }
 
   _nuevoRowVariante(opciones: any[] = []) {
-    return {
+    const row = {
       sku: '',
       precio: 0,
       stock: 0,
@@ -237,8 +325,25 @@ export class ProductosComponent implements OnInit {
       files: [] as File[],
       previewImages: [] as string[],
       // valores: array por cada opcion disponible: { id_opcion, id_valor|null, isNew, new_valor }
-      valores: (opciones || []).map((o: any) => ({ id_opcion: o.id_opcion, id_valor: null, isNew: false, new_valor: '' })),
+      valores: (opciones || []).map((o: any) => ({
+        id_opcion: o.id_opcion,
+        id_valor: null,
+        isNew: false,
+        new_valor: '',
+      })),
     };
+
+    // Generar SKU inicial
+    row.sku = this.generateSKU(row);
+
+    return row;
+  }
+
+  /**
+   * Actualiza el SKU cuando se modifica un valor personalizado
+   */
+  onCustomValueChange(row: any): void {
+    row.sku = this.generateSKU(row);
   }
 
   /**
@@ -279,6 +384,61 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  /**
+   * Genera un SKU automático basado en las opciones seleccionadas
+   * Formato: PRODUCTO-OPCION1-OPCION2-...
+   * Ejemplo: NIKE-ROJO-M, ADIDAS-AZUL-XL
+   */
+  private generateSKU(row: any): string {
+    if (!this.detalleProducto()) return '';
+
+    // Obtener el nombre base del producto (primeras 3-4 letras en mayúsculas)
+    const productoNombre = this.detalleProducto()?.nombre || 'PROD';
+    const productoBase = productoNombre
+      .substring(0, 4)
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
+
+    const partes: string[] = [productoBase];
+
+    // Agregar valores seleccionados de cada opción
+    row.valores.forEach((entry: any, index: number) => {
+      if (!entry) return;
+
+      // Si es un valor nuevo (custom)
+      if (entry.isNew && entry.new_valor) {
+        const valorLimpio = entry.new_valor
+          .substring(0, 3)
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, '');
+        if (valorLimpio) partes.push(valorLimpio);
+      }
+      // Si es un valor existente seleccionado
+      else if (entry.id_valor && this.opcionesModal[index]) {
+        const opcion = this.opcionesModal[index];
+        const valorObj = opcion.valores.find((v: any) => v.id_valor === entry.id_valor);
+        if (valorObj) {
+          const valorLimpio = valorObj.valor
+            .substring(0, 3)
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '');
+          if (valorLimpio) partes.push(valorLimpio);
+        }
+      }
+    });
+
+    // Si solo hay el nombre del producto, agregar un número aleatorio
+    if (partes.length === 1) {
+      partes.push(
+        Math.floor(Math.random() * 1000)
+          .toString()
+          .padStart(3, '0')
+      );
+    }
+
+    return partes.join('-');
+  }
+
   /** Toggle a chip selection for a given option in a row. If valor is '__other__' opens new input. */
   toggleChip(row: any, optIndex: number, valor: any) {
     const entry = row.valores[optIndex];
@@ -291,6 +451,8 @@ export class ProductosComponent implements OnInit {
       } else {
         entry.new_valor = '';
       }
+      // Regenerar SKU después del cambio
+      row.sku = this.generateSKU(row);
       return;
     }
 
@@ -304,6 +466,9 @@ export class ProductosComponent implements OnInit {
       entry.isNew = false;
       entry.new_valor = '';
     }
+
+    // Regenerar SKU después del cambio
+    row.sku = this.generateSKU(row);
   }
 
   /** Toggle multi-selection used for generating combinations */
@@ -333,7 +498,7 @@ export class ProductosComponent implements OnInit {
     }
 
     if (lists.length === 0) {
-      this.error.set('Seleccione al menos una talla o color para generar combinaciones');
+      this.notificationService.error('Seleccione al menos una opción para generar combinaciones');
       return;
     }
 
@@ -351,11 +516,7 @@ export class ProductosComponent implements OnInit {
 
     // Map cada combinación a una row de variante
     const newRows = results.map((combo, idx) => {
-      const valores = combo.map((id_valor, j) => {
-        const optIdx = optionIndices[j];
-        return Number(id_valor);
-      });
-      return {
+      const row = {
         sku: '',
         precio: 0,
         stock: 0,
@@ -364,17 +525,25 @@ export class ProductosComponent implements OnInit {
         previewImages: [] as string[],
         valores: this.opcionesModal.map((o: any, oi: number) => {
           const pos = optionIndices.indexOf(oi);
-          if (pos === -1) return { id_opcion: o.id_opcion, id_valor: null, isNew: false, new_valor: '' };
+          if (pos === -1)
+            return { id_opcion: o.id_opcion, id_valor: null, isNew: false, new_valor: '' };
           return { id_opcion: o.id_opcion, id_valor: combo[pos], isNew: false, new_valor: '' };
         }),
       };
+
+      // Generar SKU automáticamente para esta combinación
+      row.sku = this.generateSKU(row);
+
+      return row;
     });
 
     // Reemplazar rows actuales por las generadas
     this.varianteRows = newRows;
+
+    this.notificationService.success(
+      `${newRows.length} variante(s) generada(s) con SKU automático`
+    );
   }
-
-
 
   onValorSelectChange(row: any, optIndex: number, event: Event) {
     const entry = row.valores[optIndex];
@@ -407,7 +576,7 @@ export class ProductosComponent implements OnInit {
 
   submitVariantes() {
     if (!this.currentModalProductId) {
-      this.error.set('Producto no seleccionado para añadir variantes');
+      this.notificationService.error('Producto no seleccionado para añadir variantes');
       return;
     }
 
@@ -438,25 +607,43 @@ export class ProductosComponent implements OnInit {
     this.cargandoVariantes.set(true);
     this.productoService.createVariantes(this.currentModalProductId, payload).subscribe({
       next: (res) => {
+        this.notificationService.success('Variantes creadas exitosamente');
+
         // cerrar modal y recargar detalle
         this.abrirModalAddVariante.set(false);
         this.currentModalProductId = null;
         this.varianteRows = [];
+
         // recargar detalle
         const prodId = res?.id_producto || (res && this.productoExpandido()) || null;
         const idToLoad = prodId || this.productoExpandido();
         if (idToLoad) {
           this.productoService.getProductoDetalleAdmin(idToLoad).subscribe({
-            next: (detalle) => this.detalleProducto.set(detalle),
-            error: (err) => console.error('Error recargando detalle tras crear variantes:', err),
+            next: (detalle) => {
+              this.detalleProducto.set(detalle);
+              this.cargandoVariantes.set(false);
+            },
+            error: (err) => {
+              // Si es 404, las variantes no se guardaron correctamente
+              if (err?.status === 404) {
+                console.warn('No se pudieron cargar las variantes después de crearlas');
+                this.cargandoVariantes.set(false);
+              } else {
+                console.error('Error recargando detalle tras crear variantes:', err);
+                this.cargandoVariantes.set(false);
+              }
+            },
           });
+        } else {
+          this.cargandoVariantes.set(false);
         }
+
         // refresh list
         this.cargarTodo();
-        this.cargandoVariantes.set(false);
       },
       error: (err) => {
-        this.error.set('Error al crear variantes');
+        const errorMsg = err?.error?.message || 'Error al crear variantes';
+        this.notificationService.error(errorMsg);
         this.cargandoVariantes.set(false);
       },
     });
@@ -480,9 +667,29 @@ export class ProductosComponent implements OnInit {
         this.cargandoVariantes.set(false);
       },
       error: (error) => {
-        this.error.set('Error al cargar las variantes del producto');
-        this.cargandoVariantes.set(false);
-        this.productoExpandido.set(null);
+        // Si es un 404, significa que el producto no tiene variantes aún (caso válido)
+        if (error?.status === 404) {
+          // Crear un objeto detalle con la información disponible del producto
+          this.detalleProducto.set({
+            id_producto: producto.id,
+            nombre: producto.nombre,
+            descripcion: producto.caracteristicas || '',
+            id_categoria: producto.id_categoria,
+            nombre_categoria: producto.nombre_categoria,
+            id_deporte: producto.id_deporte,
+            nombre_deporte: producto.deporte,
+            id_marca: producto.id_marca,
+            nombre_marca: producto.marca,
+            es_nuevo: producto.es_nuevo,
+            variantes: [], // Sin variantes
+          });
+          this.cargandoVariantes.set(false);
+        } else {
+          // Otros errores son problemáticos
+          this.notificationService.error('Error al cargar las variantes del producto');
+          this.cargandoVariantes.set(false);
+          this.productoExpandido.set(null);
+        }
       },
     });
   }
@@ -510,9 +717,9 @@ export class ProductosComponent implements OnInit {
     try {
       // Try to open the admin options page in a new tab if route exists
       window.open('/admin/opciones', '_blank');
-      this.error.set('Abriendo panel de opciones en una nueva pestaña (si existe).');
+      this.notificationService.success('Abriendo panel de opciones en una nueva pestaña');
     } catch (err) {
-      this.error.set('No se pudo abrir el panel de opciones automáticamente.');
+      this.notificationService.error('No se pudo abrir el panel de opciones automáticamente');
     }
   }
 

@@ -1,6 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Producto, ProductosResponse, ProductoDetalle } from '../models/producto';
+import {
+  ProductosResponse,
+  ProductoDetalle,
+  CreateProductoDto,
+  UpdateProductoDto,
+  UpdateVarianteDto,
+} from '../models/producto';
 import { FiltrosProducto } from '../models/filtros-producto';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
@@ -90,8 +96,11 @@ export class ProductoService {
   /**
    * Crea sólo el producto (endpoint admin).
    * Retorna el objeto devuelto por el backend (ej. { id_producto })
+   *
+   * @param producto - Datos del producto a crear
+   * @returns Observable con la respuesta del backend
    */
-  createProducto(producto: Partial<Producto>): Observable<any> {
+  createProducto(producto: CreateProductoDto): Observable<any> {
     const url = `${environment.apiUrl}/p/admin/productos`;
     return this.http.post(url, producto);
   }
@@ -116,8 +125,12 @@ export class ProductoService {
 
   /**
    * Actualiza un producto (endpoint admin)
+   *
+   * @param id - ID del producto a actualizar
+   * @param producto - Datos parciales del producto a actualizar
+   * @returns Observable con la respuesta del backend
    */
-  updateProducto(id: number, producto: Partial<Producto>): Observable<any> {
+  updateProducto(id: number, producto: UpdateProductoDto): Observable<any> {
     const url = `${environment.apiUrl}/p/admin/productos/${id}`;
     return this.http.put(url, producto);
   }
@@ -130,5 +143,26 @@ export class ProductoService {
     return this.http.delete(url);
   }
 
+  /**
+   * Actualiza una variante específica (endpoint admin)
+   * @param idProducto - ID del producto
+   * @param idVariante - ID de la variante a actualizar
+   * @param variante - Datos parciales de la variante (sku, precio, stock, url_images)
+   * @returns Observable con la variante actualizada
+   */
+  updateVariante(idProducto: number, idVariante: number, variante: UpdateVarianteDto): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos/${idProducto}/variantes/${idVariante}`;
+    return this.http.put(url, variante);
+  }
 
+  /**
+   * Elimina una variante específica (endpoint admin)
+   * @param idProducto - ID del producto
+   * @param idVariante - ID de la variante a eliminar
+   * @returns Observable con la confirmación de eliminación
+   */
+  deleteVariante(idProducto: number, idVariante: number): Observable<any> {
+    const url = `${environment.apiUrl}/p/admin/productos/${idProducto}/variantes/${idVariante}`;
+    return this.http.delete(url);
+  }
 }

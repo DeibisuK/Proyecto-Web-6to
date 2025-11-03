@@ -79,8 +79,47 @@ export interface OpcionesProducto {
 }
 
 /**
- * Interface actualmente depreacada ya que fue una demo
- * para mostrar el modelo Producto en el carrito de compras
+ * Payload para crear un nuevo producto (Admin)
+ * Solo información básica del producto, sin variantes
+ */
+export interface CreateProductoDto {
+  nombre: string;
+  descripcion: string;
+  id_categoria: number;
+  id_marca: number;
+  id_deporte: number;
+  es_nuevo: boolean;
+}
+
+/**
+ * Payload para actualizar un producto (Admin)
+ * Todos los campos son opcionales
+ */
+export interface UpdateProductoDto {
+  nombre?: string;
+  descripcion?: string;
+  id_categoria?: number;
+  id_marca?: number;
+  id_deporte?: number;
+  es_nuevo?: boolean;
+}
+
+/**
+ * Payload para actualizar una variante (Admin)
+ * Todos los campos son opcionales
+ */
+export interface UpdateVarianteDto {
+  sku?: string;
+  precio?: number;
+  stock?: number;
+  url_images?: string[];
+}
+
+/**
+ * Interface DEPRECADA - Solo para retrocompatibilidad con código legacy
+ * NO USAR EN CÓDIGO NUEVO - Migrar a Productos, ProductoDetalle o VarianteProducto
+ *
+ * @deprecated Usar Productos para listados, ProductoDetalle para detalles con variantes
  */
 export interface Producto {
   id: string;

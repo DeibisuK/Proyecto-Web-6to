@@ -6,6 +6,8 @@ import {
   updateProducto,
   deleteProducto,
   postVariantes,
+  updateVariante,
+  deleteVariante,
   getOpciones
 } from "../../controllers/producto.controller.js";
 
@@ -17,6 +19,8 @@ router.get("/:id", getProductoDetalle);
 router.post("/", createProducto);
 router.post("/:id/variantes", postVariantes);
 router.put("/:id", updateProducto);
+router.put("/:id_producto/variantes/:id_variante", updateVariante);
 router.delete("/:id", deleteProducto);
+router.delete("/:id_producto/variantes/:id_variante", deleteVariante);
 
 export default router;

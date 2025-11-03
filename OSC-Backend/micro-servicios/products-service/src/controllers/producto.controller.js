@@ -105,7 +105,6 @@ export const searchProductos = async (req, res) => {
 export const getProductoDetalle = async (req, res) => {
   try {
     const { id } = req.params;
-
     // Validar que el ID sea un número
     const idProducto = parseInt(id, 10);
     if (isNaN(idProducto)) {
@@ -205,6 +204,56 @@ export const deleteProducto = async (req, res) => {
     } else {
       res.status(404).json({ message: "Producto not found" });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * PUT /admin/productos/:id_producto/variantes/:id_variante
+ * Actualiza una variante específica
+ */
+export const updateVariante = async (req, res) => {
+  try {
+    const { id_variante } = req.params;
+    const idVariante = parseInt(id_variante, 10);
+    
+    if (isNaN(idVariante)) {
+      return res.status(400).json({ message: 'ID de variante inválido' });
+    }
+
+    const updated = await service.updateVariante(idVariante, req.body);
+    
+    if (!updated) {
+      return res.status(404).json({ message: 'Variante no encontrada' });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+/**
+ * DELETE /admin/productos/:id_producto/variantes/:id_variante
+ * Elimina una variante específica
+ */
+export const deleteVariante = async (req, res) => {
+  try {
+    const { id_variante } = req.params;
+    const idVariante = parseInt(id_variante, 10);
+    
+    if (isNaN(idVariante)) {
+      return res.status(400).json({ message: 'ID de variante inválido' });
+    }
+
+    const result = await service.deleteVariante(idVariante);
+    
+    if (!result.deleted) {
+      return res.status(404).json({ message: 'Variante no encontrada' });
+    }
+
+    res.json({ message: 'Variante eliminada exitosamente', id_variante: result.id_variante });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

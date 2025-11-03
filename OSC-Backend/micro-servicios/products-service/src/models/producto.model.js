@@ -230,10 +230,14 @@ export const createVariantes = async (id_producto, variantesArray = []) => {
         [id_producto, vPayload.sku]
       );
       if (skuChk.rowCount) {
-        throw new Error(`SKU duplicado para el producto en indice ${i}: ${vPayload.sku}`);
+        throw new Error(
+          `SKU duplicado para el producto en indice ${i}: ${vPayload.sku}`
+        );
       }
 
-      const urlImagesJson = vPayload.url_images ? JSON.stringify(vPayload.url_images) : "[]";
+      const urlImagesJson = vPayload.url_images
+        ? JSON.stringify(vPayload.url_images)
+        : "[]";
       const res = await client.query(insertVarSQL, [
         id_producto,
         vPayload.sku,
@@ -248,12 +252,25 @@ export const createVariantes = async (id_producto, variantesArray = []) => {
         let id_valor_to_use;
         if (typeof val === "number") {
           id_valor_to_use = val;
-          const chk = await client.query("SELECT 1 FROM valores_opcion WHERE id_valor = $1", [id_valor_to_use]);
-          if (!chk.rowCount) throw new Error(`id_valor ${id_valor_to_use} no existe (index ${i})`);
-        } else if (val && typeof val === "object" && val.id_opcion && val.valor) {
+          const chk = await client.query(
+            "SELECT 1 FROM valores_opcion WHERE id_valor = $1",
+            [id_valor_to_use]
+          );
+          if (!chk.rowCount)
+            throw new Error(
+              `id_valor ${id_valor_to_use} no existe (index ${i})`
+            );
+        } else if (
+          val &&
+          typeof val === "object" &&
+          val.id_opcion &&
+          val.valor
+        ) {
           id_valor_to_use = await ensureValor(val.id_opcion, val.valor);
         } else {
-          throw new Error(`Formato inválido en valores de variante (index ${i}).`);
+          throw new Error(
+            `Formato inválido en valores de variante (index ${i}).`
+          );
         }
         await client.query(insertVarValorSQL, [id_variante, id_valor_to_use]);
       }
@@ -277,113 +294,113 @@ export const createVariantes = async (id_producto, variantesArray = []) => {
   }
 };
 
-export async function create(payload) {
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
+// export async function create(payload) {
+//   const client = await pool.connect();
+//   try {
+//     await client.query("BEGIN");
 
-    // 1) Insert producto base
-    const insertProductSQL = `
-      INSERT INTO productos (nombre, descripcion, id_categoria, id_deporte, id_marca, es_nuevo)
-      VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING id_producto;
-    `;
-    const r = await client.query(insertProductSQL, [
-      payload.nombre,
-      payload.descripcion || null,
-      payload.id_categoria,
-      payload.id_deporte,
-      payload.id_marca,
-      payload.es_nuevo ?? false,
-    ]);
-    const id_producto = r.rows[0].id_producto;
+//     // 1) Insert producto base
+//     const insertProductSQL = `
+//       INSERT INTO productos (nombre, descripcion, id_categoria, id_deporte, id_marca, es_nuevo)
+//       VALUES ($1,$2,$3,$4,$5,$6)
+//       RETURNING id_producto;
+//     `;
+//     const r = await client.query(insertProductSQL, [
+//       payload.nombre,
+//       payload.descripcion || null,
+//       payload.id_categoria,
+//       payload.id_deporte,
+//       payload.id_marca,
+//       payload.es_nuevo ?? false,
+//     ]);
+//     const id_producto = r.rows[0].id_producto;
 
-    // helper: si envías valores como objetos { id_opcion, valor }, crea/obtén id_valor
-    const ensureValor = async (id_opcion, valor) => {
-      const qSel = `SELECT id_valor FROM valores_opcion WHERE id_opcion = $1 AND LOWER(valor) = LOWER($2) LIMIT 1`;
-      const sel = await client.query(qSel, [id_opcion, valor]);
-      if (sel.rowCount) return sel.rows[0].id_valor;
-      const qIns = `INSERT INTO valores_opcion (id_opcion, valor) VALUES ($1,$2) RETURNING id_valor`;
-      const ins = await client.query(qIns, [id_opcion, valor]);
-      return ins.rows[0].id_valor;
-    };
+//     // helper: si envías valores como objetos { id_opcion, valor }, crea/obtén id_valor
+//     const ensureValor = async (id_opcion, valor) => {
+//       const qSel = `SELECT id_valor FROM valores_opcion WHERE id_opcion = $1 AND LOWER(valor) = LOWER($2) LIMIT 1`;
+//       const sel = await client.query(qSel, [id_opcion, valor]);
+//       if (sel.rowCount) return sel.rows[0].id_valor;
+//       const qIns = `INSERT INTO valores_opcion (id_opcion, valor) VALUES ($1,$2) RETURNING id_valor`;
+//       const ins = await client.query(qIns, [id_opcion, valor]);
+//       return ins.rows[0].id_valor;
+//     };
 
-    const insertedVariants = [];
+//     const insertedVariants = [];
 
-    // 2) Insertar variantes y sus valores
-    const insertVarSQL = `
-      INSERT INTO variantes_productos (id_producto, sku, precio, stock, url_images)
-      VALUES ($1,$2,$3,$4,$5)
-      RETURNING id_variante, sku, precio, stock, url_images;
-    `;
-    const insertVarValorSQL = `
-      INSERT INTO variante_valores (id_variante, id_valor)
-      VALUES ($1,$2)
-      ON CONFLICT DO NOTHING;
-    `;
+//     // 2) Insertar variantes y sus valores
+//     const insertVarSQL = `
+//       INSERT INTO variantes_productos (id_producto, sku, precio, stock, url_images)
+//       VALUES ($1,$2,$3,$4,$5)
+//       RETURNING id_variante, sku, precio, stock, url_images;
+//     `;
+//     const insertVarValorSQL = `
+//       INSERT INTO variante_valores (id_variante, id_valor)
+//       VALUES ($1,$2)
+//       ON CONFLICT DO NOTHING;
+//     `;
 
-    for (const varPayload of payload.variantes || []) {
-      const urlImagesJson = varPayload.url_images
-        ? JSON.stringify(varPayload.url_images)
-        : "[]";
-      const v = await client.query(insertVarSQL, [
-        id_producto,
-        varPayload.sku,
-        varPayload.precio,
-        varPayload.stock,
-        urlImagesJson,
-      ]);
-      const id_variante = v.rows[0].id_variante;
+//     for (const varPayload of payload.variantes || []) {
+//       const urlImagesJson = varPayload.url_images
+//         ? JSON.stringify(varPayload.url_images)
+//         : "[]";
+//       const v = await client.query(insertVarSQL, [
+//         id_producto,
+//         varPayload.sku,
+//         varPayload.precio,
+//         varPayload.stock,
+//         urlImagesJson,
+//       ]);
+//       const id_variante = v.rows[0].id_variante;
 
-      // valores puede ser una mezcla: [id_valor, { id_opcion, valor }, ...]
-      for (const val of varPayload.valores || []) {
-        let id_valor_to_use;
-        if (typeof val === "number") {
-          id_valor_to_use = val;
-          // validar existencia (opcional): lanzar error si no existe
-          const chk = await client.query(
-            "SELECT 1 FROM valores_opcion WHERE id_valor = $1",
-            [id_valor_to_use]
-          );
-          if (!chk.rowCount)
-            throw new Error(`id_valor ${id_valor_to_use} no existe`);
-        } else if (
-          val &&
-          typeof val === "object" &&
-          val.id_opcion &&
-          val.valor
-        ) {
-          id_valor_to_use = await ensureValor(val.id_opcion, val.valor);
-        } else {
-          throw new Error(
-            "Formato inválido en valores de variante. Usar id_valor o {id_opcion, valor}."
-          );
-        }
-        await client.query(insertVarValorSQL, [id_variante, id_valor_to_use]);
-      }
+//       // valores puede ser una mezcla: [id_valor, { id_opcion, valor }, ...]
+//       for (const val of varPayload.valores || []) {
+//         let id_valor_to_use;
+//         if (typeof val === "number") {
+//           id_valor_to_use = val;
+//           // validar existencia (opcional): lanzar error si no existe
+//           const chk = await client.query(
+//             "SELECT 1 FROM valores_opcion WHERE id_valor = $1",
+//             [id_valor_to_use]
+//           );
+//           if (!chk.rowCount)
+//             throw new Error(`id_valor ${id_valor_to_use} no existe`);
+//         } else if (
+//           val &&
+//           typeof val === "object" &&
+//           val.id_opcion &&
+//           val.valor
+//         ) {
+//           id_valor_to_use = await ensureValor(val.id_opcion, val.valor);
+//         } else {
+//           throw new Error(
+//             "Formato inválido en valores de variante. Usar id_valor o {id_opcion, valor}."
+//           );
+//         }
+//         await client.query(insertVarValorSQL, [id_variante, id_valor_to_use]);
+//       }
 
-      insertedVariants.push({
-        id_variante,
-        sku: v.rows[0].sku,
-        precio: Number(v.rows[0].precio),
-        stock: v.rows[0].stock,
-        url_images: v.rows[0].url_images,
-      });
-    }
+//       insertedVariants.push({
+//         id_variante,
+//         sku: v.rows[0].sku,
+//         precio: Number(v.rows[0].precio),
+//         stock: v.rows[0].stock,
+//         url_images: v.rows[0].url_images,
+//       });
+//     }
 
-    await client.query("COMMIT");
+//     await client.query("COMMIT");
 
-    return {
-      id_producto,
-      variantes: insertedVariants,
-    };
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
-  } finally {
-    client.release();
-  }
-}
+//     return {
+//       id_producto,
+//       variantes: insertedVariants,
+//     };
+//   } catch (err) {
+//     await client.query("ROLLBACK");
+//     throw err;
+//   } finally {
+//     client.release();
+//   }
+// }
 
 /**
  * Crea solo el registro base del producto (sin variantes).
@@ -511,6 +528,96 @@ export const deleteProducto = async (id_producto) => {
 };
 
 /**
+ * Actualiza una variante específica de un producto
+ * @param {number} id_variante - ID de la variante a actualizar
+ * @param {Object} payload - Campos a actualizar: sku, precio, stock, url_images
+ * @returns {Object|null} Variante actualizada o null si no existe
+ */
+export const updateVariante = async (id_variante, payload = {}) => {
+  const allowed = ["sku", "precio", "stock", "url_images"];
+
+  const sets = [];
+  const params = [];
+  let idx = 1;
+
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      let value = payload[key];
+      
+      // Convertir url_images a JSON si es un array
+      if (key === "url_images" && Array.isArray(value)) {
+        value = JSON.stringify(value);
+      }
+      
+      sets.push(`${key} = $${idx}`);
+      params.push(value);
+      idx++;
+    }
+  }
+
+  if (sets.length === 0) {
+    throw new Error("No hay campos válidos para actualizar en la variante");
+  }
+
+  params.push(id_variante);
+  const sql = `
+    UPDATE variantes_productos
+    SET ${sets.join(", ")}
+    WHERE id_variante = $${idx}
+    RETURNING id_variante, sku, precio, stock, url_images;
+  `;
+
+  const result = await pool.query(sql, params);
+  if (result.rowCount === 0) return null;
+
+  const row = result.rows[0];
+  return {
+    id_variante: row.id_variante,
+    sku: row.sku,
+    precio: Number(row.precio),
+    stock: row.stock,
+    url_images: row.url_images,
+  };
+};
+
+/**
+ * Elimina una variante específica y sus valores asociados
+ * @param {number} id_variante - ID de la variante a eliminar
+ * @returns {Object} { deleted: true/false }
+ */
+export const deleteVariante = async (id_variante) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Eliminar relaciones en variante_valores
+    await client.query(
+      "DELETE FROM variante_valores WHERE id_variante = $1",
+      [id_variante]
+    );
+
+    // Eliminar la variante
+    const delRes = await client.query(
+      "DELETE FROM variantes_productos WHERE id_variante = $1 RETURNING id_variante",
+      [id_variante]
+    );
+
+    if (delRes.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return { deleted: false };
+    }
+
+    await client.query("COMMIT");
+    return { deleted: true, id_variante: delRes.rows[0].id_variante };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * Devuelve las opciones de producto y sus valores asociados.
  * Formato: [{ id_opcion, nombre_opcion, valores: [{ id_valor, valor }, ...] }, ...]
  */
@@ -525,10 +632,16 @@ export const getOpcionesConValores = async () => {
   const map = new Map();
   for (const row of res.rows) {
     if (!map.has(row.id_opcion)) {
-      map.set(row.id_opcion, { id_opcion: row.id_opcion, nombre_opcion: row.nombre_opcion, valores: [] });
+      map.set(row.id_opcion, {
+        id_opcion: row.id_opcion,
+        nombre_opcion: row.nombre_opcion,
+        valores: [],
+      });
     }
     if (row.id_valor) {
-      map.get(row.id_opcion).valores.push({ id_valor: row.id_valor, valor: row.valor });
+      map
+        .get(row.id_opcion)
+        .valores.push({ id_valor: row.id_valor, valor: row.valor });
     }
   }
   return Array.from(map.values());

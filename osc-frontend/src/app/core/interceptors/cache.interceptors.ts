@@ -6,6 +6,7 @@ const TTL = 1000 * 60 * 10; // 10 minutes
 
 // ⚠️ WHITELIST: URLs que NO deben ser cacheadas
 const NO_CACHE_PATTERNS = [
+  '/productos/',
   '/cart',           // Carrito de compras
   '/orders',         // Pedidos
   '/user',           // Datos de usuario
