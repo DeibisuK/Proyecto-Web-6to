@@ -7,15 +7,7 @@
     "types": [],
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@app/*": ["app/*"],
-      "@core/*": ["app/core/*"],
-      "@shared/*": ["app/shared/*"],
-      "@features/*": ["app/features/*"],
-      "@env/*": ["environments/*"]
-    }
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*.ts",
