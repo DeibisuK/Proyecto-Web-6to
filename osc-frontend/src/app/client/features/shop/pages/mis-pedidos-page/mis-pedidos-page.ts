@@ -71,10 +71,21 @@ export class MisPedidosPage implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (pedidos) => {
+          console.log('🔄 [LISTA PEDIDOS] Auto-refresh ejecutado');
           this.pedidos.set(pedidos);
+
+          // Detener auto-refresh si TODOS los pedidos están en estado final
+          const todosFinalizados = pedidos.every(
+            p => p.estado_pedido === 'Entregado' || p.estado_pedido === 'Cancelado'
+          );
+
+          if (pedidos.length > 0 && todosFinalizados) {
+            console.log('🛑 [LISTA PEDIDOS] Deteniendo - Todos los pedidos finalizados');
+            this.detenerActualizacionAutomatica();
+          }
         },
         error: (error) => {
-          this.notificationService.error('Error en actualización automática');
+          console.error('❌ [LISTA PEDIDOS] Error en auto-refresh:', error);
         }
       });
   }
@@ -84,7 +95,9 @@ export class MisPedidosPage implements OnInit, OnDestroy {
    */
   private detenerActualizacionAutomatica(): void {
     if (this.refreshSubscription) {
+      console.log('🔴 [LISTA PEDIDOS] Deteniendo auto-refresh');
       this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = undefined;
     }
   }
 

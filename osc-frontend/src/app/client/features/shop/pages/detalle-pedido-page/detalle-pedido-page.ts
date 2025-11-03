@@ -32,7 +32,7 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
     const id = this.route.snapshot.params['id_pedido'];
     if (id) {
       this.cargarDetallePedido(parseInt(id));
-      this.iniciarActualizacionAutomatica(parseInt(id));
+      // El auto-refresh se inicia condicionalmente en cargarDetallePedido()
     }
   }
 
@@ -47,27 +47,38 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
    * Inicia la progresión automática de estados cada 5 segundos
    */
   private iniciarProgresionAutomatica(id_pedido: number): void {
+    console.log('🔄 [AUTO-PROGRESIÓN] setInterval iniciado para pedido #' + id_pedido);
+
     this.intervalProgresion = setInterval(() => {
       const pedidoData = this.pedido();
+      console.log('⏰ [AUTO-PROGRESIÓN] Tick - Estado actual:', pedidoData?.estado_pedido);
+
       if (
         !pedidoData ||
         pedidoData.estado_pedido === 'Entregado' ||
         pedidoData.estado_pedido === 'Cancelado'
       ) {
+        console.log('🛑 [AUTO-PROGRESIÓN] Deteniendo - Razón:', !pedidoData ? 'Sin datos' : 'Estado final: ' + pedidoData.estado_pedido);
         this.detenerProgresionAutomatica();
         return;
       }
 
       const siguienteEstado = this.getSiguienteEstado(pedidoData.estado_pedido);
+      console.log('➡️ [AUTO-PROGRESIÓN] Siguiente estado:', siguienteEstado);
+
       if (siguienteEstado) {
+        console.log('📡 [AUTO-PROGRESIÓN] Actualizando estado a:', siguienteEstado);
         this.orderService.actualizarEstado(id_pedido, siguienteEstado).subscribe({
           next: () => {
-            // La actualización automática recogerá el cambio
+            console.log('✅ [AUTO-PROGRESIÓN] Estado actualizado exitosamente');
           },
           error: (error) => {
+            console.error('❌ [AUTO-PROGRESIÓN] Error actualizando estado:', error);
             this.notificationService.error('Error actualizando estado');
           },
         });
+      } else {
+        console.log('⚠️ [AUTO-PROGRESIÓN] No hay siguiente estado disponible');
       }
     }, 5000);
   }
@@ -77,7 +88,9 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
    */
   private detenerProgresionAutomatica(): void {
     if (this.intervalProgresion) {
+      console.log('🔴 [AUTO-PROGRESIÓN] Deteniendo interval');
       clearInterval(this.intervalProgresion);
+      this.intervalProgresion = undefined;
     }
   }
 
@@ -100,19 +113,30 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
 
     this.orderService.obtenerPedido(id_pedido).subscribe({
       next: (response) => {
+        console.log('📦 [DETALLE PEDIDO] Datos recibidos:', response);
+        console.log('📊 [DETALLE PEDIDO] Estado actual:', response.estado_pedido);
+
         this.pedido.set(response);
         this.isLoading.set(false);
 
-        // Iniciar auto-progresión solo si el estado NO es Entregado ni Cancelado
-        if (
-          response.estado_pedido !== 'Entregado' &&
-          response.estado_pedido !== 'Cancelado'
-        ) {
+        // Solo iniciar procesos automáticos si el estado NO es final
+        const esEstadoFinal =
+          response.estado_pedido === 'Entregado' ||
+          response.estado_pedido === 'Cancelado';
+
+        if (!esEstadoFinal) {
+          console.log('✅ [AUTO-PROGRESIÓN] Iniciando auto-progresión para pedido #' + id_pedido);
           this.iniciarProgresionAutomatica(id_pedido);
+
+          console.log('✅ [AUTO-REFRESH] Iniciando auto-refresh para pedido #' + id_pedido);
+          this.iniciarActualizacionAutomatica(id_pedido);
+        } else {
+          console.log('🛑 [PROCESOS AUTOMÁTICOS] NO iniciando - Estado final:', response.estado_pedido);
         }
       },
       error: (error) => {
         this.isLoading.set(false);
+        console.error('❌ [DETALLE PEDIDO] Error cargando:', error);
         this.notificationService.error('Error al cargar el pedido');
         this.router.navigate(['/mis-pedidos']);
       },
@@ -127,10 +151,20 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
       .pipe(switchMap(() => this.orderService.obtenerPedido(id_pedido)))
       .subscribe({
         next: (response) => {
+          console.log('🔄 [AUTO-REFRESH] Datos actualizados:', response.estado_pedido);
           this.pedido.set(response);
+
+          // Detener auto-refresh si el pedido está en estado final
+          if (
+            response.estado_pedido === 'Entregado' ||
+            response.estado_pedido === 'Cancelado'
+          ) {
+            console.log('🛑 [AUTO-REFRESH] Deteniendo - Estado final:', response.estado_pedido);
+            this.detenerActualizacionAutomatica();
+          }
         },
         error: (error) => {
-          this.notificationService.error('Error en actualización automática');
+          console.error('❌ [AUTO-REFRESH] Error:', error);
         },
       });
   }
@@ -140,7 +174,9 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
    */
   private detenerActualizacionAutomatica(): void {
     if (this.refreshSubscription) {
+      console.log('🔴 [AUTO-REFRESH] Deteniendo subscription');
       this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = undefined;
     }
   }
 
