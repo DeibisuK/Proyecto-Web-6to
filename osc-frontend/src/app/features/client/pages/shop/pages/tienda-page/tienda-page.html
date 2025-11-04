@@ -4,104 +4,176 @@
   <!-- Selector de deportes -->
   <div class="deporte-selector-section">
     <app-deporte-selector
-      [deporteActivo]="deporteSeleccionado"
-      (deporteChange)="onDeporteChange($event)"
+      [(deporteActivo)]="deporteSeleccionado"
     >
     </app-deporte-selector>
+  </div>
+
+  <!-- 🆕 Barra de controles: Ordenamiento y modo visualización -->
+  <div class="barra-controles">
+    <!-- Dropdown de ordenamiento -->
+    <div class="ordenamiento-control">
+      <label class="ordenamiento-label">
+        <i class="fas fa-sort"></i> Ordenar por:
+      </label>
+      <div class="dropdown-ordenamiento">
+        <button
+          class="btn-dropdown-ordenamiento"
+          (click)="toggleDropdownOrdenamiento()"
+          [class.activo]="dropdownOrdenamientoAbierto()">
+          <span class="ordenamiento-actual">
+            <i [class]="ordenamientoActual().icono"></i>
+            {{ ordenamientoActual().label }}
+          </span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+
+        @if (dropdownOrdenamientoAbierto()) {
+          <div class="absolute ">
+            @for (opcion of opcionesOrdenamiento; track opcion.valor) {
+              <button
+                class="dropdown-item"
+                [class.seleccionado]="ordenamientoActual().valor === opcion.valor"
+                (click)="cambiarOrdenamiento(opcion)">
+                <i [class]="opcion.icono"></i>
+                <div class="opcion-contenido">
+                  <span class="opcion-label">{{ opcion.label }}</span>
+                  @if (opcion.descripcion) {
+                    <span class="opcion-descripcion">{{ opcion.descripcion }}</span>
+                  }
+                </div>
+                @if (ordenamientoActual().valor === opcion.valor) {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Toggle modo visualización -->
+    <div class="modo-visualizacion">
+      <button class="btn-toggle-modo" (click)="toggleModoScrollInfinito()">
+        @if (modoScrollInfinito()) {
+          <i class="fas fa-list"></i> Ver con Paginación
+        } @else {
+          <i class="fas fa-infinity"></i> Ver Scroll Infinito
+        }
+      </button>
+    </div>
   </div>
 
   <!-- Contenido principal -->
   <div class="tienda-content">
     <!-- Panel de filtros -->
     <aside class="filtros-sidebar">
-      <app-filtro-panel [filtrosActivos]="filtrosActivos" (filtrosChange)="onFiltrosChange($event)">
+      <app-filtro-panel
+        [filtrosActivos]="filtrosService.filtros()"
+        (filtrosChange)="onFiltrosChange($event)"
+      >
       </app-filtro-panel>
     </aside>
     <!-- Grid de productos -->
     <main class="productos-grid">
       <!-- Skeleton Loading -->
-      @if (isLoading) { @for (item of skeletonItems; track $index) {
-      <div class="producto-card-skeleton">
-        <div class="skeleton-image"></div>
-        <div class="skeleton-content">
-          <div class="skeleton-text skeleton-title"></div>
-          <div class="skeleton-text skeleton-desc"></div>
-          <div class="skeleton-text skeleton-price"></div>
-          <div class="skeleton-button"></div>
-        </div>
-      </div>
-      } } @else {
-      <!-- Productos reales -->
-      @for (producto of productos; track producto.id) {
-      <app-producto-card [producto]="producto"></app-producto-card>
-      }
+      @if (isLoading()) {
+        @for (item of skeletonItems; track $index) {
+          <div class="producto-card-skeleton">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-text skeleton-title"></div>
+              <div class="skeleton-text skeleton-desc"></div>
+              <div class="skeleton-text skeleton-price"></div>
+              <div class="skeleton-button"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        <!-- Productos reales -->
+        @for (producto of productos(); track producto.id) {
+          <app-producto-card [producto]="producto"></app-producto-card>
+        }
 
-      <!-- Mensaje cuando no hay productos -->
-      @if (productos.length === 0) {
-      <div class="no-productos">
-        <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem"></i>
-        <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
-        <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
-          Limpiar Filtros
-        </button>
-      </div>
-      }
+        <!-- Mensaje cuando no hay productos -->
+        @if (productos().length === 0) {
+          <div class="no-productos">
+            <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem"></i>
+            <p>No se encontraron productos que coincidan con los filtros seleccionados.</p>
+            <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
+              Limpiar Filtros
+            </button>
+          </div>
+        }
 
-      <!-- Paginación -->
-      @if (totalPaginas > 1) {
-      <div class="paginacion">
-        <!-- Botón Anterior -->
-        <button
-          class="btn-pagina"
-          [disabled]="filtrosActivos.page === 1"
-          (click)="cambiarPagina(filtrosActivos.page! - 1)"
-          [class.disabled]="filtrosActivos.page === 1">
-          <i class="fas fa-chevron-left"></i>
-          Anterior
-        </button>
+        <!-- 🆕 Elemento sentinel para scroll infinito (invisible) -->
+        @if (modoScrollInfinito() && hayMasPaginas()) {
+          <div #scrollSentinel class="scroll-sentinel"></div>
+        }
 
-        <!-- Números de página -->
-        <div class="paginas-numeros">
-          <!-- Primera página -->
-          @if (filtrosActivos.page! > 3) {
-          <button class="btn-numero-pagina" (click)="cambiarPagina(1)">1</button>
-          @if (filtrosActivos.page! > 4) {
-          <span class="pagina-dots">...</span>
-          }
-          }
+        <!-- 🆕 Loading indicator para scroll infinito -->
+        @if (modoScrollInfinito() && isLoadingMore()) {
+          <div class="loading-more">
+            <div class="spinner"></div>
+            <p>Cargando más productos...</p>
+          </div>
+        }
 
-          <!-- Páginas cercanas -->
-          @for (pagina of getPaginasCercanas(); track pagina) {
-          <button
-            class="btn-numero-pagina"
-            [class.active]="pagina === filtrosActivos.page"
-            (click)="cambiarPagina(pagina)">
-            {{ pagina }}
-          </button>
-          }
+        <!-- Paginación (solo en modo clásico) -->
+        @if (!modoScrollInfinito() && totalPaginas() > 1) {
+          <div class="paginacion">
+            <!-- Botón Anterior -->
+            <button
+              class="btn-pagina"
+              [disabled]="filtrosService.filtros().page === 1"
+              (click)="cambiarPagina(filtrosService.filtros().page! - 1)"
+              [class.disabled]="filtrosService.filtros().page === 1">
+              <i class="fas fa-chevron-left"></i>
+              Anterior
+            </button>
 
-          <!-- Última página -->
-          @if (filtrosActivos.page! < totalPaginas - 2) {
-          @if (filtrosActivos.page! < totalPaginas - 3) {
-          <span class="pagina-dots">...</span>
-          }
-          <button class="btn-numero-pagina" (click)="cambiarPagina(totalPaginas)">
-            {{ totalPaginas }}
-          </button>
-          }
-        </div>
+            <!-- Números de página -->
+            <div class="paginas-numeros">
+              <!-- Primera página -->
+              @if (filtrosService.filtros().page! > 3) {
+                <button class="btn-numero-pagina" (click)="cambiarPagina(1)">1</button>
+                @if (filtrosService.filtros().page! > 4) {
+                  <span class="pagina-dots">...</span>
+                }
+              }
 
-        <!-- Botón Siguiente -->
-        <button
-          class="btn-pagina"
-          [disabled]="filtrosActivos.page === totalPaginas"
-          (click)="cambiarPagina(filtrosActivos.page! + 1)"
-          [class.disabled]="filtrosActivos.page === totalPaginas">
-          Siguiente
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-      }
+              <!-- Páginas cercanas -->
+              @for (pagina of getPaginasCercanas(); track pagina) {
+                <button
+                  class="btn-numero-pagina"
+                  [class.active]="pagina === filtrosService.filtros().page"
+                  (click)="cambiarPagina(pagina)">
+                  {{ pagina }}
+                </button>
+              }
+
+              <!-- Última página -->
+              @if (filtrosService.filtros().page! < totalPaginas() - 2) {
+                @if (filtrosService.filtros().page! < totalPaginas() - 3) {
+                  <span class="pagina-dots">...</span>
+                }
+                <button class="btn-numero-pagina" (click)="cambiarPagina(totalPaginas())">
+                  {{ totalPaginas() }}
+                </button>
+              }
+            </div>
+
+            <!-- Botón Siguiente -->
+            <button
+              class="btn-pagina"
+              [disabled]="filtrosService.filtros().page === totalPaginas()"
+              (click)="cambiarPagina(filtrosService.filtros().page! + 1)"
+              [class.disabled]="filtrosService.filtros().page === totalPaginas()">
+              Siguiente
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        }
       }
     </main>
   </div>

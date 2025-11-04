@@ -1,7 +1,8 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Deporte } from '@shared/models/index';
 import { DeporteService } from '@shared/services/index';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-deporte-selector',
@@ -10,19 +11,31 @@ import { DeporteService } from '@shared/services/index';
   styleUrls: ['./deporte-selector.css'],
 })
 export class DeporteSelector implements OnInit {
-  @Input() deporteActivo: number = 1; // Cambio: ahora es number (ID del deporte)
-  @Output() deporteChange = new EventEmitter<number>(); // Cambio: emite number
+  // ====================
+  // MODEL bidireccional (reemplaza @Input/@Output)
+  // ====================
+  deporteActivo = model<number>(0); // 0 = Todos los deportes
+
+  // ====================
+  // SERVICES
+  // ====================
   private deporteService = inject(DeporteService);
-  deportes: Deporte[] | null = [];
+
+  // ====================
+  // SIGNALS
+  // ====================
+  deportes = signal<Deporte[]>([]);
 
   ngOnInit(): void {
     this.deporteService.getDeportes().subscribe((deportes) => {
-      this.deportes = deportes;
+      this.deportes.set(deportes);
     });
   }
 
-  seleccionarDeporte(id: number) { // Cambio: parámetro ahora es number
-    this.deporteActivo = id;
-    this.deporteChange.emit(id); // Emite el número directamente
+  // ====================
+  // MÉTODOS
+  // ====================
+  seleccionarDeporte(id: number) {
+    this.deporteActivo.set(id); // Actualiza el model bidireccional
   }
 }

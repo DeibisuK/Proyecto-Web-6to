@@ -103,6 +103,7 @@ export class ProductosComponent implements OnInit {
 
   // Estado para modal variantes
   currentModalProductId: number | null = null;
+  currentCategoriaId: number | null = null; // Guardar la categoría del producto actual
   varianteRows: Array<any> = [];
   // Opciones extraídas del detalle del producto para poblar selects (Color, Talla...)
   opcionesModal: any[] = [];
@@ -181,6 +182,30 @@ export class ProductosComponent implements OnInit {
     } else {
       this.verVariantes(producto);
     }
+  }
+
+  /**
+   * Maneja el cambio de categoría en el formulario de producto
+   * Carga las opciones específicas para la categoría seleccionada
+   */
+  onCategoriaChange(categoriaId: number): void {
+    if (!categoriaId) {
+      this.opcionesModal = [];
+      return;
+    }
+
+    this.currentCategoriaId = categoriaId;
+    // Cargar opciones específicas de la categoría
+    this.productoService.getOpcionesPorCategoria(categoriaId).subscribe({
+      next: (opciones) => {
+        this.opcionesModal = opciones;
+        console.log('Opciones cargadas para categoría', categoriaId, ':', opciones);
+      },
+      error: (err) => {
+        console.error('Error al cargar opciones de categoría:', err);
+        this.notificationService.error('Error al cargar las opciones de la categoría');
+      },
+    });
   }
 
   /**
@@ -310,11 +335,26 @@ export class ProductosComponent implements OnInit {
    */
   abrirModalVariantesPara(productoId: number) {
     this.currentModalProductId = productoId;
-    // cargar opciones desde endpoint si está disponible, si no extraer del detalle
-    this.fetchOpcionesIfNeeded().then((opts) => {
-      this.opcionesModal = opts || [];
-      this.varianteRows = [this._nuevoRowVariante(this.opcionesModal)];
-      this.abrirModalAddVariante.set(true);
+
+    // Obtener la categoría del producto desde detalleProducto o currentCategoriaId
+    const categoriaId = this.detalleProducto()?.id_categoria || this.currentCategoriaId;
+
+    if (!categoriaId) {
+      this.notificationService.error('No se pudo determinar la categoría del producto');
+      return;
+    }
+
+    // Cargar opciones específicas de la categoría
+    this.productoService.getOpcionesPorCategoria(categoriaId).subscribe({
+      next: (opciones) => {
+        this.opcionesModal = opciones;
+        this.varianteRows = [this._nuevoRowVariante(this.opcionesModal)];
+        this.abrirModalAddVariante.set(true);
+      },
+      error: (err) => {
+        console.error('Error al cargar opciones:', err);
+        this.notificationService.error('Error al cargar las opciones de variantes');
+      },
     });
   }
 
@@ -346,27 +386,6 @@ export class ProductosComponent implements OnInit {
    */
   onCustomValueChange(row: any): void {
     row.sku = this.generateSKU(row);
-  }
-
-  /**
-   * Try to fetch global opciones from backend if ProductoService exposes getOpciones().
-   * Otherwise fallback to extracting from current detalleProducto (if present).
-   */
-  async fetchOpcionesIfNeeded(): Promise<any[]> {
-    // Prefer an explicit endpoint if implemented in ProductoService
-    try {
-      // optional method on service - call safely via any and convert observable to promise
-      const svcAny = this.productoService as any;
-      if (svcAny && typeof svcAny.getOpciones === 'function') {
-        return await new Promise((resolve, reject) => {
-          svcAny.getOpciones().subscribe({ next: resolve, error: reject });
-        });
-      }
-    } catch (err) {
-      console.warn('Error fetching opciones via service:', err);
-    }
-    // If service method missing or failed, return empty array (no fallback needed)
-    return [];
   }
 
   /** Handle file input selection for a variante row (visual only - previews) */
@@ -697,21 +716,85 @@ export class ProductosComponent implements OnInit {
   }
 
   editarVariante(variante: VarianteProducto) {
+    // TODO: Implementar modal de edición de variante
+    // Por ahora, mostrar información en consola
     console.log('Editar variante:', variante);
-    // Implementar lógica de edición
+    this.notificationService.error('Función de edición en desarrollo');
+
+    // Opción futura: abrir un modal similar al de crear variantes
+    // pero pre-poblado con los datos de la variante existente
   }
 
   eliminarVariante(variante: VarianteProducto) {
-    console.log('Eliminar variante:', variante);
-    // Implementar lógica de eliminación
+    if (!variante || !variante.id_variante) {
+      this.notificationService.error('Variante inválida');
+      return;
+    }
+
+    const productoId = this.detalleProducto()?.id_producto;
+    if (!productoId) {
+      this.notificationService.error('No se pudo determinar el producto');
+      return;
+    }
+
+    // Confirmar antes de eliminar
+    if (!confirm(`¿Estás seguro de eliminar la variante ${variante.sku}?`)) {
+      return;
+    }
+
+    this.cargandoVariantes.set(true);
+    this.productoService.deleteVariante(productoId, variante.id_variante).subscribe({
+      next: () => {
+        this.notificationService.success('Variante eliminada exitosamente');
+
+        // Recargar el detalle del producto para actualizar la lista de variantes
+        this.productoService.getProductoDetalleAdmin(productoId).subscribe({
+          next: (detalle) => {
+            this.detalleProducto.set(detalle);
+            this.cargandoVariantes.set(false);
+          },
+          error: (err) => {
+            // Si es 404, significa que se eliminó la última variante
+            if (err?.status === 404) {
+              // Mantener el producto pero sin variantes
+              const currentDetail = this.detalleProducto();
+              if (currentDetail) {
+                this.detalleProducto.set({
+                  ...currentDetail,
+                  variantes: []
+                });
+              }
+            }
+            this.cargandoVariantes.set(false);
+          }
+        });
+
+        // Recargar lista de productos
+        this.cargarTodo();
+      },
+      error: (err) => {
+        const errorMsg = err?.error?.message || 'Error al eliminar la variante';
+        this.notificationService.error(errorMsg);
+        this.cargandoVariantes.set(false);
+        console.error('Error al eliminar variante:', err);
+      }
+    });
   }
 
   eliminarProducto(producto: Productos) {
     console.log('Eliminar producto con ID:', producto.id);
     this.cargando.set(true);
-    // Lógica para eliminar el producto (a implementar)
-
-    // Lógica para editar el producto (a implementar)
+    this.productoService.deleteProducto(producto.id).subscribe({
+      next: () => {
+        this.notificationService.success('Producto eliminado exitosamente');
+        // this.cargando.set(false);
+        this.cargarTodo();
+      },
+      error: (err) => {
+        this.notificationService.error('Error al eliminar producto');
+        console.error(err);
+      },
+    });
   }
 
   /** Open admin page to manage opciones (best-effort). */

@@ -81,6 +81,100 @@
 }
 
 /* Rango de precio */
+.rango-precio-container {
+  padding: 0.5rem;
+}
+
+.precio-valores {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.precio-valor {
+  color: #2ECC71;
+}
+
+.precio-separador {
+  color: #95A5A6;
+}
+
+.rango-sliders {
+  position: relative;
+  height: 5px;
+  margin: 1.5rem 0;
+  z-index: 2;
+}
+
+.slider {
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #2ECC71;
+  cursor: pointer;
+  pointer-events: all;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: 2px solid white;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(46, 204, 113, 0.4);
+}
+
+.slider::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: #2ECC71;
+  cursor: pointer;
+  pointer-events: all;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(46, 204, 113, 0.4);
+}
+
+.slider-track {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background: #E0E0E0;
+  border-radius: 3px;
+  top: -26px;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.slider-range {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(90deg, #2ECC71, #27AE60);
+  border-radius: 3px;
+  transition: all 0.1s ease;
+}
+
 .rango-precio {
   padding: 0 0.5rem;
 }
@@ -111,6 +205,64 @@ input[type="range"] {
   gap: 0.5rem;
 }
 
+/* Grid de colores */
+.colores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+}
+
+.color-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #F8F9FA;
+}
+
+.color-chip:hover {
+  background: #ECF0F1;
+  transform: translateY(-2px);
+}
+
+.color-chip.selected {
+  border-color: #2ECC71;
+  background: #E8F8F5;
+}
+
+.color-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+.color-chip:hover .color-circle {
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.color-chip.selected .color-circle {
+  border-color: #2ECC71;
+  border-width: 3px;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+}
+
+.color-nombre {
+  font-size: 0.8rem;
+  color: #2C3E50;
+  font-weight: 500;
+  text-align: center;
+  text-transform: capitalize;
+}
+
 /* Grid de tallas */
 .tallas-grid {
   display: grid;
@@ -125,17 +277,31 @@ input[type="range"] {
   background: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2C3E50;
 }
 
 .talla-btn:hover {
   border-color: #2ECC71;
   color: #2ECC71;
+  background: #F0FDF4;
 }
 
 .talla-btn.selected {
   background: #2ECC71;
   border-color: #2ECC71;
   color: white;
+}
+
+.mensaje-info {
+  padding: 1rem;
+  background: #ECF0F1;
+  border-radius: 6px;
+  color: #7F8C8D;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

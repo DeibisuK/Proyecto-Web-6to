@@ -5,8 +5,12 @@ export const searchProducts = async ({
   categoriasIds = null,
   deportesIds = null,
   marcasIds = null,
+  coloresIds = null,
+  tallasIds = null,
   q = null,
   is_new = null,
+  precioMin = null,
+  precioMax = null,
   sort = null,
   limit = 24,
   offset = 0,
@@ -41,6 +45,34 @@ export const searchProducts = async ({
     paramIndex++;
   }
 
+  // Filtro por múltiples colores (valores de opción)
+  if (coloresIds && Array.isArray(coloresIds) && coloresIds.length > 0) {
+    conditions.push(`
+      id_producto IN (
+        SELECT DISTINCT vp.id_producto 
+        FROM variantes_productos vp
+        JOIN variante_valores vv ON vp.id_variante = vv.id_variante
+        WHERE vv.id_valor = ANY($${paramIndex}::int[])
+      )
+    `);
+    params.push(coloresIds);
+    paramIndex++;
+  }
+
+  // Filtro por múltiples tallas (valores de opción)
+  if (tallasIds && Array.isArray(tallasIds) && tallasIds.length > 0) {
+    conditions.push(`
+      id_producto IN (
+        SELECT DISTINCT vp.id_producto 
+        FROM variantes_productos vp
+        JOIN variante_valores vv ON vp.id_variante = vv.id_variante
+        WHERE vv.id_valor = ANY($${paramIndex}::int[])
+      )
+    `);
+    params.push(tallasIds);
+    paramIndex++;
+  }
+
   // Filtro por búsqueda de texto
   if (q) {
     conditions.push(
@@ -57,6 +89,20 @@ export const searchProducts = async ({
     paramIndex++;
   }
 
+  // Filtro por rango de precio mínimo
+  if (precioMin !== null && precioMin !== undefined) {
+    conditions.push(`COALESCE(precio, 0) >= $${paramIndex}`);
+    params.push(precioMin);
+    paramIndex++;
+  }
+
+  // Filtro por rango de precio máximo
+  if (precioMax !== null && precioMax !== undefined) {
+    conditions.push(`COALESCE(precio, 0) <= $${paramIndex}`);
+    params.push(precioMax);
+    paramIndex++;
+  }
+
   // Construir cláusula WHERE
   const whereClause =
     conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -65,6 +111,11 @@ export const searchProducts = async ({
   let orderByClause = "ORDER BY id_producto ASC";
   if (sort) {
     switch (sort) {
+      case "relevance":
+        // Ordenar por productos más vendidos / más populares
+        // Por ahora usaremos es_nuevo DESC + precio ASC como "relevancia"
+        orderByClause = "ORDER BY es_nuevo DESC, precio ASC, id_producto DESC";
+        break;
       case "price_asc":
         orderByClause = "ORDER BY precio ASC, id_producto ASC";
         break;
@@ -80,6 +131,9 @@ export const searchProducts = async ({
       case "name_desc":
         orderByClause = "ORDER BY nombre DESC";
         break;
+      default:
+        // Si no reconoce el sort, usa relevancia por defecto
+        orderByClause = "ORDER BY es_nuevo DESC, precio ASC, id_producto DESC";
     }
   }
 
@@ -644,6 +698,95 @@ export const getOpcionesConValores = async () => {
         .valores.push({ id_valor: row.id_valor, valor: row.valor });
     }
   }
+  return Array.from(map.values());
+};
+
+/**
+ * Obtiene las opciones disponibles para múltiples categorías
+ * @param {Array<number>} ids_categorias - Array de IDs de categorías
+ * @returns {Array} Array de opciones con sus valores (sin duplicados)
+ */
+export const getOpcionesPorCategorias = async (ids_categorias) => {
+  const sql = `
+    SELECT DISTINCT
+      o.id_opcion, 
+      o.nombre AS nombre_opcion, 
+      MIN(co.orden) as orden,
+      v.id_valor, 
+      v.valor
+    FROM categoria_opciones co
+    INNER JOIN opciones_productos o ON co.id_opcion = o.id_opcion
+    LEFT JOIN valores_opcion v ON v.id_opcion = o.id_opcion
+    WHERE co.id_categoria = ANY($1::int[])
+    GROUP BY o.id_opcion, o.nombre, v.id_valor, v.valor
+    ORDER BY MIN(co.orden), o.id_opcion, v.valor;
+  `;
+  
+  const res = await pool.query(sql, [ids_categorias]);
+  
+  // Agrupar por opción
+  const map = new Map();
+  for (const row of res.rows) {
+    if (!map.has(row.id_opcion)) {
+      map.set(row.id_opcion, {
+        id_opcion: row.id_opcion,
+        nombre_opcion: row.nombre_opcion,
+        orden: row.orden,
+        valores: [],
+      });
+    }
+    if (row.id_valor) {
+      // Evitar duplicados de valores
+      const valores = map.get(row.id_opcion).valores;
+      if (!valores.find(v => v.id_valor === row.id_valor)) {
+        valores.push({ id_valor: row.id_valor, valor: row.valor });
+      }
+    }
+  }
+  
+  return Array.from(map.values());
+};
+
+/**
+ * Obtiene las opciones disponibles para una categoría específica
+ * @param {number} id_categoria - ID de la categoría
+ * @returns {Array} Array de opciones con sus valores
+ */
+export const getOpcionesPorCategoria = async (id_categoria) => {
+  const sql = `
+    SELECT 
+      o.id_opcion, 
+      o.nombre AS nombre_opcion, 
+      co.orden,
+      v.id_valor, 
+      v.valor
+    FROM categoria_opciones co
+    INNER JOIN opciones_productos o ON co.id_opcion = o.id_opcion
+    LEFT JOIN valores_opcion v ON v.id_opcion = o.id_opcion
+    WHERE co.id_categoria = $1
+    ORDER BY co.orden, o.id_opcion, v.valor;
+  `;
+  
+  const res = await pool.query(sql, [id_categoria]);
+  
+  // Agrupar por opción
+  const map = new Map();
+  for (const row of res.rows) {
+    if (!map.has(row.id_opcion)) {
+      map.set(row.id_opcion, {
+        id_opcion: row.id_opcion,
+        nombre_opcion: row.nombre_opcion,
+        orden: row.orden,
+        valores: [],
+      });
+    }
+    if (row.id_valor) {
+      map
+        .get(row.id_opcion)
+        .valores.push({ id_valor: row.id_valor, valor: row.valor });
+    }
+  }
+  
   return Array.from(map.values());
 };
 

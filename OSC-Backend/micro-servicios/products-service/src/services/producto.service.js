@@ -54,3 +54,16 @@ export const deleteVariante = async (id_variante) => {
 export const getOpciones = async () => {
   return await model.getOpcionesConValores();
 };
+
+export const getOpcionesPorCategorias = async (ids_categorias) => {
+  if (!Array.isArray(ids_categorias) || ids_categorias.length === 0) {
+    throw new Error("Se requiere un array de IDs de categorías");
+  }
+  return await model.getOpcionesPorCategorias(ids_categorias);
+};
+
+export const getOpcionesPorCategoria = async (id_categoria) => {
+  const idNum = Number(id_categoria);
+  if (Number.isNaN(idNum)) throw new Error("Invalid categoria id");
+  return await model.getOpcionesPorCategoria(idNum);
+};

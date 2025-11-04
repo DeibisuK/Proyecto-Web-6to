@@ -2,19 +2,24 @@
   <div class="producto-imagen">
     <!-- Usa 'imagen' que es lo que devuelve el backend -->
     <img
-      [src]="producto.imagen || '/assets/placeholder.png'"
-      [alt]="producto.nombre"
+      appLazyLoad
+      [src]="producto().imagen || '/assets/placeholder.png'"
+      [alt]="producto().nombre"
       (error)="onImageError($event)">
 
     <!-- Badge de descuento -->
-    <div class="producto-descuento" *ngIf="producto.precio_anterior && producto.precio_anterior > producto.precio">
-      -{{ calcularDescuento() }}%
-    </div>
+    @if (tieneDescuento()) {
+      <div class="producto-descuento">
+        -{{ descuento() }}%
+      </div>
+    }
 
     <!-- Badge de nuevo -->
-    <div class="producto-nuevo" *ngIf="producto.es_nuevo">
-      Nuevo
-    </div>
+    @if (producto().es_nuevo) {
+      <div class="producto-nuevo">
+        Nuevo
+      </div>
+    }
 
     <!-- Botón agregar al carrito -->
     <button class="btn-agregar" (click)="agregarAlCarrito($event); $event.stopPropagation();">
@@ -23,30 +28,36 @@
   </div>
 
   <div class="producto-info">
-    <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-    <p class="producto-caracteristicas">{{ producto.caracteristicas }}</p>
+    <h3 class="producto-nombre">{{ producto().nombre }}</h3>
+    <p class="producto-caracteristicas">{{ producto().caracteristicas }}</p>
 
     <div class="producto-detalles">
       <div class="precio-contenedor">
-        <span class="precio-actual">${{ producto.precio | number:'1.2-2' }}</span>
-        <span class="precio-anterior" *ngIf="producto.precio_anterior && producto.precio_anterior > producto.precio">
-          ${{ producto.precio_anterior | number:'1.2-2' }}
-        </span>
+        <span class="precio-actual">${{ producto().precio | number:'1.2-2' }}</span>
+        @if (tieneDescuento()) {
+          <span class="precio-anterior">
+            ${{ producto().precio_anterior | number:'1.2-2' }}
+          </span>
+        }
       </div>
 
-      <span class="producto-marca">{{ producto.marca }}</span>
+      <span class="producto-marca">{{ producto().marca }}</span>
     </div>
 
     <!-- Alerta de stock bajo -->
-    <div class="producto-disponibilidad" *ngIf="producto.stock < 5 && producto.stock > 0">
-      <i class="fas fa-exclamation-triangle"></i>
-      ¡Solo quedan {{ producto.stock }} unidades!
-    </div>
+    @if (stockBajo()) {
+      <div class="producto-disponibilidad">
+        <i class="fas fa-exclamation-triangle"></i>
+        ¡Solo quedan {{ producto().stock }} unidades!
+      </div>
+    }
 
     <!-- Sin stock -->
-    <div class="producto-sin-stock" *ngIf="producto.stock === 0">
-      <i class="fas fa-times-circle"></i>
-      Sin stock
-    </div>
+    @if (!tieneStock()) {
+      <div class="producto-sin-stock">
+        <i class="fas fa-times-circle"></i>
+        Sin stock
+      </div>
+    }
   </div>
 </div>

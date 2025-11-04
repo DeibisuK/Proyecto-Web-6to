@@ -55,9 +55,13 @@ export const searchProductos = async (req, res) => {
       marcas = [],
       categorias = [],
       deportes = [],
+      colores = [],
+      tallas = [],
       is_new = undefined,
       q = null,
       sort = null,
+      precioMin = null,
+      precioMax = null,
       page = 1,
       per_page = 10,
     } = req.body;
@@ -80,13 +84,33 @@ export const searchProductos = async (req, res) => {
       ? deportes.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
       : [];
 
+    const coloresIds = Array.isArray(colores)
+      ? colores.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
+      : [];
+
+    const tallasIds = Array.isArray(tallas)
+      ? tallas.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id))
+      : [];
+
+    // Validar y parsear precios
+    const precioMinNum = precioMin !== null && precioMin !== undefined 
+      ? parseFloat(precioMin) 
+      : null;
+    const precioMaxNum = precioMax !== null && precioMax !== undefined 
+      ? parseFloat(precioMax) 
+      : null;
+
     const opts = {
       marcasIds: marcasIds.length > 0 ? marcasIds : null,
       categoriasIds: categoriasIds.length > 0 ? categoriasIds : null,
       deportesIds: deportesIds.length > 0 ? deportesIds : null,
+      coloresIds: coloresIds.length > 0 ? coloresIds : null,
+      tallasIds: tallasIds.length > 0 ? tallasIds : null,
       sort: sort || null,
       q: q ? String(q).trim() : null,
       is_new: is_new === undefined ? null : Boolean(is_new),
+      precioMin: precioMinNum,
+      precioMax: precioMaxNum,
       limit: perPageNum,
       offset,
     };
@@ -266,6 +290,53 @@ export const deleteVariante = async (req, res) => {
 export const getOpciones = async (req, res) => {
   try {
     const opciones = await service.getOpciones();
+    res.json(opciones);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * POST /client/productos/opciones/categorias
+ * Devuelve las opciones y valores disponibles para múltiples categorías
+ */
+export const getOpcionesPorCategorias = async (req, res) => {
+  try {
+    const { categorias = [] } = req.body;
+    
+    if (!Array.isArray(categorias) || categorias.length === 0) {
+      return res.status(400).json({ message: 'Se requiere un array de categorías' });
+    }
+
+    const categoriasIds = categorias
+      .map(id => parseInt(id, 10))
+      .filter(id => !isNaN(id));
+
+    if (categoriasIds.length === 0) {
+      return res.status(400).json({ message: 'No se proporcionaron IDs de categorías válidos' });
+    }
+
+    const opciones = await service.getOpcionesPorCategorias(categoriasIds);
+    res.json(opciones);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * GET /admin/productos/opciones/categoria/:id_categoria
+ * Devuelve las opciones y valores disponibles para una categoría específica
+ */
+export const getOpcionesPorCategoria = async (req, res) => {
+  try {
+    const { id_categoria } = req.params;
+    const idCategoria = parseInt(id_categoria, 10);
+    
+    if (isNaN(idCategoria)) {
+      return res.status(400).json({ message: 'ID de categoría inválido' });
+    }
+
+    const opciones = await service.getOpcionesPorCategoria(idCategoria);
     res.json(opciones);
   } catch (error) {
     res.status(500).json({ message: error.message });

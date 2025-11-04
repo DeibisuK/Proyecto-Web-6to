@@ -10,38 +10,142 @@
   <div class="filtro-seccion">
     <div class="filtro-titulo" (click)="toggleFiltro('categoria')">
       <h4>Categorías</h4>
-      <i class="fas" [class.fa-chevron-down]="!seccionesDesplegadas.categoria"
-         [class.fa-chevron-up]="seccionesDesplegadas.categoria"></i>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().categoria"
+         [class.fa-chevron-up]="seccionesDesplegadas().categoria"></i>
     </div>
-    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas.categoria">
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().categoria">
       <div class="opciones-grid">
-        <label class="opcion-checkbox" *ngFor="let cat of categorias">
-          <input type="checkbox"
-                 [checked]="isCategoriaSeleccionada(cat.id_categoria)"
-                 (change)="toggleCategoria(cat.id_categoria)">
-          <span>{{cat.nombre_categoria}}</span>
-        </label>
+        @for (cat of categorias(); track cat.id_categoria) {
+          <label class="opcion-checkbox">
+            <input type="checkbox"
+                   [checked]="isCategoriaSeleccionada(cat.id_categoria)"
+                   (change)="toggleCategoria(cat.id_categoria)">
+            <span>{{cat.nombre_categoria}}</span>
+          </label>
+        }
       </div>
     </div>
   </div>
 
-  <!-- Rango de Precio para luego-->
+  <!-- Rango de Precio -->
+  <div class="filtro-seccion">
+    <div class="filtro-titulo" (click)="toggleFiltro('precio')">
+      <h4>Precio</h4>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().precio"
+         [class.fa-chevron-up]="seccionesDesplegadas().precio"></i>
+    </div>
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().precio">
+      <div class="rango-precio-container">
+        <!-- Valores actuales -->
+        <div class="precio-valores">
+          <span class="precio-valor">${{ precioMinActual() | number : '1.0-0' }}</span>
+          <span class="precio-separador">-</span>
+          <span class="precio-valor">${{ precioMaxActual() | number : '1.0-0' }}</span>
+        </div>
+
+        <!-- Sliders -->
+        <div class="rango-sliders">
+          <input type="range"
+                 class="slider slider-min"
+                 [min]="precioMinimo()"
+                 [max]="precioMaximo()"
+                 [value]="precioMinActual()"
+                 (input)="onPrecioMinChange($event)"
+                 step="100">
+          <input type="range"
+                 class="slider slider-max"
+                 [min]="precioMinimo()"
+                 [max]="precioMaximo()"
+                 [value]="precioMaxActual()"
+                 (input)="onPrecioMaxChange($event)"
+                 step="100">
+        </div>
+
+        <!-- Progreso visual -->
+        <div class="slider-track">
+          <div class="slider-range"
+               [style.left.%]="((precioMinActual() - precioMinimo()) / (precioMaximo() - precioMinimo())) * 100"
+               [style.right.%]="100 - ((precioMaxActual() - precioMinimo()) / (precioMaximo() - precioMinimo())) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Colores -->
+  <div class="filtro-seccion">
+    <div class="filtro-titulo" (click)="toggleFiltro('color')">
+      <h4>Colores</h4>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().color"
+         [class.fa-chevron-up]="seccionesDesplegadas().color"></i>
+    </div>
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().color">
+      <div class="colores-grid">
+        @for (color of coloresDisponibles(); track color.id_valor) {
+          <div class="color-chip"
+               [class.selected]="isColorSeleccionado(color.id_valor)"
+               (click)="toggleColor(color.id_valor)">
+            <div class="color-circle"
+                 [style.background-color]="getColorHex(color.valor)">
+            </div>
+            <span class="color-nombre">{{ color.valor }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Tallas -->
+  <div class="filtro-seccion">
+    <div class="filtro-titulo" (click)="toggleFiltro('talla')">
+      <h4>Tallas</h4>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().talla"
+         [class.fa-chevron-up]="seccionesDesplegadas().talla"></i>
+    </div>
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().talla">
+      @if (tallasDisponibles().length > 0) {
+        <div class="tallas-grid">
+          @for (talla of tallasDisponibles(); track talla.id_valor) {
+            <button class="talla-btn"
+                    [class.selected]="isTallaSeleccionada(talla.id_valor)"
+                    (click)="toggleTalla(talla.id_valor)">
+              {{ talla.valor }}
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="mensaje-info">
+          @if (filtros().categorias && filtros().categorias!.length > 0) {
+            No hay tallas disponibles para las categorías seleccionadas
+          } @else {
+            Selecciona una categoría para ver tallas disponibles
+          }
+        </p>
+      }
+    </div>
+  </div>
 
   <!-- Marcas -->
   <div class="filtro-seccion">
     <div class="filtro-titulo" (click)="toggleFiltro('marca')">
       <h4>Marcas</h4>
-      <i class="fas" [class.fa-chevron-down]="!seccionesDesplegadas.marca"
-         [class.fa-chevron-up]="seccionesDesplegadas.marca"></i>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().marca"
+         [class.fa-chevron-up]="seccionesDesplegadas().marca"></i>
     </div>
-    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas.marca">
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().marca">
       <div class="opciones-lista">
-        <label class="opcion-checkbox" *ngFor="let marca of marcas">
-          <input type="checkbox"
-                 [checked]="isMarcaSeleccionada(marca.id_marca)"
-                 (change)="toggleMarca(marca.id_marca)">
-          <span>{{marca.nombre_marca}}</span>
-        </label>
+        @for (marca of marcas(); track marca.id_marca) {
+          <label class="opcion-checkbox">
+            <input type="checkbox"
+                   [checked]="isMarcaSeleccionada(marca.id_marca)"
+                   (change)="toggleMarca(marca.id_marca)">
+            <span>{{marca.nombre_marca}}</span>
+          </label>
+        }
       </div>
     </div>
   </div>

@@ -8,13 +8,15 @@ import {
   postVariantes,
   updateVariante,
   deleteVariante,
-  getOpciones
+  getOpciones,
+  getOpcionesPorCategoria
 } from "../../controllers/producto.controller.js";
 
 const router = Router();
 
 router.get("/", getAllProductos);
 router.get("/opciones", getOpciones);
+router.get("/opciones/categoria/:id_categoria", getOpcionesPorCategoria);
 router.get("/:id", getProductoDetalle);
 router.post("/", createProducto);
 router.post("/:id/variantes", postVariantes);

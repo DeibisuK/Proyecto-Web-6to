@@ -116,10 +116,39 @@ export class ProductoService {
   }
 
   /**
+   * Obtiene las opciones globales y sus valores (cliente)
+   * Útil para filtros de productos (colores, tallas, etc.)
+   */
+  getOpcionesCliente(): Observable<any[]> {
+    const url = `${environment.apiUrl}/p/client/productos/opciones`;
+    return this.http.get<any[]>(url);
+  }
+
+  /**
+   * Obtiene las opciones específicas para una o múltiples categorías (cliente)
+   * @param idsCategorias - Array de IDs de categorías
+   * @returns Observable con array de opciones con sus valores
+   */
+  getOpcionesPorCategoriasCliente(idsCategorias: number[]): Observable<any[]> {
+    const url = `${environment.apiUrl}/p/client/productos/opciones/categorias`;
+    return this.http.post<any[]>(url, { categorias: idsCategorias });
+  }
+
+  /**
    * Obtiene las opciones globales y sus valores (admin)
    */
   getOpciones(): Observable<any[]> {
     const url = `${environment.apiUrl}/p/admin/productos/opciones`;
+    return this.http.get<any[]>(url);
+  }
+
+  /**
+   * Obtiene las opciones específicas para una categoría
+   * @param idCategoria - ID de la categoría
+   * @returns Observable con array de opciones con sus valores
+   */
+  getOpcionesPorCategoria(idCategoria: number): Observable<any[]> {
+    const url = `${environment.apiUrl}/p/admin/productos/opciones/categoria/${idCategoria}`;
     return this.http.get<any[]>(url);
   }
 

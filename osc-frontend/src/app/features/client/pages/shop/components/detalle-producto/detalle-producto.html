@@ -1,40 +1,43 @@
-<div class="detalle-producto-container" *ngIf="producto && varianteSeleccionada">
+@if (producto() && varianteSeleccionada()) {
+<div class="detalle-producto-container">
   <!-- Breadcrumb -->
   <nav class="breadcrumb">
     <a routerLink="/tienda">Tienda</a>
     <span class="breadcrumb-separator">/</span>
-    <span class="current">{{ producto.nombre }}</span>
+    <span class="current">{{ producto()!.nombre }}</span>
   </nav>
 
   <div class="producto-content">
     <!-- Sección de Imagen -->
     <div class="imagen-section">
       <div class="imagen-principal">
-        <img [src]="imagenPrincipal" [alt]="producto.nombre" (error)="onImageError($event)" />
+        <img [src]="imagenPrincipal()" [alt]="producto()!.nombre" (error)="onImageError($event)" />
         <div class="badges">
-          <span *ngIf="producto.es_nuevo" class="badge nuevo">Nuevo</span>
+          @if (producto()!.es_nuevo) {
+            <span class="badge nuevo">Nuevo</span>
+          }
         </div>
       </div>
       <div class="imagenes-secundarias">
-        <div
-          *ngFor="let imagen of getImagenesNormalizadas(); let i = index"
-          class="imagen-miniatura"
-          [class.active]="imagenPrincipal === imagen"
-          (click)="cambiarImagenPrincipal(imagen)"
-        >
-          <img
-            [src]="imagen"
-            [alt]="producto.nombre + ' - ' + (i + 1)"
-            (error)="onImageError($event)"
-          />
-        </div>
+        @for (imagen of imagenesNormalizadas(); track $index) {
+          <div
+            class="imagen-miniatura"
+            [class.active]="imagenPrincipal() === imagen"
+            (click)="cambiarImagenPrincipal(imagen)"
+          >
+            <img
+              [src]="imagen"
+              [alt]="producto()!.nombre + ' - ' + ($index + 1)"
+              (error)="onImageError($event)"
+            />
+          </div>
+        }
         <!-- Placeholders si hay menos de 4 imágenes -->
-        <div
-          *ngFor="let i of [1, 2, 3, 4].slice(getImagenesNormalizadas().length)"
-          class="imagen-miniatura placeholder"
-        >
-          <i class="fas fa-image"></i>
-        </div>
+        @for (i of [1, 2, 3, 4].slice(imagenesNormalizadas().length); track i) {
+          <div class="imagen-miniatura placeholder">
+            <i class="fas fa-image"></i>
+          </div>
+        }
       </div>
     </div>
 
@@ -42,10 +45,10 @@
     <div class="info-section">
       <!-- Header del producto -->
       <div class="producto-header">
-        <h1 class="producto-titulo">{{ producto.nombre }}</h1>
+        <h1 class="producto-titulo">{{ producto()!.nombre }}</h1>
         <div class="marca-categoria">
-          <span class="marca">{{ producto.nombre_marca }}</span>
-          <span class="categoria">{{ getCategoriaDisplay() }}</span>
+          <span class="marca">{{ producto()!.nombre_marca }}</span>
+          <span class="categoria">{{ categoriaDisplay() }}</span>
         </div>
       </div>
 
@@ -54,68 +57,90 @@
         <div class="precio-info">
           <span class="precio-label">Precio:</span>
           <div class="precios">
-            <span class="precio-actual">${{ varianteSeleccionada.precio | number : '1.2-2' }}</span>
-            <span
-              *ngIf="
-                varianteSeleccionada.precio_anterior &&
-                varianteSeleccionada.precio_anterior > varianteSeleccionada.precio
-              "
-              class="precio-anterior"
-              >${{ varianteSeleccionada.precio_anterior | number : '1.2-2' }}</span
-            >
+            <span class="precio-actual">${{ varianteSeleccionada()!.precio | number : '1.2-2' }}</span>
+            @if (
+              varianteSeleccionada()!.precio_anterior &&
+              varianteSeleccionada()!.precio_anterior! > varianteSeleccionada()!.precio
+            ) {
+              <span class="precio-anterior"
+                >${{ varianteSeleccionada()!.precio_anterior | number : '1.2-2' }}</span
+              >
+            }
           </div>
         </div>
-        <div *ngIf="calcularDescuento() > 0" class="descuento-badge">
-          {{ calcularDescuento() }}% OFF
-        </div>
+        @if (descuento() > 0) {
+          <div class="descuento-badge">
+            {{ descuento() }}% OFF
+          </div>
+        }
       </div>
 
       <!-- Selectores dinámicos de opciones (Color, Talla, etc.) -->
-      <div *ngFor="let opcion of opcionesDisponibles" class="opcion-section">
-        <h3>{{ opcion.nombre_opcion }}:</h3>
+      @for (opcion of opcionesDisponibles(); track opcion.id_opcion) {
+        <div class="opcion-section">
+          <h3>{{ opcion.nombre_opcion }}:</h3>
 
-        <!-- Si es Color, mostrar como círculos de color (si aplica) o botones -->
-        <div *ngIf="opcion.nombre_opcion === 'Color'" class="color-section">
-          <div class="colores-grid">
-            <button
-              *ngFor="let valor of opcion.valores"
-              [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
-              class="color-btn"
-              (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
-            >
-              <span
-                class="color-indicator"
-                [style.background-color]="getColorCss(valor.valor)"
-              ></span>
-              <span class="color-nombre">{{ valor.valor }}</span>
-            </button>
-          </div>
-        </div>
+          <!-- Si es Color, mostrar como círculos de color (si aplica) o botones -->
+          @if (opcion.nombre_opcion === 'Color') {
+            <div class="color-section">
+              <div class="colores-grid">
+                @for (valor of opcion.valores; track valor.id_valor) {
+                  <button
+                    [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
+                    [class.sin-stock]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)"
+                    [disabled]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)"
+                    class="color-btn"
+                    (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
+                    [title]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor) ? 'Sin stock' : valor.valor"
+                  >
+                    <span
+                      class="color-indicator"
+                      [style.background-color]="getColorCss(valor.valor)"
+                    ></span>
+                    <span class="color-nombre">{{ valor.valor }}</span>
+                    @if (!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)) {
+                      <span class="badge-sin-stock">✗</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
 
-        <!-- Si es Talla u otra opción, mostrar como botones -->
-        <div *ngIf="opcion.nombre_opcion !== 'Color'" class="talla-section">
-          <div class="tallas-grid">
-            <button
-              *ngFor="let valor of opcion.valores"
-              [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
-              class="talla-btn"
-              (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
-            >
-              {{ valor.valor }}
-            </button>
-          </div>
+          <!-- Si es Talla u otra opción, mostrar como botones -->
+          @if (opcion.nombre_opcion !== 'Color') {
+            <div class="talla-section">
+              <div class="tallas-grid">
+                @for (valor of opcion.valores; track valor.id_valor) {
+                  <button
+                    [class.selected]="isOpcionSeleccionada(opcion.id_opcion, valor.id_valor)"
+                    [class.sin-stock]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)"
+                    [disabled]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)"
+                    class="talla-btn"
+                    (click)="seleccionarOpcion(opcion.id_opcion, valor.id_valor)"
+                    [title]="!tieneStockDisponible()(opcion.id_opcion, valor.id_valor) ? 'Sin stock' : valor.valor"
+                  >
+                    {{ valor.valor }}
+                    @if (!tieneStockDisponible()(opcion.id_opcion, valor.id_valor)) {
+                      <span class="icon-sin-stock">✗</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
         </div>
-      </div>
+      }
 
       <!-- Stock -->
       <div class="disponibilidad-section">
-        <div class="disponibilidad" [ngClass]="getStockClass()">
+        <div class="disponibilidad" [ngClass]="stockClass()">
           <div class="stock-indicator">
             <div class="stock-dot"></div>
-            <span class="stock-text">{{ getStockMessage() }}</span>
+            <span class="stock-text">{{ stockMessage() }}</span>
           </div>
           <div class="stock-bar">
-            <div class="stock-fill" [style.width.%]="getStockPercentage()"></div>
+            <div class="stock-fill" [style.width.%]="stockPercentage()"></div>
           </div>
         </div>
       </div>
@@ -125,19 +150,27 @@
         <div class="cantidad-controls">
           <label>Cantidad:</label>
           <div class="cantidad-selector">
-            <button (click)="cambiarCantidad(-1)" [disabled]="cantidad <= 1" class="cantidad-btn">
+            <button (click)="cambiarCantidad(-1)" [disabled]="cantidad() <= 1" class="cantidad-btn">
               <i class="fas fa-minus"></i>
             </button>
-            <span class="cantidad-display">{{ cantidad }}</span>
+            <span class="cantidad-display">{{ cantidad() }}</span>
             <button
               (click)="cambiarCantidad(1)"
-              [disabled]="cantidad >= varianteSeleccionada.stock"
+              [disabled]="cantidad() >= varianteSeleccionada()!.stock"
               class="cantidad-btn"
             >
               <i class="fas fa-plus"></i>
             </button>
           </div>
         </div>
+
+        <!-- 🆕 Mensaje de validación -->
+        @if (!puedeAgregar() && mensajeValidacion()) {
+          <div class="mensaje-validacion">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ mensajeValidacion() }}
+          </div>
+        }
 
         <button
           (click)="agregarAlCarrito()"
@@ -155,7 +188,7 @@
         style="margin-top: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 6px"
       >
         <small style="color: #6c757d"
-          >SKU: <strong>{{ varianteSeleccionada.sku }}</strong></small
+          >SKU: <strong>{{ varianteSeleccionada()!.sku }}</strong></small
         >
       </div>
 
@@ -185,50 +218,59 @@
         <h3>Descripción del producto</h3>
         <i
           class="fas"
-          [class.fa-plus]="!seccionesAbiertas.descripcion"
-          [class.fa-minus]="seccionesAbiertas.descripcion"
+          [class.fa-plus]="!seccionesAbiertas().descripcion"
+          [class.fa-minus]="seccionesAbiertas().descripcion"
         ></i>
       </button>
-      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas.descripcion">
-        <p>{{ producto.descripcion }}</p>
+      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas().descripcion">
+        <p>{{ producto()!.descripcion }}</p>
       </div>
     </div>
 
-    <!-- Características técnicas -->
+    <!-- Características -->
     <div class="seccion-expandible">
       <button class="seccion-header" (click)="toggleSeccion('caracteristicas')">
-        <h3>Información del producto</h3>
+        <h3>Características</h3>
         <i
           class="fas"
-          [class.fa-plus]="!seccionesAbiertas.caracteristicas"
-          [class.fa-minus]="seccionesAbiertas.caracteristicas"
+          [class.fa-plus]="!seccionesAbiertas().caracteristicas"
+          [class.fa-minus]="seccionesAbiertas().caracteristicas"
         ></i>
       </button>
-      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas.caracteristicas">
+      <div class="seccion-contenido" [class.abierta]="seccionesAbiertas().caracteristicas">
         <ul class="caracteristicas-lista">
-          <li><strong>Marca:</strong> {{ producto.nombre_marca }}</li>
-          <li><strong>Categoría:</strong> {{ producto.nombre_categoria }}</li>
-          <li><strong>Deporte:</strong> {{ producto.nombre_deporte }}</li>
-          <li *ngIf="producto.es_nuevo"><strong>Estado:</strong> Producto Nuevo</li>
+          <li><strong>Marca:</strong> {{ producto()!.nombre_marca }}</li>
+          <li><strong>Categoría:</strong> {{ producto()!.nombre_categoria }}</li>
+          <li><strong>Deporte:</strong> {{ producto()!.nombre_deporte }}</li>
+          @if (producto()!.es_nuevo) {
+            <li><strong>Estado:</strong> Producto Nuevo</li>
+          }
         </ul>
       </div>
     </div>
   </div>
 
   <!-- Productos relacionados -->
-  <app-productos-relacionados [categoria]="producto.id_categoria" [excludeId]="producto.id_producto"></app-productos-relacionados>
+  <app-productos-relacionados
+    [categoria]="producto()!.id_categoria"
+    [excludeId]="producto()!.id_producto"
+  ></app-productos-relacionados>
 </div>
+}
 
 <!-- Loading state -->
-<div *ngIf="isLoading" class="loading-container">
+@if (isLoading()) {
+<div class="loading-container">
   <div class="loading-spinner">
     <i class="fas fa-spinner fa-spin"></i>
     <p>Cargando producto...</p>
   </div>
 </div>
+}
 
 <!-- Error state (producto no existe) -->
-<div *ngIf="!isLoading && !producto" class="loading-container">
+@if (!isLoading() && !producto()) {
+<div class="loading-container">
   <div class="loading-spinner">
     <i class="fas fa-exclamation-triangle" style="color: #e74c3c"></i>
     <p>Producto no encontrado</p>
@@ -249,3 +291,4 @@
     </button>
   </div>
 </div>
+}
