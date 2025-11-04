@@ -1,17 +1,17 @@
-@if (productosRelacionados.length > 0) {
+@if (productosRelacionados().length > 0) {
   <div class="productos-relacionados-container">
     <div class="header">
       <h3>Productos relacionados</h3>
       <div class="controles">
         <button
           class="btn-control"
-          [disabled]="!canGoPrev"
+          [disabled]="!canGoPrev()"
           (click)="anterior()">
           <i class="fas fa-chevron-left"></i>
         </button>
         <button
           class="btn-control"
-          [disabled]="!canGoNext"
+          [disabled]="!canGoNext()"
           (click)="siguiente()">
           <i class="fas fa-chevron-right"></i>
         </button>
@@ -19,8 +19,8 @@
     </div>
 
     <div class="carrusel-container">
-      <div class="carrusel-track" [style.transform]="transformX">
-        @for (producto of productosRelacionados; track producto.id) {
+      <div class="carrusel-track" [style.transform]="transformX()">
+        @for (producto of productosRelacionados(); track producto.id) {
           <div
             class="producto-card"
             (click)="verDetalle(producto)">

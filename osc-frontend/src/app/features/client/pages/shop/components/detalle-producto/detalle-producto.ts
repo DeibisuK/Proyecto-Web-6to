@@ -6,6 +6,7 @@ import { ProductoDetalle, VarianteProducto, OpcionesProducto } from '@shared/mod
 import { CarritoService } from '@shared/services/index';
 import { ProductoService } from '@shared/services/index';
 import { ProductosRelacionados } from '../productos-relacionados/productos-relacionados';
+import { NotificationService } from '@app/core/services/notification.service';
 
 @Component({
   selector: 'app-detalle-producto',
@@ -19,6 +20,7 @@ export class DetalleProducto implements OnInit {
   // ====================
   private carritoService = inject(CarritoService);
   private productoService = inject(ProductoService);
+  private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -409,7 +411,7 @@ export class DetalleProducto implements OnInit {
       // 🆕 Mostrar mensaje de error si hay validación
       const mensaje = this.mensajeValidacion();
       if (mensaje) {
-        alert(mensaje); // TODO: Reemplazar con toast/snackbar en el futuro
+        this.notificationService.error(mensaje); // TODO: Reemplazar con toast/snackbar en el futuro
       }
       return;
     }
@@ -417,10 +419,10 @@ export class DetalleProducto implements OnInit {
     this.carritoService.agregarItem(variante.id_variante, this.cantidad()).subscribe({
       next: () => {
         // 🆕 Feedback visual de éxito
-        alert(`✓ ${producto.nombre} agregado al carrito`); // TODO: Reemplazar con toast/snackbar
+        this.notificationService.success(`✓ ${producto.nombre} agregado al carrito`); // TODO: Reemplazar con toast/snackbar
       },
       error: (error) => {
-        alert('Error al agregar al carrito. Intenta nuevamente.');
+        this.notificationService.error('Error al agregar al carrito. Intenta nuevamente.');
       }
     });
   }
