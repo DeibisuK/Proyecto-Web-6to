@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Usuario, RolUsuario, RolInfo } from '@shared/models/index';
 import { NotificationService } from '@core/services/notification.service';
+import { AuthService } from '@core/services/auth.service';
 import {
   AllUsersResponse,
   CombinedUser,
@@ -19,6 +20,9 @@ import { Auth, user } from '@angular/fire/auth';
 export class UsuarioComponent implements OnInit {
   private userApiService = inject(UserApiService);
   private auth = inject(Auth);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
+
   usuarios: Usuario[] = [];
   usuariosCombinados: AllUsersResponse | null = null;
   usuariosFiltrados: CombinedUser[] = [];
@@ -61,8 +65,6 @@ export class UsuarioComponent implements OnInit {
     2: 'Cliente',
     3: 'Arbitro',
   };
-
-  constructor(private notificationService: NotificationService) {}
 
   ngOnInit() {
     this.cargarUsuariosFirebase();
@@ -164,7 +166,7 @@ export class UsuarioComponent implements OnInit {
     }
 
     this.userApiService.updateUserRole(uid, rolInfo.id).subscribe({
-      next: (data) => {
+      next: async (data) => {
         // Actualizar en la lista combinada
         if (this.usuariosCombinados) {
           const index = this.usuariosCombinados.users.findIndex(
@@ -174,6 +176,16 @@ export class UsuarioComponent implements OnInit {
             // Actualizar el rol en customClaims
             this.usuariosCombinados.users[index].customClaims.role = this.nuevoRol!;
             this.usuariosCombinados.users[index].customClaims.id_rol = rolInfo.id;
+          }
+        }
+
+        // Si el usuario cambió su propio rol, refrescar el token
+        if (uid === this.auth.currentUser?.uid) {
+          try {
+            await this.authService.forceTokenRefresh();
+            console.log('[USUARIO] Token refrescado después de cambiar rol propio');
+          } catch (error) {
+            console.error('[USUARIO] Error al refrescar token:', error);
           }
         }
 
@@ -201,12 +213,22 @@ export class UsuarioComponent implements OnInit {
 
     // id_rol 2 = Cliente
     this.userApiService.updateUserRole(uid, 2).subscribe({
-      next: (data) => {
+      next: async (data) => {
         if (this.usuariosCombinados) {
           const index = this.usuariosCombinados.users.findIndex((u) => u.uid === usuario.uid);
           if (index !== -1) {
             this.usuariosCombinados.users[index].customClaims.role = 'Cliente';
             this.usuariosCombinados.users[index].customClaims.id_rol = 2;
+          }
+        }
+
+        // Si el usuario cambió su propio rol, refrescar el token
+        if (uid === this.auth.currentUser?.uid) {
+          try {
+            await this.authService.forceTokenRefresh();
+            console.log('[USUARIO] Token refrescado después de quitar rol propio');
+          } catch (error) {
+            console.error('[USUARIO] Error al refrescar token:', error);
           }
         }
 

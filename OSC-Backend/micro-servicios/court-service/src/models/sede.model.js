@@ -1,15 +1,16 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 
 export const findAll = async () => {
-  const result = await pool.query('SELECT * FROM sedes ORDER BY ciudad, nombre');
+  const result = await pool.query(
+    "SELECT *,nombre AS nombre_sede FROM sedes ORDER BY ciudad, nombre;"
+  );
   return result.rows;
 };
 
 export const findById = async (id) => {
-  const result = await pool.query(
-    'SELECT * FROM sedes WHERE id_sede = $1', 
-    [id]
-  );
+  const result = await pool.query("SELECT * FROM sedes WHERE id_sede = $1", [
+    id,
+  ]);
   return result.rows[0];
 };
 
@@ -17,11 +18,11 @@ export const create = async ({
   nombre,
   ciudad,
   direccion,
-  estado = 'Activo',
+  estado = "Activo",
   latitud,
   longitud,
   telefono,
-  email
+  email,
 }) => {
   const result = await pool.query(
     `INSERT INTO sedes (nombre, ciudad, direccion, estado, latitud, longitud, telefono, email) 
@@ -32,7 +33,16 @@ export const create = async ({
 };
 
 export const update = async (id, datos) => {
-  const { nombre, ciudad, direccion, estado, latitud, longitud, telefono, email } = datos;
+  const {
+    nombre,
+    ciudad,
+    direccion,
+    estado,
+    latitud,
+    longitud,
+    telefono,
+    email,
+  } = datos;
   const result = await pool.query(
     `UPDATE sedes SET 
        nombre = $1,
@@ -51,7 +61,7 @@ export const update = async (id, datos) => {
 
 export const remove = async (id) => {
   const result = await pool.query(
-    'DELETE FROM sedes WHERE id_sede = $1 RETURNING *', 
+    "DELETE FROM sedes WHERE id_sede = $1 RETURNING *",
     [id]
   );
   return result.rows[0];

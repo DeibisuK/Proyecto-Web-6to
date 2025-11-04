@@ -83,6 +83,13 @@ const services = [
     portVar: "PORT",
     hasDB: true,
   },
+  {
+    folder: "subscription-service",
+    name: "Subscription Service",
+    port: 3007,
+    portVar: "PORT",
+    hasDB: true,
+  },
 ];
 
 const config = {

@@ -105,6 +105,24 @@ export class AuthService {
     }
   }
 
+  /**
+   * Fuerza la actualización del token de Firebase para obtener claims actualizados
+   * Útil después de cambios en roles, suscripciones u otros claims
+   */
+  async forceTokenRefresh(): Promise<void> {
+    const user = this.currentUser;
+    if (!user) return;
+
+    try {
+      await user.getIdToken(true); // Force refresh
+      // Re-emitir el usuario para que los observables se re-evalúen
+      this.currentUserSubject.next(user);
+    } catch (err) {
+      console.error('Error al forzar refresh del token', err);
+      throw err;
+    }
+  }
+
   async loginWithEmail(email: string, password: string): Promise<UserCredential> {
     return signInWithEmailAndPassword(this.auth, email, password);
   }

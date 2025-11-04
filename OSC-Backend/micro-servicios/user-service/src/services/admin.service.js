@@ -141,13 +141,24 @@ export const assignRole = async (uid, id_rol) => {
       // Ignorar error al obtener nombre del rol
     }
 
-    // 3. Sincronizar con Firebase Custom Claims
+    // 3. Sincronizar con Firebase Custom Claims (preservando claims existentes)
     try {
       if (firebaseAdmin && firebaseAdmin.auth) {
-        await firebaseAdmin.auth().setCustomUserClaims(uid, {
+        // Obtener claims existentes primero
+        const user = await firebaseAdmin.auth().getUser(uid);
+        const existingClaims = user.customClaims || {};
+        
+        // Combinar claims existentes con los nuevos claims de rol
+        const updatedClaims = {
+          ...existingClaims,
           role: roleName,
           id_rol: Number(id_rol)
-        });
+        };
+        
+        console.log(`[ASSIGN-ROLE] UID: ${uid}, Claims anteriores:`, existingClaims);
+        console.log(`[ASSIGN-ROLE] Claims actualizados:`, updatedClaims);
+        
+        await firebaseAdmin.auth().setCustomUserClaims(uid, updatedClaims);
         claimsSynced = true;
       } else {
         claimWarning = 'Firebase Admin no disponible';

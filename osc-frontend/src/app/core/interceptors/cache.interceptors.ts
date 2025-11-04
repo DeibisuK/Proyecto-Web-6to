@@ -13,6 +13,7 @@ const NO_CACHE_PATTERNS = [
   '/auth',           // Autenticación
   '/payment',        // Pagos
   '/checkout',       // Checkout
+  '/s'   // Suscripciones
 ];
 
 export const CacheInterceptors: HttpInterceptorFn = (req, next) => {
