@@ -155,7 +155,7 @@ export const clienteRoutes: Routes = [
     component: PlanesSuscripcionComponent
   },
   {
-    path: 'mis-suscripciones',
+    path: 'mis-subscripciones',
     component: MiSuscripcionComponent
   }
 ]
