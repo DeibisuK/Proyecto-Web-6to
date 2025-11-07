@@ -21,7 +21,7 @@ export const CacheInterceptors: HttpInterceptorFn = (req, next) => {
   const shouldNotCache = NO_CACHE_PATTERNS.some(pattern => req.url.includes(pattern));
 
   if (shouldNotCache) {
-    console.log('🚫 [CACHE] No cacheando:', req.url);
+    // console.log('🚫 [CACHE] No cacheando:', req.url);
     return next(req); // Pasar la petición sin cachear
   }
 

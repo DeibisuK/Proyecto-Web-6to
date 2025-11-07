@@ -39,7 +39,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return next(req); // Continuar sin token si no hay
       }
 
-      console.log('AuthInterceptor: Adjuntando token a', req.url); // <-- Log para depurar
+      // console.log('AuthInterceptor: Adjuntando token a', req.url); // <-- Log para depurar
       const cloned = req.clone({
         setHeaders: { Authorization: `Bearer ${token}` }
       });

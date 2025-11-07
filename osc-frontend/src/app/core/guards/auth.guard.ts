@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = () => {
   return combineLatest([auth.authReady$, auth.isAuthenticated$]).pipe(
     take(1),
     tap(([ready, isAuth]) => {
-      console.log('AuthGuard - ready:', ready, 'isAuth:', isAuth);
+      // console.log('AuthGuard - ready:', ready, 'isAuth:', isAuth);
       if (!isAuth) {
         // Redirect to login (use the app's login route)
         router.navigate(['/inicio'], { queryParams: { openLogin: 'true' } });
