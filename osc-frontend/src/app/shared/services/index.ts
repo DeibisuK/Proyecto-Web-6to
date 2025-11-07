@@ -3,6 +3,7 @@ export * from './articles.service';
 export * from './canchas.service';
 export * from './carrito-bridge.service';
 export * from './categoria.service';
+export * from './cloudinary.service';
 export * from './contacto.service';
 export * from './deportes.service';
 export * from './equipo.service';

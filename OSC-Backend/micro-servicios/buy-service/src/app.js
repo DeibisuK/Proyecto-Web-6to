@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/client',  buyRoutes);
+app.use('/client', buyRoutes);
 app.get('/', (req, res) => {
     res.send('Buy Service is running');
 });
