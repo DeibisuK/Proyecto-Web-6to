@@ -98,7 +98,7 @@ export class Torneo implements OnInit {
   private actualizarContadoresDeportes(): void {
     // Contar torneos por deporte
     const deportesMap = new Map<number, { nombre: string; icono: string; count: number }>();
-    
+
     this.torneos.forEach(torneo => {
       if (!deportesMap.has(torneo.id_deporte)) {
         deportesMap.set(torneo.id_deporte, {

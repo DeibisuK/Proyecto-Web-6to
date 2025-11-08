@@ -225,13 +225,13 @@ export class Inscripciones implements OnInit {
           icono: 'success'
         };
         this.showConfirmacionModal = true;
-        
+
         // Recargar las inscripciones
         this.loadInscripciones();
       },
       error: (error) => {
         console.error('Error al cancelar inscripción:', error);
-        
+
         // Mostrar modal de error
         this.confirmacionConfig = {
           titulo: 'Error al cancelar',
