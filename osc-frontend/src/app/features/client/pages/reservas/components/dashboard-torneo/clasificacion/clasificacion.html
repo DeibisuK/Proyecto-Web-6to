@@ -1,89 +1,40 @@
 <div class="clasificacion-container">
-  <!-- Header de Liga -->
-  <div class="league-header">
-    <button class="back-button" (click)="goBack()">← Volver</button>
-    <div class="league-title-section">
-      <span class="league-logo">{{ leagueData.logo }}</span>
-      <h1 class="league-name">{{ leagueData.name }}</h1>
-    </div>
+  <div *ngIf="isLoading">Cargando...</div>
+
+  <div *ngIf="!isLoading && error">
+    <h3>{{ error }}</h3>
+    <button (click)="goBack()">Volver</button>
   </div>
 
-  <!-- Tabla de Clasificación -->
-  <div class="table-container">
-    <h2 class="section-title">Clasificaciones</h2>
+  <div *ngIf="!isLoading && !error">
+    <h1>{{ torneo?.nombre || 'Clasificación' }}</h1>
 
-    <div class="table-wrapper">
-      <table class="standings-table">
+    <div *ngFor="let grupo of grupos">
+      <h2>{{ grupo }}</h2>
+      <table>
         <thead>
           <tr>
-            <th class="col-position">#</th>
-            <th class="col-team">Equipo</th>
-            <th class="col-stat">PJ</th>
-            <th class="col-stat">G</th>
-            <th class="col-stat">E</th>
-            <th class="col-stat">P</th>
-            <th class="col-stat hide-mobile">GF</th>
-            <th class="col-stat hide-mobile">GC</th>
-            <th class="col-stat">DG</th>
-            <th class="col-points">PTS</th>
+            <th>#</th>
+            <th>Equipo</th>
+            <th>PJ</th>
+            <th>G</th>
+            <th>E</th>
+            <th>P</th>
+            <th>PTS</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            *ngFor="let team of leagueData.standings"
-            class="team-row"
-            [class]="getPositionClass(team.position)"
-          >
-            <td class="col-position">
-              <div class="position-indicator" [class]="getPositionClass(team.position)">
-                {{ team.position }}
-              </div>
-            </td>
-            <td class="col-team">
-              <div class="team-cell">
-                <span class="team-logo-mini">{{ team.logo }}</span>
-                <span class="team-name">{{ team.team }}</span>
-              </div>
-            </td>
-            <td class="col-stat">{{ team.played }}</td>
-            <td class="col-stat">{{ team.won }}</td>
-            <td class="col-stat">{{ team.drawn }}</td>
-            <td class="col-stat">{{ team.lost }}</td>
-            <td class="col-stat hide-mobile">{{ team.goalsFor }}</td>
-            <td class="col-stat hide-mobile">{{ team.goalsAgainst }}</td>
-            <td
-              class="col-stat"
-              [class.positive]="team.goalDifference > 0"
-              [class.negative]="team.goalDifference < 0"
-            >
-              {{ team.goalDifference > 0 ? '+' : '' }}{{ team.goalDifference }}
-            </td>
-            <td class="col-points">
-              <strong>{{ team.points }}</strong>
-            </td>
+          <tr *ngFor="let eq of getEquiposPorGrupo(grupo); let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ eq.nombre_equipo }}</td>
+            <td>{{ eq.partidos_jugados }}</td>
+            <td>{{ eq.victorias }}</td>
+            <td>{{ eq.empates }}</td>
+            <td>{{ eq.derrotas }}</td>
+            <td>{{ eq.puntos }}</td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Leyenda de Colores -->
-    <div class="legend">
-      <div class="legend-item">
-        <span class="legend-color champions-league"></span>
-        <span class="legend-text">Champions League</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color europa-league"></span>
-        <span class="legend-text">Europa League</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color conference-league"></span>
-        <span class="legend-text">Conference League</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color relegation"></span>
-        <span class="legend-text">Descenso</span>
-      </div>
     </div>
   </div>
 </div>

@@ -22,6 +22,43 @@ export const getPartidoById = async (req, res) => {
     }
 };
 
+/**
+ * Obtiene el detalle completo de un partido incluyendo eventos, alineaciones y estadísticas
+ */
+export const getDetallePartido = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!id || isNaN(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID de partido inválido'
+            });
+        }
+
+        const detalle = await service.getDetalleCompleto(parseInt(id));
+        
+        if (!detalle.partido) {
+            return res.status(404).json({
+                success: false,
+                message: 'Partido no encontrado'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: detalle
+        });
+    } catch (error) {
+        console.error('Error al obtener detalle del partido:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener detalle del partido',
+            error: error.message
+        });
+    }
+};
+
 export const createPartido = async (req, res) => {
     try {
         const partido = await service.create(req.body);

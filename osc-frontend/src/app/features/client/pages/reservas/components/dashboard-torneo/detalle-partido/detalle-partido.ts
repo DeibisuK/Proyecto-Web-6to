@@ -1,20 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-
-interface Player {
-  name: string;
-  position: { top: string; left: string };
-}
-
-interface LastMatch {
-  status: string; // 'GANADO', 'PERDIDO', 'EMPATADO'
-  homeTeam: string;
-  awayTeam: string;
-  homeScore: number;
-  awayScore: number;
-  date: string;
-}
+import { PartidosService } from '../services/partidos.service';
+import { DetallePartido, EventoPartido, Jugador } from '../models/torneo.models';
 
 @Component({
   selector: 'app-detalle-partido',
@@ -24,75 +12,184 @@ interface LastMatch {
   styleUrls: ['./detalle-partido.css']
 })
 export class DetallePartidoComponent implements OnInit {
-  // Datos del partido actual
-  matchData = {
-    homeTeam: 'Sevilla',
-    awayTeam: 'Mallorca',
-    homeScore: 1,
-    awayScore: 3,
-    homeLogo: '🛡️',
-    awayLogo: '🔥',
-    homeCards: { yellow: 1, red: 0 },
-    awayCards: { yellow: 0, red: 1 },
-    status: 'En vivo - partido'
-  };
+  private partidosService = inject(PartidosService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  // Alineación (posiciones en el campo)
-  homeLineup: Player[] = [
-    { name: 'Y. Bounou', position: { top: '85%', left: '50%' } },
-    { name: 'G. Montiel', position: { top: '70%', left: '15%' } },
-    { name: 'L. Badé', position: { top: '70%', left: '38%' } },
-    { name: 'N. Gudelj', position: { top: '70%', left: '62%' } },
-    { name: 'A. Acuña', position: { top: '70%', left: '85%' } },
-    { name: 'Fernando', position: { top: '50%', left: '35%' } },
-    { name: 'I. Rakitic', position: { top: '50%', left: '65%' } },
-    { name: 'E. Lamela', position: { top: '30%', left: '20%' } },
-    { name: 'Ó. Rodríguez', position: { top: '30%', left: '50%' } },
-    { name: 'Suso', position: { top: '30%', left: '80%' } },
-    { name: 'Y. En-Nesyri', position: { top: '10%', left: '50%' } }
-  ];
-
-  // Últimos partidos - Sevilla
-  sevillaLastMatches: LastMatch[] = [
-    { status: 'GANADO', homeTeam: '🛡️', awayTeam: '⚽', homeScore: 2, awayScore: 1, date: '12:35' },
-    { status: 'PERDIDO', homeTeam: '🛡️', awayTeam: '⚽', homeScore: 0, awayScore: 2, date: '12:35' },
-    { status: 'GANADO', homeTeam: '🛡️', awayTeam: '⚽', homeScore: 3, awayScore: 1, date: '12:35' },
-    { status: 'GANADO', homeTeam: '🛡️', awayTeam: '⚽', homeScore: 2, awayScore: 0, date: '12:35' },
-    { status: 'PERDIDO', homeTeam: '🛡️', awayTeam: '⚽', homeScore: 1, awayScore: 2, date: '12:35' }
-  ];
-
-  // Últimos partidos - Mallorca
-  mallorcaLastMatches: LastMatch[] = [
-    { status: 'PERDIDO', homeTeam: '⚽', awayTeam: '🔵', homeScore: 1, awayScore: 2, date: '14:11' },
-    { status: 'GANADO', homeTeam: '⚽', awayTeam: '🔵', homeScore: 3, awayScore: 0, date: '14:11' },
-    { status: 'GANADO', homeTeam: '⚽', awayTeam: '🔵', homeScore: 2, awayScore: 1, date: '14:11' },
-    { status: 'GANADO', homeTeam: '⚽', awayTeam: '🔵', homeScore: 1, awayScore: 0, date: '14:11' },
-    { status: 'EMPATADO', homeTeam: '⚽', awayTeam: '🔵', homeScore: 1, awayScore: 1, date: '14:11' }
-  ];
-
-  selectedTab: 'alineacion' | 'estadisticas' = 'alineacion';
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  detallePartido: DetallePartido | null = null;
+  isLoading: boolean = true;
+  error: string | null = null;
+  selectedTab: 'alineacion' | 'eventos' | 'estadisticas' = 'alineacion';
 
   ngOnInit(): void {
-    // Aquí podrías cargar los datos del partido desde el servicio
-    // usando el ID del partido desde los parámetros de ruta
-    const matchId = this.route.snapshot.paramMap.get('id');
-    // TODO: cargar datos reales desde servicio
+    const idPartido = this.route.snapshot.paramMap.get('id');
+    if (idPartido) {
+      this.loadDetallePartido(Number(idPartido));
+    } else {
+      this.error = 'ID de partido no válido';
+      this.isLoading = false;
+    }
   }
 
-  selectTab(tab: 'alineacion' | 'estadisticas'): void {
+  /**
+   * Carga los detalles completos del partido desde el backend
+   */
+  loadDetallePartido(idPartido: number): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.partidosService.getDetallePartido(idPartido).subscribe({
+      next: (detalle) => {
+        this.detallePartido = detalle;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar detalle del partido:', error);
+        this.error = 'Error al cargar los detalles del partido. Intenta nuevamente.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  selectTab(tab: 'alineacion' | 'eventos' | 'estadisticas'): void {
     this.selectedTab = tab;
   }
 
   goBack(): void {
-    this.router.navigate(['../torneos'], { relativeTo: this.route });
+    this.router.navigate(['/client/reservas/dashboard-torneo/torneo']);
   }
 
-  getStatusClass(status: string): string {
-    return status.toLowerCase();
+  /**
+   * Obtiene la clase CSS según el estado del partido
+   */
+  getStatusClass(): string {
+    if (!this.detallePartido) return '';
+    return this.partidosService.getColorEstadoPartido(this.detallePartido.partido.estado_partido);
+  }
+
+  /**
+   * Obtiene el texto formateado del estado
+   */
+  getStatusText(): string {
+    if (!this.detallePartido) return '';
+    return this.detallePartido.partido.estado_partido === 'en_curso' ? 'EN VIVO' :
+           this.detallePartido.partido.estado_partido === 'finalizado' ? 'FINALIZADO' :
+           'PROGRAMADO';
+  }
+
+  /**
+   * Verifica si el partido está en vivo
+   */
+  isLive(): boolean {
+    if (!this.detallePartido) return false;
+    return this.partidosService.estaEnVivo(this.detallePartido.partido);
+  }
+
+  /**
+   * Obtiene los eventos de gol
+   */
+  getGoles(): EventoPartido[] {
+    if (!this.detallePartido) return [];
+    return this.partidosService.filtrarEventosPorTipo(this.detallePartido.eventos, 'gol');
+  }
+
+  /**
+   * Obtiene los eventos de tarjeta amarilla
+   */
+  getTarjetasAmarillas(): EventoPartido[] {
+    if (!this.detallePartido) return [];
+    return this.partidosService.filtrarEventosPorTipo(this.detallePartido.eventos, 'tarjeta_amarilla');
+  }
+
+  /**
+   * Obtiene los eventos de tarjeta roja
+   */
+  getTarjetasRojas(): EventoPartido[] {
+    if (!this.detallePartido) return [];
+    return this.partidosService.filtrarEventosPorTipo(this.detallePartido.eventos, 'tarjeta_roja');
+  }
+
+  /**
+   * Obtiene el icono del evento
+   */
+  getIconoEvento(tipo: string): string {
+    return this.partidosService.getIconoEvento(tipo);
+  }
+
+  /**
+   * Cuenta eventos por equipo
+   */
+  contarEventosPorEquipo(eventos: EventoPartido[], idEquipo: number): number {
+    return eventos.filter(e => e.id_equipo === idEquipo).length;
+  }
+
+  /**
+   * Obtiene los titulares de un equipo
+   */
+  getTitulares(isLocal: boolean): Jugador[] {
+    if (!this.detallePartido?.alineaciones) return [];
+    const alineaciones = isLocal ?
+      this.detallePartido.alineaciones.local :
+      this.detallePartido.alineaciones.visitante;
+
+    return alineaciones
+      .filter(a => a.es_titular)
+      .map(a => {
+        const nombreCompleto = a.jugador_nombre.split(' ');
+        return {
+          id_jugador: a.id_jugador,
+          nombre: nombreCompleto[0] || a.jugador_nombre,
+          apellido: nombreCompleto.slice(1).join(' ') || '',
+          numero_camiseta: a.numero_camiseta,
+          posicion: a.posicion
+        };
+      });
+  }
+
+  /**
+   * Obtiene los suplentes de un equipo
+   */
+  getSuplentes(isLocal: boolean): Jugador[] {
+    if (!this.detallePartido?.alineaciones) return [];
+    const alineaciones = isLocal ?
+      this.detallePartido.alineaciones.local :
+      this.detallePartido.alineaciones.visitante;
+
+    return alineaciones
+      .filter(a => !a.es_titular)
+      .map(a => {
+        const nombreCompleto = a.jugador_nombre.split(' ');
+        return {
+          id_jugador: a.id_jugador,
+          nombre: nombreCompleto[0] || a.jugador_nombre,
+          apellido: nombreCompleto.slice(1).join(' ') || '',
+          numero_camiseta: a.numero_camiseta,
+          posicion: a.posicion
+        };
+      });
+  }
+
+  /**
+   * Formatea la hora del partido
+   */
+  getHoraPartido(): string {
+    if (!this.detallePartido) return '';
+    return this.partidosService.formatearHoraPartido(this.detallePartido.partido.fecha_hora);
+  }
+
+  /**
+   * Obtiene el marcador formateado
+   */
+  getMarcador(): string {
+    if (!this.detallePartido) return '0 - 0';
+    return this.partidosService.formatearMarcador(this.detallePartido.partido);
+  }
+
+  /**
+   * Obtiene el texto de la fase del torneo
+   */
+  getTextoFase(): string {
+    if (!this.detallePartido) return '';
+    return this.partidosService.getTextoFase(this.detallePartido.partido.fase);
   }
 }

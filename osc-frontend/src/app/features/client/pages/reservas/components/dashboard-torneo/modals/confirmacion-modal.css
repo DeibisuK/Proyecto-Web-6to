@@ -1,0 +1,160 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal-backdrop);
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal Container */
+.modal-container {
+  background: var(--bg-primary);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Modal Header */
+.modal-header {
+  padding: var(--spacing-lg);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modal-icon {
+  color: var(--text-secondary);
+}
+
+.modal-danger .modal-icon {
+  color: var(--error);
+}
+
+.modal-warning .modal-icon {
+  color: var(--warning);
+}
+
+.modal-info .modal-icon {
+  color: var(--info);
+}
+
+.modal-success .modal-icon {
+  color: var(--success);
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.modal-message {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.modal-footer .btn {
+  flex: 1;
+  max-width: 150px;
+}
+
+/* Button Variants */
+.btn-danger {
+  background: var(--error);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: var(--error-dark);
+}
+
+.btn-warning {
+  background: var(--warning);
+  color: white;
+}
+
+.btn-warning:hover {
+  background: var(--warning-dark);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-container {
+    width: 95%;
+    border-radius: var(--radius-xl);
+  }
+
+  .modal-footer .btn {
+    max-width: none;
+  }
+}

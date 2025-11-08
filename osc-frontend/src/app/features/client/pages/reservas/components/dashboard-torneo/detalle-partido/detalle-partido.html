@@ -1,128 +1,396 @@
 <div class="detalle-partido-container">
-  <!-- Header con marcador -->
-  <div class="match-header">
-    <button class="back-button" (click)="goBack()">← Volver</button>
-    
-    <div class="score-container">
-      <div class="team home-team">
-        <span class="team-logo">{{ matchData.homeLogo }}</span>
-        <span class="team-name">{{ matchData.homeTeam }}</span>
-        <div class="team-cards">
-          <span class="card yellow" *ngFor="let c of [].constructor(matchData.homeCards.yellow)">▮</span>
-          <span class="card red" *ngFor="let c of [].constructor(matchData.homeCards.red)">▮</span>
-        </div>
-      </div>
+  <div class="detalle-partido-container">
+    <!-- Skeleton Loader -->
+    <!-- Skeleton Loader -->
 
-      <div class="score">
-        <span class="score-number">{{ matchData.homeScore }}</span>
-        <span class="score-separator">:</span>
-        <span class="score-number">{{ matchData.awayScore }}</span>
-      </div>
+    <div class="skeleton-loader" *ngIf="isLoading">
+      <div class="skeleton-loader" *ngIf="isLoading">
+        <div class="skeleton skeleton-header"></div>
+        <div class="skeleton skeleton-header"></div>
 
-      <div class="team away-team">
-        <span class="team-logo">{{ matchData.awayLogo }}</span>
-        <span class="team-name">{{ matchData.awayTeam }}</span>
-        <div class="team-cards">
-          <span class="card yellow" *ngFor="let c of [].constructor(matchData.awayCards.yellow)">▮</span>
-          <span class="card red" *ngFor="let c of [].constructor(matchData.awayCards.red)">▮</span>
-        </div>
+        <div class="skeleton skeleton-score"></div>
+        <div class="skeleton skeleton-score"></div>
+
+        <div class="skeleton skeleton-tabs"></div>
+        <div class="skeleton skeleton-tabs"></div>
+
+        <div class="skeleton skeleton-content"></div>
+        <div class="skeleton skeleton-content"></div>
       </div>
     </div>
 
-    <div class="match-status-text">{{ matchData.status }}</div>
-  </div>
+    <!-- Error State -->
+    <!-- Error State -->
 
-  <!-- Tabs de Alineación / Estadísticas -->
-  <div class="tabs-container">
-    <button 
-      class="tab-button"
-      [class.active]="selectedTab === 'alineacion'"
-      (click)="selectTab('alineacion')">
-      Alineación
-    </button>
-    <button 
-      class="tab-button"
-      [class.active]="selectedTab === 'estadisticas'"
-      (click)="selectTab('estadisticas')">
-      Estadísticas
-    </button>
-  </div>
+    <div class="error-state" *ngIf="error && !isLoading">
+      <div class="error-state" *ngIf="error && !isLoading">
+        <div class="error-icon">⚠️</div>
+        <div class="error-icon">⚠️</div>
 
-  <!-- Contenido: Alineación -->
-  <div class="content-section" *ngIf="selectedTab === 'alineacion'">
-    <!-- Sustituciones confirmadas (placeholder) -->
-    <div class="substitutions-section">
-      <h3>SUSTITUCIONES CONFIRMADAS</h3>
-      <div class="substitutions-tabs">
-        <button class="sub-tab active">Sevilla</button>
-        <button class="sub-tab">Mallorca</button>
+        <h3>{{ error }}</h3>
+        <h3>{{ error }}</h3>
+
+        <button class="btn btn-primary" (click)="goBack()">Volver</button>
+        <button class="btn btn-primary" (click)="goBack()">Volver</button>
       </div>
     </div>
 
-    <!-- Campo de juego con alineación -->
-    <div class="field-container">
-      <div class="field">
-        <div 
-          class="player" 
-          *ngFor="let player of homeLineup"
-          [style.top]="player.position.top"
-          [style.left]="player.position.left">
-          <div class="player-avatar">👤</div>
-          <span class="player-name">{{ player.name }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- Contenido Principal -->
+    <!-- Contenido Principal -->
 
-    <!-- Últimos partidos -->
-    <div class="last-matches-section">
-      <div class="team-last-matches">
-        <h3>{{ matchData.homeTeam }} - Últimos Partidos</h3>
-        <div class="matches-grid">
-          <div 
-            class="last-match-card" 
-            *ngFor="let match of sevillaLastMatches"
-            [class]="getStatusClass(match.status)">
-            <div class="match-status-badge">{{ match.status }}</div>
-            <div class="match-teams-mini">
-              <span class="mini-logo">{{ match.homeTeam }}</span>
-              <span class="mini-logo">{{ match.awayTeam }}</span>
+    <div *ngIf="detallePartido && !isLoading">
+      <div *ngIf="detallePartido && !isLoading">
+        <!-- Header con marcador -->
+        <!-- Header con marcador -->
+
+        <div class="match-header">
+          <div class="match-header">
+            <button class="back-button" (click)="goBack()">
+              <button class="back-button" (click)="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+
+                Volver Volver
+              </button>
+            </button>
+
+            <div class="match-info">
+              <div class="tournament-info">
+                <span class="tournament-name">{{ detallePartido.partido.torneo_nombre }}</span>
+                <span class="tournament-phase">{{ getTextoFase() }}</span>
+              </div>
+              <div class="match-datetime">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ getHoraPartido() }}
+              </div>
             </div>
-            <div class="match-score-mini">
-              <span>{{ match.homeScore }}</span>
-              <span>{{ match.awayScore }}</span>
+
+            <div class="score-container">
+              <div class="team home-team">
+                <img
+                  [src]="detallePartido.partido.equipo_local_logo"
+                  [alt]="detallePartido.partido.equipo_local_nombre"
+                  class="team-logo"
+                  onerror="this.src='assets/img/default-team.png'"
+                />
+                <span class="team-name">{{ detallePartido.partido.equipo_local_nombre }}</span>
+              </div>
+
+              <div class="score">
+                <span class="score-number">{{ detallePartido.partido.goles_local || 0 }}</span>
+                <span class="score-separator">:</span>
+                <span class="score-number">{{ detallePartido.partido.goles_visitante || 0 }}</span>
+                <div class="match-status" [ngClass]="getStatusClass()">
+                  {{ getStatusText() }}
+                </div>
+              </div>
+
+              <div class="team away-team">
+                <img
+                  [src]="detallePartido.partido.equipo_visitante_logo"
+                  [alt]="detallePartido.partido.equipo_visitante_nombre"
+                  class="team-logo"
+                  onerror="this.src='assets/img/default-team.png'"
+                />
+                <span class="team-name">{{ detallePartido.partido.equipo_visitante_nombre }}</span>
+              </div>
             </div>
-            <div class="match-time">{{ match.date }}</div>
+          </div>
+
+          <!-- Tabs de navegación -->
+          <div class="tabs-container">
+            <button
+              class="tab-button"
+              [class.active]="selectedTab === 'alineacion'"
+              (click)="selectTab('alineacion')"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              Alineación
+            </button>
+            <button
+              class="tab-button"
+              [class.active]="selectedTab === 'eventos'"
+              (click)="selectTab('eventos')"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Eventos
+            </button>
+            <button
+              class="tab-button"
+              [class.active]="selectedTab === 'estadisticas'"
+              (click)="selectTab('estadisticas')"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+              </svg>
+              Estadísticas
+            </button>
+          </div>
+
+          <!-- Contenido: Alineación -->
+          <div class="content-section" *ngIf="selectedTab === 'alineacion'">
+            <div class="lineups-container">
+              <!-- Equipo Local -->
+              <div class="team-lineup">
+                <div class="team-header">
+                  <img
+                    [src]="detallePartido.partido.equipo_local_logo"
+                    [alt]="detallePartido.partido.equipo_local_nombre"
+                    class="team-logo-small"
+                  />
+                  <h3>{{ detallePartido.partido.equipo_local_nombre }}</h3>
+                </div>
+
+                <!-- Titulares -->
+                <div class="players-section">
+                  <h4>Titulares</h4>
+                  <div class="players-list">
+                    <div class="player-item" *ngFor="let jugador of getTitulares(true)">
+                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <div class="player-info">
+                        <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
+                        <span class="player-position">{{ jugador.posicion }}</span>
+                      </div>
+                    </div>
+                    <div class="empty-list" *ngIf="getTitulares(true).length === 0">
+                      <p>No hay titulares registrados</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Suplentes -->
+                <div class="players-section">
+                  <h4>Suplentes</h4>
+                  <div class="players-list">
+                    <div class="player-item" *ngFor="let jugador of getSuplentes(true)">
+                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <div class="player-info">
+                        <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
+                        <span class="player-position">{{ jugador.posicion }}</span>
+                      </div>
+                    </div>
+                    <div class="empty-list" *ngIf="getSuplentes(true).length === 0">
+                      <p>No hay suplentes registrados</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Equipo Visitante -->
+              <div class="team-lineup">
+                <div class="team-header">
+                  <img
+                    [src]="detallePartido.partido.equipo_visitante_logo"
+                    [alt]="detallePartido.partido.equipo_visitante_nombre"
+                    class="team-logo-small"
+                  />
+                  <h3>{{ detallePartido.partido.equipo_visitante_nombre }}</h3>
+                </div>
+
+                <!-- Titulares -->
+                <div class="players-section">
+                  <h4>Titulares</h4>
+                  <div class="players-list">
+                    <div class="player-item" *ngFor="let jugador of getTitulares(false)">
+                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <div class="player-info">
+                        <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
+                        <span class="player-position">{{ jugador.posicion }}</span>
+                      </div>
+                    </div>
+                    <div class="empty-list" *ngIf="getTitulares(false).length === 0">
+                      <p>No hay titulares registrados</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Suplentes -->
+                <div class="players-section">
+                  <h4>Suplentes</h4>
+                  <div class="players-list">
+                    <div class="player-item" *ngFor="let jugador of getSuplentes(false)">
+                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <div class="player-info">
+                        <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
+                        <span class="player-position">{{ jugador.posicion }}</span>
+                      </div>
+                    </div>
+                    <div class="empty-list" *ngIf="getSuplentes(false).length === 0">
+                      <p>No hay suplentes registrados</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido: Eventos -->
+          <div class="content-section" *ngIf="selectedTab === 'eventos'">
+            <div class="events-container">
+              <div class="events-timeline">
+                <div class="event-item" *ngFor="let evento of detallePartido.eventos">
+                  <div class="event-time">{{ evento.minuto }}'</div>
+                  <div class="event-icon" [ngClass]="evento.tipo_evento">
+                    {{ getIconoEvento(evento.tipo_evento) }}
+                  </div>
+                  <div class="event-details">
+                    <div class="event-player">
+                      {{ evento.jugador_nombre }}
+                      <span
+                        class="event-team"
+                        *ngIf="evento.id_equipo === detallePartido.partido.equipo_local_id"
+                      >
+                        ({{ detallePartido.partido.equipo_local_nombre }})
+                      </span>
+                      <span
+                        class="event-team"
+                        *ngIf="evento.id_equipo === detallePartido.partido.equipo_visitante_id"
+                      >
+                        ({{ detallePartido.partido.equipo_visitante_nombre }})
+                      </span>
+                    </div>
+                    <div class="event-description" *ngIf="evento.descripcion">
+                      {{ evento.descripcion }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="empty-events" *ngIf="detallePartido.eventos.length === 0">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <p>No hay eventos registrados para este partido</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido: Estadísticas -->
+          <div class="content-section" *ngIf="selectedTab === 'estadisticas'">
+            <div class="stats-container">
+              <h3>Estadísticas del Partido</h3>
+
+              <div class="stat-row">
+                <div class="stat-label">Goles</div>
+                <div class="stat-values">
+                  <span class="stat-local">{{ detallePartido.partido.goles_local || 0 }}</span>
+                  <div class="stat-bar">
+                    <div
+                      class="bar-local"
+                      [style.width.%]="(detallePartido.partido.goles_local || 0) * 10"
+                    ></div>
+                    <div
+                      class="bar-visitante"
+                      [style.width.%]="(detallePartido.partido.goles_visitante || 0) * 10"
+                    ></div>
+                  </div>
+                  <span class="stat-visitante">{{
+                    detallePartido.partido.goles_visitante || 0
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="stat-row">
+                <div class="stat-label">Tarjetas Amarillas</div>
+                <div class="stat-values">
+                  <span class="stat-local">
+                    {{
+                      contarEventosPorEquipo(
+                        getTarjetasAmarillas(),
+                        detallePartido.partido.equipo_local_id
+                      )
+                    }}
+                  </span>
+                  <div class="stat-bar">
+                    <div
+                      class="bar-local"
+                      [style.width.%]="
+                        contarEventosPorEquipo(
+                          getTarjetasAmarillas(),
+                          detallePartido.partido.equipo_local_id
+                        ) * 20
+                      "
+                    ></div>
+                    <div
+                      class="bar-visitante"
+                      [style.width.%]="
+                        contarEventosPorEquipo(
+                          getTarjetasAmarillas(),
+                          detallePartido.partido.equipo_visitante_id
+                        ) * 20
+                      "
+                    ></div>
+                  </div>
+                  <span class="stat-visitante">
+                    {{
+                      contarEventosPorEquipo(
+                        getTarjetasAmarillas(),
+                        detallePartido.partido.equipo_visitante_id
+                      )
+                    }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="stat-row">
+                <div class="stat-label">Tarjetas Rojas</div>
+                <div class="stat-values">
+                  <span class="stat-local">
+                    {{
+                      contarEventosPorEquipo(
+                        getTarjetasRojas(),
+                        detallePartido.partido.equipo_local_id
+                      )
+                    }}
+                  </span>
+                  <div class="stat-bar">
+                    <div
+                      class="bar-local"
+                      [style.width.%]="
+                        contarEventosPorEquipo(
+                          getTarjetasRojas(),
+                          detallePartido.partido.equipo_local_id
+                        ) * 50
+                      "
+                    ></div>
+                    <div
+                      class="bar-visitante"
+                      [style.width.%]="
+                        contarEventosPorEquipo(
+                          getTarjetasRojas(),
+                          detallePartido.partido.equipo_visitante_id
+                        ) * 50
+                      "
+                    ></div>
+                  </div>
+                  <span class="stat-visitante">
+                    {{
+                      contarEventosPorEquipo(
+                        getTarjetasRojas(),
+                        detallePartido.partido.equipo_visitante_id
+                      )
+                    }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="team-last-matches">
-        <h3>{{ matchData.awayTeam }} - Últimos Partidos</h3>
-        <div class="matches-grid">
-          <div 
-            class="last-match-card" 
-            *ngFor="let match of mallorcaLastMatches"
-            [class]="getStatusClass(match.status)">
-            <div class="match-status-badge">{{ match.status }}</div>
-            <div class="match-teams-mini">
-              <span class="mini-logo">{{ match.homeTeam }}</span>
-              <span class="mini-logo">{{ match.awayTeam }}</span>
-            </div>
-            <div class="match-score-mini">
-              <span>{{ match.homeScore }}</span>
-              <span>{{ match.awayScore }}</span>
-            </div>
-            <div class="match-time">{{ match.date }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contenido: Estadísticas (placeholder) -->
-  <div class="content-section" *ngIf="selectedTab === 'estadisticas'">
-    <div class="stats-placeholder">
-      <p>Estadísticas del partido próximamente...</p>
     </div>
   </div>
 </div>

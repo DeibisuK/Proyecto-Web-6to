@@ -1,93 +1,212 @@
 // torneo.component.ts
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { TorneosService } from '../services/torneos.service';
+import { Torneo as TorneoModel, FiltrosTorneos } from '../models/torneo.models';
+import { TorneoQuickViewModalComponent, InscripcionModalComponent } from '../modals';
 
-interface Match {
-  home: string;
-  homeScore: number | null;
-  away: string;
-  awayScore: number | null;
-  status: string;
-}
-
-interface League {
-  title: string;
-  subtitle: string;
-  logo: string;
-  matches: Match[];
+interface DeporteTab {
+  id_deporte: number;
+  nombre: string;
+  icono: string;
+  count: number;
 }
 
 @Component({
   selector: 'app-torneo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TorneoQuickViewModalComponent, InscripcionModalComponent],
   templateUrl: './torneo.html',
-  styleUrls: ['./torneo.css']
+  styleUrls: ['./torneo.css', '../shared-styles.css']
 })
-export class Torneo {
-  activeTab: string = 'futbol';
+export class Torneo implements OnInit {
+  private torneosService = inject(TorneosService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  deportes = [
-    { id: 'futbol', nombre: 'Fútbol', icono: '⚽' },
-    { id: 'padel', nombre: 'Padel', icono: '🎾' },
-    { id: 'basket', nombre: 'Basket', icono: '🏀' }
+  activeTab: number = 0; // 0 = Todos
+  filterStatus: string = 'todos';
+  isLoading: boolean = true;
+  error: string | null = null;
+
+  // Modales
+  showQuickViewModal: boolean = false;
+  showInscripcionModal: boolean = false;
+  torneoSeleccionado: TorneoModel | null = null;
+
+  deportes: DeporteTab[] = [
+    { id_deporte: 0, nombre: 'Todos', icono: '🏅', count: 0 }
   ];
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  torneos: TorneoModel[] = [];
+  torneosFiltrados: TorneoModel[] = [];
 
-  leagues: League[] = [
-    {
-      title: 'LaLiga',
-      subtitle: 'Jornada 1',
-      logo: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%23e74c3c\' width=\'100\' height=\'100\'/%3E%3Ctext x=\'50\' y=\'55\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3ELL%3C/text%3E%3C/svg%3E',
-      matches: [
-        { home: 'Sevilla', homeScore: 1, away: 'Mallorca', awayScore: 3, status: 'Hoy - Fin del partido' },
-        { home: 'Villarreal', homeScore: 2, away: 'Real Betis', awayScore: 2, status: 'Hoy - Fin del partido' },
-        { home: 'FC Barcelona', homeScore: 2, away: 'Girona', awayScore: 1, status: 'Hoy - Fin del partido' },
-        { home: 'Real Madrid', homeScore: null, away: 'Atlético', awayScore: null, status: 'Hoy - Por iniciar' }
-      ]
-    },
-    {
-      title: 'Premier League',
-      subtitle: 'Jornada 2',
-      logo: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%233498db\' width=\'100\' height=\'100\'/%3E%3Ctext x=\'50\' y=\'55\' font-size=\'40\' text-anchor=\'middle\' fill=\'white\' font-family=\'Arial\'%3EPL%3C/text%3E%3C/svg%3E',
-      matches: [
-        { home: 'Liverpool', homeScore: 2, away: 'Chelsea', awayScore: 1, status: 'Hoy - Fin del partido' },
-        { home: 'Manchester City', homeScore: 3, away: 'Arsenal', awayScore: 3, status: 'Hoy - En progreso' },
-        { home: 'Manchester United', homeScore: 1, away: 'Tottenham', awayScore: null, status: 'Hoy - Por iniciar' },
-        { home: 'Newcastle', homeScore: null, away: 'Brighton', awayScore: null, status: 'Mañana - Por iniciar' }
-      ]
+  ngOnInit(): void {
+    this.loadTorneos();
+  }
+
+  selectTab(deporteId: number): void {
+    this.activeTab = deporteId;
+    this.aplicarFiltros();
+  }
+
+  setFilter(filter: string): void {
+    this.filterStatus = filter;
+    this.aplicarFiltros();
+  }
+
+  private loadTorneos(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const filtros: FiltrosTorneos = {
+      ordenar: 'fecha_desc'
+    };
+
+    this.torneosService.getTorneosPublicos(filtros).subscribe({
+      next: (torneos) => {
+        this.torneos = torneos;
+        this.torneosFiltrados = torneos;
+        this.actualizarContadoresDeportes();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar torneos:', err);
+        this.error = 'No se pudieron cargar los torneos';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private aplicarFiltros(): void {
+    let resultado = this.torneos;
+
+    // Filtrar por deporte
+    if (this.activeTab !== 0) {
+      resultado = resultado.filter(t => t.id_deporte === this.activeTab);
     }
-  ];
 
-  selectTab(tabId: string): void {
-    this.activeTab = tabId;
+    // Filtrar por estado
+    if (this.filterStatus !== 'todos') {
+      resultado = resultado.filter(t => t.estado === this.filterStatus);
+    }
+
+    this.torneosFiltrados = resultado;
   }
 
-  getTeamInitials(teamName: string): string {
-    return teamName.substring(0, 2).toUpperCase();
+  private actualizarContadoresDeportes(): void {
+    // Contar torneos por deporte
+    const deportesMap = new Map<number, { nombre: string; icono: string; count: number }>();
+    
+    this.torneos.forEach(torneo => {
+      if (!deportesMap.has(torneo.id_deporte)) {
+        deportesMap.set(torneo.id_deporte, {
+          nombre: torneo.nombre_deporte,
+          icono: this.getIconoDeporte(torneo.nombre_deporte),
+          count: 0
+        });
+      }
+      const deporte = deportesMap.get(torneo.id_deporte)!;
+      deporte.count++;
+    });
+
+    // Actualizar array de deportes
+    this.deportes = [
+      { id_deporte: 0, nombre: 'Todos', icono: '🏅', count: this.torneos.length }
+    ];
+
+    deportesMap.forEach((value, key) => {
+      this.deportes.push({
+        id_deporte: key,
+        nombre: value.nombre,
+        icono: value.icono,
+        count: value.count
+      });
+    });
   }
 
-  splitStatus(status: string): { day: string; text: string } {
-    const [day, text] = status.split(' - ');
-    return { day: day || '', text: text || '' };
+  private getIconoDeporte(nombreDeporte: string): string {
+    const iconos: Record<string, string> = {
+      'Fútbol': '⚽',
+      'Baloncesto': '🏀',
+      'Pádel': '🎾',
+      'Tenis': '🎾',
+      'Voleibol': '🏐'
+    };
+    return iconos[nombreDeporte] || '🏅';
   }
 
-  viewMatchDetail(match: Match): void {
-    // Navegación relativa desde la ruta actual
-    const matchId = `${match.home.toLowerCase().replace(/\s+/g, '-')}-vs-${match.away.toLowerCase().replace(/\s+/g, '-')}`;
-    this.router.navigate(['../partido', matchId], { relativeTo: this.route });
+  getColorEstado(estado: string): string {
+    return this.torneosService.getColorEstado(estado);
   }
 
-  viewClassification(league: League, event: Event): void {
+  getTextoEstado(estado: string): string {
+    return this.torneosService.getTextoEstado(estado);
+  }
+
+  getRangoFechas(torneo: TorneoModel): string {
+    return this.torneosService.getRangoFechas(torneo);
+  }
+
+  getPorcentajeOcupacion(torneo: TorneoModel): number {
+    return this.torneosService.getPorcentajeOcupacion(torneo);
+  }
+
+  tieneCupos(torneo: TorneoModel): boolean {
+    return this.torneosService.tieneCuposDisponibles(torneo);
+  }
+
+  quickView(torneo: TorneoModel, event: Event): void {
+    event.stopPropagation();
+    this.torneoSeleccionado = torneo;
+    this.showQuickViewModal = true;
+  }
+
+  onQuickViewModalCerrar(): void {
+    this.showQuickViewModal = false;
+    this.torneoSeleccionado = null;
+  }
+
+  onQuickViewInscribirse(torneo: TorneoModel): void {
+    this.showQuickViewModal = false;
+    this.torneoSeleccionado = torneo;
+    this.showInscripcionModal = true;
+  }
+
+  onInscripcionModalCerrar(): void {
+    this.showInscripcionModal = false;
+    // No limpiamos torneoSeleccionado aquí por si vuelve de quick view
+  }
+
+  onInscripcionExitosa(inscripcion: any): void {
+    console.log('Inscripción exitosa:', inscripcion);
+    this.showInscripcionModal = false;
+    this.torneoSeleccionado = null;
+    // Recargar torneos para actualizar cupos
+    this.loadTorneos();
+    // Mostrar mensaje de éxito (podrías usar un toast notification)
+    alert('¡Inscripción exitosa! Te has inscrito al torneo.');
+  }
+
+  refreshLeagues(): void {
+    this.loadTorneos();
+  }
+
+  viewTournamentDetail(torneo: TorneoModel): void {
+    // Navegar al detalle del torneo (que mostrará los partidos)
+    this.router.navigate(['../partido', torneo.id_torneo], { relativeTo: this.route });
+  }
+
+  viewClassification(torneo: TorneoModel, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    // Navegación relativa desde la ruta actual
-    const leagueId = league.title.toLowerCase().replace(/\s+/g, '-');
-    this.router.navigate(['../clasificacion', leagueId], { relativeTo: this.route });
+    // Navegar a la clasificación del torneo
+    this.router.navigate(['../clasificacion', torneo.id_torneo], { relativeTo: this.route });
+  }
+
+  // Métodos de compatibilidad con el HTML existente
+  isLive(estado: string): boolean {
+    return estado === 'en_curso';
   }
 }

@@ -1,57 +1,378 @@
-.inscripciones-container {
-  padding: 20px;
+/* ===== INSCRIPCIONES WRAPPER ===== */
+.inscripciones-wrapper {
+  width: 100%;
+  animation: fadeIn 0.3s var(--ease-out);
 }
 
-.inscripciones-title {
-  font-size: 1.8rem;
-  color: #333;
-  margin-bottom: 20px;
+/* ===== HEADER ===== */
+.inscripciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-secondary);
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===== TABS ===== */
+.inscripciones-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--border-light);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.inscripciones-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.inscripciones-tabs .tab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
   font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
 }
 
+.inscripciones-tabs .tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.inscripciones-tabs .tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.tab-badge {
+  padding: 0.125rem var(--spacing-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.inscripciones-tabs .tab.active .tab-badge {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* ===== SKELETON ===== */
+.inscripciones-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+/* ===== INSCRIPCIONES CONTENT ===== */
 .inscripciones-content {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: var(--spacing-lg);
 }
 
+/* ===== INSCRIPCION CARD ===== */
 .inscripcion-card {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .inscripcion-card:hover {
+  box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #666;
+/* Inscripcion Header */
+.inscripcion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  gap: var(--spacing-md);
 }
 
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 20px;
+.tournament-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
 }
 
-.empty-state h3 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 10px;
+.tournament-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
 }
 
-.empty-state p {
+.tournament-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tournament-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.tournament-name {
   font-size: 1rem;
-  color: #666;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-@media (max-width: 768px) {
-  .inscripciones-content {
+.tournament-category {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Inscripcion Body */
+.inscripcion-body {
+  padding: var(--spacing-lg);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.info-item {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.info-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.info-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Progress Section */
+.progress-section {
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.progress-bar {
+  height: 0.5rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.5s var(--ease-out);
+}
+
+/* Inscripcion Footer */
+.inscripcion-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.footer-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.text-danger {
+  color: var(--error) !important;
+}
+
+.text-danger:hover {
+  color: var(--error-dark) !important;
+}
+
+/* ===== EMPTY STATE MODERNO ===== */
+.empty-state-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xl);
+  text-align: center;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-2xl);
+}
+
+.empty-animation {
+  margin-bottom: var(--spacing-xl);
+}
+
+.empty-icon-large {
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-icon-large svg {
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.empty-state-modern h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.empty-state-modern p {
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-xl);
+  max-width: 400px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .inscripciones-content,
+  .inscripciones-skeleton {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .inscripciones-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .inscripciones-header .btn {
+    width: 100%;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .footer-actions {
+    flex-direction: column;
+  }
+
+  .footer-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .tournament-name {
+    font-size: 0.875rem;
+  }
+}
+

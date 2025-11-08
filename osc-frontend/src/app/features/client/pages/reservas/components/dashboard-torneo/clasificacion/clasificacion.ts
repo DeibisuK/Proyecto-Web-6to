@@ -1,102 +1,110 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-
-interface TeamStanding {
-  position: number;
-  team: string;
-  logo: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
-  points: number;
-}
-
-interface LeagueData {
-  name: string;
-  logo: string;
-  standings: TeamStanding[];
-}
+import { TorneosService } from '../services/torneos.service';
+import { Clasificacion, Torneo } from '../models/torneo.models';
 
 @Component({
   selector: 'app-clasificacion',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './clasificacion.html',
-  styleUrls: ['./clasificacion.css']
+  styleUrls: ['./clasificacion.css', '../shared-styles.css']
 })
 export class ClasificacionComponent implements OnInit {
-  leagueData: LeagueData = {
-    name: 'PREMIER LEAGUE',
-    logo: '⚽',
-    standings: []
-  };
+  private torneosService = inject(TorneosService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  // Datos mock de clasificación
-  private leaguesData: { [key: string]: LeagueData } = {
-    'laliga': {
-      name: 'LALIGA',
-      logo: '🏆',
-      standings: [
-        { position: 1, team: 'FC Barcelona', logo: '🔵', played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 22, goalsAgainst: 9, goalDifference: 13, points: 19 },
-        { position: 2, team: 'Real Madrid', logo: '⚪', played: 7, won: 5, drawn: 2, lost: 0, goalsFor: 18, goalsAgainst: 7, goalDifference: 11, points: 17 },
-        { position: 3, team: 'Atlético Madrid', logo: '🔴', played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 15, goalsAgainst: 8, goalDifference: 7, points: 16 },
-        { position: 4, team: 'Sevilla', logo: '⚪', played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 12, goalsAgainst: 9, goalDifference: 3, points: 14 },
-        { position: 5, team: 'Real Betis', logo: '🟢', played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 13, goalsAgainst: 10, goalDifference: 3, points: 13 },
-        { position: 6, team: 'Villarreal', logo: '🟡', played: 7, won: 3, drawn: 3, lost: 1, goalsFor: 11, goalsAgainst: 9, goalDifference: 2, points: 12 },
-        { position: 7, team: 'Athletic Bilbao', logo: '🔴', played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 10, goalsAgainst: 9, goalDifference: 1, points: 11 },
-        { position: 8, team: 'Valencia', logo: '🦇', played: 7, won: 2, drawn: 4, lost: 1, goalsFor: 9, goalsAgainst: 8, goalDifference: 1, points: 10 },
-        { position: 9, team: 'Mallorca', logo: '🔥', played: 7, won: 3, drawn: 1, lost: 3, goalsFor: 10, goalsAgainst: 11, goalDifference: -1, points: 10 },
-        { position: 10, team: 'Getafe', logo: '🔵', played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 8, goalsAgainst: 10, goalDifference: -2, points: 9 }
-      ]
-    },
-    'premier-league': {
-      name: 'PREMIER LEAGUE',
-      logo: '👑',
-      standings: [
-        { position: 1, team: 'FC Arsenal', logo: '🔴', played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 20, goalsAgainst: 8, goalDifference: 12, points: 19 },
-        { position: 2, team: 'Manchester City', logo: '🔵', played: 7, won: 5, drawn: 2, lost: 0, goalsFor: 18, goalsAgainst: 6, goalDifference: 12, points: 17 },
-        { position: 3, team: 'Liverpool FC', logo: '🔴', played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 17, goalsAgainst: 8, goalDifference: 9, points: 16 },
-        { position: 4, team: 'AFC Bournemouth', logo: '🍒', played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 14, goalsAgainst: 9, goalDifference: 5, points: 14 },
-        { position: 5, team: 'Tottenham Hotspur', logo: '⚪', played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 15, goalsAgainst: 11, goalDifference: 4, points: 13 },
-        { position: 6, team: 'Chelsea', logo: '🔵', played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 13, goalsAgainst: 10, goalDifference: 3, points: 13 },
-        { position: 7, team: 'Sunderland', logo: '🔴', played: 7, won: 3, drawn: 3, lost: 1, goalsFor: 12, goalsAgainst: 9, goalDifference: 3, points: 12 },
-        { position: 8, team: 'Crystal Palace', logo: '🦅', played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 11, goalsAgainst: 10, goalDifference: 1, points: 11 },
-        { position: 9, team: 'Brighton & Hove Albion FC', logo: '⚪', played: 7, won: 2, drawn: 4, lost: 1, goalsFor: 10, goalsAgainst: 9, goalDifference: 1, points: 10 },
-        { position: 10, team: 'Everton', logo: '🔵', played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 9, goalsAgainst: 10, goalDifference: -1, points: 9 },
-        { position: 11, team: 'Manchester United', logo: '🔴', played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 8, goalsAgainst: 9, goalDifference: -1, points: 9 }
-      ]
-    }
-  };
+  // Estado del componente
+  clasificacion: Clasificacion[] = [];
+  torneo: Torneo | null = null;
+  isLoading: boolean = true;
+  error: string | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  // Grupos únicos para agrupar equipos
+  grupos: string[] = [];
 
   ngOnInit(): void {
-    const leagueId = this.route.snapshot.paramMap.get('id');
-    if (leagueId && this.leaguesData[leagueId]) {
-      this.leagueData = this.leaguesData[leagueId];
-    } else {
-      // Default a Premier League si no hay ID
-      this.leagueData = this.leaguesData['premier-league'];
+    const idTorneo = this.route.snapshot.paramMap.get('id');
+
+    if (!idTorneo || isNaN(parseInt(idTorneo))) {
+      this.error = 'ID de torneo inválido';
+      this.isLoading = false;
+      return;
     }
+
+    this.loadClasificacion(parseInt(idTorneo));
+  }
+
+  loadClasificacion(idTorneo: number): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.torneosService.getClasificacionTorneo(idTorneo).subscribe({
+      next: (clasificacion) => {
+        this.clasificacion = clasificacion;
+        this.extractGrupos();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar clasificación:', error);
+        this.error = 'No se pudo cargar la clasificación del torneo';
+        this.isLoading = false;
+      }
+    });
+
+    // Opcional: Cargar también información del torneo
+    this.torneosService.getTorneosPublicos().subscribe({
+      next: (torneos) => {
+        this.torneo = torneos.find(t => t.id_torneo === idTorneo) || null;
+      },
+      error: (error) => {
+        console.error('Error al cargar torneo:', error);
+      }
+    });
+  }
+
+  extractGrupos(): void {
+    const gruposUnicos = new Set<string>();
+    this.clasificacion.forEach(equipo => {
+      if (equipo.nombre_grupo) {
+        gruposUnicos.add(equipo.nombre_grupo);
+      }
+    });
+    this.grupos = Array.from(gruposUnicos).sort();
+  }
+
+  getEquiposPorGrupo(nombreGrupo: string): Clasificacion[] {
+    return this.clasificacion.filter(e => e.nombre_grupo === nombreGrupo);
+  }
+
+  getEquiposSinGrupo(): Clasificacion[] {
+    return this.clasificacion.filter(e => !e.nombre_grupo);
+  }
+
+  tieneGrupos(): boolean {
+    return this.grupos.length > 0;
   }
 
   goBack(): void {
-    this.router.navigate(['../torneos'], { relativeTo: this.route });
+    this.router.navigate(['../../torneo'], { relativeTo: this.route });
   }
 
-  getPositionClass(position: number): string {
-    if (position <= 4) return 'champions-league';
-    if (position === 5) return 'europa-league';
-    if (position === 6) return 'conference-league';
-    if (position >= this.leagueData.standings.length - 2) return 'relegation';
+  getPositionClass(posicion: number): string {
+    // Top 4 posiciones califican a playoffs/siguiente fase
+    if (posicion <= 4) return 'clasificacion';
+    // Últimas 2 posiciones en zona de eliminación
+    if (posicion >= this.clasificacion.length - 1) return 'eliminacion';
     return '';
+  }
+
+  getPositionBadgeClass(posicion: number): string {
+    if (posicion === 1) return 'badge-gold';
+    if (posicion === 2) return 'badge-silver';
+    if (posicion === 3) return 'badge-bronze';
+    if (posicion <= 4) return 'badge-success';
+    if (posicion >= this.clasificacion.length - 1) return 'badge-danger';
+    return 'badge-secondary';
   }
 }

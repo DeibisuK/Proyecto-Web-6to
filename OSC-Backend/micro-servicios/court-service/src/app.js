@@ -3,6 +3,7 @@ import cors from "cors";
 import canchaCliente from "./api/client/cancha.client.routes.js";
 import reservaCliente from "./api/client/reserva.client.routes.js";
 import sedeCliente from "./api/client/sede.client.routes.js";
+import torneoCliente from "./api/client/torneo.client.routes.js";
 import canchaAdmin from "./api/admin/cancha.admin.routes.js";
 import reservaAdmin from "./api/admin/reserva.admin.routes.js";
 import sedeAdmin from "./api/admin/sede.admin.routes.js";
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/client", sedeCliente);
 app.use("/client", canchaCliente);
 app.use("/client", authorizeRole(2), reservaCliente);
+app.use("/client", torneoCliente);
 
 //ADMIN ROUTES
 app.use("/admin", authenticate(),authorizeRole(1), canchaAdmin);
