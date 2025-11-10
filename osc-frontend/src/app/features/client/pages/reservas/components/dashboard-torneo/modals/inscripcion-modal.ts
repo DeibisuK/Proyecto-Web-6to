@@ -2,14 +2,7 @@ import { Component, Input, Output, EventEmitter, inject, OnInit, signal } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InscripcionesService } from '../services/inscripciones.service';
-
-interface EquipoUsuario {
-  id_equipo: number;
-  nombre_equipo: string;
-  deporte: string;
-  cantidad_jugadores: number;
-  jugadores?: JugadorEquipo[];
-}
+import { type EquipoUsuario } from '../services/equipos.service';
 
 interface JugadorEquipo {
   id_usuario: number;
@@ -137,8 +130,8 @@ export class InscripcionModalComponent {
    * Obtiene el costo formateado
    */
   getCostoFormateado(): string {
-    if (!this.torneo?.costo_inscripcion) return 'Gratis';
-    return `$${this.torneo.costo_inscripcion}`;
+    // El campo costo_inscripcion no existe en el esquema actual
+    return 'Gratis';
   }
 
   /**

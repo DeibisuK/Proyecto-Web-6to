@@ -7,6 +7,7 @@ import torneoCliente from "./api/client/torneo.client.routes.js";
 import canchaAdmin from "./api/admin/cancha.admin.routes.js";
 import reservaAdmin from "./api/admin/reserva.admin.routes.js";
 import sedeAdmin from "./api/admin/sede.admin.routes.js";
+import torneoAdmin from "./api/admin/torneo.admin.routes.js";
 import authenticate from "../../../middleware/authenticate.js";
 import authorizeRole from "../../../middleware/authorizeRole.js";
 
@@ -18,12 +19,14 @@ app.use(express.json());
 //CLIENT ROUTES
 app.use("/client", sedeCliente);
 app.use("/client", canchaCliente);
-app.use("/client", authorizeRole(2), reservaCliente);
-app.use("/client", torneoCliente);
+app.use("/client", authenticate(), torneoCliente);
+app.use("/client", authenticate(), authorizeRole(2), reservaCliente);
+
 
 //ADMIN ROUTES
-app.use("/admin", authenticate(),authorizeRole(1), canchaAdmin);
-app.use("/admin", authenticate(),authorizeRole(1), reservaAdmin);
-app.use("/admin", authenticate(),authorizeRole(1), sedeAdmin);
+app.use("/admin", authenticate(), authorizeRole(1), canchaAdmin);
+app.use("/admin", authenticate(), authorizeRole(1), reservaAdmin);
+app.use("/admin", authenticate(), authorizeRole(1), sedeAdmin);
+app.use("/admin", authenticate(), authorizeRole(1), torneoAdmin);
 
 export default app;

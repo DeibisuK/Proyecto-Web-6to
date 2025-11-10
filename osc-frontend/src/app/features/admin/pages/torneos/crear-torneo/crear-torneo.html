@@ -1,0 +1,184 @@
+<div class="crear-torneo-container">
+  <div class="header-section">
+    <button class="btn-volver" (click)="volver()">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+    <h1 class="page-title">
+      <i class="fas fa-trophy"></i>
+      {{ esEdicion ? 'Editar Torneo' : 'Crear Torneo' }}
+    </h1>
+  </div>
+
+  <form [formGroup]="torneoForm" (ngSubmit)="onSubmit()" class="torneo-form">
+    <div class="form-grid">
+      <!-- Nombre -->
+      <div class="form-group full-width">
+        <label for="nombre" class="form-label required">
+          <i class="fas fa-tag"></i>
+          Nombre del Torneo
+        </label>
+        <input
+          type="text"
+          id="nombre"
+          formControlName="nombre"
+          class="form-input"
+          placeholder="Ej: Copa de Fútbol 2025"
+          [class.invalid]="f['nombre'].invalid && f['nombre'].touched"
+        />
+        <div class="error-message" *ngIf="f['nombre'].invalid && f['nombre'].touched">
+          <span *ngIf="f['nombre'].errors?.['required']">El nombre es requerido</span>
+          <span *ngIf="f['nombre'].errors?.['minlength']">Mínimo 3 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group full-width">
+        <label for="descripcion" class="form-label">
+          <i class="fas fa-align-left"></i>
+          Descripción
+        </label>
+        <textarea
+          id="descripcion"
+          formControlName="descripcion"
+          class="form-textarea"
+          rows="3"
+          placeholder="Descripción del torneo..."
+        ></textarea>
+      </div>
+
+      <!-- Deporte -->
+      <div class="form-group">
+        <label for="id_deporte" class="form-label required">
+          <i class="fas fa-futbol"></i>
+          Deporte
+        </label>
+        <select
+          id="id_deporte"
+          formControlName="id_deporte"
+          class="form-select"
+          [class.invalid]="f['id_deporte'].invalid && f['id_deporte'].touched"
+        >
+          <option [value]="null">Selecciona un deporte</option>
+          <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
+            {{ deporte.nombre_deporte }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="f['id_deporte'].invalid && f['id_deporte'].touched">
+          El deporte es requerido
+        </div>
+      </div>
+
+      <!-- Tipo de Torneo -->
+      <div class="form-group">
+        <label for="tipo_torneo" class="form-label required">
+          <i class="fas fa-sitemap"></i>
+          Tipo de Torneo
+        </label>
+        <select id="tipo_torneo" formControlName="tipo_torneo" class="form-select">
+          <option *ngFor="let tipo of tiposTorneo" [value]="tipo.value">
+            {{ tipo.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Fecha Inicio -->
+      <div class="form-group">
+        <label for="fecha_inicio" class="form-label required">
+          <i class="fas fa-calendar-alt"></i>
+          Fecha de Inicio
+        </label>
+        <input
+          type="date"
+          id="fecha_inicio"
+          formControlName="fecha_inicio"
+          class="form-input"
+          [class.invalid]="f['fecha_inicio'].invalid && f['fecha_inicio'].touched"
+        />
+        <div class="error-message" *ngIf="f['fecha_inicio'].invalid && f['fecha_inicio'].touched">
+          La fecha de inicio es requerida
+        </div>
+      </div>
+
+      <!-- Fecha Fin -->
+      <div class="form-group">
+        <label for="fecha_fin" class="form-label required">
+          <i class="fas fa-calendar-check"></i>
+          Fecha de Fin
+        </label>
+        <input
+          type="date"
+          id="fecha_fin"
+          formControlName="fecha_fin"
+          class="form-input"
+          [class.invalid]="f['fecha_fin'].invalid && f['fecha_fin'].touched"
+        />
+        <div class="error-message" *ngIf="f['fecha_fin'].invalid && f['fecha_fin'].touched">
+          La fecha de fin es requerida
+        </div>
+      </div>
+
+      <!-- Fecha Cierre Inscripción -->
+      <div class="form-group">
+        <label for="fecha_cierre_inscripcion" class="form-label">
+          <i class="fas fa-calendar-times"></i>
+          Cierre de Inscripción
+        </label>
+        <input
+          type="datetime-local"
+          id="fecha_cierre_inscripcion"
+          formControlName="fecha_cierre_inscripcion"
+          class="form-input"
+        />
+        <small class="form-hint">Opcional: Fecha límite para inscripciones</small>
+      </div>
+
+      <!-- Máximo de Equipos -->
+      <div class="form-group">
+        <label for="max_equipos" class="form-label">
+          <i class="fas fa-users"></i>
+          Máximo de Equipos
+        </label>
+        <input
+          type="number"
+          id="max_equipos"
+          formControlName="max_equipos"
+          class="form-input"
+          placeholder="Ej: 16"
+          min="2"
+          max="128"
+        />
+        <small class="form-hint">Dejar vacío para ilimitado</small>
+        <div class="error-message" *ngIf="f['max_equipos'].invalid && f['max_equipos'].touched">
+          <span *ngIf="f['max_equipos'].errors?.['min']">Mínimo 2 equipos</span>
+          <span *ngIf="f['max_equipos'].errors?.['max']">Máximo 128 equipos</span>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-group">
+        <label for="estado" class="form-label required">
+          <i class="fas fa-flag"></i>
+          Estado
+        </label>
+        <select id="estado" formControlName="estado" class="form-select">
+          <option *ngFor="let estado of estadosPosibles" [value]="estado.value">
+            {{ estado.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancelar" (click)="volver()" [disabled]="cargando">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      <button type="submit" class="btn-guardar" [disabled]="cargando">
+        <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+        {{ cargando ? 'Guardando...' : (esEdicion ? 'Actualizar' : 'Crear') }}
+      </button>
+    </div>
+  </form>
+</div>

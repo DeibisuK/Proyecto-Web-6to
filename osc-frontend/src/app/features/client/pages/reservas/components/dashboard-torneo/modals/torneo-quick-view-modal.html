@@ -4,9 +4,8 @@
     <div class="modal-header">
       <div class="header-content">
         <div class="torneo-image">
-          <img [src]="torneo.url_imagen || torneo.deporte_imagen"
-               [alt]="torneo.nombre"
-               onerror="this.src='assets/img/default-sport.png'">
+          <img [src]="torneo.deporte_imagen"
+               [alt]="torneo.nombre">
         </div>
         <div class="header-info">
           <h2 class="torneo-titulo">{{ torneo.nombre }}</h2>
@@ -58,39 +57,22 @@
           </div>
         </div>
 
-        <div class="info-card" *ngIf="torneo.premio">
+        <div class="info-card">
           <div class="info-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-              <path d="M4 22h16"></path>
-              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
-              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
-              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
           </div>
           <div class="info-content">
-            <span class="info-label">Premio</span>
-            <span class="info-value">${{ torneo.premio }}</span>
-          </div>
-        </div>
-
-        <div class="info-card" *ngIf="torneo.costo_inscripcion">
-          <div class="info-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-          </div>
-          <div class="info-content">
-            <span class="info-label">Inscripción</span>
-            <span class="info-value">${{ torneo.costo_inscripcion }}</span>
+            <span class="info-label">Tipo</span>
+            <span class="info-value">{{ torneo.tipo_torneo }}</span>
           </div>
         </div>
       </div>
 
       <!-- Barra de Progreso -->
-      <div class="progress-section" *ngIf="torneo.estado === 'inscripcion_abierta'">
+      <div class="progress-section" *ngIf="torneo.estado === 'abierto'">
         <div class="progress-header">
           <span class="progress-label">Ocupación</span>
           <span class="progress-percentage">{{ getPorcentajeOcupacion() }}%</span>
@@ -107,7 +89,7 @@
       </div>
 
       <!-- Estado de Cupos -->
-      <div class="alert" *ngIf="torneo.estado === 'inscripcion_abierta'">
+      <div class="alert" *ngIf="torneo.estado === 'abierto'">
         <div class="alert-success" *ngIf="tieneCupos()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -128,7 +110,7 @@
 
     <!-- Footer -->
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="verClasificacion()">
+      <button class="btn btn-secondary" (click)="verClasificacion(); $event.stopPropagation()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <line x1="8" y1="6" x2="21" y2="6"></line>
           <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -139,13 +121,13 @@
         </svg>
         Ver Clasificación
       </button>
-      <button class="btn btn-ghost" (click)="verDetalleCompleto()">
+      <button class="btn btn-ghost" (click)="verDetalleCompleto(); $event.stopPropagation()">
         Ver Detalle Completo
       </button>
       <button
         class="btn btn-primary"
         *ngIf="puedeInscribirse()"
-        (click)="onInscribirse()">
+        (click)="onInscribirse(); $event.stopPropagation()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
           <circle cx="9" cy="7" r="4"></circle>

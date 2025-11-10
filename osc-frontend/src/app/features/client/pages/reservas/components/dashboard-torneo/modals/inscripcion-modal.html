@@ -17,9 +17,8 @@
       <div class="torneo-info">
         <div class="torneo-header">
           <div class="torneo-image">
-            <img [src]="torneo.url_imagen || torneo.deporte_imagen"
-                 [alt]="torneo.nombre"
-                 onerror="this.src='assets/img/default-sport.png'">
+            <img [src]="torneo.deporte_imagen"
+                 [alt]="torneo.nombre">
           </div>
           <div class="torneo-details">
             <h3>{{ torneo.nombre }}</h3>
@@ -36,13 +35,6 @@
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
             <span>{{ torneo.fecha_inicio | date:'dd/MM/yyyy' }} - {{ torneo.fecha_fin | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="meta-item" *ngIf="torneo.costo_inscripcion">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            <span>{{ getCostoFormateado() }}</span>
           </div>
         </div>
       </div>
@@ -71,7 +63,7 @@
             required>
             <option [value]="null" disabled selected>-- Selecciona un equipo --</option>
             <option *ngFor="let equipo of equiposDisponibles" [value]="equipo.id_equipo">
-              {{ equipo.nombre_equipo }} ({{ equipo.cantidad_jugadores }} jugadores)
+              {{ equipo.nombre_equipo }} ({{ equipo.cantidad_jugadores || 0 }} jugadores)
             </option>
           </select>
 
@@ -96,23 +88,12 @@
             </div>
             <div class="preview-item">
               <span class="preview-label">Deporte:</span>
-              <span class="preview-value">{{ equipoSeleccionado.deporte }}</span>
+              <span class="preview-value">{{ equipoSeleccionado.nombre_deporte || 'N/A' }}</span>
             </div>
             <div class="preview-item">
               <span class="preview-label">Jugadores:</span>
-              <span class="preview-value">{{ equipoSeleccionado.cantidad_jugadores }}</span>
+              <span class="preview-value">{{ equipoSeleccionado.cantidad_jugadores || 0 }}</span>
             </div>
-          </div>
-
-          <!-- Lista de Jugadores (si existe) -->
-          <div class="jugadores-list" *ngIf="equipoSeleccionado.jugadores && equipoSeleccionado.jugadores.length > 0">
-            <p class="jugadores-title">Roster:</p>
-            <ul>
-              <li *ngFor="let jugador of equipoSeleccionado.jugadores">
-                {{ jugador.nombre_completo }}
-                <span class="posicion" *ngIf="jugador.posicion">({{ jugador.posicion }})</span>
-              </li>
-            </ul>
           </div>
         </div>
 

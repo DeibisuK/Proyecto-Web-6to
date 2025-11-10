@@ -10,7 +10,7 @@ export interface Deporte {
 }
 
 // Estados de torneos
-export type EstadoTorneo = 'inscripcion_abierta' | 'en_curso' | 'finalizado' | 'cancelado';
+export type EstadoTorneo = 'abierto' | 'en_curso' | 'cerrado' | 'finalizado';
 export type EstadoPartido = 'programado' | 'por_jugar' | 'en_curso' | 'finalizado' | 'suspendido' | 'cancelado';
 export type FaseTorneo = 'grupos' | 'octavos' | 'cuartos' | 'semifinal' | 'tercer_lugar' | 'final';
 
@@ -21,11 +21,10 @@ export interface Torneo {
   descripcion: string;
   fecha_inicio: string;
   fecha_fin: string;
+  fecha_cierre_inscripcion?: string;
   max_equipos: number;
-  premio: string;
+  tipo_torneo: string;
   estado: EstadoTorneo;
-  url_imagen: string;
-  costo_inscripcion: string;
   nombre_deporte: string;
   deporte_imagen: string;
   id_deporte: number;
@@ -44,14 +43,16 @@ export interface Equipo {
 export interface Partido {
   id_partido: number;
   id_torneo: number;
-  fecha_hora: string;
+  id_fase?: number;
+  id_grupo?: number;
+  fecha_hora_inicio: string;
+  fecha_hora_fin?: string;
   estado_partido: EstadoPartido;
   goles_local: number | null;
   goles_visitante: number | null;
-  penales_local?: number | null;
-  penales_visitante?: number | null;
-  fase: FaseTorneo;
-  numero_jornada: number;
+  id_cancha?: number;
+  id_sede?: number;
+  nota?: string;
 
   // Equipos
   equipo_local_id: number;
@@ -62,12 +63,17 @@ export interface Partido {
   equipo_visitante_logo: string;
 
   // Cancha y sede
-  nombre_cancha: string;
-  nombre_sede: string;
-  sede_direccion: string;
+  nombre_cancha?: string;
+  nombre_sede?: string;
+  sede_direccion?: string;
+  sede_ciudad?: string;
 
   // Árbitro
   arbitro_nombre?: string;
+
+  // Fase y grupo
+  nombre_fase?: string;
+  nombre_grupo?: string;
 }
 
 // Clasificación/Tabla de posiciones
@@ -97,10 +103,12 @@ export interface EstadisticasUsuario {
 // Próximo partido (en inscripciones)
 export interface ProximoPartido {
   id_partido: number;
-  fecha_hora: string;
+  fecha_hora_inicio: string;
   rival: string;
   rival_logo: string;
   es_local: boolean;
+  sede?: string;
+  cancha?: string;
 }
 
 // Inscripción
@@ -109,19 +117,19 @@ export interface Inscripcion {
   id_torneo: number;
   id_equipo: number;
   fecha_inscripcion: string;
-  estado_inscripcion: 'pendiente' | 'confirmada' | 'cancelada';
-  monto_pagado: string;
+  estado_inscripcion: string;
+  aprobado: boolean;
+  registrado_por?: number;
 
   // Información del torneo
   torneo_nombre: string;
   torneo_descripcion: string;
   fecha_inicio: string;
   fecha_fin: string;
+  fecha_cierre_inscripcion?: string;
   torneo_estado: EstadoTorneo;
-  torneo_imagen: string;
-  premio: string;
   max_equipos: number;
-  costo_inscripcion: string;
+  tipo_torneo: string;
 
   // Deporte
   nombre_deporte: string;
@@ -130,9 +138,11 @@ export interface Inscripcion {
   // Equipo
   nombre_equipo: string;
   equipo_logo: string;
+  equipo_descripcion?: string;
 
   // Grupo
   nombre_grupo?: string;
+  id_grupo?: number;
 
   // Estadísticas
   partidos_jugados: number;
@@ -146,8 +156,8 @@ export interface Jugador {
   id_jugador?: number;
   nombre: string;
   apellido: string;
-  numero_camiseta: number;
-  posicion: string;
+  numero: number;
+  posicion_pref?: string;
 }
 
 // Alineación

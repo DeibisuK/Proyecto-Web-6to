@@ -24,11 +24,10 @@ export class ListEquipo implements OnInit {
   equipoAEliminar?: Equipo;
 
   deportes: { [key: number]: string } = {
-    1: 'Fútbol',
-    2: 'Básquetbol',
-    3: 'Voleibol',
-    4: 'Tenis',
-    5: 'Pádel'
+    1: 'Futbol',
+    2: 'Padel',
+    3: 'Tenis',
+    4: 'Baloncesto'
   };
 
   constructor(

@@ -5,12 +5,11 @@ import {
     getPartidosPorTorneo,
     getClasificacionTorneo,
 } from '../../controllers/torneo.controller.js';
-import authenticate from '../../../../../middleware/authenticate.js';
 
 const router = Router();
 
 // Endpoint para obtener estadísticas del usuario autenticado
-router.get('/torneos/estadisticas-usuario', authenticate(), getEstadisticasUsuario);
+router.get('/torneos/estadisticas-usuario', getEstadisticasUsuario);
 
 // Endpoint para obtener torneos públicos con filtros opcionales
 // Query params: deporte, estado, busqueda, fecha, ordenar

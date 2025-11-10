@@ -189,13 +189,6 @@ export class PartidosService {
       return 'vs';
     }
 
-    let marcador = `${partido.goles_local} - ${partido.goles_visitante}`;
-
-    // Agregar penales si existen
-    if (partido.penales_local !== null && partido.penales_visitante !== null) {
-      marcador += ` (${partido.penales_local} - ${partido.penales_visitante} pen.)`;
-    }
-
-    return marcador;
+    return `${partido.goles_local} - ${partido.goles_visitante}`;
   }
 }

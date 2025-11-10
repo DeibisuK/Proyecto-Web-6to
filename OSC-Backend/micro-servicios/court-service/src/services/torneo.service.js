@@ -14,11 +14,11 @@ class TorneoService {
                 FROM inscripciones_torneo it
                 INNER JOIN equipos e ON it.id_equipo = e.id_equipo
                 WHERE e.firebase_uid = $1 
-                AND it.estado = 'confirmada'
+                AND it.aprobado = true
                 AND EXISTS (
                     SELECT 1 FROM torneos t 
                     WHERE t.id_torneo = it.id_torneo 
-                    AND t.estado IN ('inscripcion_abierta', 'en_curso')
+                    AND t.estado IN ('abierto', 'en_curso')
                 )
             `;
             const inscripciones = await client.query(inscripcionesQuery, [firebaseUid]);
@@ -31,7 +31,7 @@ class TorneoService {
                 INNER JOIN equipos e1 ON it1.id_equipo = e1.id_equipo
                 WHERE e1.firebase_uid = $1
                 AND tp.estado_partido IN ('programado', 'por_jugar')
-                AND tp.fecha_hora >= NOW()
+                AND tp.fecha_hora_inicio >= NOW()
                 
                 UNION ALL
                 
@@ -41,12 +41,13 @@ class TorneoService {
                 INNER JOIN equipos e2 ON it2.id_equipo = e2.id_equipo
                 WHERE e2.firebase_uid = $1
                 AND tp.estado_partido IN ('programado', 'por_jugar')
-                AND tp.fecha_hora >= NOW()
+                AND tp.fecha_hora_inicio >= NOW()
             `;
             const proximosPartidos = await client.query(proximosPartidosQuery, [firebaseUid]);
             const totalProximosPartidos = proximosPartidos.rows.reduce((sum, row) => sum + parseInt(row.total), 0);
 
             // Obtener torneos ganados (campeón)
+            // Nota: La tabla torneos no tiene columna equipo_campeon, se necesitaría agregar o calcular de otra forma
             const torneosGanadosQuery = `
                 SELECT COUNT(DISTINCT t.id_torneo) as total
                 FROM torneos t
@@ -54,7 +55,6 @@ class TorneoService {
                 INNER JOIN equipos e ON it.id_equipo = e.id_equipo
                 WHERE e.firebase_uid = $1
                 AND t.estado = 'finalizado'
-                AND it.id_equipo = t.equipo_campeon
             `;
             const torneosGanados = await client.query(torneosGanadosQuery, [firebaseUid]);
 
@@ -98,17 +98,18 @@ class TorneoService {
                     t.descripcion,
                     t.fecha_inicio,
                     t.fecha_fin,
+                    t.fecha_cierre_inscripcion,
                     t.max_equipos,
-                    t.premio,
                     t.estado,
-                    t.url_imagen,
-                    t.costo_inscripcion,
+                    t.tipo_torneo,
+                    t.creado_por,
+                    t.creado_en,
                     d.nombre_deporte,
                     d.url_imagen as deporte_imagen,
                     d.id_deporte,
                     (SELECT COUNT(*) FROM inscripciones_torneo it 
                      WHERE it.id_torneo = t.id_torneo 
-                     AND it.estado = 'confirmada') as equipos_inscritos,
+                     AND it.aprobado = true) as equipos_inscritos,
                     CASE 
                         WHEN t.fecha_inicio > NOW() THEN 'próximo'
                         WHEN t.fecha_inicio <= NOW() AND t.fecha_fin >= NOW() THEN 'en_curso'
@@ -131,12 +132,14 @@ class TorneoService {
 
             // Filtro por estado
             if (filtros.estado) {
-                if (filtros.estado === 'inscripcion_abierta') {
-                    query += ` AND t.estado = 'inscripcion_abierta'`;
+                if (filtros.estado === 'inscripcion_abierta' || filtros.estado === 'abierto') {
+                    query += ` AND t.estado = 'abierto'`;
                 } else if (filtros.estado === 'en_curso') {
                     query += ` AND t.estado = 'en_curso'`;
                 } else if (filtros.estado === 'finalizado') {
                     query += ` AND t.estado = 'finalizado'`;
+                } else if (filtros.estado === 'cerrado') {
+                    query += ` AND t.estado = 'cerrado'`;
                 }
             }
 
@@ -190,14 +193,16 @@ class TorneoService {
                 SELECT 
                     tp.id_partido,
                     tp.id_torneo,
-                    tp.fecha_hora,
+                    tp.id_fase,
+                    tp.id_grupo,
+                    tp.fecha_hora_inicio,
+                    tp.fecha_hora_fin,
                     tp.estado_partido,
                     tp.goles_local,
                     tp.goles_visitante,
-                    tp.penales_local,
-                    tp.penales_visitante,
-                    tp.fase,
-                    tp.numero_jornada,
+                    tp.id_cancha,
+                    tp.id_sede,
+                    tp.nota,
                     
                     -- Equipo local
                     el.id_equipo as equipo_local_id,
@@ -211,31 +216,33 @@ class TorneoService {
                     
                     -- Cancha
                     c.nombre_cancha,
-                    s.nombre_sede,
+                    s.nombre as nombre_sede,
                     s.direccion as sede_direccion,
+                    s.ciudad as sede_ciudad,
                     
-                    -- Árbitro
-                    CONCAT(ar.nombre, ' ', ar.apellido) as arbitro_nombre
+                    -- Árbitro (la tabla arbitros no tiene nombre/apellido, solo id_usuario)
+                    u.name_user as arbitro_nombre,
+                    
+                    -- Fase
+                    f.nombre as nombre_fase,
+                    
+                    -- Grupo
+                    g.nombre as nombre_grupo
                     
                 FROM torneos_partidos tp
                 LEFT JOIN equipos el ON tp.equipo_local = el.id_equipo
                 LEFT JOIN equipos ev ON tp.equipo_visitante = ev.id_equipo
                 LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
-                LEFT JOIN sedes s ON c.id_sede = s.id_sede
-                LEFT JOIN arbitros ar ON tp.id_arbitro = ar.id_arbitro
+                LEFT JOIN sedes s ON tp.id_sede = s.id_sede
+                LEFT JOIN arbitros ar ON tp.id_arbitro_principal = ar.id_arbitro
+                LEFT JOIN usuarios u ON ar.id_usuario = u.id_user
+                LEFT JOIN fases_torneo f ON tp.id_fase = f.id_fase
+                LEFT JOIN grupos_torneo g ON tp.id_grupo = g.id_grupo
                 WHERE tp.id_torneo = $1
                 ORDER BY 
-                    CASE tp.fase
-                        WHEN 'grupos' THEN 1
-                        WHEN 'octavos' THEN 2
-                        WHEN 'cuartos' THEN 3
-                        WHEN 'semifinal' THEN 4
-                        WHEN 'tercer_lugar' THEN 5
-                        WHEN 'final' THEN 6
-                        ELSE 7
-                    END,
-                    tp.numero_jornada,
-                    tp.fecha_hora ASC
+                    f.orden ASC,
+                    g.nombre ASC,
+                    tp.fecha_hora_inicio ASC
             `;
 
             const result = await client.query(query, [idTorneo]);
@@ -257,7 +264,7 @@ class TorneoService {
                     e.id_equipo,
                     e.nombre_equipo,
                     e.logo_url,
-                    gt.nombre_grupo,
+                    gt.nombre as nombre_grupo,
                     
                     -- Estadísticas calculadas
                     COUNT(CASE WHEN tp.estado_partido = 'finalizado' THEN 1 END) as partidos_jugados,
@@ -318,15 +325,17 @@ class TorneoService {
                     
                 FROM inscripciones_torneo it
                 INNER JOIN equipos e ON it.id_equipo = e.id_equipo
-                LEFT JOIN grupos_torneo gt ON it.id_grupo = gt.id_grupo
+                LEFT JOIN grupo_equipos ge ON ge.id_equipo = e.id_equipo
+                LEFT JOIN grupos_torneo gt ON ge.id_grupo = gt.id_grupo
+                    AND gt.id_fase IN (SELECT id_fase FROM fases_torneo WHERE id_torneo = $1)
                 LEFT JOIN torneos_partidos tp ON 
                     tp.id_torneo = it.id_torneo AND 
                     (tp.equipo_local = e.id_equipo OR tp.equipo_visitante = e.id_equipo)
                 WHERE it.id_torneo = $1
-                AND it.estado = 'confirmada'
-                GROUP BY e.id_equipo, e.nombre_equipo, e.logo_url, gt.nombre_grupo
+                AND it.aprobado = true
+                GROUP BY e.id_equipo, e.nombre_equipo, e.logo_url, gt.nombre
                 ORDER BY 
-                    gt.nombre_grupo ASC,
+                    gt.nombre ASC,
                     puntos DESC,
                     diferencia_goles DESC,
                     goles_favor DESC

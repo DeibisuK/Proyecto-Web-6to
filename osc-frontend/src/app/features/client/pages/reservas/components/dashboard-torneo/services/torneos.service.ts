@@ -97,12 +97,12 @@ export class TorneosService {
   }
 
   /**
-   * Obtiene torneos activos (inscripción abierta o en curso)
+   * Obtiene torneos activos (abierto o en curso)
    */
   getTorneosActivos(): Observable<Torneo[]> {
     return this.getTorneosPublicos().pipe(
       map(torneos => torneos.filter(t =>
-        t.estado === 'inscripcion_abierta' || t.estado === 'en_curso'
+        t.estado === 'abierto' || t.estado === 'en_curso'
       ))
     );
   }
@@ -146,10 +146,10 @@ export class TorneosService {
    */
   getColorEstado(estado: string): string {
     const colores: Record<string, string> = {
-      'inscripcion_abierta': 'success',
+      'abierto': 'success',
       'en_curso': 'info',
-      'finalizado': 'secondary',
-      'cancelado': 'danger'
+      'cerrado': 'warning',
+      'finalizado': 'secondary'
     };
     return colores[estado] || 'primary';
   }
@@ -159,10 +159,10 @@ export class TorneosService {
    */
   getTextoEstado(estado: string): string {
     const textos: Record<string, string> = {
-      'inscripcion_abierta': 'Inscripción Abierta',
+      'abierto': 'Inscripción Abierta',
       'en_curso': 'En Curso',
-      'finalizado': 'Finalizado',
-      'cancelado': 'Cancelado'
+      'cerrado': 'Cerrado',
+      'finalizado': 'Finalizado'
     };
     return textos[estado] || estado;
   }

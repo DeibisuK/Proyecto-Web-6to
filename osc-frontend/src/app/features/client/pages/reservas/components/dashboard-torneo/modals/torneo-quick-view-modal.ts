@@ -75,6 +75,6 @@ export class TorneoQuickViewModalComponent {
   }
 
   puedeInscribirse(): boolean {
-    return this.torneo?.estado === 'inscripcion_abierta' && this.tieneCupos();
+    return this.torneo?.estado === 'abierto' && this.tieneCupos();
   }
 }

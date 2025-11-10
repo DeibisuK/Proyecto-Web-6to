@@ -8,6 +8,8 @@ import { ListSede } from "./pages/sedes/list-sede/list-sede";
 import { CrearSede } from "./pages/sedes/crear-sede/crear-sede";
 import { Equipos } from "./pages/equipos/equipos";
 import { ProductosComponent } from "./pages/productos/productos";
+import { ListTorneos } from "./pages/torneos/list-torneos/list-torneos";
+import { CrearTorneo } from "./pages/torneos/crear-torneo/crear-torneo";
 
 export const adminRoutes: Routes = [
   {
@@ -54,6 +56,21 @@ export const adminRoutes: Routes = [
     path: 'editar-cancha/:id',
     component: CrearCancha,
     title: 'Editar Cancha'
+  },
+  {
+    path: 'torneos',
+    component: ListTorneos,
+    title: 'Torneos'
+  },
+  {
+    path: 'crear-torneo',
+    component: CrearTorneo,
+    title: 'Crear Torneo'
+  },
+  {
+    path: 'editar-torneo/:id',
+    component: CrearTorneo,
+    title: 'Editar Torneo'
   },
   {
     path: 'equipos', component: Equipos

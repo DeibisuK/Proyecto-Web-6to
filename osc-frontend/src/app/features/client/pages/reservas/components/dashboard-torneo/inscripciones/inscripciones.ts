@@ -143,15 +143,15 @@ export class Inscripciones implements OnInit {
    */
   openNewInscriptionWizard(): void {
     // Navegar a la vista de torneos para seleccionar uno
-    this.router.navigate(['/client/reservas/dashboard-torneo/torneo']);
+    this.router.navigate(['/dashboard-torneo/torneos']);
   }
 
   /**
    * Ver detalles completos de la inscripción/torneo
    */
   viewDetails(inscripcion: Inscripcion): void {
-    // Navegar al detalle del torneo
-    this.router.navigate(['/client/reservas/dashboard-torneo/torneo', inscripcion.id_torneo]);
+    // Navegar al detalle del torneo (partido)
+    this.router.navigate(['/dashboard-torneo/partido', inscripcion.id_torneo]);
   }
 
   /**

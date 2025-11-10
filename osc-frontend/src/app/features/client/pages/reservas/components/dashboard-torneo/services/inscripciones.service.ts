@@ -57,14 +57,14 @@ export class InscripcionesService {
     switch (estado) {
       case 'activas':
         return inscripciones.filter(i =>
-          i.estado_inscripcion === 'confirmada' &&
-          (i.torneo_estado === 'inscripcion_abierta' || i.torneo_estado === 'en_curso')
+          i.aprobado === true &&
+          (i.torneo_estado === 'abierto' || i.torneo_estado === 'en_curso')
         );
       case 'pendientes':
-        return inscripciones.filter(i => i.estado_inscripcion === 'pendiente');
+        return inscripciones.filter(i => i.aprobado === false);
       case 'finalizadas':
         return inscripciones.filter(i =>
-          i.torneo_estado === 'finalizado' || i.estado_inscripcion === 'cancelada'
+          i.torneo_estado === 'finalizado' || i.torneo_estado === 'cerrado'
         );
       default:
         return inscripciones;
@@ -74,11 +74,14 @@ export class InscripcionesService {
   /**
    * Obtiene el color del badge según el estado de la inscripción
    */
-  getColorEstadoInscripcion(estado: string): string {
+  getColorEstadoInscripcion(estado: string, aprobado: boolean): string {
+    if (!aprobado) return 'warning';
+
     const colores: Record<string, string> = {
-      'confirmada': 'success',
-      'pendiente': 'warning',
-      'cancelada': 'danger'
+      'inscrito': 'success',
+      'activo': 'success',
+      'eliminado': 'danger',
+      'cancelado': 'danger'
     };
     return colores[estado] || 'secondary';
   }
@@ -86,11 +89,14 @@ export class InscripcionesService {
   /**
    * Obtiene el texto formateado del estado de inscripción
    */
-  getTextoEstadoInscripcion(estado: string): string {
+  getTextoEstadoInscripcion(estado: string, aprobado: boolean): string {
+    if (!aprobado) return 'Pendiente de Aprobación';
+
     const textos: Record<string, string> = {
-      'confirmada': 'Confirmada',
-      'pendiente': 'Pendiente',
-      'cancelada': 'Cancelada'
+      'inscrito': 'Inscrito',
+      'activo': 'Activo',
+      'eliminado': 'Eliminado',
+      'cancelado': 'Cancelado'
     };
     return textos[estado] || estado;
   }
@@ -108,8 +114,8 @@ export class InscripcionesService {
    * Verifica si se puede cancelar una inscripción
    */
   puedeCancelar(inscripcion: Inscripcion): boolean {
-    // No se puede cancelar si ya está cancelada o el torneo ya comenzó/finalizó
-    if (inscripcion.estado_inscripcion === 'cancelada') return false;
+    // No se puede cancelar si ya está cancelado/eliminado o el torneo ya comenzó/finalizó
+    if (inscripcion.estado_inscripcion === 'cancelado' || inscripcion.estado_inscripcion === 'eliminado') return false;
     if (inscripcion.torneo_estado === 'en_curso' || inscripcion.torneo_estado === 'finalizado') return false;
 
     // Verificar si faltan al menos 24 horas para el inicio
@@ -126,7 +132,7 @@ export class InscripcionesService {
   formatearFechaProximoPartido(inscripcion: Inscripcion): string {
     if (!inscripcion.proximo_partido) return 'Sin partidos programados';
 
-    const fecha = new Date(inscripcion.proximo_partido.fecha_hora);
+    const fecha = new Date(inscripcion.proximo_partido.fecha_hora_inicio);
     const opciones: Intl.DateTimeFormatOptions = {
       day: 'numeric',
       month: 'short',
@@ -142,10 +148,10 @@ export class InscripcionesService {
    */
   getIconoEstadoTorneo(estado: string): string {
     const iconos: Record<string, string> = {
-      'inscripcion_abierta': '📋',
+      'abierto': '📋',
       'en_curso': '⚽',
-      'finalizado': '🏆',
-      'cancelado': '❌'
+      'cerrado': '🔒',
+      'finalizado': '🏆'
     };
     return iconos[estado] || '📅';
   }

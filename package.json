@@ -4,12 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm-run-all --parallel backend frontend",
+    "start": "concurrently -n backend,frontend -c yellow,cyan \"npm run backend\" \"npm run frontend\"",
     "backend": "node start-backend.js",
-    "frontend": "cd osc-frontend && npm install && ng serve --open",
+    "frontend": "cd osc-frontend && ng serve",
     "setup:env": "node osc-backend/setup-env.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-
   },
   "keywords": [],
   "author": "",

@@ -140,8 +140,8 @@ export class DetallePartidoComponent implements OnInit {
           id_jugador: a.id_jugador,
           nombre: nombreCompleto[0] || a.jugador_nombre,
           apellido: nombreCompleto.slice(1).join(' ') || '',
-          numero_camiseta: a.numero_camiseta,
-          posicion: a.posicion
+          numero: a.numero_camiseta,
+          posicion_pref: a.posicion
         };
       });
   }
@@ -163,8 +163,8 @@ export class DetallePartidoComponent implements OnInit {
           id_jugador: a.id_jugador,
           nombre: nombreCompleto[0] || a.jugador_nombre,
           apellido: nombreCompleto.slice(1).join(' ') || '',
-          numero_camiseta: a.numero_camiseta,
-          posicion: a.posicion
+          numero: a.numero_camiseta,
+          posicion_pref: a.posicion
         };
       });
   }
@@ -174,7 +174,7 @@ export class DetallePartidoComponent implements OnInit {
    */
   getHoraPartido(): string {
     if (!this.detallePartido) return '';
-    return this.partidosService.formatearHoraPartido(this.detallePartido.partido.fecha_hora);
+    return this.partidosService.formatearHoraPartido(this.detallePartido.partido.fecha_hora_inicio);
   }
 
   /**
@@ -189,7 +189,7 @@ export class DetallePartidoComponent implements OnInit {
    * Obtiene el texto de la fase del torneo
    */
   getTextoFase(): string {
-    if (!this.detallePartido) return '';
-    return this.partidosService.getTextoFase(this.detallePartido.partido.fase);
+    if (!this.detallePartido?.partido.nombre_fase) return '';
+    return this.partidosService.getTextoFase(this.detallePartido.partido.nombre_fase);
   }
 }

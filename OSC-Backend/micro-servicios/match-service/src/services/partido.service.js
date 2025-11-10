@@ -84,7 +84,7 @@ export const remove = async (id) => {
  * Obtiene el detalle completo de un partido con eventos, alineaciones y estadísticas
  */
 export const getDetalleCompleto = async (id) => {
-    const pool = (await import('../config/database.js')).default;
+    const pool = (await import('../config/db.js')).default;
     const client = await pool.connect();
     
     try {
@@ -93,14 +93,14 @@ export const getDetalleCompleto = async (id) => {
             SELECT 
                 tp.id_partido,
                 tp.id_torneo,
-                tp.fecha_hora,
+                tp.fecha_hora_inicio,
+                tp.fecha_hora_fin,
                 tp.estado_partido,
                 tp.goles_local,
                 tp.goles_visitante,
-                tp.penales_local,
-                tp.penales_visitante,
-                tp.fase,
-                tp.numero_jornada,
+                tp.id_fase,
+                tp.id_grupo,
+                tp.nota,
                 
                 -- Torneo
                 t.nombre as torneo_nombre,
@@ -116,14 +116,14 @@ export const getDetalleCompleto = async (id) => {
                 ev.nombre_equipo as equipo_visitante_nombre,
                 ev.logo_url as equipo_visitante_logo,
                 
-                -- Cancha
+                -- Cancha y Sede
                 c.nombre_cancha,
-                s.nombre_sede,
+                s.nombre as nombre_sede,
                 s.direccion as sede_direccion,
                 
-                -- Árbitro
+                -- Árbitro (necesita join con usuarios)
                 ar.id_arbitro,
-                CONCAT(ar.nombre, ' ', ar.apellido) as arbitro_nombre
+                u.name_user as arbitro_nombre
                 
             FROM torneos_partidos tp
             INNER JOIN torneos t ON tp.id_torneo = t.id_torneo
@@ -132,7 +132,8 @@ export const getDetalleCompleto = async (id) => {
             LEFT JOIN equipos ev ON tp.equipo_visitante = ev.id_equipo
             LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
             LEFT JOIN sedes s ON c.id_sede = s.id_sede
-            LEFT JOIN arbitros ar ON tp.id_arbitro = ar.id_arbitro
+            LEFT JOIN arbitros ar ON tp.id_arbitro_principal = ar.id_arbitro
+            LEFT JOIN usuarios u ON ar.id_usuario = u.id_user
             WHERE tp.id_partido = $1
         `;
         const partidoResult = await client.query(partidoQuery, [id]);
@@ -153,8 +154,8 @@ export const getDetalleCompleto = async (id) => {
                 ea.id_equipo,
                 e.nombre_equipo,
                 j.id_jugador,
-                CONCAT(j.nombre, ' ', j.apellido) as jugador_nombre,
-                j.numero_camiseta
+                j.nombre_completo as jugador_nombre,
+                j.numero as numero_camiseta
             FROM eventos_arbitro ea
             LEFT JOIN equipos e ON ea.id_equipo = e.id_equipo
             LEFT JOIN jugadores j ON ea.id_jugador = j.id_jugador
@@ -170,16 +171,16 @@ export const getDetalleCompleto = async (id) => {
                 a.id_equipo,
                 e.nombre_equipo,
                 j.id_jugador,
-                CONCAT(j.nombre, ' ', j.apellido) as jugador_nombre,
-                j.numero_camiseta,
-                j.posicion,
+                j.nombre_completo as jugador_nombre,
+                j.numero as numero_camiseta,
+                j.posicion_pref as posicion,
                 a.es_titular,
                 a.minutos_jugados
             FROM alineaciones a
             INNER JOIN equipos e ON a.id_equipo = e.id_equipo
             INNER JOIN jugadores j ON a.id_jugador = j.id_jugador
             WHERE a.id_partido = $1
-            ORDER BY a.id_equipo, a.es_titular DESC, j.numero_camiseta ASC
+            ORDER BY a.id_equipo, a.es_titular DESC, j.numero ASC
         `;
         const alineaciones = await client.query(alineacionesQuery, [id]);
         

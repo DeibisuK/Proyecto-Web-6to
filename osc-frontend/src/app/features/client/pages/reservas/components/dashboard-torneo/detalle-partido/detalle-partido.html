@@ -158,10 +158,10 @@
                   <h4>Titulares</h4>
                   <div class="players-list">
                     <div class="player-item" *ngFor="let jugador of getTitulares(true)">
-                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <span class="player-number">{{ jugador.numero }}</span>
                       <div class="player-info">
                         <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
-                        <span class="player-position">{{ jugador.posicion }}</span>
+                        <span class="player-position">{{ jugador.posicion_pref }}</span>
                       </div>
                     </div>
                     <div class="empty-list" *ngIf="getTitulares(true).length === 0">
@@ -175,10 +175,10 @@
                   <h4>Suplentes</h4>
                   <div class="players-list">
                     <div class="player-item" *ngFor="let jugador of getSuplentes(true)">
-                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <span class="player-number">{{ jugador.numero }}</span>
                       <div class="player-info">
                         <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
-                        <span class="player-position">{{ jugador.posicion }}</span>
+                        <span class="player-position">{{ jugador.posicion_pref }}</span>
                       </div>
                     </div>
                     <div class="empty-list" *ngIf="getSuplentes(true).length === 0">
@@ -204,10 +204,10 @@
                   <h4>Titulares</h4>
                   <div class="players-list">
                     <div class="player-item" *ngFor="let jugador of getTitulares(false)">
-                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <span class="player-number">{{ jugador.numero }}</span>
                       <div class="player-info">
                         <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
-                        <span class="player-position">{{ jugador.posicion }}</span>
+                        <span class="player-position">{{ jugador.posicion_pref }}</span>
                       </div>
                     </div>
                     <div class="empty-list" *ngIf="getTitulares(false).length === 0">
@@ -221,10 +221,10 @@
                   <h4>Suplentes</h4>
                   <div class="players-list">
                     <div class="player-item" *ngFor="let jugador of getSuplentes(false)">
-                      <span class="player-number">{{ jugador.numero_camiseta }}</span>
+                      <span class="player-number">{{ jugador.numero }}</span>
                       <div class="player-info">
                         <span class="player-name">{{ jugador.nombre }} {{ jugador.apellido }}</span>
-                        <span class="player-position">{{ jugador.posicion }}</span>
+                        <span class="player-position">{{ jugador.posicion_pref }}</span>
                       </div>
                     </div>
                     <div class="empty-list" *ngIf="getSuplentes(false).length === 0">

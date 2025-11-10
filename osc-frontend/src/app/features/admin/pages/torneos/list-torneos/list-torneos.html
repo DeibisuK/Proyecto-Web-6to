@@ -1,0 +1,237 @@
+<div class="torneos-container">
+  <!-- Header -->
+  <div class="torneos-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-trophy"></i>
+        Gestión de Torneos
+      </h1>
+      <button class="btn-crear" (click)="crearTorneo()">
+        <i class="fas fa-plus"></i>
+        Crear Torneo
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <div class="filtros-grid">
+      <!-- Búsqueda -->
+      <div class="filtro-item filtro-busqueda">
+        <label>
+          <i class="fas fa-search"></i>
+          Buscar
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="filtros.busqueda"
+          (ngModelChange)="aplicarFiltros()"
+          placeholder="Buscar por nombre o descripción..."
+          class="input-filtro"
+        />
+      </div>
+
+      <!-- Deporte -->
+      <div class="filtro-item">
+        <label>
+          <i class="fas fa-futbol"></i>
+          Deporte
+        </label>
+        <select
+          [(ngModel)]="filtros.deporte"
+          (ngModelChange)="aplicarFiltros()"
+          class="select-filtro"
+        >
+          <option [value]="undefined">Todos los deportes</option>
+          <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
+            {{ deporte.nombre_deporte }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div class="filtro-item">
+        <label>
+          <i class="fas fa-flag"></i>
+          Estado
+        </label>
+        <select
+          [(ngModel)]="filtros.estado"
+          (ngModelChange)="aplicarFiltros()"
+          class="select-filtro"
+        >
+          <option *ngFor="let estado of estadosPosibles" [value]="estado.value">
+            {{ estado.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Ordenar -->
+      <div class="filtro-item">
+        <label>
+          <i class="fas fa-sort"></i>
+          Ordenar por
+        </label>
+        <select
+          [(ngModel)]="filtros.ordenar"
+          (ngModelChange)="aplicarFiltros()"
+          class="select-filtro"
+        >
+          <option *ngFor="let opcion of opcionesOrden" [value]="opcion.value">
+            {{ opcion.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-eraser"></i>
+      Limpiar filtros
+    </button>
+  </div>
+
+  <!-- Estadísticas rápidas -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <i class="fas fa-trophy"></i>
+      <span class="stat-value">{{ totalTorneos }}</span>
+      <span class="stat-label">Total Torneos</span>
+    </div>
+  </div>
+
+  <!-- Lista de torneos -->
+  <div class="torneos-list">
+    <div *ngIf="torneos.length === 0" class="empty-state">
+      <i class="fas fa-trophy"></i>
+      <p>No se encontraron torneos</p>
+      <button class="btn-crear-empty" (click)="crearTorneo()">
+        <i class="fas fa-plus"></i>
+        Crear primer torneo
+      </button>
+    </div>
+
+    <div *ngFor="let torneo of torneos" class="torneo-card">
+      <div class="card-header">
+        <div class="torneo-info">
+          <h3 class="torneo-nombre">{{ torneo.nombre }}</h3>
+          <p class="torneo-descripcion" *ngIf="torneo.descripcion">
+            {{ torneo.descripcion }}
+          </p>
+        </div>
+        <span class="estado-badge" [ngClass]="getEstadoClass(torneo.estado)">
+          {{ getEstadoLabel(torneo.estado) }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="torneo-detalles">
+          <!-- Deporte -->
+          <div class="detalle-item">
+            <i class="fas fa-futbol"></i>
+            <span>{{ torneo.nombre_deporte }}</span>
+          </div>
+
+          <!-- Fechas -->
+          <div class="detalle-item">
+            <i class="fas fa-calendar"></i>
+            <span>{{ formatearFecha(torneo.fecha_inicio) }} - {{ formatearFecha(torneo.fecha_fin) }}</span>
+          </div>
+
+          <!-- Equipos -->
+          <div class="detalle-item">
+            <i class="fas fa-users"></i>
+            <span>{{ torneo.equipos_inscritos || 0 }} / {{ torneo.max_equipos || '∞' }} equipos</span>
+          </div>
+
+          <!-- Partidos -->
+          <div class="detalle-item" *ngIf="torneo.total_partidos && torneo.total_partidos > 0">
+            <i class="fas fa-futbol"></i>
+            <span>{{ torneo.partidos_finalizados || 0 }} / {{ torneo.total_partidos }} partidos</span>
+          </div>
+
+          <!-- Tipo -->
+          <div class="detalle-item">
+            <i class="fas fa-sitemap"></i>
+            <span>{{ torneo.tipo_torneo }}</span>
+          </div>
+
+          <!-- Creador -->
+          <div class="detalle-item" *ngIf="torneo.creador_nombre">
+            <i class="fas fa-user"></i>
+            <span>{{ torneo.creador_nombre }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="acciones-grupo">
+          <button class="btn-accion btn-editar" (click)="editarTorneo(torneo)" title="Editar">
+            <i class="fas fa-edit"></i>
+            Editar
+          </button>
+
+          <button class="btn-accion btn-stats" (click)="verEstadisticas(torneo)" title="Estadísticas">
+            <i class="fas fa-chart-bar"></i>
+            Estadísticas
+          </button>
+
+          <!-- Cambiar estado -->
+          <div class="btn-dropdown">
+            <button class="btn-accion btn-estado">
+              <i class="fas fa-sync-alt"></i>
+              Estado
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-content">
+              <button
+                *ngFor="let estado of estadosPosibles"
+                (click)="cambiarEstado(torneo, estado.value)"
+                [disabled]="!estado.value || torneo.estado === estado.value"
+                class="dropdown-item"
+              >
+                {{ estado.label }}
+              </button>
+            </div>
+          </div>
+
+          <button class="btn-accion btn-eliminar" (click)="eliminarTorneo(torneo)" title="Eliminar">
+            <i class="fas fa-trash"></i>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="paginacion" *ngIf="totalPages > 1">
+    <button
+      class="btn-paginacion"
+      (click)="cambiarPagina((filtros.page || 1) - 1)"
+      [disabled]="(filtros.page || 1) === 1"
+    >
+      <i class="fas fa-chevron-left"></i>
+      Anterior
+    </button>
+
+    <div class="paginas-numeros">
+      <button
+        *ngFor="let pagina of getPaginaNumeros()"
+        class="btn-numero"
+        [ngClass]="{ 'activo': pagina === filtros.page }"
+        (click)="cambiarPagina(pagina)"
+      >
+        {{ pagina }}
+      </button>
+    </div>
+
+    <button
+      class="btn-paginacion"
+      (click)="cambiarPagina((filtros.page || 1) + 1)"
+      [disabled]="(filtros.page || 1) === totalPages"
+    >
+      Siguiente
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

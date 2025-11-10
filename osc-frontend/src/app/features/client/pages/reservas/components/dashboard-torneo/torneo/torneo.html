@@ -38,7 +38,7 @@
         En Curso
         <span class="badge badge-live">LIVE</span>
       </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'inscripcion_abierta'" (click)="setFilter('inscripcion_abierta')">
+      <button class="filter-btn" [class.active]="filterStatus === 'abierto'" (click)="setFilter('abierto')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
@@ -69,10 +69,9 @@
       <!-- Header de Torneo mejorado -->
       <div class="league-card-header">
         <div class="league-info">
-          <img [src]="torneo.url_imagen || torneo.deporte_imagen"
+          <img [src]="torneo.deporte_imagen"
                [alt]="torneo.nombre"
-               class="league-logo-modern"
-               (error)="$any($event.target).src = torneo.deporte_imagen">
+               class="league-logo-modern">
           <div class="league-meta-modern">
             <h2 class="league-title-modern">{{ torneo.nombre }}</h2>
             <p class="league-subtitle-modern">
@@ -102,20 +101,16 @@
           </div>
           <div class="info-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-              <path d="M4 22h16"></path>
-              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
-              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
-              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
-            <span class="info-label">Premio:</span>
-            <span class="info-value">{{ torneo.premio ? '$' + torneo.premio : 'N/A' }}</span>
+            <span class="info-label">Tipo:</span>
+            <span class="info-value">{{ torneo.tipo_torneo }}</span>
           </div>
         </div>
 
         <!-- Barra de progreso de ocupación -->
-        <div class="progress-bar-container" *ngIf="torneo.estado === 'inscripcion_abierta'">
+        <div class="progress-bar-container" *ngIf="torneo.estado === 'abierto'">
           <div class="progress-bar-label">
             <span>Ocupación</span>
             <span class="progress-percentage">{{ getPorcentajeOcupacion(torneo) }}%</span>
@@ -129,15 +124,6 @@
         <p class="tournament-description" *ngIf="torneo.descripcion">
           {{ torneo.descripcion }}
         </p>
-
-        <!-- Costo de inscripción -->
-        <div class="tournament-cost" *ngIf="torneo.costo_inscripcion && torneo.estado === 'inscripcion_abierta'">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <line x1="12" y1="1" x2="12" y2="23"></line>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-          <span>Inscripción: ${{ torneo.costo_inscripcion }}</span>
-        </div>
       </div>
 
       <!-- Footer de Torneo -->
@@ -148,6 +134,19 @@
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
           Vista rápida
+        </button>
+
+        <!-- Botón de Inscripción Directa -->
+        <button
+          *ngIf="torneo.estado === 'abierto' && tieneCupos(torneo)"
+          class="btn-inscribir"
+          (click)="onQuickViewInscribirse(torneo); $event.stopPropagation()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <polyline points="17 11 19 13 23 9"></polyline>
+          </svg>
+          Inscribirse
         </button>
 
         <a class="link-clasificacion" (click)="viewClassification(torneo, $event)">
@@ -165,7 +164,7 @@
           </svg>
         </a>
 
-        <span class="availability-badge" *ngIf="torneo.estado === 'inscripcion_abierta'">
+        <span class="availability-badge" *ngIf="torneo.estado === 'abierto'">
           <span *ngIf="tieneCupos(torneo)" class="badge badge-success">
             ✓ Cupos disponibles
           </span>
@@ -204,7 +203,7 @@
 <app-inscripcion-modal
   [isOpen]="showInscripcionModal"
   [torneo]="torneoSeleccionado"
-  [equiposDisponibles]="[]"
+  [equiposDisponibles]="equiposDelTorneo"
   (cerrar)="onInscripcionModalCerrar()"
   (inscripcionExitosa)="onInscripcionExitosa($event)">
 </app-inscripcion-modal>

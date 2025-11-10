@@ -13,7 +13,7 @@ const router = Router();
 router.get('/inscripciones/usuario/:uid', authenticate(), getInscripcionesUsuario);
 
 // Crear una nueva inscripción a un torneo
-router.post('/inscripciones/crear', authenticate(), authorizeRole(2), crearInscripcion);
+router.post('/inscripciones/crear', authenticate(), crearInscripcion);
 
 // Cancelar una inscripción existente
 router.delete('/inscripciones/:id', authenticate(), authorizeRole(2), cancelarInscripcion);

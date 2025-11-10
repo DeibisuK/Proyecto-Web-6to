@@ -1,8 +1,8 @@
-// torneo.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TorneosService } from '../services/torneos.service';
+import { EquiposService, type EquipoUsuario } from '../services/equipos.service';
 import { Torneo as TorneoModel, FiltrosTorneos } from '../models/torneo.models';
 import { TorneoQuickViewModalComponent, InscripcionModalComponent } from '../modals';
 
@@ -22,6 +22,7 @@ interface DeporteTab {
 })
 export class Torneo implements OnInit {
   private torneosService = inject(TorneosService);
+  private equiposService = inject(EquiposService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -35,6 +36,10 @@ export class Torneo implements OnInit {
   showInscripcionModal: boolean = false;
   torneoSeleccionado: TorneoModel | null = null;
 
+  // Equipos del usuario
+  equiposDisponibles: EquipoUsuario[] = [];
+  equiposDelTorneo: EquipoUsuario[] = [];
+
   deportes: DeporteTab[] = [
     { id_deporte: 0, nombre: 'Todos', icono: '🏅', count: 0 }
   ];
@@ -44,6 +49,7 @@ export class Torneo implements OnInit {
 
   ngOnInit(): void {
     this.loadTorneos();
+    this.loadEquipos();
   }
 
   selectTab(deporteId: number): void {
@@ -75,6 +81,22 @@ export class Torneo implements OnInit {
         console.error('Error al cargar torneos:', err);
         this.error = 'No se pudieron cargar los torneos';
         this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Carga los equipos del usuario
+   */
+  private loadEquipos(): void {
+    this.equiposService.getEquiposUsuario().subscribe({
+      next: (equipos) => {
+        console.log('✅ Equipos cargados:', equipos);
+        this.equiposDisponibles = equipos;
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar equipos:', err);
+        // No mostramos error al usuario, solo no tendrá equipos disponibles
       }
     });
   }
@@ -171,6 +193,19 @@ export class Torneo implements OnInit {
   onQuickViewInscribirse(torneo: TorneoModel): void {
     this.showQuickViewModal = false;
     this.torneoSeleccionado = torneo;
+
+    console.log('🏆 Torneo seleccionado:', torneo);
+    console.log('📋 Equipos disponibles (TODOS):', this.equiposDisponibles);
+    console.log('🔍 Filtrando por id_deporte:', torneo.id_deporte);
+
+    // Filtrar equipos por deporte del torneo
+    this.equiposDelTorneo = this.equiposService.filtrarPorDeporte(
+      this.equiposDisponibles,
+      torneo.id_deporte
+    );
+
+    console.log('✅ Equipos filtrados para este torneo:', this.equiposDelTorneo);
+
     this.showInscripcionModal = true;
   }
 
@@ -191,6 +226,7 @@ export class Torneo implements OnInit {
 
   refreshLeagues(): void {
     this.loadTorneos();
+    this.loadEquipos();
   }
 
   viewTournamentDetail(torneo: TorneoModel): void {
