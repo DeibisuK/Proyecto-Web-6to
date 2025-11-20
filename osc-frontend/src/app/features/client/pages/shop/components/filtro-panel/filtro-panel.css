@@ -208,59 +208,33 @@ input[type="range"] {
 /* Grid de colores */
 .colores-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
   gap: 0.75rem;
+  padding: 0.5rem;
 }
 
 .color-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 2px solid transparent;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 3px solid #E8E8E8;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #F8F9FA;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 .color-chip:hover {
-  background: #ECF0F1;
-  transform: translateY(-2px);
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  border-color: #D0D0D0;
 }
 
 .color-chip.selected {
   border-color: #2ECC71;
-  background: #E8F8F5;
-}
-
-.color-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: all 0.2s ease;
-}
-
-.color-chip:hover .color-circle {
-  transform: scale(1.1);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-}
-
-.color-chip.selected .color-circle {
-  border-color: #2ECC71;
   border-width: 3px;
-  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
-}
-
-.color-nombre {
-  font-size: 0.8rem;
-  color: #2C3E50;
-  font-weight: 500;
-  text-align: center;
-  text-transform: capitalize;
+  box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.3), 0 3px 8px rgba(0,0,0,0.15);
+  transform: scale(1.05);
 }
 
 /* Grid de tallas */

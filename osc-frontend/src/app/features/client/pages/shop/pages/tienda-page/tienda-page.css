@@ -19,7 +19,6 @@
   overflow: visible; /* IMPORTANTE: Permitir que elementos salgan del contenedor */
 }
 
-/* 🆕 Barra de controles (ordenamiento + modo visualización) */
 .barra-controles {
   display: flex;
   justify-content: space-between;
@@ -199,7 +198,6 @@
   margin-left: auto !important;
 }
 
-/* 🆕 Toggle para cambiar modo de visualización */
 .modo-visualizacion {
   display: flex;
   justify-content: flex-end;
@@ -212,8 +210,8 @@
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   background: white;
-  color: #3498db;
-  border: 2px solid #3498db;
+  color: #2ECC71;
+  border: 2px solid #2ECC71;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -222,7 +220,7 @@
 }
 
 .btn-toggle-modo:hover {
-  background: #3498db;
+  background: #27AE60;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
@@ -276,7 +274,7 @@
 
 .btn-limpiar-filtros {
   padding: 0.75rem 1.5rem;
-  background: #3498db;
+  background: #2ECC71;
   color: white;
   border: none;
   border-radius: 8px;
@@ -287,12 +285,10 @@
 }
 
 .btn-limpiar-filtros:hover {
-  background: #2980b9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+  background: #27AE60;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 
-/* 🆕 Scroll Infinito - Sentinel (invisible) */
 .scroll-sentinel {
   grid-column: 1 / -1;
   height: 1px;
@@ -300,7 +296,6 @@
   visibility: hidden;
 }
 
-/* 🆕 Loading indicator para scroll infinito */
 .loading-more {
   grid-column: 1 / -1;
   display: flex;
@@ -317,7 +312,7 @@
   margin: 0;
 }
 
-/* 🆕 Spinner animado */
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

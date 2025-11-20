@@ -86,11 +86,9 @@
         @for (color of coloresDisponibles(); track color.id_valor) {
           <div class="color-chip"
                [class.selected]="isColorSeleccionado(color.id_valor)"
-               (click)="toggleColor(color.id_valor)">
-            <div class="color-circle"
-                 [style.background-color]="getColorHex(color.valor)">
-            </div>
-            <span class="color-nombre">{{ color.valor }}</span>
+               [title]="color.valor"
+               (click)="toggleColor(color.id_valor)"
+               [style.background-color]="getColorHex(color.valor)">
           </div>
         }
       </div>

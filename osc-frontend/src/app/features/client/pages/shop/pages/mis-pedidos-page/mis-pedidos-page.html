@@ -4,7 +4,6 @@
     <div class="page-header">
       <div class="header-content">
         <h1 class="page-title">
-          <span class="material-icons">receipt_long</span>
           Mis Pedidos
         </h1>
         <p class="page-subtitle">Historial de compras y seguimiento de pedidos</p>
@@ -38,17 +37,21 @@
     </div>
     }
 
-    <!-- Lista de Pedidos -->
+    <!-- Empty State -->
     @if (!isLoading()) { @if (pedidosFiltrados.length === 0) {
     <div class="empty-state">
       <span class="material-icons">shopping_bag</span>
-      <h3>
-        No hay pedidos {{ filtroEstado() !== 'Todos' ? 'con estado: ' + filtroEstado() : '' }}
-      </h3>
-      <p>Cuando realices compras, aparecerán aquí</p>
+      <h3>No hay pedidos actualmente</h3>
+      <p>
+        @if (filtroEstado() !== 'Todos') {
+          No tienes pedidos con estado: {{ filtroEstado() }}
+        } @else {
+          Cuando realices compras, aparecerán aquí para que puedas hacer seguimiento
+        }
+      </p>
       <a href="/tienda" class="btn-ir-tienda">
         <span class="material-icons">store</span>
-        Ir a la Tienda
+        Visitar Tienda
       </a>
     </div>
     } @else {
