@@ -199,8 +199,50 @@ export class Navbar implements OnInit, OnDestroy {
     }
   }
 
-  logout() {
-    this.authService.logout();
+  async logout() {
+    const Swal = (window as any).Swal;
+
+    if (!Swal) {
+      // Fallback si SweetAlert2 no está cargado
+      const confirmacion = confirm('¿Estás seguro de que deseas cerrar sesión?');
+      if (confirmacion) {
+        await this.authService.logout();
+        this.router.navigate(['/inicio']);
+      }
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: '¿Estás seguro de que deseas salir de tu cuenta?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2ECC71',
+      cancelButtonColor: '#95A5A6',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      customClass: {
+        popup: 'swal-custom-popup',
+        title: 'swal-custom-title',
+        confirmButton: 'swal-custom-confirm',
+        cancelButton: 'swal-custom-cancel'
+      }
+    });
+
+    if (result.isConfirmed) {
+      await this.authService.logout();
+      this.router.navigate(['/inicio']);
+
+      Swal.fire({
+        title: '¡Hasta pronto!',
+        text: 'Has cerrado sesión exitosamente',
+        icon: 'success',
+        confirmButtonColor: '#2ECC71',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
   }
 
   abrirLoginModal() {

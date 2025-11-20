@@ -574,3 +574,40 @@ body.cart-open,
 body.modal-open {
   overflow: hidden;
 }
+
+/* SweetAlert2 Customization */
+.swal-custom-popup {
+  border-radius: 12px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.swal-custom-title {
+  color: #2C3E50 !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+}
+
+.swal-custom-confirm {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal-custom-confirm:hover {
+  background-color: #27AE60 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3) !important;
+}
+
+.swal-custom-cancel {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal-custom-cancel:hover {
+  background-color: #7F8C8D !important;
+  transform: translateY(-2px);
+}
