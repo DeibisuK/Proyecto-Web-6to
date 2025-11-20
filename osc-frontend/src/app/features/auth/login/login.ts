@@ -34,14 +34,6 @@ export class Login {
   email = '';
   passwordRegistro = '';
 
-  // 2FA Challenge State
-  is2FAChallenge = false;
-  resolver: any = null;
-  verificationId = '';
-  verificationCode = '';
-  recaptchaVerifier: any = null;
-  maskedPhoneNumber = '';
-
   // -------------------- Modal --------------------
   abrirModal() {
     this.isClosing = false;
@@ -62,10 +54,6 @@ export class Login {
     this.nombre = '';
     this.email = '';
     this.passwordRegistro = '';
-    this.is2FAChallenge = false;
-    this.resolver = null;
-    this.verificationId = '';
-    this.verificationCode = '';
   }
 
   abrirRecuperacion() {
@@ -115,11 +103,7 @@ export class Login {
   }
 
   async registroConEmail() {
-    if (
-      !this.email?.trim() ||
-      !this.passwordRegistro?.trim() ||
-      !this.nombre?.trim()
-    ) {
+    if (!this.email?.trim() || !this.passwordRegistro?.trim() || !this.nombre?.trim()) {
       this.notificationService.notify({
         message: 'Todos los campos son obligatorios.',
         type: 'error',
@@ -159,84 +143,11 @@ export class Login {
         type: 'success',
       });
     } catch (error: any) {
-      if (error.code === 'auth/multi-factor-auth-required') {
-        await this.handle2FAChallenge(error);
-        return;
-      }
-
       const { message } = this.authService.formatAuthError(error);
       this.notificationService.notify({
         message: `Error en el inicio: ${message}`,
         type: 'error',
       });
-    }
-  }
-
-  async handle2FAChallenge(error: any) {
-    try {
-      const { getMultiFactorResolver, PhoneAuthProvider, PhoneMultiFactorGenerator, RecaptchaVerifier } = await import('@angular/fire/auth');
-      const { getAuth } = await import('@angular/fire/auth');
-
-      this.resolver = getMultiFactorResolver(getAuth(), error);
-      const hints = this.resolver.hints;
-
-      // Asumimos que el primer hint es el teléfono (el único que implementamos)
-      const phoneHint = hints.find((h: any) => h.factorId === PhoneMultiFactorGenerator.FACTOR_ID);
-
-      if (!phoneHint) {
-        this.notificationService.error('No se encontró un factor de autenticación soportado.');
-        return;
-      }
-
-      this.maskedPhoneNumber = phoneHint.phoneNumber;
-      this.is2FAChallenge = true;
-
-      // Necesitamos inicializar el RecaptchaVerifier
-      // Esperamos un momento para que el DOM se actualice y exista el contenedor
-      setTimeout(async () => {
-        if (!this.recaptchaVerifier) {
-          try {
-            this.recaptchaVerifier = new RecaptchaVerifier(getAuth(), 'recaptcha-container-login', {
-              size: 'invisible'
-            });
-          } catch (e) {
-            // Puede que ya exista o falle, lo manejamos
-            console.log('Recaptcha init msg', e);
-          }
-        }
-
-        const phoneAuthProvider = new PhoneAuthProvider(getAuth());
-        try {
-          this.verificationId = await phoneAuthProvider.verifyPhoneNumber(
-            {
-              multiFactorHint: phoneHint,
-              session: this.resolver.session
-            },
-            this.recaptchaVerifier
-          );
-          this.notificationService.success('Código enviado a tu teléfono.');
-        } catch (e: any) {
-          this.notificationService.error('Error al enviar el código SMS: ' + e.message);
-          this.is2FAChallenge = false;
-        }
-      }, 100);
-
-    } catch (e) {
-      console.error('Error handling 2FA', e);
-      this.notificationService.error('Error inesperado en 2FA');
-    }
-  }
-
-  async verify2FACode() {
-    if (!this.verificationCode) return;
-
-    try {
-      await this.authService.resolve2FA(this.resolver, this.verificationId, this.verificationCode);
-      this.cerrar();
-      this.notificationService.success('Inicio de sesión correcto con 2FA');
-    } catch (error: any) {
-      const { message } = this.authService.formatAuthError(error);
-      this.notificationService.error(message);
     }
   }
 }

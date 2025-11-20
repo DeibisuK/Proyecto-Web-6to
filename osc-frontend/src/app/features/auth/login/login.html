@@ -6,7 +6,6 @@
 
     <!-- Contenedor con animación -->
     <div class="container-wrapper" [ngClass]="{ 'register-mode': isRegisterMode }">
-      @if (!is2FAChallenge) {
       <!-- Panel de Formulario -->
       <div class="formulario-panel">
         <!-- Formulario de Login -->
@@ -82,45 +81,6 @@
           </button>
         </div>
       </div>
-      } @else {
-      <!-- 2FA Challenge UI -->
-      <div class="formulario-panel">
-        <div class="formulario login-form">
-          <h2>Verificación 2FA</h2>
-          <p style="text-align: center; margin-bottom: 20px">
-            Hemos enviado un código de verificación al número terminado en
-            <strong>{{ maskedPhoneNumber }}</strong>
-          </p>
-
-          <h4>Código de verificación</h4>
-          <input
-            type="text"
-            [(ngModel)]="verificationCode"
-            placeholder="123456"
-            maxlength="6"
-            style="text-align: center; letter-spacing: 5px; font-size: 1.2rem"
-          />
-
-          <button
-            class="btn-primary"
-            (click)="verify2FACode()"
-            [disabled]="!verificationCode || verificationCode.length < 6"
-          >
-            Verificar
-          </button>
-
-          <button
-            class="btn-secondary"
-            (click)="resetForms()"
-            style="margin-top: 10px; background: transparent; color: #333; border: 1px solid #ccc"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-      }
     </div>
   </div>
-  <!-- Recaptcha container -->
-  <div id="recaptcha-container-login"></div>
 </div>

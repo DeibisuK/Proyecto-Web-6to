@@ -11,13 +11,6 @@ import {
   sendEmailVerification,
   UserCredential,
   signInWithPopup,
-  multiFactor,
-  PhoneAuthProvider,
-  PhoneMultiFactorGenerator,
-  RecaptchaVerifier,
-  getMultiFactorResolver,
-  MultiFactorResolver,
-  MultiFactorError,
 } from '@angular/fire/auth';
 import {
   BehaviorSubject,
@@ -270,85 +263,5 @@ export class AuthService {
     }
 
     return credential;
-  }
-
-  // -------------------------------------------------------------------
-  // Multi-Factor Authentication (2FA)
-  // -------------------------------------------------------------------
-
-  /**
-   * Inicia el proceso de inscripción de 2FA enviando un código SMS.
-   * @param phoneNumber Número de teléfono en formato E.164 (ej. +51999999999)
-   * @param recaptchaVerifier Instancia de RecaptchaVerifier
-   */
-  async enroll2FA(phoneNumber: string, recaptchaVerifier: RecaptchaVerifier): Promise<string> {
-    const user = this.currentUser;
-    if (!user) throw new Error('No hay usuario autenticado');
-
-    const session = await multiFactor(user).getSession();
-    const phoneInfoOptions = {
-      phoneNumber,
-      session,
-    };
-    const phoneAuthProvider = new PhoneAuthProvider(this.auth);
-    return await phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, recaptchaVerifier);
-  }
-
-  /**
-   * Verifica el código SMS y finaliza la inscripción de 2FA.
-   * @param verificationId ID de verificación obtenido en enroll2FA
-   * @param verificationCode Código SMS ingresado por el usuario
-   */
-  async verifyAndEnroll2FA(verificationId: string, verificationCode: string): Promise<void> {
-    const user = this.currentUser;
-    if (!user) throw new Error('No hay usuario autenticado');
-
-    const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
-    const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(cred);
-    await multiFactor(user).enroll(multiFactorAssertion, 'Número de teléfono');
-  }
-
-  /**
-   * Resuelve el desafío de 2FA durante el login.
-   * @param resolver MultiFactorResolver obtenido del error auth/multi-factor-auth-required
-   * @param verificationId ID de verificación (se obtiene al reenviar el código o usar el hint)
-   * @param verificationCode Código SMS
-   */
-  async resolve2FA(
-    resolver: MultiFactorResolver,
-    verificationId: string,
-    verificationCode: string
-  ): Promise<UserCredential> {
-    const cred = PhoneAuthProvider.credential(verificationId, verificationCode);
-    const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(cred);
-    return await resolver.resolveSignIn(multiFactorAssertion);
-  }
-
-  /**
-   * Deshabilita el 2FA para el usuario actual.
-   */
-  async disable2FA(): Promise<void> {
-    const user = this.currentUser;
-    if (!user) throw new Error('No hay usuario autenticado');
-
-    const enrolledFactors = multiFactor(user).enrolledFactors;
-    if (enrolledFactors.length === 0) return;
-
-    // Asumimos que solo hay un factor o eliminamos el primero/todos
-    // Para este caso, eliminamos el factor de teléfono
-    const factor = enrolledFactors.find((f) => f.factorId === PhoneMultiFactorGenerator.FACTOR_ID);
-    if (factor) {
-      await multiFactor(user).unenroll(factor);
-    }
-  }
-
-  /**
-   * Verifica si el usuario tiene 2FA habilitado.
-   */
-  get2FAStatus(): boolean {
-    const user = this.currentUser;
-    if (!user) return false;
-    const enrolledFactors = multiFactor(user).enrolledFactors;
-    return enrolledFactors.length > 0;
   }
 }
