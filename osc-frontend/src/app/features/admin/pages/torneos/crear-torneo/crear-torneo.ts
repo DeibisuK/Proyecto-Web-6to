@@ -9,7 +9,7 @@ import { Deporte } from '@shared/models/index';
 
 @Component({
   selector: 'app-crear-torneo',
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './crear-torneo.html',
   styleUrl: './crear-torneo.css'
 })
@@ -57,7 +57,7 @@ export class CrearTorneo implements OnInit {
 
   ngOnInit(): void {
     this.cargarDeportes();
-    
+
     // Verificar si es edición
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -96,7 +96,7 @@ export class CrearTorneo implements OnInit {
       next: (response) => {
         if (response.success && !Array.isArray(response.data)) {
           const torneo = response.data;
-          
+
           // Formatear fechas para el input
           this.torneoForm.patchValue({
             nombre: torneo.nombre,
@@ -104,8 +104,8 @@ export class CrearTorneo implements OnInit {
             id_deporte: torneo.id_deporte,
             fecha_inicio: this.formatearFechaParaInput(torneo.fecha_inicio),
             fecha_fin: this.formatearFechaParaInput(torneo.fecha_fin),
-            fecha_cierre_inscripcion: torneo.fecha_cierre_inscripcion 
-              ? this.formatearFechaParaInput(torneo.fecha_cierre_inscripcion) 
+            fecha_cierre_inscripcion: torneo.fecha_cierre_inscripcion
+              ? this.formatearFechaParaInput(torneo.fecha_cierre_inscripcion)
               : '',
             max_equipos: torneo.max_equipos,
             tipo_torneo: torneo.tipo_torneo,
@@ -143,7 +143,7 @@ export class CrearTorneo implements OnInit {
     // Validar fechas
     const fechaInicio = new Date(this.torneoForm.value.fecha_inicio);
     const fechaFin = new Date(this.torneoForm.value.fecha_fin);
-    const fechaCierre = this.torneoForm.value.fecha_cierre_inscripcion 
+    const fechaCierre = this.torneoForm.value.fecha_cierre_inscripcion
       ? new Date(this.torneoForm.value.fecha_cierre_inscripcion)
       : null;
 
@@ -178,8 +178,8 @@ export class CrearTorneo implements OnInit {
     operacion.subscribe({
       next: (response) => {
         this.notificationService.notify({
-          message: this.esEdicion 
-            ? 'Torneo actualizado exitosamente' 
+          message: this.esEdicion
+            ? 'Torneo actualizado exitosamente'
             : 'Torneo creado exitosamente',
           type: 'success'
         });

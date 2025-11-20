@@ -65,20 +65,34 @@
   border: 2px solid rgba(46, 204, 113, 0.2);
   border-radius: 8px;
   font-size: 1rem;
+  color: #707070;
   font-family: 'Inter', sans-serif;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   background: white;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #BDC3C7;
+  opacity: 1;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
+  color: #000000;
   border-color: #2ECC71;
 }
 
-.form-group textarea::placeholder {
-  color: #BDC3C7;
+.form-group input:focus::placeholder,
+.form-group textarea:focus::placeholder {
+  opacity: 0;
+}
+
+.form-group input.has-value,
+.form-group textarea.has-value {
+  color: #000000;
 }
 
 .char-counter {
@@ -257,11 +271,11 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .contact-section h1 {
     font-size: 2rem;
   }

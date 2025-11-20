@@ -9,25 +9,25 @@ import { Deporte } from '@shared/models/index';
 
 @Component({
   selector: 'app-list-torneos',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './list-torneos.html',
   styleUrl: './list-torneos.css'
 })
 export class ListTorneos implements OnInit {
   torneos: Torneo[] = [];
   deportes: Deporte[] = [];
-  
+
   // Filtros
   filtros: FiltrosTorneo = {
     page: 1,
     limit: 10,
     ordenar: 'recientes'
   };
-  
+
   // Paginación
   totalPages: number = 0;
   totalTorneos: number = 0;
-  
+
   // Estados
   estadosPosibles = [
     { value: '', label: 'Todos los estados' },
@@ -36,7 +36,7 @@ export class ListTorneos implements OnInit {
     { value: 'cerrado', label: 'Cerrado' },
     { value: 'finalizado', label: 'Finalizado' }
   ];
-  
+
   // Ordenamiento
   opcionesOrden = [
     { value: 'recientes', label: 'Más recientes' },
@@ -74,7 +74,7 @@ export class ListTorneos implements OnInit {
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
           this.torneos = response.data;
-          
+
           if (response.pagination) {
             this.totalTorneos = response.pagination.total;
             this.totalPages = response.pagination.totalPages;
@@ -132,7 +132,7 @@ export class ListTorneos implements OnInit {
     if (!torneo.id_torneo) return;
 
     const confirmacion = confirm(`¿Cambiar el estado del torneo "${torneo.nombre}" a "${nuevoEstado}"?`);
-    
+
     if (confirmacion) {
       this.notificationService.notify({
         message: 'Cambiando estado...',
@@ -223,15 +223,15 @@ export class ListTorneos implements OnInit {
     const maxPaginas = 5;
     let inicio = Math.max(1, (this.filtros.page || 1) - Math.floor(maxPaginas / 2));
     let fin = Math.min(this.totalPages, inicio + maxPaginas - 1);
-    
+
     if (fin - inicio < maxPaginas - 1) {
       inicio = Math.max(1, fin - maxPaginas + 1);
     }
-    
+
     for (let i = inicio; i <= fin; i++) {
       paginas.push(i);
     }
-    
+
     return paginas;
   }
 }
