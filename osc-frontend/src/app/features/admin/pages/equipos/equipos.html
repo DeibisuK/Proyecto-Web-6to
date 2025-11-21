@@ -11,16 +11,25 @@
       />
     </div>
 
-    <div class="filtro-deporte">
-      <select (change)="onFiltroDeporteChange($event)">
-        <option value="">Todos los deportes</option>
-        @for(deporte of deporte; track $index) {
-        <option [value]="deporte.id_deporte" [selected]="filtroDeporte === deporte.id_deporte">
-          {{ deporte.nombre_deporte }}
-        </option>
-
-        }
-      </select>
+    <div class="filtro-deporte dropdown-deporte" [class.activo]="dropdownDeporteAbierto()">
+      <button type="button" class="btn-dropdown-filtro" (click)="toggleDropdownDeporte()">
+        <span class="dropdown-text">{{ deporteSeleccionado() }}</span>
+        <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownDeporteAbierto()"></i>
+      </button>
+      @if (dropdownDeporteAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <div class="dropdown-item-filtro" (click)="seleccionarDeporte(null)">
+            <i class="fas fa-th"></i>
+            Todos los deportes
+          </div>
+          @for(deporte of deporte; track $index) {
+            <div class="dropdown-item-filtro" (click)="seleccionarDeporte(deporte)">
+              <i class="fas fa-futbol"></i>
+              {{ deporte.nombre_deporte }}
+            </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="stat-badge">

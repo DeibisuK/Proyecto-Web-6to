@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Equipo } from '@shared/models/index';
@@ -14,6 +14,10 @@ import { DeporteService } from '@shared/services/index';
   styleUrl: './equipos.css'
 })
 export class Equipos implements OnInit {
+  // Señales para dropdown
+  dropdownDeporteAbierto = signal<boolean>(false);
+  deporteSeleccionado = signal<string>('Todos los deportes');
+
   equipos: Equipo[] = [];
   equiposFiltrados: Equipo[] = [];
   equiposPaginados: Equipo[] = [];
@@ -46,6 +50,7 @@ export class Equipos implements OnInit {
     private equipoService: EquipoService,
     private deporteService:DeporteService,
     private notificationService: NotificationService,
+    private injector: Injector
   ) {}
 
   ngOnInit() {
@@ -58,6 +63,9 @@ export class Equipos implements OnInit {
       }
     });
     this.cargarEquipos();
+    afterNextRender(() => {
+      this.configurarCierreDropdown();
+    }, { injector: this.injector });
   }
 
   cargarEquipos() {
@@ -190,6 +198,32 @@ export class Equipos implements OnInit {
       },
       error: (error) => {
         this.notificationService.error('Error al eliminar el equipo');
+      }
+    });
+  }
+
+  // Métodos para dropdown
+  toggleDropdownDeporte(): void {
+    this.dropdownDeporteAbierto.set(!this.dropdownDeporteAbierto());
+  }
+
+  seleccionarDeporte(deporte: Deporte | null): void {
+    if (deporte) {
+      this.filtroDeporte = deporte.id_deporte;
+      this.deporteSeleccionado.set(deporte.nombre_deporte);
+    } else {
+      this.filtroDeporte = null;
+      this.deporteSeleccionado.set('Todos los deportes');
+    }
+    this.dropdownDeporteAbierto.set(false);
+    this.filtrarEquipos();
+  }
+
+  configurarCierreDropdown(): void {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-deporte')) {
+        this.dropdownDeporteAbierto.set(false);
       }
     });
   }

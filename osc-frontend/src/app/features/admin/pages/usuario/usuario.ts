@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, afterNextRender, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Usuario, RolUsuario, RolInfo } from '@shared/models/index';
@@ -22,6 +22,11 @@ export class UsuarioComponent implements OnInit {
   private auth = inject(Auth);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
+  private injector = inject(Injector);
+
+  // Señales para dropdown
+  dropdownRolAbierto = signal<boolean>(false);
+  rolSeleccionado = signal<string>('Todos los roles');
 
   usuarios: Usuario[] = [];
   usuariosCombinados: AllUsersResponse | null = null;
@@ -68,6 +73,9 @@ export class UsuarioComponent implements OnInit {
 
   ngOnInit() {
     this.cargarUsuariosFirebase();
+    afterNextRender(() => {
+      this.configurarCierreDropdown();
+    }, { injector: this.injector });
   }
 
   async cargarUsuariosFirebase() {
@@ -295,5 +303,31 @@ export class UsuarioComponent implements OnInit {
     img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
       usuario.displayName || 'User'
     )}&background=random&size=200`;
+  }
+
+  // Métodos para dropdown
+  toggleDropdownRol(): void {
+    this.dropdownRolAbierto.set(!this.dropdownRolAbierto());
+  }
+
+  seleccionarRol(rol: RolInfo | null): void {
+    if (rol) {
+      this.filtroRol = rol.value as RolUsuario;
+      this.rolSeleccionado.set(rol.label);
+    } else {
+      this.filtroRol = null;
+      this.rolSeleccionado.set('Todos los roles');
+    }
+    this.dropdownRolAbierto.set(false);
+    this.filtrarUsuarios();
+  }
+
+  configurarCierreDropdown(): void {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-rol')) {
+        this.dropdownRolAbierto.set(false);
+      }
+    });
   }
 }

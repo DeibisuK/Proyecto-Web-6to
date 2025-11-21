@@ -11,13 +11,25 @@
       />
     </div>
 
-    <div class="filtro-rol">
-      <select (change)="onFiltroRolChange($event)">
-        <option value="">Todos los roles</option>
-        @for (rol of roles; track rol.value) {
-        <option [value]="rol.value">{{ rol.label }}</option>
-        }
-      </select>
+    <div class="filtro-rol dropdown-rol" [class.activo]="dropdownRolAbierto()">
+      <button type="button" class="btn-dropdown-filtro" (click)="toggleDropdownRol()">
+        <span class="dropdown-text">{{ rolSeleccionado() }}</span>
+        <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownRolAbierto()"></i>
+      </button>
+      @if (dropdownRolAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <div class="dropdown-item-filtro" (click)="seleccionarRol(null)">
+            <i class="fas fa-th"></i>
+            Todos los roles
+          </div>
+          @for (rol of roles; track rol.value) {
+            <div class="dropdown-item-filtro" (click)="seleccionarRol(rol)">
+              <i class="fas fa-user-shield"></i>
+              {{ rol.label }}
+            </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="stat-badge">
