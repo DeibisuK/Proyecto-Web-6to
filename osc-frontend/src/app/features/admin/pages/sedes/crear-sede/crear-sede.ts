@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -25,13 +25,20 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
 
   estados: string[] = ['Activo', 'Mantenimiento', 'Inactivo'];
 
+  // Signal para dropdown personalizado
+  dropdownEstadoAbierto = signal<boolean>(false);
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private sedeService: SedeService,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    afterNextRender(() => {
+      this.configurarCierreDropdown();
+    });
+  }
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -248,5 +255,27 @@ export class CrearSede implements OnInit, AfterViewInit, OnDestroy {
 
   getMapPlaceholder(): string {
     return `https://via.placeholder.com/800x400/2ECC71/FFFFFF?text=Mapa+Google+Maps+API+%7C+Lat:+${this.latitud.toFixed(4)}+Lng:+${this.longitud.toFixed(4)}`;
+  }
+
+  // ===== Métodos para dropdown personalizado =====
+
+  toggleDropdownEstado() {
+    this.dropdownEstadoAbierto.update(estado => !estado);
+  }
+
+  seleccionarEstado(estado: string) {
+    this.sedeForm.patchValue({ estado });
+    this.dropdownEstadoAbierto.set(false);
+  }
+
+  private configurarCierreDropdown() {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdownEstado = target.closest('.dropdown-estado');
+
+      if (!dropdownEstado && this.dropdownEstadoAbierto()) {
+        this.dropdownEstadoAbierto.set(false);
+      }
+    });
   }
 }

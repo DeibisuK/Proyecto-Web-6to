@@ -73,28 +73,84 @@
           <div class="form-row">
             <div class="form-group">
               <label for="sede">Sede</label>
-              <select id="sede" name="sede" [(ngModel)]="contactForm.sede" required>
-                <option value="">Seleccione una sede...</option>
-                @for (grupo of sedesAgrupadas; track grupo.nombre) {
-                  <optgroup [label]="grupo.nombre">
-                    @for (sede of grupo.sedes; track sede.nombre_sede) {
-                      <option [value]="sede.nombre_sede">
-                        {{ sede.nombre_sede }}
-                      </option>
+              <div class="dropdown-sede">
+                <button
+                  type="button"
+                  class="btn-dropdown-custom"
+                  (click)="toggleDropdownSede()"
+                  [class.activo]="dropdownSedeAbierto()">
+                  <span class="dropdown-current">
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ sedeSeleccionada() || 'Seleccione una sede...' }}
+                  </span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+
+                @if (dropdownSedeAbierto()) {
+                  <div class="dropdown-menu">
+                    @if (sedesAgrupadas().length === 0) {
+                      <div class="dropdown-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Cargando sedes...</span>
+                      </div>
+                    } @else {
+                      @for (grupo of sedesAgrupadas(); track grupo.nombre) {
+                        <div class="dropdown-group">
+                          <div class="dropdown-group-label">{{ grupo.nombre }}</div>
+                          @for (sede of grupo.sedes; track sede.id_sede) {
+                            <button
+                              type="button"
+                              class="dropdown-item"
+                              [class.seleccionado]="contactForm.sede === getNombreSede(sede)"
+                              (click)="seleccionarSede(sede)">
+                              <i class="fas fa-building"></i>
+                              <span class="opcion-label">{{ getNombreSede(sede) }}</span>
+                              @if (contactForm.sede === getNombreSede(sede)) {
+                                <i class="fas fa-check check-icon"></i>
+                              }
+                            </button>
+                          }
+                        </div>
+                      }
                     }
-                  </optgroup>
+                  </div>
                 }
-              </select>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="tipo">Tipo</label>
-              <select id="tipo" name="tipo" [(ngModel)]="contactForm.tipo" required>
-                <option value="">Seleccione un tipo...</option>
-                @for (tipo of tipos; track tipo) {
-                  <option [value]="tipo">{{ tipo }}</option>
+              <div class="dropdown-tipo">
+                <button
+                  type="button"
+                  class="btn-dropdown-custom"
+                  (click)="toggleDropdownTipo()"
+                  [class.activo]="dropdownTipoAbierto()">
+                  <span class="dropdown-current">
+                    <i class="fas fa-tag"></i>
+                    {{ tipoSeleccionado() || 'Seleccione un tipo...' }}
+                  </span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+
+                @if (dropdownTipoAbierto()) {
+                  <div class="dropdown-menu">
+                    @for (tipo of tipos; track tipo) {
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        [class.seleccionado]="contactForm.tipo === tipo"
+                        (click)="seleccionarTipo(tipo)">
+                        <i class="fas fa-circle-dot"></i>
+                        <span class="opcion-label">{{ tipo }}</span>
+                        @if (contactForm.tipo === tipo) {
+                          <i class="fas fa-check check-icon"></i>
+                        }
+                      </button>
+                    }
+                  </div>
                 }
-              </select>
+              </div>
             </div>
           </div>
 

@@ -3,21 +3,55 @@
   <div class="filtros-section">
     <div class="search-box">
       <span class="material-icons">search</span>
-      <input 
-        type="text" 
+      <input
+        type="text"
         placeholder="Buscar canchas..."
         (input)="onSearchChange($event)"
         [value]="searchTerm"
       />
     </div>
 
-    <div class="filtro-deporte">
-      <select (change)="onFiltroDeporteChange($event)">
-        <option value="">Todos los deportes</option>
-        <option *ngFor="let deporte of deportes" [value]="deporte.id">
-          {{ deporte.nombre }}
-        </option>
-      </select>
+    <div class="filtro-deporte" [class.activo]="dropdownDeporteAbierto()">
+      <button
+        type="button"
+        class="btn-dropdown-filtro"
+        (click)="toggleDropdownDeporte()"
+        [class.activo]="dropdownDeporteAbierto()">
+        <span class="dropdown-current">
+          <i class="fas fa-filter"></i>
+          {{ deporteSeleccionado() }}
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+
+      @if (dropdownDeporteAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroDeporte === ''"
+            (click)="seleccionarDeporte(null)">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos los deportes</span>
+            @if (filtroDeporte === '') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          @for (deporte of deportes; track deporte.id) {
+            <button
+              type="button"
+              class="dropdown-item-filtro"
+              [class.seleccionado]="filtroDeporte === deporte.id.toString()"
+              (click)="seleccionarDeporte(deporte)">
+              <i class="fas fa-futbol"></i>
+              <span class="opcion-label">{{ deporte.nombre }}</span>
+              @if (filtroDeporte === deporte.id.toString()) {
+                <i class="fas fa-check check-icon"></i>
+              }
+            </button>
+          }
+        </div>
+      }
     </div>
 
     <div class="stat-badge">
@@ -36,12 +70,12 @@
     <div class="cancha-card" *ngFor="let cancha of canchasFiltradas">
       <!-- Imagen de la cancha -->
       <div class="cancha-imagen">
-        <img 
-          [src]="cancha.imagen_url || 'https://via.placeholder.com/400x250'" 
+        <img
+          [src]="cancha.imagen_url || 'https://via.placeholder.com/400x250'"
           [alt]="cancha.nombre_cancha"
         />
-        <span 
-          class="estado-badge" 
+        <span
+          class="estado-badge"
           [class.disponible]="cancha.estado === 'Disponible'"
           [class.mantenimiento]="cancha.estado === 'Mantenimiento'"
           [class.reservado]="cancha.estado === 'Reservado'"
@@ -134,7 +168,7 @@
     </div>
     <h2>¿Eliminar cancha?</h2>
     <p>¿Estás seguro de que deseas eliminar <strong>{{ canchaAEliminar?.nombre_cancha }}</strong>? Esta acción no se puede deshacer.</p>
-    
+
     <div class="modal-actions">
       <button class="btn-modal btn-cancelar" (click)="cerrarModalEliminar()">
         Cancelar

@@ -54,24 +54,30 @@
       </div>
 
       <!-- Deporte -->
-      <div class="form-group">
+      <div class="form-group dropdown-deporte" [class.activo]="dropdownDeporteAbierto()">
         <label for="id_deporte" class="form-label">
           <i class="fas fa-futbol"></i>
           Deporte
         </label>
-        <select
-          id="id_deporte"
-          formControlName="id_deporte"
-          class="form-select"
+        <button
+          type="button"
+          class="btn-dropdown-custom"
+          (click)="toggleDropdownDeporte()"
           [class.invalid]="f['id_deporte'].invalid && f['id_deporte'].touched"
         >
-          <option [value]="null">Selecciona un deporte</option>
-          @for (deporte of deportes; track deporte.id_deporte) {
-          <option [value]="deporte.id_deporte">
-            {{ deporte.nombre_deporte }}
-          </option>
-          }
-        </select>
+          <span class="dropdown-text">{{ deporteSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownDeporteAbierto()"></i>
+        </button>
+        @if (dropdownDeporteAbierto()) {
+          <div class="dropdown-menu">
+            @for (deporte of deportes; track deporte.id_deporte) {
+              <div class="dropdown-item" (click)="seleccionarDeporte(deporte)">
+                <i class="fas fa-futbol"></i>
+                {{ deporte.nombre_deporte }}
+              </div>
+            }
+          </div>
+        }
         @if (f['id_deporte'].invalid && f['id_deporte'].touched) {
         <div class="error-message">
           El deporte es requerido
@@ -80,18 +86,33 @@
       </div>
 
       <!-- Tipo de Torneo -->
-      <div class="form-group">
+      <div class="form-group dropdown-tipo" [class.activo]="dropdownTipoAbierto()">
         <label for="tipo_torneo" class="form-label">
           <i class="fas fa-sitemap"></i>
           Tipo de Torneo
         </label>
-        <select id="tipo_torneo" formControlName="tipo_torneo" class="form-select">
-          @for (tipo of tiposTorneo; track tipo.value) {
-          <option [value]="tipo.value">
-            {{ tipo.label }}
-          </option>
-          }
-        </select>
+        <button type="button" class="btn-dropdown-custom" (click)="toggleDropdownTipo()">
+          <span class="dropdown-text">{{ tipoSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownTipoAbierto()"></i>
+        </button>
+        @if (dropdownTipoAbierto()) {
+          <div class="dropdown-menu">
+            @for (tipo of tiposTorneo; track tipo.value) {
+              <div class="dropdown-item" (click)="seleccionarTipo(tipo)">
+                @if (tipo.value === 'grupo-eliminatoria') {
+                  <i class="fas fa-layer-group"></i>
+                } @else if (tipo.value === 'eliminatoria-directa') {
+                  <i class="fas fa-sitemap"></i>
+                } @else if (tipo.value === 'todos-contra-todos') {
+                  <i class="fas fa-th"></i>
+                } @else if (tipo.value === 'liga') {
+                  <i class="fas fa-trophy"></i>
+                }
+                {{ tipo.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <!-- Fecha Inicio -->
@@ -178,18 +199,33 @@
       </div>
 
       <!-- Estado -->
-      <div class="form-group">
+      <div class="form-group dropdown-estado" [class.activo]="dropdownEstadoAbierto()">
         <label for="estado" class="form-label">
           <i class="fas fa-flag"></i>
           Estado
         </label>
-        <select id="estado" formControlName="estado" class="form-select">
-          @for (estado of estadosPosibles; track estado.value) {
-          <option [value]="estado.value">
-            {{ estado.label }}
-          </option>
-          }
-        </select>
+        <button type="button" class="btn-dropdown-custom" (click)="toggleDropdownEstado()">
+          <span class="dropdown-text">{{ estadoSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownEstadoAbierto()"></i>
+        </button>
+        @if (dropdownEstadoAbierto()) {
+          <div class="dropdown-menu">
+            @for (estado of estadosPosibles; track estado.value) {
+              <div class="dropdown-item" (click)="seleccionarEstado(estado)">
+                @if (estado.value === 'abierto') {
+                  <i class="fas fa-door-open"></i>
+                } @else if (estado.value === 'en_curso') {
+                  <i class="fas fa-play-circle"></i>
+                } @else if (estado.value === 'cerrado') {
+                  <i class="fas fa-lock"></i>
+                } @else if (estado.value === 'finalizado') {
+                  <i class="fas fa-flag-checkered"></i>
+                }
+                {{ estado.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -19,12 +19,20 @@ export class ListSede implements OnInit {
   searchTerm: string = '';
   estadoFiltro: string = '';
 
+  // Signals para dropdown personalizado
+  dropdownEstadoAbierto = signal<boolean>(false);
+  estadoSeleccionado = signal<string>('Filtrar por estado');
+
   constructor(
     private sedeService: SedeService,
     private notificationService: NotificationService,
     private sanitizer: DomSanitizer,
     private router: Router
-  ) {}
+  ) {
+    afterNextRender(() => {
+      this.configurarCierreDropdown();
+    });
+  }
 
   ngOnInit(): void {
     this.cargarSedes();
@@ -107,5 +115,34 @@ export class ListSede implements OnInit {
         }
       });
     }
+  }
+
+  // ===== Métodos para dropdown personalizado =====
+
+  toggleDropdownEstado() {
+    this.dropdownEstadoAbierto.update(estado => !estado);
+  }
+
+  seleccionarEstado(estado: string | null) {
+    if (estado === null) {
+      this.estadoFiltro = '';
+      this.estadoSeleccionado.set('Todos los estados');
+    } else {
+      this.estadoFiltro = estado;
+      this.estadoSeleccionado.set(estado);
+    }
+    this.dropdownEstadoAbierto.set(false);
+    this.filtrarSedes();
+  }
+
+  private configurarCierreDropdown() {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdownEstado = target.closest('.filtro-estado');
+
+      if (!dropdownEstado && this.dropdownEstadoAbierto()) {
+        this.dropdownEstadoAbierto.set(false);
+      }
+    });
   }
 }

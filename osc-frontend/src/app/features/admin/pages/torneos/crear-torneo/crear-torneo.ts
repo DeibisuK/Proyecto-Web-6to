@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -20,6 +20,15 @@ export class CrearTorneo implements OnInit {
   idTorneo?: number;
   cargando: boolean = false;
 
+  // Señales para dropdowns
+  dropdownDeporteAbierto = signal<boolean>(false);
+  dropdownTipoAbierto = signal<boolean>(false);
+  dropdownEstadoAbierto = signal<boolean>(false);
+
+  deporteSeleccionado = signal<string>('Selecciona un deporte');
+  tipoSeleccionado = signal<string>('Grupo + Eliminatoria');
+  estadoSeleccionado = signal<string>('Abierto');
+
   tiposTorneo = [
     { value: 'grupo-eliminatoria', label: 'Grupo + Eliminatoria' },
     { value: 'eliminatoria-directa', label: 'Eliminatoria Directa' },
@@ -40,7 +49,8 @@ export class CrearTorneo implements OnInit {
     private deporteService: DeporteService,
     private notificationService: NotificationService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private injector: Injector
   ) {
     this.torneoForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -53,6 +63,10 @@ export class CrearTorneo implements OnInit {
       tipo_torneo: ['grupo-eliminatoria', Validators.required],
       estado: ['abierto', Validators.required]
     });
+
+    afterNextRender(() => {
+      this.configurarCierreDropdowns();
+    }, { injector: this.injector });
   }
 
   ngOnInit(): void {
@@ -111,6 +125,22 @@ export class CrearTorneo implements OnInit {
             tipo_torneo: torneo.tipo_torneo,
             estado: torneo.estado
           });
+
+          // Actualizar labels de dropdowns
+          const deporte = this.deportes.find(d => d.id_deporte === torneo.id_deporte);
+          if (deporte) {
+            this.deporteSeleccionado.set(deporte.nombre_deporte);
+          }
+
+          const tipo = this.tiposTorneo.find(t => t.value === torneo.tipo_torneo);
+          if (tipo) {
+            this.tipoSeleccionado.set(tipo.label);
+          }
+
+          const estado = this.estadosPosibles.find(e => e.value === torneo.estado);
+          if (estado) {
+            this.estadoSeleccionado.set(estado.label);
+          }
         }
         this.cargando = false;
       },
@@ -208,5 +238,61 @@ export class CrearTorneo implements OnInit {
 
   get f() {
     return this.torneoForm.controls;
+  }
+
+  // Métodos para dropdowns
+  toggleDropdownDeporte(): void {
+    this.dropdownDeporteAbierto.set(!this.dropdownDeporteAbierto());
+    if (this.dropdownDeporteAbierto()) {
+      this.dropdownTipoAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  seleccionarDeporte(deporte: Deporte): void {
+    this.torneoForm.patchValue({ id_deporte: deporte.id_deporte });
+    this.deporteSeleccionado.set(deporte.nombre_deporte);
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  toggleDropdownTipo(): void {
+    this.dropdownTipoAbierto.set(!this.dropdownTipoAbierto());
+    if (this.dropdownTipoAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  seleccionarTipo(tipo: { value: string; label: string }): void {
+    this.torneoForm.patchValue({ tipo_torneo: tipo.value });
+    this.tipoSeleccionado.set(tipo.label);
+    this.dropdownTipoAbierto.set(false);
+  }
+
+  toggleDropdownEstado(): void {
+    this.dropdownEstadoAbierto.set(!this.dropdownEstadoAbierto());
+    if (this.dropdownEstadoAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownTipoAbierto.set(false);
+    }
+  }
+
+  seleccionarEstado(estado: { value: string; label: string }): void {
+    this.torneoForm.patchValue({ estado: estado.value });
+    this.estadoSeleccionado.set(estado.label);
+    this.dropdownEstadoAbierto.set(false);
+  }
+
+  configurarCierreDropdowns(): void {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-deporte') &&
+          !target.closest('.dropdown-tipo') &&
+          !target.closest('.dropdown-estado')) {
+        this.dropdownDeporteAbierto.set(false);
+        this.dropdownTipoAbierto.set(false);
+        this.dropdownEstadoAbierto.set(false);
+      }
+    });
   }
 }

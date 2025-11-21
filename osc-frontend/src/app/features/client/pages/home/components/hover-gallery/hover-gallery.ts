@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class HoverGalleryComponent {
   hoveredIndex = -1;
-  
+
   images = [
     {
       src: 'https://www.deporte.gob.ec/wp-content/uploads/2016/12/20161223CanchaJuncal.jpg',
@@ -27,7 +27,7 @@ export class HoverGalleryComponent {
       description: 'Superficie de arcilla y césped para torneos profesionales'
     },
     {
-      src: 'https://www.followupcx.com/wp-content/uploads/2019/03/retail-deportivo.jpg',
+      src: 'https://pdq-funding.co.uk/wp-content/uploads/2022/08/How-to-start-up-a-sports-shop.jpg.webp',
       title: 'Tienda Deportiva',
       description: 'Equipamiento y accesorios de las mejores marcas'
     }

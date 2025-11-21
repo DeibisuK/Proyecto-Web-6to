@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -27,21 +27,10 @@ export class Contact implements OnInit {
   private sedeService = inject(SedeService);
   charCount = 0;
   sedesDisponibles: Sedes[] = [];
-  sedesAgrupadas: { nombre: string; sedes: Sedes[] }[] = [];
+  sedesAgrupadas = signal<{ nombre: string; sedes: Sedes[] }[]>([]);
   sedes: string[] = []; // Se llenará desde el backend
 
-  constructor(
-    private http: HttpClient,
-    private contactoService: ContactoService,
-    private notificationService: NotificationService
-  ) {}
-
-  ngOnInit() {
-    this.updateCharCount();
-    this.cargarSedes();
-  }
-
-  tipos = [
+  readonly tipos = [
     'Consulta General',
     'Reserva de Cancha',
     'Compra de Productos',
@@ -49,14 +38,40 @@ export class Contact implements OnInit {
     'Reclamo',
   ];
 
+  // Signals para dropdowns personalizados
+  dropdownSedeAbierto = signal<boolean>(false);
+  dropdownTipoAbierto = signal<boolean>(false);
+  sedeSeleccionada = signal<string>('');
+  tipoSeleccionado = signal<string>('');
+
+  constructor(
+    private http: HttpClient,
+    private contactoService: ContactoService,
+    private notificationService: NotificationService
+  ) {
+    // Configurar cierre de dropdowns al hacer click fuera
+    afterNextRender(() => {
+      this.configurarCierreDropdowns();
+    });
+  }
+
+  ngOnInit() {
+    this.updateCharCount();
+    this.cargarSedes();
+  }
+
   cargarSedes() {
     setTimeout(() => {
       this.sedeService.getSedes().subscribe({
         next: (sedes: Sedes[]) => {
+          console.log('Sedes cargadas:', sedes);
           this.sedesDisponibles = sedes;
-          this.sedesAgrupadas = this.agruparSedesPorCiudad(sedes);
+          const agrupadas = this.agruparSedesPorCiudad(sedes);
+          this.sedesAgrupadas.set(agrupadas);
+          console.log('Sedes agrupadas:', this.sedesAgrupadas());
         },
         error: (error: any) => {
+          console.error('Error al cargar sedes:', error);
           this.notificationService.notify({
             message: 'No se pudieron cargar las sedes disponibles',
             type: 'error',
@@ -179,5 +194,59 @@ export class Contact implements OnInit {
       return 'warning';
     }
     return '';
+  }
+
+  // ===== Métodos para dropdowns personalizados =====
+
+  toggleDropdownSede() {
+    this.dropdownSedeAbierto.update(estado => !estado);
+    if (this.dropdownSedeAbierto()) {
+      this.dropdownTipoAbierto.set(false);
+      console.log('Dropdown sede abierto. Sedes agrupadas:', this.sedesAgrupadas());
+      console.log('Tipos disponibles:', this.tipos);
+    }
+  }
+
+  toggleDropdownTipo() {
+    this.dropdownTipoAbierto.update(estado => !estado);
+    if (this.dropdownTipoAbierto()) {
+      this.dropdownSedeAbierto.set(false);
+      console.log('Dropdown tipo abierto. Tipos:', this.tipos);
+    }
+  }
+
+  seleccionarSede(sede: Sedes) {
+    const nombreSede = (sede as any).nombre || sede.nombre_sede;
+    this.contactForm.sede = nombreSede;
+    this.sedeSeleccionada.set(nombreSede);
+    this.dropdownSedeAbierto.set(false);
+  }
+
+  getNombreSede(sede: Sedes): string {
+    return (sede as any).nombre || sede.nombre_sede;
+  }
+
+  seleccionarTipo(tipo: string) {
+    this.contactForm.tipo = tipo;
+    this.tipoSeleccionado.set(tipo);
+    this.dropdownTipoAbierto.set(false);
+  }
+
+  private configurarCierreDropdowns() {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdownSede = target.closest('.dropdown-sede');
+      const dropdownTipo = target.closest('.dropdown-tipo');
+
+      // Cerrar dropdown de sede si el click fue fuera
+      if (!dropdownSede && this.dropdownSedeAbierto()) {
+        this.dropdownSedeAbierto.set(false);
+      }
+
+      // Cerrar dropdown de tipo si el click fue fuera
+      if (!dropdownTipo && this.dropdownTipoAbierto()) {
+        this.dropdownTipoAbierto.set(false);
+      }
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Cancha } from '@shared/models/index';
@@ -27,11 +27,19 @@ export class ListCancha implements OnInit {
     { id: 5, nombre: 'Pádel' }
   ];
 
+  // Signal para dropdown personalizado
+  dropdownDeporteAbierto = signal<boolean>(false);
+  deporteSeleccionado = signal<string>('Filtrar por deporte');
+
   constructor(
     private canchaService: CanchaService,
     private router: Router,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    afterNextRender(() => {
+      this.configurarCierreDropdown();
+    });
+  }
 
   ngOnInit() {
     this.cargarCanchas();
@@ -119,5 +127,33 @@ export class ListCancha implements OnInit {
     }
 
     return resultado;
+  }
+
+  // ===== Métodos para dropdown personalizado =====
+
+  toggleDropdownDeporte() {
+    this.dropdownDeporteAbierto.update(estado => !estado);
+  }
+
+  seleccionarDeporte(deporte: any | null) {
+    if (deporte === null) {
+      this.filtroDeporte = '';
+      this.deporteSeleccionado.set('Todos los deportes');
+    } else {
+      this.filtroDeporte = deporte.id.toString();
+      this.deporteSeleccionado.set(deporte.nombre);
+    }
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  private configurarCierreDropdown() {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdownDeporte = target.closest('.filtro-deporte');
+
+      if (!dropdownDeporte && this.dropdownDeporteAbierto()) {
+        this.dropdownDeporteAbierto.set(false);
+      }
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -57,6 +57,12 @@ export class CrearCancha implements OnInit {
     'Fuera de Servicio'
   ];
 
+  // Signals para dropdowns personalizados
+  dropdownDeporteAbierto = signal<boolean>(false);
+  dropdownSedeAbierto = signal<boolean>(false);
+  dropdownSuperficieAbierto = signal<boolean>(false);
+  dropdownEstadoAbierto = signal<boolean>(false);
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -64,7 +70,11 @@ export class CrearCancha implements OnInit {
     private canchaService: CanchaService,
     private sedeService: SedeService,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    afterNextRender(() => {
+      this.configurarCierreDropdowns();
+    });
+  }
 
   ngOnInit() {
     this.cargarSedes();
@@ -234,5 +244,96 @@ export class CrearCancha implements OnInit {
 
   obtenerNombreDeporte(id: number): string {
     return this.deportes.find(d => d.id === id)?.nombre || '';
+  }
+
+  // ===== Métodos para dropdowns personalizados =====
+
+  toggleDropdownDeporte() {
+    this.dropdownDeporteAbierto.update(estado => !estado);
+    if (this.dropdownDeporteAbierto()) {
+      this.dropdownSedeAbierto.set(false);
+      this.dropdownSuperficieAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  toggleDropdownSede() {
+    this.dropdownSedeAbierto.update(estado => !estado);
+    if (this.dropdownSedeAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownSuperficieAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  toggleDropdownSuperficie() {
+    this.dropdownSuperficieAbierto.update(estado => !estado);
+    if (this.dropdownSuperficieAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownSedeAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  toggleDropdownEstado() {
+    this.dropdownEstadoAbierto.update(estado => !estado);
+    if (this.dropdownEstadoAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownSedeAbierto.set(false);
+      this.dropdownSuperficieAbierto.set(false);
+    }
+  }
+
+  seleccionarDeporte(deporte: any) {
+    this.canchaData.id_deporte = deporte.id;
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  seleccionarSede(sede: Sede) {
+    this.canchaData.id_sede = sede.id_sede!;
+    this.dropdownSedeAbierto.set(false);
+  }
+
+  seleccionarSuperficie(superficie: TipoSuperficie) {
+    this.canchaData.tipo_superficie = superficie;
+    this.dropdownSuperficieAbierto.set(false);
+  }
+
+  seleccionarEstado(estado: EstadoCancha) {
+    this.canchaData.estado = estado;
+    this.dropdownEstadoAbierto.set(false);
+  }
+
+  getNombreDeporte(): string {
+    const deporte = this.deportes.find(d => d.id === this.canchaData.id_deporte);
+    return deporte ? deporte.nombre : 'Selecciona un deporte';
+  }
+
+  getNombreSede(): string {
+    const sede = this.sedes.find(s => s.id_sede === this.canchaData.id_sede);
+    return sede ? sede.nombre_sede : 'Seleccione una sede...';
+  }
+
+  private configurarCierreDropdowns() {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const dropdownDeporte = target.closest('.dropdown-deporte');
+      const dropdownSede = target.closest('.dropdown-sede');
+      const dropdownSuperficie = target.closest('.dropdown-superficie');
+      const dropdownEstado = target.closest('.dropdown-estado');
+
+      if (!dropdownDeporte && this.dropdownDeporteAbierto()) {
+        this.dropdownDeporteAbierto.set(false);
+      }
+      if (!dropdownSede && this.dropdownSedeAbierto()) {
+        this.dropdownSedeAbierto.set(false);
+      }
+      if (!dropdownSuperficie && this.dropdownSuperficieAbierto()) {
+        this.dropdownSuperficieAbierto.set(false);
+      }
+      if (!dropdownEstado && this.dropdownEstadoAbierto()) {
+        this.dropdownEstadoAbierto.set(false);
+      }
+    });
   }
 }

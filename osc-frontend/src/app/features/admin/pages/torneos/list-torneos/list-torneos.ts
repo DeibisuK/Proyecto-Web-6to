@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, afterNextRender, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,15 @@ import { Deporte } from '@shared/models/index';
 export class ListTorneos implements OnInit {
   torneos: Torneo[] = [];
   deportes: Deporte[] = [];
+
+  // Señales para dropdowns
+  dropdownDeporteAbierto = signal<boolean>(false);
+  dropdownEstadoAbierto = signal<boolean>(false);
+  dropdownOrdenarAbierto = signal<boolean>(false);
+
+  deporteSeleccionado = signal<string>('Todos los deportes');
+  estadoSeleccionado = signal<string>('Todos los estados');
+  ordenarSeleccionado = signal<string>('Más recientes');
 
   // Filtros
   filtros: FiltrosTorneo = {
@@ -50,8 +59,13 @@ export class ListTorneos implements OnInit {
     private torneosService: TorneosAdminService,
     private deporteService: DeporteService,
     private notificationService: NotificationService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private injector: Injector
+  ) {
+    afterNextRender(() => {
+      this.configurarCierreDropdowns();
+    }, { injector: this.injector });
+  }
 
   ngOnInit(): void {
     this.cargarDeportes();
@@ -233,5 +247,69 @@ export class ListTorneos implements OnInit {
     }
 
     return paginas;
+  }
+
+  // Métodos para dropdowns
+  toggleDropdownDeporte(): void {
+    this.dropdownDeporteAbierto.set(!this.dropdownDeporteAbierto());
+    if (this.dropdownDeporteAbierto()) {
+      this.dropdownEstadoAbierto.set(false);
+      this.dropdownOrdenarAbierto.set(false);
+    }
+  }
+
+  seleccionarDeporte(deporte: Deporte | null): void {
+    if (deporte) {
+      this.filtros.deporte = deporte.id_deporte;
+      this.deporteSeleccionado.set(deporte.nombre_deporte);
+    } else {
+      this.filtros.deporte = undefined;
+      this.deporteSeleccionado.set('Todos los deportes');
+    }
+    this.dropdownDeporteAbierto.set(false);
+    this.aplicarFiltros();
+  }
+
+  toggleDropdownEstado(): void {
+    this.dropdownEstadoAbierto.set(!this.dropdownEstadoAbierto());
+    if (this.dropdownEstadoAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownOrdenarAbierto.set(false);
+    }
+  }
+
+  seleccionarEstado(estado: { value: string; label: string }): void {
+    this.filtros.estado = estado.value || undefined;
+    this.estadoSeleccionado.set(estado.label);
+    this.dropdownEstadoAbierto.set(false);
+    this.aplicarFiltros();
+  }
+
+  toggleDropdownOrdenar(): void {
+    this.dropdownOrdenarAbierto.set(!this.dropdownOrdenarAbierto());
+    if (this.dropdownOrdenarAbierto()) {
+      this.dropdownDeporteAbierto.set(false);
+      this.dropdownEstadoAbierto.set(false);
+    }
+  }
+
+  seleccionarOrden(opcion: { value: string; label: string }): void {
+    this.filtros.ordenar = opcion.value;
+    this.ordenarSeleccionado.set(opcion.label);
+    this.dropdownOrdenarAbierto.set(false);
+    this.aplicarFiltros();
+  }
+
+  configurarCierreDropdowns(): void {
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-deporte') &&
+          !target.closest('.dropdown-estado') &&
+          !target.closest('.dropdown-ordenar')) {
+        this.dropdownDeporteAbierto.set(false);
+        this.dropdownEstadoAbierto.set(false);
+        this.dropdownOrdenarAbierto.set(false);
+      }
+    });
   }
 }

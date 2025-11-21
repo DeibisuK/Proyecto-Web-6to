@@ -9,12 +9,68 @@
         (input)="onSearchChange($event)">
     </div>
 
-    <select class="filtro-estado" (change)="onEstadoChange($event)">
-      <option value="">Todos los estados</option>
-      <option value="Activo">Activo</option>
-      <option value="Mantenimiento">Mantenimiento</option>
-      <option value="Inactivo">Inactivo</option>
-    </select>
+    <div class="filtro-estado" [class.activo]="dropdownEstadoAbierto()">
+      <button
+        type="button"
+        class="btn-dropdown-filtro"
+        (click)="toggleDropdownEstado()"
+        [class.activo]="dropdownEstadoAbierto()">
+        <span class="dropdown-current">
+          <i class="fas fa-filter"></i>
+          {{ estadoSeleccionado() }}
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+
+      @if (dropdownEstadoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="estadoFiltro === ''"
+            (click)="seleccionarEstado(null)">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos los estados</span>
+            @if (estadoFiltro === '') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="estadoFiltro === 'Activo'"
+            (click)="seleccionarEstado('Activo')">
+            <i class="fas fa-check-circle"></i>
+            <span class="opcion-label">Activo</span>
+            @if (estadoFiltro === 'Activo') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="estadoFiltro === 'Mantenimiento'"
+            (click)="seleccionarEstado('Mantenimiento')">
+            <i class="fas fa-tools"></i>
+            <span class="opcion-label">Mantenimiento</span>
+            @if (estadoFiltro === 'Mantenimiento') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="estadoFiltro === 'Inactivo'"
+            (click)="seleccionarEstado('Inactivo')">
+            <i class="fas fa-times-circle"></i>
+            <span class="opcion-label">Inactivo</span>
+            @if (estadoFiltro === 'Inactivo') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+        </div>
+      }
+    </div>
 
     <div class="stat-badge">
       <span class="material-icons">location_on</span>

@@ -18,62 +18,93 @@
       </div>
 
       <!-- Deporte -->
-      <div class="filtro-item">
+      <div class="filtro-item dropdown-deporte" [class.activo]="dropdownDeporteAbierto()">
         <label>
           <i class="fas fa-futbol"></i>
           Deporte
         </label>
-        <select
-          [(ngModel)]="filtros.deporte"
-          (ngModelChange)="aplicarFiltros()"
-          class="select-filtro"
-        >
-          <option [value]="undefined">Todos los deportes</option>
-          @for (deporte of deportes; track deporte.id_deporte) {
-          <option [value]="deporte.id_deporte">
-            {{ deporte.nombre_deporte }}
-          </option>
-          }
-        </select>
+        <button type="button" class="btn-dropdown-filtro" (click)="toggleDropdownDeporte()">
+          <span class="dropdown-text">{{ deporteSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownDeporteAbierto()"></i>
+        </button>
+        @if (dropdownDeporteAbierto()) {
+          <div class="dropdown-menu-filtro">
+            <div class="dropdown-item-filtro" (click)="seleccionarDeporte(null)">
+              <i class="fas fa-th"></i>
+              Todos los deportes
+            </div>
+            @for (deporte of deportes; track deporte.id_deporte) {
+              <div class="dropdown-item-filtro" (click)="seleccionarDeporte(deporte)">
+                <i class="fas fa-futbol"></i>
+                {{ deporte.nombre_deporte }}
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <!-- Estado -->
-      <div class="filtro-item">
+      <div class="filtro-item dropdown-estado" [class.activo]="dropdownEstadoAbierto()">
         <label>
           <i class="fas fa-flag"></i>
           Estado
         </label>
-        <select
-          [(ngModel)]="filtros.estado"
-          (ngModelChange)="aplicarFiltros()"
-          class="select-filtro"
-        >
-          <option [value]="undefined">Todos los estados</option>
-          @for (estado of estadosPosibles; track estado.value) {
-          <option [value]="estado.value">
-            {{ estado.label }}
-          </option>
-          }
-        </select>
+        <button type="button" class="btn-dropdown-filtro" (click)="toggleDropdownEstado()">
+          <span class="dropdown-text">{{ estadoSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownEstadoAbierto()"></i>
+        </button>
+        @if (dropdownEstadoAbierto()) {
+          <div class="dropdown-menu-filtro">
+            @for (estado of estadosPosibles; track estado.value) {
+              <div class="dropdown-item-filtro" (click)="seleccionarEstado(estado)">
+                @if (estado.value === '') {
+                  <i class="fas fa-th"></i>
+                } @else if (estado.value === 'abierto') {
+                  <i class="fas fa-door-open"></i>
+                } @else if (estado.value === 'en_curso') {
+                  <i class="fas fa-play-circle"></i>
+                } @else if (estado.value === 'cerrado') {
+                  <i class="fas fa-lock"></i>
+                } @else if (estado.value === 'finalizado') {
+                  <i class="fas fa-flag-checkered"></i>
+                }
+                {{ estado.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <!-- Ordenar -->
-      <div class="filtro-item">
+      <div class="filtro-item dropdown-ordenar" [class.activo]="dropdownOrdenarAbierto()">
         <label>
           <i class="fas fa-sort"></i>
           Ordenar por
         </label>
-        <select
-          [(ngModel)]="filtros.ordenar"
-          (ngModelChange)="aplicarFiltros()"
-          class="select-filtro"
-        >
-          @for (opcion of opcionesOrden; track opcion.value) {
-          <option [value]="opcion.value">
-            {{ opcion.label }}
-          </option>
-          }
-        </select>
+        <button type="button" class="btn-dropdown-filtro" (click)="toggleDropdownOrdenar()">
+          <span class="dropdown-text">{{ ordenarSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownOrdenarAbierto()"></i>
+        </button>
+        @if (dropdownOrdenarAbierto()) {
+          <div class="dropdown-menu-filtro">
+            @for (opcion of opcionesOrden; track opcion.value) {
+              <div class="dropdown-item-filtro" (click)="seleccionarOrden(opcion)">
+                @if (opcion.value === 'recientes') {
+                  <i class="fas fa-clock"></i>
+                } @else if (opcion.value === 'fecha_asc') {
+                  <i class="fas fa-arrow-up"></i>
+                } @else if (opcion.value === 'fecha_desc') {
+                  <i class="fas fa-arrow-down"></i>
+                } @else if (opcion.value === 'nombre') {
+                  <i class="fas fa-sort-alpha-down"></i>
+                } @else if (opcion.value === 'inscritos') {
+                  <i class="fas fa-users"></i>
+                }
+                {{ opcion.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
 

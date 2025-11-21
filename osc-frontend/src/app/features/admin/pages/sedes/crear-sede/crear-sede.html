@@ -16,8 +16,8 @@
       <div class="form-row">
         <div class="form-group">
           <label for="nombre">Nombre</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="nombre"
             formControlName="nombre"
             placeholder="Ej: Sede Centro">
@@ -30,8 +30,8 @@
 
         <div class="form-group">
           <label for="ciudad">Ciudad</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="ciudad"
             formControlName="ciudad"
             readonly
@@ -43,8 +43,8 @@
       <div class="form-row">
         <div class="form-group full-width">
           <label for="direccion">Dirección</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="direccion"
             formControlName="direccion"
             readonly
@@ -61,8 +61,8 @@
       <div class="form-row">
         <div class="form-group">
           <label for="telefono">Teléfono</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             id="telefono"
             formControlName="telefono"
             placeholder="Ej: 01-234-5678">
@@ -75,8 +75,8 @@
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             id="email"
             formControlName="email"
             placeholder="Ej: sede@portsconnect.com">
@@ -91,9 +91,37 @@
       <div class="form-row">
         <div class="form-group">
           <label for="estado">Estado</label>
-          <select id="estado" formControlName="estado">
-            <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
-          </select>
+          <div class="dropdown-estado" [class.activo]="dropdownEstadoAbierto()">
+            <button
+              type="button"
+              class="btn-dropdown-custom"
+              (click)="toggleDropdownEstado()"
+              [class.activo]="dropdownEstadoAbierto()">
+              <span class="dropdown-current">
+                <i class="fas fa-info-circle"></i>
+                {{ sedeForm.get('estado')?.value || 'Selecciona un estado' }}
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+
+            @if (dropdownEstadoAbierto()) {
+              <div class="dropdown-menu">
+                @for (estado of estados; track estado) {
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    [class.seleccionado]="sedeForm.get('estado')?.value === estado"
+                    (click)="seleccionarEstado(estado)">
+                    <i class="fas fa-circle-dot"></i>
+                    <span class="opcion-label">{{ estado }}</span>
+                    @if (sedeForm.get('estado')?.value === estado) {
+                      <i class="fas fa-check check-icon"></i>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
         </div>
       </div>
 
@@ -123,15 +151,15 @@
 
       <!-- Botones -->
       <div class="form-actions">
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="btn btn-cancelar"
           (click)="cancelar()"
           [disabled]="isLoading">
           Cancelar
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           class="btn btn-guardar"
           [disabled]="isLoading || sedeForm.invalid">
           <span class="spinner" *ngIf="isLoading"></span>

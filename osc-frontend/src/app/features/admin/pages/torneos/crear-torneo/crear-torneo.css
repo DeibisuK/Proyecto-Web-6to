@@ -65,10 +65,145 @@
 .form-group {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .form-group.full-width {
   grid-column: span 2;
+}
+
+/* ===== DROPDOWNS CUSTOM ===== */
+.dropdown-deporte,
+.dropdown-tipo,
+.dropdown-estado {
+  position: relative;
+  z-index: 10;
+}
+
+.dropdown-deporte.activo,
+.dropdown-tipo.activo,
+.dropdown-estado.activo {
+  z-index: 1000;
+}
+
+.btn-dropdown-custom {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2C3E50;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-dropdown-custom:hover {
+  border-color: #2ECC71;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-dropdown-custom:focus {
+  outline: none;
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.btn-dropdown-custom.invalid {
+  border-color: #d32f2f;
+}
+
+.dropdown-text {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.dropdown-icon {
+  color: #2ECC71;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-icon.rotado {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 1001;
+  max-height: 300px;
+  overflow-y: auto;
+  animation: slideDown 0.2s ease;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #2C3E50;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, #E8F8F0 0%, #D4F1E3 100%);
+  color: #27AE60;
+  padding-left: 1.25rem;
+}
+
+.dropdown-item i {
+  color: #2ECC71;
+  width: 18px;
+  text-align: center;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: #F5F5F5;
+  border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: #2ECC71;
+  border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #27AE60;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .form-label {
