@@ -34,6 +34,7 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
   const [cartItems, setCartItems] = useState<CartItemDetail[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     try {
@@ -146,17 +147,41 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
   }, []);
 
   const handleCheckout = useCallback(() => {
-    navigateFromReact('/tienda/checkout');
-    if (onClose) onClose();
-  }, [onClose]);
+    if (mode === 'sidebar') {
+      setIsClosing(true);
+      setTimeout(() => {
+        navigateFromReact('/tienda/checkout');
+        if (onClose) onClose();
+      }, 300);
+    } else {
+      navigateFromReact('/tienda/checkout');
+      if (onClose) onClose();
+    }
+  }, [onClose, mode]);
 
   const handleContinueShopping = useCallback(() => {
-    if (onClose) onClose();
-  }, [onClose]);
+    if (mode === 'sidebar') {
+      setIsClosing(true);
+      setTimeout(() => {
+        navigateFromReact('/tienda');
+        if (onClose) onClose();
+      }, 300);
+    } else {
+      navigateFromReact('/tienda');
+      if (onClose) onClose();
+    }
+  }, [onClose, mode]);
 
   const handleClose = useCallback(() => {
-    if (onClose) onClose();
-  }, [onClose]);
+    if (mode === 'sidebar') {
+      setIsClosing(true);
+      setTimeout(() => {
+        if (onClose) onClose();
+      }, 300);
+    } else {
+      if (onClose) onClose();
+    }
+  }, [onClose, mode]);
 
   /**
    * Obtiene el precio unitario del item
@@ -242,7 +267,7 @@ const Cart: React.FC<CartProps> = ({ mode = 'sidebar', onClose }) => {
   }
 
   return (
-    <div className={`carrito-container ${mode}`}>
+    <div className={`carrito-container ${mode} ${isClosing ? 'closing' : ''}`}>
       {/* Header del Carrito */}
       {mode !== 'mini' && (
         <div className="carrito-header">
