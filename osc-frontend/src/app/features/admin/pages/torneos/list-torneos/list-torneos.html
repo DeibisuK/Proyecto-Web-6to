@@ -1,18 +1,4 @@
 <div class="torneos-container">
-  <!-- Header -->
-  <div class="torneos-header">
-    <div class="header-content">
-      <h1 class="page-title">
-        <i class="fas fa-trophy"></i>
-        Gestión de Torneos
-      </h1>
-      <button class="btn-crear" (click)="crearTorneo()">
-        <i class="fas fa-plus"></i>
-        Crear Torneo
-      </button>
-    </div>
-  </div>
-
   <!-- Filtros -->
   <div class="filtros-section">
     <div class="filtros-grid">
@@ -43,9 +29,11 @@
           class="select-filtro"
         >
           <option [value]="undefined">Todos los deportes</option>
-          <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
+          @for (deporte of deportes; track deporte.id_deporte) {
+          <option [value]="deporte.id_deporte">
             {{ deporte.nombre_deporte }}
           </option>
+          }
         </select>
       </div>
 
@@ -60,9 +48,12 @@
           (ngModelChange)="aplicarFiltros()"
           class="select-filtro"
         >
-          <option *ngFor="let estado of estadosPosibles" [value]="estado.value">
+          <option [value]="undefined">Todos los estados</option>
+          @for (estado of estadosPosibles; track estado.value) {
+          <option [value]="estado.value">
             {{ estado.label }}
           </option>
+          }
         </select>
       </div>
 
@@ -77,9 +68,11 @@
           (ngModelChange)="aplicarFiltros()"
           class="select-filtro"
         >
-          <option *ngFor="let opcion of opcionesOrden" [value]="opcion.value">
+          @for (opcion of opcionesOrden; track opcion.value) {
+          <option [value]="opcion.value">
             {{ opcion.label }}
           </option>
+          }
         </select>
       </div>
     </div>
@@ -97,11 +90,17 @@
       <span class="stat-value">{{ totalTorneos }}</span>
       <span class="stat-label">Total Torneos</span>
     </div>
+    <button class="btn-crear" (click)="crearTorneo()">
+      <i class="fas fa-plus"></i>
+      Crear Torneo
+    </button>
   </div>
 
   <!-- Lista de torneos -->
   <div class="torneos-list">
-    <div *ngIf="torneos.length === 0" class="empty-state">
+
+    @if (torneos.length === 0) {
+    <div class="empty-state">
       <i class="fas fa-trophy"></i>
       <p>No se encontraron torneos</p>
       <button class="btn-crear-empty" (click)="crearTorneo()">
@@ -109,14 +108,18 @@
         Crear primer torneo
       </button>
     </div>
+    }
 
-    <div *ngFor="let torneo of torneos" class="torneo-card">
+    @for (torneo of torneos; track $index) {
+    <div class="torneo-card">
       <div class="card-header">
         <div class="torneo-info">
           <h3 class="torneo-nombre">{{ torneo.nombre }}</h3>
-          <p class="torneo-descripcion" *ngIf="torneo.descripcion">
+          @if (torneo.descripcion) {
+          <p class="torneo-descripcion">
             {{ torneo.descripcion }}
           </p>
+          }
         </div>
         <span class="estado-badge" [ngClass]="getEstadoClass(torneo.estado)">
           {{ getEstadoLabel(torneo.estado) }}
@@ -144,10 +147,12 @@
           </div>
 
           <!-- Partidos -->
-          <div class="detalle-item" *ngIf="torneo.total_partidos && torneo.total_partidos > 0">
+          @if (torneo.total_partidos && torneo.total_partidos > 0) {
+          <div class="detalle-item">
             <i class="fas fa-futbol"></i>
             <span>{{ torneo.partidos_finalizados || 0 }} / {{ torneo.total_partidos }} partidos</span>
           </div>
+          }
 
           <!-- Tipo -->
           <div class="detalle-item">
@@ -156,10 +161,12 @@
           </div>
 
           <!-- Creador -->
-          <div class="detalle-item" *ngIf="torneo.creador_nombre">
+          @if (torneo.creador_nombre) {
+          <div class="detalle-item">
             <i class="fas fa-user"></i>
             <span>{{ torneo.creador_nombre }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -183,14 +190,15 @@
               <i class="fas fa-chevron-down"></i>
             </button>
             <div class="dropdown-content">
+              @for (estado of estadosPosibles; track estado.value) {
               <button
-                *ngFor="let estado of estadosPosibles"
                 (click)="cambiarEstado(torneo, estado.value)"
                 [disabled]="!estado.value || torneo.estado === estado.value"
                 class="dropdown-item"
               >
                 {{ estado.label }}
               </button>
+              }
             </div>
           </div>
 
@@ -201,10 +209,12 @@
         </div>
       </div>
     </div>
+    }
   </div>
 
   <!-- Paginación -->
-  <div class="paginacion" *ngIf="totalPages > 1">
+  @if (totalPages > 1) {
+  <div class="paginacion">
     <button
       class="btn-paginacion"
       (click)="cambiarPagina((filtros.page || 1) - 1)"
@@ -215,14 +225,15 @@
     </button>
 
     <div class="paginas-numeros">
+      @for (pagina of getPaginaNumeros(); track pagina) {
       <button
-        *ngFor="let pagina of getPaginaNumeros()"
         class="btn-numero"
         [ngClass]="{ 'activo': pagina === filtros.page }"
         (click)="cambiarPagina(pagina)"
       >
         {{ pagina }}
       </button>
+      }
     </div>
 
     <button
@@ -234,4 +245,5 @@
       <i class="fas fa-chevron-right"></i>
     </button>
   </div>
+  }
 </div>

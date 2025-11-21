@@ -8,6 +8,9 @@
 /* ===== HEADER ===== */
 .header-section {
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .btn-volver {
@@ -21,14 +24,13 @@
   color: #555;
   font-size: 0.95rem;
   cursor: pointer;
-  margin-bottom: 1rem;
   transition: all 0.3s ease;
 }
 
 .btn-volver:hover {
   background: #f5f5f5;
-  border-color: #ff6b35;
-  color: #ff6b35;
+  border-color: #2ECC71;
+  color: #2ECC71;
 }
 
 .page-title {
@@ -42,7 +44,7 @@
 }
 
 .page-title i {
-  color: #ff6b35;
+  color: #2ECC71;
 }
 
 /* ===== FORMULARIO ===== */
@@ -80,14 +82,12 @@
 }
 
 .form-label i {
-  color: #ff6b35;
+  color: #2ECC71;
   width: 18px;
 }
 
-.form-label.required::after {
-  content: '*';
-  color: #ff6b35;
-  margin-left: 0.25rem;
+.form-label.required {
+  color: #333;
 }
 
 .form-input,
@@ -105,8 +105,14 @@
 .form-select:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #9ca3af;
+  opacity: 1;
 }
 
 .form-input.invalid,
@@ -173,14 +179,15 @@
 }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: #2ECC71;
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
 }
 
 .btn-guardar:hover:not(:disabled) {
+  background: #27AE60;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
 .btn-cancelar:disabled,

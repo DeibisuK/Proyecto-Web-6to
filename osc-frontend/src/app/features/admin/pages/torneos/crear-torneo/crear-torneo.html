@@ -1,20 +1,20 @@
 <div class="crear-torneo-container">
   <div class="header-section">
-    <button class="btn-volver" (click)="volver()">
-      <i class="fas fa-arrow-left"></i>
-      Volver
-    </button>
     <h1 class="page-title">
       <i class="fas fa-trophy"></i>
       {{ esEdicion ? 'Editar Torneo' : 'Crear Torneo' }}
     </h1>
+    <button class="btn-volver" (click)="volver()">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
   </div>
 
   <form [formGroup]="torneoForm" (ngSubmit)="onSubmit()" class="torneo-form">
     <div class="form-grid">
       <!-- Nombre -->
       <div class="form-group full-width">
-        <label for="nombre" class="form-label required">
+        <label for="nombre" class="form-label">
           <i class="fas fa-tag"></i>
           Nombre del Torneo
         </label>
@@ -26,17 +26,23 @@
           placeholder="Ej: Copa de Fútbol 2025"
           [class.invalid]="f['nombre'].invalid && f['nombre'].touched"
         />
-        <div class="error-message" *ngIf="f['nombre'].invalid && f['nombre'].touched">
-          <span *ngIf="f['nombre'].errors?.['required']">El nombre es requerido</span>
-          <span *ngIf="f['nombre'].errors?.['minlength']">Mínimo 3 caracteres</span>
+        @if (f['nombre'].invalid && f['nombre'].touched) {
+        <div class="error-message">
+          @if (f['nombre'].errors?.['required']) {
+          <span>El nombre es requerido</span>
+          }
+          @if (f['nombre'].errors?.['minlength']) {
+          <span>Mínimo 3 caracteres</span>
+          }
         </div>
+        }
       </div>
 
       <!-- Descripción -->
       <div class="form-group full-width">
         <label for="descripcion" class="form-label">
           <i class="fas fa-align-left"></i>
-          Descripción
+          Descripción (opcional)
         </label>
         <textarea
           id="descripcion"
@@ -49,7 +55,7 @@
 
       <!-- Deporte -->
       <div class="form-group">
-        <label for="id_deporte" class="form-label required">
+        <label for="id_deporte" class="form-label">
           <i class="fas fa-futbol"></i>
           Deporte
         </label>
@@ -60,31 +66,37 @@
           [class.invalid]="f['id_deporte'].invalid && f['id_deporte'].touched"
         >
           <option [value]="null">Selecciona un deporte</option>
-          <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
+          @for (deporte of deportes; track deporte.id_deporte) {
+          <option [value]="deporte.id_deporte">
             {{ deporte.nombre_deporte }}
           </option>
+          }
         </select>
-        <div class="error-message" *ngIf="f['id_deporte'].invalid && f['id_deporte'].touched">
+        @if (f['id_deporte'].invalid && f['id_deporte'].touched) {
+        <div class="error-message">
           El deporte es requerido
         </div>
+        }
       </div>
 
       <!-- Tipo de Torneo -->
       <div class="form-group">
-        <label for="tipo_torneo" class="form-label required">
+        <label for="tipo_torneo" class="form-label">
           <i class="fas fa-sitemap"></i>
           Tipo de Torneo
         </label>
         <select id="tipo_torneo" formControlName="tipo_torneo" class="form-select">
-          <option *ngFor="let tipo of tiposTorneo" [value]="tipo.value">
+          @for (tipo of tiposTorneo; track tipo.value) {
+          <option [value]="tipo.value">
             {{ tipo.label }}
           </option>
+          }
         </select>
       </div>
 
       <!-- Fecha Inicio -->
       <div class="form-group">
-        <label for="fecha_inicio" class="form-label required">
+        <label for="fecha_inicio" class="form-label">
           <i class="fas fa-calendar-alt"></i>
           Fecha de Inicio
         </label>
@@ -95,14 +107,16 @@
           class="form-input"
           [class.invalid]="f['fecha_inicio'].invalid && f['fecha_inicio'].touched"
         />
-        <div class="error-message" *ngIf="f['fecha_inicio'].invalid && f['fecha_inicio'].touched">
+        @if (f['fecha_inicio'].invalid && f['fecha_inicio'].touched) {
+        <div class="error-message">
           La fecha de inicio es requerida
         </div>
+        }
       </div>
 
       <!-- Fecha Fin -->
       <div class="form-group">
-        <label for="fecha_fin" class="form-label required">
+        <label for="fecha_fin" class="form-label">
           <i class="fas fa-calendar-check"></i>
           Fecha de Fin
         </label>
@@ -113,9 +127,11 @@
           class="form-input"
           [class.invalid]="f['fecha_fin'].invalid && f['fecha_fin'].touched"
         />
-        <div class="error-message" *ngIf="f['fecha_fin'].invalid && f['fecha_fin'].touched">
+        @if (f['fecha_fin'].invalid && f['fecha_fin'].touched) {
+        <div class="error-message">
           La fecha de fin es requerida
         </div>
+        }
       </div>
 
       <!-- Fecha Cierre Inscripción -->
@@ -149,22 +165,30 @@
           max="128"
         />
         <small class="form-hint">Dejar vacío para ilimitado</small>
-        <div class="error-message" *ngIf="f['max_equipos'].invalid && f['max_equipos'].touched">
-          <span *ngIf="f['max_equipos'].errors?.['min']">Mínimo 2 equipos</span>
-          <span *ngIf="f['max_equipos'].errors?.['max']">Máximo 128 equipos</span>
+        @if (f['max_equipos'].invalid && f['max_equipos'].touched) {
+        <div class="error-message">
+          @if (f['max_equipos'].errors?.['min']) {
+          <span>Mínimo 2 equipos</span>
+          }
+          @if (f['max_equipos'].errors?.['max']) {
+          <span>Máximo 128 equipos</span>
+          }
         </div>
+        }
       </div>
 
       <!-- Estado -->
       <div class="form-group">
-        <label for="estado" class="form-label required">
+        <label for="estado" class="form-label">
           <i class="fas fa-flag"></i>
           Estado
         </label>
         <select id="estado" formControlName="estado" class="form-select">
-          <option *ngFor="let estado of estadosPosibles" [value]="estado.value">
+          @for (estado of estadosPosibles; track estado.value) {
+          <option [value]="estado.value">
             {{ estado.label }}
           </option>
+          }
         </select>
       </div>
     </div>

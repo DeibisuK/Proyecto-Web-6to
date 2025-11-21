@@ -29,12 +29,12 @@
 }
 
 .page-title i {
-  color: #ff6b35;
+  color: #2ECC71;
 }
 
 .btn-crear {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: #2ECC71;
   color: white;
   border: none;
   border-radius: 8px;
@@ -45,12 +45,13 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
 }
 
 .btn-crear:hover {
+  background: #27AE60;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
 /* ===== FILTROS ===== */
@@ -84,7 +85,7 @@
 }
 
 .filtro-item label i {
-  color: #ff6b35;
+  color: #2ECC71;
 }
 
 .input-filtro,
@@ -100,8 +101,31 @@
 .input-filtro:focus,
 .select-filtro:focus {
   outline: none;
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+/* Estilo minimalista para el select de ordenar (como filtro-panel) */
+.select-filtro {
+  background: white;
+  border: 1px solid #E8E8E8;
+  border-radius: 8px;
+  padding: 0.75rem 0.75rem;
+  font-size: 0.9rem;
+  color: #2C3E50;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select-filtro:hover {
+  border-color: #D0D0D0;
+}
+
+.select-filtro:focus {
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+  background-color: white;
 }
 
 .btn-limpiar {
@@ -125,16 +149,20 @@
 
 /* ===== ESTADÍSTICAS ===== */
 .stats-bar {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .stat-item {
   background: white;
-  padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -143,7 +171,7 @@
 
 .stat-item i {
   font-size: 2rem;
-  color: #ff6b35;
+  color: #2ECC71;
 }
 
 .stat-value {
@@ -185,7 +213,7 @@
 
 .btn-crear-empty {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: #2ECC71;
   color: white;
   border: none;
   border-radius: 8px;
@@ -194,6 +222,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-crear-empty:hover {
+  background: #27AE60;
 }
 
 /* ===== TARJETA DE TORNEO ===== */
@@ -284,7 +317,7 @@
 }
 
 .detalle-item i {
-  color: #ff6b35;
+  color: #2ECC71;
   width: 20px;
   text-align: center;
 }
@@ -416,8 +449,8 @@
 
 .btn-paginacion:hover:not(:disabled) {
   background: #f5f5f5;
-  border-color: #ff6b35;
-  color: #ff6b35;
+  border-color: #2ECC71;
+  color: #2ECC71;
 }
 
 .btn-paginacion:disabled {
@@ -443,14 +476,78 @@
 
 .btn-numero:hover {
   background: #f5f5f5;
-  border-color: #ff6b35;
+  border-color: #2ECC71;
 }
 
 .btn-numero.activo {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  border-color: #ff6b35;
+  background: #2ECC71;
+  border-color: #2ECC71;
   color: white;
   font-weight: 600;
+}
+
+/* ===== SKELETON LOADING ===== */
+.skeleton-loading {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.skeleton-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 70%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-description {
+  height: 16px;
+  width: 90%;
+  margin-bottom: 1rem;
+}
+
+.skeleton-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skeleton-detail {
+  height: 16px;
+  width: 80%;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.skeleton-button {
+  height: 36px;
+  width: 80px;
 }
 
 /* ===== RESPONSIVE ===== */
