@@ -14,6 +14,7 @@ import { Reportes } from "./pages/reportes/reportes";
 import { ListReservas } from "./pages/reservas/list-reservas/list-reservas";
 import { Historial } from "./pages/historial/historial";
 import { Partidos } from "./pages/partidos/partidos";
+import { ListPedidos } from "./pages/comercio/list-pedidos/list-pedidos";
 
 export const adminRoutes: Routes = [
   {
@@ -80,6 +81,11 @@ export const adminRoutes: Routes = [
     path: 'partidos',
     component: Partidos,
     title: 'Partidos'
+  },
+  {
+    path: 'pedidos-y-ventas',
+    component: ListPedidos,
+    title: 'Pedidos y Ventas'
   },
   {
     path: 'torneos',

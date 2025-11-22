@@ -116,17 +116,23 @@ import { NotificationService } from '@core/services/notification.service';
         <h3>¿Por qué suscribirte?</h3>
         <div class="beneficios-grid">
           <div class="beneficio">
-            <div class="beneficio-icon">🏆</div>
+            <div class="beneficio-icon">
+              <span class="material-icons">emoji_events</span>
+            </div>
             <h4>Gestión Profesional</h4>
             <p>Administra torneos y equipos como un profesional</p>
           </div>
           <div class="beneficio">
-            <div class="beneficio-icon">📊</div>
+            <div class="beneficio-icon">
+              <span class="material-icons">bar_chart</span>
+            </div>
             <h4>Análisis Detallado</h4>
             <p>Accede a estadísticas y métricas avanzadas</p>
           </div>
           <div class="beneficio">
-            <div class="beneficio-icon">⚡</div>
+            <div class="beneficio-icon">
+              <span class="material-icons">all_inclusive</span>
+            </div>
             <h4>Sin Limitaciones</h4>
             <p>Usa todas las funciones sin restricciones</p>
           </div>
@@ -216,6 +222,9 @@ import { NotificationService } from '@core/services/notification.service';
       position: relative;
       transition: all 0.3s ease;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      min-height: 600px;
     }
 
     .plan-card:hover {
@@ -284,10 +293,17 @@ import { NotificationService } from '@core/services/notification.service';
       color: #1F2937;
     }
 
+    .plan-features {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
     .plan-features ul {
       list-style: none;
       padding: 0;
       margin-bottom: 2rem;
+      flex: 1;
     }
 
     .plan-features li {
@@ -380,9 +396,19 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .beneficio-icon {
-      font-size: 4rem;
-      margin-bottom: 1.5rem;
-      filter: grayscale(0);
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .beneficio-icon .material-icons {
+      font-size: 36px;
+      color: #25D366;
     }
 
     .beneficio h4 {

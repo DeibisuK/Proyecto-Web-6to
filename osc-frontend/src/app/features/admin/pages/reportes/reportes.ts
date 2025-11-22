@@ -36,7 +36,7 @@ export class Reportes implements OnInit {
   showFilters = false;
   selectedMonth = new Date().getMonth();
   selectedYear = 2024;
-  expandedCategory: string | null = 'canchas';
+  expandedCategory: string | null = null;  // Inicialmente ninguno expandido
   toast: Toast | null = null;
 
   months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -116,10 +116,12 @@ export class Reportes implements OnInit {
 
   toggleCategory(categoryId: string) {
     this.expandedCategory = this.expandedCategory === categoryId ? null : categoryId;
+    console.log('toggleCategory:', categoryId, '| expandedCategory:', this.expandedCategory);
   }
 
   isCategoryExpanded(categoryId: string): boolean {
-    return this.expandedCategory === categoryId;
+    const isExpanded = this.expandedCategory === categoryId;
+    return isExpanded;
   }
 
   showToast(type: string, label: string) {
