@@ -1,7 +1,7 @@
 .puntos-lealtad-container {
-  padding: 40px;
+  padding: 6rem 40px 40px;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #F9FAFB;
 }
 
 .content-section {
@@ -12,18 +12,26 @@
 
 .puntos-section {
   background: white;
-  padding: 30px;
-  border-radius: 8px;
-  border: 2px solid #27AE60;
-  margin-bottom: 40px;
+  padding: 3rem;
+  border-radius: 16px;
+  border: 2px solid #E5E7EB;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.puntos-section:hover {
+  border-color: #25D366;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.1);
 }
 
 h1 {
-  font-size: 32px;
-  color: #27AE60;
+  font-size: 48px;
+  color: #1F2937;
   text-align: center;
-  margin-bottom: 30px;
-  font-weight: bold;
+  margin-bottom: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .puntos-text {
@@ -31,19 +39,19 @@ h1 {
 }
 
 .puntos-text p {
-  margin-bottom: 20px;
-  line-height: 1.6;
-  font-size: 16px;
-  color: #444;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  font-size: 17px;
+  color: #1F2937;
 }
 
 .nota-sistema {
   font-style: italic;
-  color: #666;
-  font-size: 14px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-  margin-top: 30px;
+  color: #6B7280;
+  font-size: 15px;
+  border-top: 2px solid #E5E7EB;
+  padding-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 /* Estilos para las tarjetas de navegación */
@@ -56,27 +64,30 @@ h1 {
 
 .nav-card {
   background: white;
-  padding: 25px;
-  border-radius: 8px;
-  border: 2px solid #27AE60;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 2px solid #E5E7EB;
   cursor: pointer;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .nav-card:hover {
-  transform: translateY(-5px);
-  border: 2px solid #27AE60;
+  transform: translateY(-8px);
+  border-color: #25D366;
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.15);
 }
 
 .card-icon {
-  width: 50px;
-  height: 50px;
-  background-color: #27AE60;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px auto;
+  margin: 0 auto 1.5rem auto;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
 .card-icon span {
@@ -85,16 +96,18 @@ h1 {
 }
 
 .nav-card h3 {
-  font-size: 20px;
-  color: #27AE60;
-  margin-bottom: 10px;
+  font-size: 22px;
+  color: #1F2937;
+  margin-bottom: 0.75rem;
   text-align: center;
+  font-weight: 700;
 }
 
 .nav-card p {
-  color: #666;
-  font-size: 14px;
+  color: #6B7280;
+  font-size: 15px;
   text-align: center;
+  line-height: 1.6;
 }
 
 /* Responsive */

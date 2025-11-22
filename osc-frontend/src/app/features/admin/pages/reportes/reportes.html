@@ -1,1 +1,180 @@
-<p>reportes works!</p>
+<div class="reports-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Reportes y Estadísticas</h1>
+      <p class="page-subtitle">Genera reportes detallados de tu plataforma</p>
+    </div>
+    <button
+      class="filter-btn"
+      [ngClass]="{'active': showFilters || hasActiveFilters}"
+      (click)="toggleFilters()"
+    >
+      <span class="material-icons">filter_list</span>
+      Filtros
+      @if (hasActiveFilters) {
+        <span class="filter-indicator"></span>
+      }
+    </button>
+  </div>
+
+  <!-- Filters Panel -->
+  @if (showFilters) {
+    <div class="filters-panel">
+      <div class="filters-header">
+        <h3 class="filters-title">Filtrar por período</h3>
+        <button class="close-btn" (click)="toggleFilters()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label>Mes</label>
+          <select
+            class="filter-select"
+            [(ngModel)]="selectedMonth"
+          >
+            @for (month of months; track $index) {
+              <option [value]="$index">{{ month }}</option>
+            }
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Año</label>
+          <select
+            class="filter-select"
+            [(ngModel)]="selectedYear"
+          >
+            @for (year of years; track year) {
+              <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </div>
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+      <div class="filters-summary">
+        Mostrando datos de: <span>{{ months[selectedMonth] }} {{ selectedYear }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Quick Export Banner -->
+  <div class="quick-export">
+    <div class="quick-export-content">
+      <h3>Exportación Rápida</h3>
+      <p>Descarga un reporte completo con todos los datos del período seleccionado</p>
+    </div>
+    <div class="quick-export-actions">
+      <button
+        class="export-btn primary"
+        (click)="handleExport('PDF', 'Reporte Completo')"
+      >
+        <span class="material-icons">description</span>
+        Exportar PDF
+      </button>
+      <button
+        class="export-btn secondary"
+        (click)="handleExport('Excel', 'Reporte Completo')"
+      >
+        <span class="material-icons">table_chart</span>
+        Exportar Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Report Categories -->
+  <div class="categories-grid">
+    @for (category of reportCategories; track category.id) {
+      <div class="category-card">
+        <div
+          class="category-header"
+          (click)="toggleCategory(category.id)"
+        >
+          <div class="category-left">
+            <div class="category-icon">
+              <span class="material-icons">{{ category.iconName }}</span>
+            </div>
+            <span class="category-title">{{ category.title }}</span>
+          </div>
+          <span
+            class="material-icons chevron"
+            [ngClass]="{'open': isCategoryExpanded(category.id)}"
+          >
+            expand_more
+          </span>
+        </div>
+
+        @if (isCategoryExpanded(category.id)) {
+          <div class="category-content">
+            <div class="option-list">
+              @for (option of category.options; track option.id) {
+                <div class="option-item">
+                  <span class="option-label">{{ option.label }}</span>
+                  <div class="option-actions">
+                    <button
+                      class="action-btn pdf"
+                      (click)="handleExport('PDF', option.label)"
+                    >
+                      <span class="material-icons">description</span>
+                      PDF
+                    </button>
+                    <button
+                      class="action-btn excel"
+                      (click)="handleExport('Excel', option.label)"
+                    >
+                      <span class="material-icons">table_chart</span>
+                      Excel
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Recent Reports -->
+  <div class="recent-reports">
+    <div class="section-header">
+      <h3 class="section-title">Reportes Recientes</h3>
+    </div>
+    <div class="report-list">
+      @for (report of recentReports; track report.name) {
+        <div class="report-item">
+          <div class="report-left">
+            <div class="report-icon" [ngClass]="report.type">
+              @if (report.type === 'pdf') {
+                <span class="material-icons">description</span>
+              } @else {
+                <span class="material-icons">table_chart</span>
+              }
+            </div>
+            <div class="report-info">
+              <h4>{{ report.name }}</h4>
+              <p>{{ report.date }} • {{ report.size }}</p>
+            </div>
+          </div>
+          <button class="download-btn">
+            <span class="material-icons">download</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  @if (toast) {
+    <div class="toast">
+      <div class="toast-icon">
+        <span class="material-icons">check</span>
+      </div>
+      <span class="toast-text">
+        Generando {{ toast.type }}: {{ toast.label }}
+      </span>
+    </div>
+  }
+</div>

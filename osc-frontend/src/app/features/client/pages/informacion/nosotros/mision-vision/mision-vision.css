@@ -1,10 +1,9 @@
 .mision-vision-container {
-    padding: 3rem 2rem;
+    padding: 6rem 2rem 3rem;
     max-width: 1200px;
     margin: 0 auto;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
-                     url('/assets/images/subtle-pattern.png');
-    border-radius: 12px;
+    background-color: #F9FAFB;
+    border-radius: 16px;
 }
 
 .header-section {
@@ -13,11 +12,11 @@
 }
 
 .main-title {
-    color: #27AE60;
-    font-size: 2.5rem;
+    color: #1F2937;
+    font-size: 48px;
     margin-bottom: 1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 .divider {
@@ -28,14 +27,15 @@
 }
 
 .divider-line {
-    height: 2px;
-    width: 100px;
-    background-color: #27AE60;
+    height: 3px;
+    width: 120px;
+    background: linear-gradient(90deg, #25D366 0%, #1FAD53 100%);
+    border-radius: 2px;
 }
 
 .divider-icon {
     margin: 0 15px;
-    color: #27AE60;
+    color: #25D366;
     font-size: 2rem;
 }
 
@@ -55,13 +55,21 @@
 .vision-section {
     flex: 1;
     padding: 2.5rem;
-    border: 2px solid #27AE60;
-    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
     background-color: white;
-    box-shadow: 0 10px 20px rgba(39, 174, 96, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     text-align: center;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.mision-section:hover,
+.vision-section:hover {
+    border-color: #25D366;
+    box-shadow: 0 12px 32px rgba(37, 211, 102, 0.15);
+    transform: translateY(-4px);
 }
 
 .mision-section::before,
@@ -72,19 +80,19 @@
     left: 0;
     width: 100%;
     height: 6px;
-    background-color: #27AE60;
+    background: linear-gradient(90deg, #25D366 0%, #1FAD53 100%);
 }
 
 .icon-container {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #27AE60;
+    background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    box-shadow: 0 6px 18px rgba(37, 211, 102, 0.3);
 }
 
 .icon-container .material-icons {
@@ -93,26 +101,26 @@
 }
 
 h1 {
-    color: #27AE60;
-    font-size: 2rem;
+    color: #1F2937;
+    font-size: 32px;
     margin-bottom: 1.5rem;
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 p {
-    font-size: 1.1rem;
+    font-size: 17px;
     line-height: 1.8;
-    color: #333;
+    color: #6B7280;
     text-align: center;
 }
 
 .valores-section {
     padding: 3rem;
-    border: 2px solid #27AE60;
-    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
     background-color: white;
-    box-shadow: 0 10px 20px rgba(39, 174, 96, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     text-align: center;
 }
 
@@ -125,8 +133,8 @@ p {
 
 .valor-card {
     padding: 2rem 1.5rem;
-    border: 2px solid #2ECC71;
-    border-radius: 12px;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
@@ -141,12 +149,13 @@ p {
     left: 0;
     width: 100%;
     height: 4px;
-    background-color: #2ECC71;
+    background: linear-gradient(90deg, #25D366 0%, #1FAD53 100%);
 }
 
 .valor-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(46, 204, 113, 0.2);
+    box-shadow: 0 12px 32px rgba(37, 211, 102, 0.15);
+    border-color: #25D366;
 }
 
 .valor-card:hover .icon-container {
@@ -159,10 +168,10 @@ p {
 }
 
 .valor-card h3 {
-    color: #27AE60;
-    font-size: 1.5rem;
+    color: #1F2937;
+    font-size: 22px;
     margin-bottom: 1rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* Animations */
@@ -197,16 +206,16 @@ p {
     .valores-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .main-title {
         font-size: 2rem;
     }
-    
+
     .icon-container {
         width: 60px;
         height: 60px;
     }
-    
+
     .icon-container .material-icons {
         font-size: 2rem;
     }

@@ -138,24 +138,29 @@ import { NotificationService } from '@core/services/notification.service';
     .planes-container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 6rem 1rem 2rem;
+      background-color: #F9FAFB;
+      min-height: 100vh;
     }
 
     .header-section {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 4rem;
     }
 
     .title {
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: #1a1a1a;
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: #1F2937;
+      letter-spacing: -0.02em;
     }
 
     .subtitle {
-      font-size: 1.125rem;
-      color: #666;
+      font-size: 20px;
+      color: #6B7280;
+      font-weight: 500;
+      line-height: 1.6;
     }
 
     .loading-state, .error-state {
@@ -164,10 +169,10 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
+      width: 48px;
+      height: 48px;
+      border: 4px solid #E5E7EB;
+      border-top: 4px solid #25D366;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 1rem;
@@ -179,17 +184,21 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .btn-retry {
-      padding: 0.5rem 1.5rem;
-      background-color: #3498db;
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 16px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
     }
 
     .btn-retry:hover {
-      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
     }
 
     .planes-grid {
@@ -201,33 +210,36 @@ import { NotificationService } from '@core/services/notification.service';
 
     .plan-card {
       background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 2rem;
+      border: 2px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 2.5rem;
       position: relative;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .plan-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(37, 211, 102, 0.15);
+      border-color: #25D366;
     }
 
     .plan-card.popular {
-      border-color: #3498db;
-      box-shadow: 0 5px 20px rgba(52, 152, 219, 0.2);
+      border-color: #25D366;
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.2);
     }
 
     .badge-popular {
       position: absolute;
       top: -12px;
       right: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
       color: white;
-      padding: 0.4rem 1rem;
+      padding: 8px 20px;
       border-radius: 20px;
-      font-size: 0.875rem;
-      font-weight: bold;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
     }
 
     .plan-header {
@@ -236,10 +248,10 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .plan-nombre {
-      font-size: 1.5rem;
-      font-weight: bold;
+      font-size: 28px;
+      font-weight: 800;
       margin-bottom: 1rem;
-      color: #1a1a1a;
+      color: #1F2937;
     }
 
     .plan-precio {
@@ -247,26 +259,29 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .precio-monto {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #3498db;
+      font-size: 56px;
+      font-weight: 800;
+      color: #25D366;
+      letter-spacing: -0.02em;
     }
 
     .precio-periodo {
-      font-size: 1rem;
-      color: #666;
+      font-size: 18px;
+      color: #6B7280;
+      font-weight: 500;
     }
 
     .plan-descripcion {
-      color: #666;
+      color: #6B7280;
       line-height: 1.6;
+      font-size: 16px;
     }
 
     .plan-features h3 {
-      font-size: 1rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      color: #1a1a1a;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #1F2937;
     }
 
     .plan-features ul {
@@ -276,23 +291,25 @@ import { NotificationService } from '@core/services/notification.service';
     }
 
     .plan-features li {
-      padding: 0.5rem 0;
+      padding: 0.75rem 0;
       display: flex;
       align-items: center;
-      color: #333;
+      color: #1F2937;
+      font-size: 15px;
     }
 
     .plan-features .icon {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       width: 24px;
       height: 24px;
-      background-color: #e8f5e9;
-      color: #4caf50;
+      background-color: #ECFDF5;
+      color: #25D366;
       border-radius: 50%;
-      text-align: center;
-      line-height: 24px;
       margin-right: 0.75rem;
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 14px;
     }
 
     .plan-footer {
@@ -301,69 +318,84 @@ import { NotificationService } from '@core/services/notification.service';
 
     .btn-suscribir, .btn-activo {
       width: 100%;
-      padding: 1rem;
+      padding: 16px;
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .btn-suscribir {
-      background-color: #3498db;
+      background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
     }
 
     .btn-suscribir:hover:not(:disabled) {
-      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
     }
 
     .btn-suscribir:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+      transform: none;
     }
 
     .btn-activo {
-      background-color: #4caf50;
+      background: linear-gradient(135deg, #168F45 0%, #25D366 100%);
       color: white;
       cursor: default;
+      box-shadow: 0 4px 12px rgba(22, 143, 69, 0.3);
     }
 
     .info-adicional {
-      margin-top: 4rem;
+      margin-top: 5rem;
       text-align: center;
+      padding: 3rem 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .info-adicional h3 {
-      font-size: 1.75rem;
-      margin-bottom: 2rem;
-      color: #1a1a1a;
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 3rem;
+      color: #1F2937;
+      letter-spacing: -0.02em;
     }
 
     .beneficios-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
+      gap: 3rem;
     }
 
     .beneficio {
       text-align: center;
+      padding: 1.5rem;
     }
 
     .beneficio-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      filter: grayscale(0);
     }
 
     .beneficio h4 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-      color: #1a1a1a;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #1F2937;
     }
 
     .beneficio p {
-      color: #666;
+      color: #6B7280;
+      line-height: 1.6;
+      font-size: 16px;
     }
   `]
 })
