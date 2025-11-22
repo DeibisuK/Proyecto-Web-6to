@@ -39,8 +39,8 @@
 }
 
 .btn-control:hover:not(:disabled) {
-  border-color: #2ECC71;
-  color: #2ECC71;
+  border-color: #25D366;
+  color: #25D366;
   transform: scale(1.05);
 }
 
@@ -107,7 +107,7 @@
 }
 
 .badge.nuevo {
-  background: #2ECC71;
+  background: #25D366;
 }
 
 .badge.descuento {
@@ -141,7 +141,7 @@
 .precio-actual {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .precio-anterior {

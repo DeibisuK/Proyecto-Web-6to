@@ -5,19 +5,19 @@
 /* Variables CSS globales para reutilizar en toda la aplicación */
 :root {
   /* Colores principales */
-  --color-primary: #2C3E50;
-  --color-secondary: #34495E;
-  --color-accent: #2ECC71;
-  --color-accent-hover: #27AE60;
+  --color-primary: #1F2937;
+  --color-secondary: #374151;
+  --color-accent: #25D366;
+  --color-accent-hover: #1FAD53;
   --color-text-light: #ECF0F1;
   --color-text-muted: #BDC3C7;
   --color-danger: #E74C3C;
   --color-danger-hover: #C0392B;
 
   /* Opacidades de acento */
-  --accent-opacity-10: rgba(46, 204, 113, 0.1);
-  --accent-opacity-15: rgba(46, 204, 113, 0.15);
-  --accent-opacity-40: rgba(46, 204, 113, 0.4);
+  --accent-opacity-10: rgba(37, 211, 102, 0.1);
+  --accent-opacity-15: rgba(37, 211, 102, 0.15);
+  --accent-opacity-40: rgba(37, 211, 102, 0.4);
 
   /* Transiciones */
   --transition-base: all 0.3s ease;

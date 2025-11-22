@@ -12,6 +12,7 @@
 
 /* Header */
 .page-header {
+  margin-top: 5rem;
   margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
@@ -36,7 +37,7 @@
 
 .page-title .material-icons {
   font-size: 2.5rem;
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .page-subtitle {
@@ -51,9 +52,9 @@
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   background: rgba(46, 204, 113, 0.1);
-  border: 1px solid #2ECC71;
+  border: 1px solid #25D366;
   border-radius: 25px;
-  color: #27AE60;
+  color: #1FAD53;
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -113,14 +114,14 @@
 }
 
 .filtro-btn:hover {
-  border-color: #2ECC71;
+  border-color: #25D366;
   background: #f8f9fa;
   color: #2c3e50;
 }
 
 .filtro-btn.active {
-  background: #2ECC71;
-  border-color: #2ECC71;
+  background: #25D366;
+  border-color: #25D366;
   color: white;
 }
 
@@ -144,7 +145,7 @@
   width: 60px;
   height: 60px;
   border: 5px solid rgba(46, 204, 113, 0.2);
-  border-top-color: #2ECC71;
+  border-top-color: #25D366;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -191,7 +192,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #2ECC71;
+  background: #25D366;
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -202,7 +203,7 @@
 }
 
 .btn-ir-tienda:hover {
-  background: #27AE60;
+  background: #1FAD53;
   box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
@@ -336,7 +337,7 @@
 
 .mas-items {
   font-size: 0.85rem;
-  color: #2ECC71;
+  color: #25D366;
   margin: 0;
   font-weight: 600;
 }
@@ -353,7 +354,7 @@
 
 .pedido-total strong {
   font-size: 1.3rem;
-  color: #27ae60;
+  color: #1FAD53;
 }
 
 .pedido-pago {
@@ -395,12 +396,12 @@
 }
 
 .btn-ver-detalle {
-  background: #2ECC71;
+  background: #25D366;
   color: white;
 }
 
 .btn-ver-detalle:hover {
-  background: #27AE60;
+  background: #1FAD53;
   transform: translateY(-1px);
 }
 

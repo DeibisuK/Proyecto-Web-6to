@@ -1,41 +1,51 @@
 .contact-container {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 120px 60px;
+  background: #FFFFFF;
 }
 
 .contact-section h1 {
   text-align: center;
-  color: #2C3E50;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
+  color: #1F2937;
+  font-size: 48px;
+  margin-bottom: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .contact-section p {
   text-align: center;
-  color: #7F8C8D;
-  font-size: 1.1rem;
-  margin-bottom: 3rem;
-  max-width: 900px;
+  color: #6B7280;
+  font-size: 18px;
+  margin-bottom: 72px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .contact-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 80px;
   align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .contact-form {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  border: 2px solid rgba(46, 204, 113, 0.2);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 48px;
+  border-radius: 24px;
+  border: 2px solid #E5E7EB;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.contact-form:hover {
+  border-color: #25D366;
+  box-shadow: 0 16px 48px rgba(37, 211, 102, 0.15);
 }
 
 .form-row {
@@ -51,9 +61,10 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #2C3E50;
-  font-weight: 500;
+  margin-bottom: 10px;
+  color: #1F2937;
+  font-weight: 600;
+  font-size: 15px;
   font-family: 'Inter', sans-serif;
 }
 
@@ -61,14 +72,14 @@
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #E8E8E8;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #2C3E50;
+  padding: 14px 18px;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #1F2937;
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: all 0.3s ease;
   background: white;
 }
 
@@ -76,7 +87,7 @@
 .form-group select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237F8C8D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px;
@@ -84,20 +95,20 @@
 }
 
 .form-group select option[value=""] {
-  color: #BDC3C7;
+  color: #9CA3AF;
 }
 
 .form-group select:invalid {
-  color: #BDC3C7;
+  color: #9CA3AF;
 }
 
 .form-group select:valid {
-  color: #2C3E50;
+  color: #1F2937;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #BDC3C7;
+  color: #9CA3AF;
   opacity: 1;
 }
 
@@ -105,13 +116,13 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  color: #2C3E50;
-  border-color: #2ECC71;
-  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+  color: #1F2937;
+  border-color: #25D366;
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.15);
 }
 
 .form-group select:hover {
-  border-color: #D0D0D0;
+  border-color: #9CA3AF;
 }
 
 .form-group input:focus::placeholder,
@@ -152,13 +163,13 @@
 }
 
 .btn-dropdown-custom:hover {
-  border-color: #2ECC71;
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+  border-color: #25D366;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
 }
 
 .btn-dropdown-custom.activo {
-  border-color: #2ECC71;
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+  border-color: #25D366;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
 .dropdown-current {
@@ -174,7 +185,7 @@
 }
 
 .dropdown-current i {
-  color: #2ECC71;
+  color: #25D366;
   width: 16px;
   min-width: 16px;
   text-align: center;
@@ -267,19 +278,19 @@
 }
 
 .dropdown-item.seleccionado {
-  background: #E8F8F0;
-  color: #27AE60;
+  background: #ECFDF5;
+  color: #1FAD53;
 }
 
 .dropdown-item i:first-child {
-  color: #7F8C8D;
+  color: #6B7280;
   width: 20px;
   text-align: center;
   font-size: 0.9rem;
 }
 
 .dropdown-item.seleccionado i:first-child {
-  color: #27AE60;
+  color: #1FAD53;
 }
 
 .dropdown-item .opcion-label {
@@ -293,7 +304,7 @@
 }
 
 .dropdown-item .check-icon {
-  color: #27AE60;
+  color: #1FAD53;
   font-size: 0.9rem;
   margin-left: auto;
 }
@@ -309,12 +320,12 @@
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb {
-  background: #2ECC71;
+  background: #25D366;
   border-radius: 4px;
 }
 
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
-  background: #27AE60;
+  background: #1FAD53;
 }
 
 /* Loading state */
@@ -330,7 +341,7 @@
 
 .dropdown-loading i {
   font-size: 1rem;
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .char-counter {
@@ -357,27 +368,30 @@
 
 .btn-submit {
   width: 100%;
-  padding: 1rem;
-  background: #2ECC71;
+  padding: 18px;
+  background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 1rem;
+  margin-top: 24px;
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #27AE60;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1FAD53 0%, #168F45 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.4);
 }
 
 .btn-submit:disabled {
-  background: #BDC3C7;
+  background: #E5E7EB;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .contact-info {
@@ -387,12 +401,18 @@
 }
 
 .redes-sociales {
-  padding: 2rem;
+  padding: 48px;
   background: white;
-  border-radius: 12px;
-  border: 2px solid rgba(46, 204, 113, 0.2);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  border: 2px solid #E5E7EB;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+.redes-sociales:hover {
+  border-color: #25D366;
+  box-shadow: 0 16px 48px rgba(37, 211, 102, 0.15);
 }
 
 .logo-section {
@@ -410,16 +430,16 @@
 }
 
 .logo-section h3 {
-  color: #2C3E50;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  color: #1F2937;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
   font-family: 'Inter', sans-serif;
 }
 
 .logo-section p {
-  color: #7F8C8D;
-  font-size: 1rem;
+  color: #6B7280;
+  font-size: 16px;
   margin: 0;
   font-family: 'Inter', sans-serif;
 }
@@ -431,10 +451,10 @@
 }
 
 .social-links h4 {
-  color: #2C3E50;
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  color: #1F2937;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
   font-family: 'Inter', sans-serif;
 }
 
@@ -445,8 +465,8 @@
 }
 
 .social-icon {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -454,6 +474,7 @@
   text-decoration: none;
   transition: all 0.3s ease;
   color: white;
+  font-size: 24px;
 }
 
 .social-icon.facebook {

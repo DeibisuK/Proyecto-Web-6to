@@ -1,18 +1,53 @@
-<section class="hover-gallery-section">
-  <div class="gallery-container">
-    <h2>Nuestras Instalaciones</h2>
-    <p class="gallery-subtitle">Descubre nuestras modernas instalaciones deportivas</p>
-    
-    <div class="pillars-container">
-      <div 
-        *ngFor="let image of images; let i = index" 
-        class="pillar" 
+<section class="hero-section">
+  <div class="hero-container">
+    <!-- Contenido Hero a la izquierda -->
+    <div class="hero-content">
+      <h1>
+        Tu cancha favorita a un
+        <span class="highlight">click</span>
+        de distancia
+      </h1>
+      <p class="hero-description">
+        Reserva canchas de fútbol, basketball, pádel y tenis en las mejores instalaciones.
+        Compra equipamiento deportivo y vive la mejor experiencia.
+      </p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary">
+          <span class="material-icons">event_available</span>
+          Reservar Ahora
+        </button>
+        <button class="btn btn-outline">
+          <span class="material-icons">visibility</span>
+          Ver Canchas
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value">45+</span>
+          <span class="stat-label">Canchas disponibles</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">12K+</span>
+          <span class="stat-label">Usuarios activos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">4.9</span>
+          <span class="stat-label">Valoración</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Galería hover a la derecha -->
+    <div class="hero-gallery">
+      <div
+        *ngFor="let image of images; let i = index"
+        class="gallery-pillar"
         [class.active]="hoveredIndex === i"
         (mouseenter)="hoveredIndex = i"
         (mouseleave)="hoveredIndex = -1">
-        
+
         <img [src]="image.src" [alt]="image.title" class="pillar-image">
-        
+
         <div class="pillar-overlay">
           <div class="pillar-content">
             <h3>{{ image.title }}</h3>

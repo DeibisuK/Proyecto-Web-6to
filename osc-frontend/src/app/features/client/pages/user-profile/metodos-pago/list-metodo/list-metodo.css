@@ -6,14 +6,16 @@
 }
 
 .payment-methods-header {
+  margin-top: 4rem;
   margin-bottom: 2rem;
 }
 
 .payment-methods-header h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 48px;
+  font-weight: 800;
+  color: #1F2937;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .payment-methods-card {
@@ -25,9 +27,9 @@
 
 /* Sección de tarjetas */
 .cards-section h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 24px;
+  font-weight: 700;
+  color: #1F2937;
   margin: 0 0 1.5rem 0;
 }
 
@@ -116,8 +118,8 @@
 }
 
 .payment-card:hover {
-  border-color: var(--color-accent);
-  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+  border-color: #25D366;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
 }
 
 .card-content {
@@ -138,7 +140,7 @@
 
 .card-type {
   font-weight: 600;
-  color: var(--color-primary);
+  color: #1F2937;
   flex: 1;
 }
 

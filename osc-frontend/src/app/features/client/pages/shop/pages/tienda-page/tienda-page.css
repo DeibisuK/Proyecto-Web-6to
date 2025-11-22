@@ -1,12 +1,13 @@
 .tienda-titulo {
-  margin-top: 2rem;
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
+  margin-top: 6rem;
+  font-size: 48px;
+  color: #1F2937;
+  margin-bottom: 24px;
+  font-weight: 800;
   font-family: 'Inter', sans-serif;
   text-align: center;
   position: relative;
+  letter-spacing: -0.02em;
 }
 
 .tienda-container {
@@ -76,13 +77,13 @@
 }
 
 .btn-dropdown-ordenamiento:hover {
-  border-color: #2ECC71;
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+  border-color: #25D366;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.2);
 }
 
 .btn-dropdown-ordenamiento.activo {
-  border-color: #2ECC71;
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+  border-color: #25D366;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
 }
 
 .ordenamiento-actual {
@@ -92,7 +93,7 @@
 }
 
 .ordenamiento-actual i {
-  color: #2ECC71;
+  color: #25D366;
   width: 16px;
   text-align: center;
 }
@@ -160,7 +161,7 @@
 
 .dropdown-ordenamiento .dropdown-item.seleccionado {
   background: #E8F8F0 !important;
-  color: #27AE60 !important;
+  color: #1FAD53 !important;
 }
 
 .dropdown-ordenamiento .dropdown-item i:first-child {
@@ -171,7 +172,7 @@
 }
 
 .dropdown-ordenamiento .dropdown-item.seleccionado i:first-child {
-  color: #27AE60 !important;
+  color: #1FAD53 !important;
 }
 
 .dropdown-ordenamiento .opcion-contenido {
@@ -193,7 +194,7 @@
 }
 
 .dropdown-ordenamiento .check-icon {
-  color: #27AE60 !important;
+  color: #1FAD53 !important;
   font-size: 1rem !important;
   margin-left: auto !important;
 }
@@ -210,8 +211,8 @@
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   background: white;
-  color: #2ECC71;
-  border: 2px solid #2ECC71;
+  color: #25D366;
+  border: 2px solid #25D366;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -220,7 +221,7 @@
 }
 
 .btn-toggle-modo:hover {
-  background: #27AE60;
+  background: #1FAD53;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
@@ -274,7 +275,7 @@
 
 .btn-limpiar-filtros {
   padding: 0.75rem 1.5rem;
-  background: #2ECC71;
+  background: #25D366;
   color: white;
   border: none;
   border-radius: 8px;
@@ -285,7 +286,7 @@
 }
 
 .btn-limpiar-filtros:hover {
-  background: #27AE60;
+  background: #1FAD53;
   box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 

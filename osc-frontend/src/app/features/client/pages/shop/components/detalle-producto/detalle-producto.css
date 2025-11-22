@@ -14,13 +14,13 @@
 }
 
 .breadcrumb a {
-  color: #2ECC71;
+  color: #25D366;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .breadcrumb a:hover {
-  color: #27AE60;
+  color: #1FAD53;
 }
 
 .breadcrumb-separator {
@@ -81,7 +81,7 @@
 }
 
 .imagen-miniatura.active {
-  border-color: #2ECC71;
+  border-color: #25D366;
 }
 
 .imagen-miniatura img {
@@ -96,7 +96,7 @@
 }
 
 .imagen-miniatura:hover {
-  border-color: #2ECC71;
+  border-color: #25D366;
 }
 
 .badges {
@@ -117,7 +117,7 @@
 }
 
 .badge.nuevo {
-  background: #2ECC71;
+  background: #25D366;
 }
 
 .badge.oferta {
@@ -151,7 +151,7 @@
 }
 
 .marca {
-  background: #2ECC71;
+  background: #25D366;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -197,7 +197,7 @@
 .precio-actual {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .precio-anterior {
@@ -310,7 +310,7 @@
 }
 
 .seccion-header:hover {
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .seccion-header h3 {
@@ -399,13 +399,13 @@
 }
 
 .talla-btn:hover {
-  border-color: #2ECC71;
-  color: #2ECC71;
+  border-color: #25D366;
+  color: #25D366;
 }
 
 .talla-btn.selected {
-  background: #2ECC71;
-  border-color: #2ECC71;
+  background: #25D366;
+  border-color: #25D366;
   color: white;
 }
 
@@ -492,8 +492,8 @@
 }
 
 .cantidad-btn:hover:not(:disabled) {
-  border-color: #2ECC71;
-  color: #2ECC71;
+  border-color: #25D366;
+  color: #25D366;
 }
 
 .cantidad-btn:disabled {
@@ -589,19 +589,19 @@
 }
 
 .buen-stock .stock-dot {
-  background: #2ECC71;
+  background: #25D366;
 }
 
 .buen-stock .stock-text {
-  color: #2ECC71;
+  color: #25D366;
 }
 
 .buen-stock .stock-fill {
-  background: #2ECC71;
+  background: #25D366;
 }
 
 .btn-agregar-carrito {
-  background: #2ECC71;
+  background: #25D366;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -618,7 +618,7 @@
 }
 
 .btn-agregar-carrito:hover:not(:disabled) {
-  background: #27AE60;
+  background: #1FAD53;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
@@ -645,7 +645,7 @@
 .loading-spinner i {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #2ECC71;
+  color: #25D366;
 }
 
 /* Responsive */
@@ -725,15 +725,15 @@
 }
 
 .color-btn:hover {
-  border-color: #2ECC71;
+  border-color: #25D366;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .color-btn.selected {
-  border-color: #2ECC71;
+  border-color: #25D366;
   background: #E8F8F0;
-  color: #27AE60;
+  color: #1FAD53;
   font-weight: 600;
 }
 
@@ -747,7 +747,7 @@
 }
 
 .color-btn.selected .color-indicator {
-  border-color: #2ECC71;
+  border-color: #25D366;
   box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
 }
 

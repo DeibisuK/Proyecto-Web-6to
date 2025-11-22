@@ -25,11 +25,6 @@ export class HoverGalleryComponent {
       src: 'https://termasvillaelisa.com/wp-content/uploads/2022/03/tenis-1.jpg',
       title: 'Canchas de Tenis',
       description: 'Superficie de arcilla y césped para torneos profesionales'
-    },
-    {
-      src: 'https://pdq-funding.co.uk/wp-content/uploads/2022/08/How-to-start-up-a-sports-shop.jpg.webp',
-      title: 'Tienda Deportiva',
-      description: 'Equipamiento y accesorios de las mejores marcas'
     }
   ];
 }

@@ -45,9 +45,10 @@
 
 .modal-header h2 {
   margin: 0 2rem 1.5rem 0;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 32px;
+  font-weight: 800;
+  color: #1F2937;
+  letter-spacing: -0.02em;
 }
 
 /* Métodos de pago disponibles */
@@ -90,8 +91,8 @@
 
 .form-label {
   font-weight: 600;
-  color: var(--color-primary);
-  font-size: 0.95rem;
+  color: #1F2937;
+  font-size: 15px;
 }
 
 .input-container {
@@ -104,29 +105,42 @@
   width: 100%;
   padding: 0.75rem 1rem;
   padding-left: 2.75rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #E5E7EB;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  color: #1F2937;
+  font-weight: 500;
+}
+
+.form-input::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--color-accent);
+  border-color: #25D366;
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.15);
+  color: #1F2937;
+}
+
+.form-input:focus::placeholder {
+  opacity: 0;
 }
 
 .input-icon-left {
   position: absolute;
   left: 0.75rem;
-  color: #999;
+  color: #6B7280;
   pointer-events: none;
 }
 
 .input-icon-right {
   position: absolute;
   right: 0.75rem;
-  color: #999;
+  color: #6B7280;
   pointer-events: none;
 }
 
@@ -185,9 +199,9 @@
 
 .protection-header h4 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: 700;
+  color: #1F2937;
 }
 
 .protection-list {
@@ -210,25 +224,26 @@
 /* Botón submit */
 .add-card-submit-btn {
   width: 100%;
-  padding: 1rem;
-  background: var(--color-accent);
+  padding: 16px;
+  background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
 }
 
 .add-card-submit-btn:hover:not(:disabled) {
-  background: #27ae60;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  background: linear-gradient(135deg, #1FAD53 0%, #168F45 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.4);
 }
 
 .add-card-submit-btn:disabled {

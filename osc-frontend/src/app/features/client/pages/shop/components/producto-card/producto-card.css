@@ -82,7 +82,7 @@
   right: 1rem;
   width: 40px;
   height: 40px;
-  background: #2ecc71;
+  background: #25D366;
   color: white;
   border: none;
   border-radius: 50%;
@@ -100,7 +100,7 @@
 }
 
 .btn-agregar:hover {
-  background: #27AE60;
+  background: #1FAD53;
   transform: scale(1.1);
 }
 
@@ -181,7 +181,7 @@
 .precio-actual {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2ecc71;
+  color: #25D366;
   line-height: 1;
 }
 

@@ -1,0 +1,21 @@
+<section class="how-it-works-section">
+  <div class="section-container">
+    <div class="section-header">
+      <h2>Reserva en 3 simples pasos</h2>
+      <p>Proceso rápido y sencillo para que disfrutes más tiempo jugando.</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step-card" *ngFor="let step of steps; let i = index" [attr.data-index]="i">
+        <div class="step-number">{{ step.number }}</div>
+        <h3>{{ step.title }}</h3>
+        <p>{{ step.description }}</p>
+        <div class="step-icon">
+          <span class="material-icons" *ngIf="step.number === 1">sports_soccer</span>
+          <span class="material-icons" *ngIf="step.number === 2">event_available</span>
+          <span class="material-icons" *ngIf="step.number === 3">check_circle</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

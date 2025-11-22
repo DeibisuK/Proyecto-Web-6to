@@ -2,109 +2,120 @@
 
   <!-- Sedes agrupadas por ciudad -->
   <div class="ciudades-container">
-    <div class="ciudad-section" *ngFor="let grupo of sedesAgrupadas">
-      <!-- Título de la ciudad -->
-      <div class="ciudad-header">
-        <h2 class="ciudad-titulo">
-          <span class="material-icons">location_city</span>
-          {{ grupo.nombre }}
-        </h2>
-        <span class="ciudad-count">{{ grupo.sedes.length }} sede{{ grupo.sedes.length !== 1 ? 's' : '' }}</span>
-      </div>
+    @for (grupo of sedesAgrupadas; track grupo.nombre) {
+      <div class="ciudad-section">
+        <!-- Título de la ciudad -->
+        <div class="ciudad-header">
+          <h2 class="ciudad-titulo">
+            <span class="material-icons">location_city</span>
+            {{ grupo.nombre }}
+          </h2>
+          <span class="ciudad-count">{{ grupo.sedes.length }} sede{{ grupo.sedes.length !== 1 ? 's' : '' }}</span>
+        </div>
 
-      <!-- Grid de Sedes de esta ciudad -->
-      <div class="sedes-grid">
-        <ng-container *ngIf="!isLoading; else sedesSkeleton">
-          <div class="sede-card" *ngFor="let sede of grupo.sedes">
-            <!-- Mapa -->
-            <div class="sede-map">
-              <app-mini-map
-                *ngIf="sede.latitud && sede.longitud"
-                [latitud]="sede.latitud"
-                [longitud]="sede.longitud"
-                [zoom]="14">
-              </app-mini-map>
-              <div *ngIf="!sede.latitud || !sede.longitud" class="no-map-placeholder">
-                <span class="material-icons">location_off</span>
-                <p>Mapa no disponible</p>
-              </div>
-              <div class="map-overlay">
-                <span class="material-icons">location_on</span>
-              </div>
-            </div>
-
-            <!-- Contenido -->
-            <div class="sede-content">
-              <!-- Header con título y ciudad -->
-              <div class="sede-header">
-                <h3 class="sede-nombre">{{ sede.nombre_sede }}</h3>
-                <span class="ciudad-badge">{{ sede.ciudad }}</span>
-              </div>
-
-              <!-- Dirección -->
-              <div class="sede-direccion">
-                <span class="material-icons">place</span>
-                <span>{{ sede.direccion }}</span>
-              </div>
-
-              <!-- Información de contacto -->
-              <div class="sede-info">
-                <div class="info-item" *ngIf="sede.telefono">
-                  <span class="material-icons">phone</span>
-                  <span>{{ sede.telefono }}</span>
+        <!-- Grid de Sedes de esta ciudad -->
+        <div class="sedes-grid">
+          @if (!isLoading) {
+            @for (sede of grupo.sedes; track sede.id_sede) {
+              <div class="sede-card">
+                <!-- Mapa -->
+                <div class="sede-map">
+                  @if (sede.latitud && sede.longitud) {
+                    <app-mini-map
+                      [latitud]="sede.latitud"
+                      [longitud]="sede.longitud"
+                      [zoom]="14">
+                    </app-mini-map>
+                  } @else {
+                    <div class="no-map-placeholder">
+                      <span class="material-icons">location_off</span>
+                      <p>Mapa no disponible</p>
+                    </div>
+                  }
+                  <div class="map-overlay">
+                    <span class="material-icons">location_on</span>
+                  </div>
                 </div>
-                <div class="info-item" *ngIf="sede.email">
-                  <span class="material-icons">email</span>
-                  <span>{{ sede.email }}</span>
+
+                <!-- Contenido -->
+                <div class="sede-content">
+                  <!-- Header con título y ciudad -->
+                  <div class="sede-header">
+                    <h3 class="sede-nombre">{{ sede.nombre_sede }}</h3>
+                    <span class="ciudad-badge">{{ sede.ciudad }}</span>
+                  </div>
+
+                  <!-- Dirección -->
+                  <div class="sede-direccion">
+                    <span class="material-icons">place</span>
+                    <span>{{ sede.direccion }}</span>
+                  </div>
+
+                  <!-- Información de contacto -->
+                  <div class="sede-info">
+                    @if (sede.telefono) {
+                      <div class="info-item">
+                        <span class="material-icons">phone</span>
+                        <span>{{ sede.telefono }}</span>
+                      </div>
+                    }
+                    @if (sede.email) {
+                      <div class="info-item">
+                        <span class="material-icons">email</span>
+                        <span>{{ sede.email }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Estado -->
+                  <div class="sede-footer">
+                    <span
+                      class="estado-badge"
+                      [class.estado-activo]="sede.estado === 'Activo'"
+                      [class.estado-mantenimiento]="sede.estado === 'Mantenimiento'"
+                      [class.estado-inactivo]="sede.estado === 'Inactivo'">
+                      {{ sede.estado }}
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              <!-- Estado -->
-              <div class="sede-footer">
-                <span
-                  class="estado-badge"
-                  [class.estado-activo]="sede.estado === 'Activo'"
-                  [class.estado-mantenimiento]="sede.estado === 'Mantenimiento'"
-                  [class.estado-inactivo]="sede.estado === 'Inactivo'">
-                  {{ sede.estado }}
-                </span>
+            }
+          } @else {
+            @for (s of [1,2,3,4]; track $index) {
+              <div class="sede-card skeleton">
+                <div class="sede-map skeleton-image">
+                  <div class="skeleton-shimmer"></div>
+                </div>
+                <div class="sede-content">
+                  <div class="sede-header">
+                    <div class="skeleton-text skeleton-title"></div>
+                    <div class="skeleton-text skeleton-detail" style="width:30%"></div>
+                  </div>
+                  <div class="sede-direccion">
+                    <div class="skeleton-text skeleton-detail" style="width:70%"></div>
+                  </div>
+                  <div class="sede-info">
+                    <div class="skeleton-text skeleton-detail" style="width:40%"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <ng-template #sedesSkeleton>
-          <div class="sede-card skeleton" *ngFor="let s of [1,2,3,4]">
-            <div class="sede-map skeleton-image">
-              <div class="skeleton-shimmer"></div>
-            </div>
-            <div class="sede-content">
-              <div class="sede-header">
-                <div class="skeleton-text skeleton-title"></div>
-                <div class="skeleton-text skeleton-detail" style="width:30%"></div>
-              </div>
-              <div class="sede-direccion">
-                <div class="skeleton-text skeleton-detail" style="width:70%"></div>
-              </div>
-              <div class="sede-info">
-                <div class="skeleton-text skeleton-detail" style="width:40%"></div>
-              </div>
-            </div>
-          </div>
-        </ng-template>
-
+            }
+          }
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <!-- Estado vacío -->
-  <div class="empty-state" *ngIf="sedesAgrupadas.length === 0">
-    <div class="empty-icon">
-      <span class="material-icons">location_off</span>
+  @if (sedesAgrupadas.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <span class="material-icons">location_off</span>
+      </div>
+      <h3 class="empty-title">No se encontraron sedes</h3>
+      <p class="empty-message">
+        {{ searchTerm || estadoFiltro ? 'Intenta ajustar los filtros de búsqueda' : 'No hay sedes disponibles en este momento' }}
+      </p>
     </div>
-    <h3 class="empty-title">No se encontraron sedes</h3>
-    <p class="empty-message">
-      {{ searchTerm || estadoFiltro ? 'Intenta ajustar los filtros de búsqueda' : 'No hay sedes disponibles en este momento' }}
-    </p>
-  </div>
+  }
 </div>

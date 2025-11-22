@@ -1,0 +1,198 @@
+.how-it-works-section {
+  padding: 120px 60px;
+  background: #FFFFFF;
+}
+
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 72px;
+}
+
+.section-header h2 {
+  font-size: 44px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 18px;
+  letter-spacing: -0.02em;
+}
+
+.section-header p {
+  font-size: 18px;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.step-card {
+  text-align: center;
+  padding: 48px 36px;
+  background: white;
+  border-radius: 24px;
+  border: 2px solid #E5E7EB;
+  position: relative;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #25D366 0%, #1FAD53 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.step-card:hover::before {
+  transform: scaleX(1);
+}
+
+.step-card:hover {
+  border-color: #25D366;
+  transform: translateY(-12px);
+  box-shadow: 0 24px 48px rgba(37, 211, 102, 0.15);
+  background: linear-gradient(180deg, #FFFFFF 0%, #ECFDF5 100%);
+}
+
+.step-number {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 28px;
+  background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
+  transition: all 0.4s ease;
+}
+
+.step-card:hover .step-number {
+  transform: scale(1.1) rotate(360deg);
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.4);
+}
+
+.step-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 14px;
+  transition: color 0.3s ease;
+}
+
+.step-card:hover h3 {
+  color: #10B981;
+}
+
+.step-card p {
+  font-size: 16px;
+  color: #6B7280;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.step-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  background: #ECFDF5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+}
+
+.step-card:hover .step-icon {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-icon .material-icons {
+  color: #25D366;
+  font-size: 28px;
+}
+
+/* Línea conectora entre pasos */
+.step-card[data-index="0"]::after,
+.step-card[data-index="1"]::after {
+  content: '→';
+  position: absolute;
+  top: 50%;
+  right: -32px;
+  transform: translateY(-50%);
+  font-size: 32px;
+  color: #E5E7EB;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.step-card:hover[data-index="0"]::after,
+.step-card:hover[data-index="1"]::after {
+  color: #25D366;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .how-it-works-section {
+    padding: 80px 40px;
+  }
+
+  .section-header h2 {
+    font-size: 36px;
+  }
+
+  .steps-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .step-card::after {
+    content: '↓';
+    top: auto;
+    bottom: -28px;
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .step-card[data-index="2"]::after {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .how-it-works-section {
+    padding: 60px 20px;
+  }
+
+  .section-header {
+    margin-bottom: 48px;
+  }
+
+  .section-header h2 {
+    font-size: 32px;
+  }
+
+  .step-card {
+    padding: 36px 24px;
+  }
+}

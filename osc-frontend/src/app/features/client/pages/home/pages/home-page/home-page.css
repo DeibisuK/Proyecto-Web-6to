@@ -1,4 +1,42 @@
 .home-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Alternating backgrounds for full-width sections */
+.home-container app-hover-gallery {
+  display: block;
+  width: 100%;
+}
+
+.home-container app-caracteristicas-principales {
+  display: block;
+  width: 100%;
+  background: linear-gradient(180deg, #F9FAFB 0%, #FFFFFF 100%);
+}
+
+.home-container app-como-funciona {
+  display: block;
+  width: 100%;
+  background: #FFFFFF;
+}
+
+.home-container app-articles-carousel {
+  display: block;
+  width: 100%;
+  background: #F9FAFB;
+}
+
+.home-container app-preguntas-frecuentes {
+  display: block;
+  width: 100%;
+  background: #ECFDF5;
+}
+
+.home-container app-contact {
+  display: block;
+  width: 100%;
+  background: #FFFFFF;
 }

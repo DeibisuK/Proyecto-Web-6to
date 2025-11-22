@@ -10,6 +10,10 @@ import { Equipos } from "./pages/equipos/equipos";
 import { ProductosComponent } from "./pages/productos/productos";
 import { ListTorneos } from "./pages/torneos/list-torneos/list-torneos";
 import { CrearTorneo } from "./pages/torneos/crear-torneo/crear-torneo";
+import { Reportes } from "./pages/reportes/reportes";
+import { ListReservas } from "./pages/reservas/list-reservas/list-reservas";
+import { Historial } from "./pages/historial/historial";
+import { Partidos } from "./pages/partidos/partidos";
 
 export const adminRoutes: Routes = [
   {
@@ -21,6 +25,16 @@ export const adminRoutes: Routes = [
     path: 'dashboard',
     component: Dashboard,
     title: 'Dashboard'
+  },
+  {
+    path: 'reportes',
+    component: Reportes,
+    title: 'Reportes'
+  },
+  {
+    path: 'reservas',
+    component: ListReservas,
+    title: 'Reservas'
   },
   {
     path: 'productos',
@@ -56,6 +70,16 @@ export const adminRoutes: Routes = [
     path: 'editar-cancha/:id',
     component: CrearCancha,
     title: 'Editar Cancha'
+  },
+  {
+    path: 'historial',
+    component: Historial,
+    title: 'Historial'
+  },
+  {
+    path: 'partidos',
+    component: Partidos,
+    title: 'Partidos'
   },
   {
     path: 'torneos',
