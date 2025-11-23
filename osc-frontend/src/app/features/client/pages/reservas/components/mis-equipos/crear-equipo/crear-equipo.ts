@@ -8,6 +8,7 @@ import { EquipoService } from '@shared/services/index';
 import { NotificationService } from '@core/services/notification.service';
 import { DeporteService } from '@shared/services/index';
 import { Deporte } from '@shared/models/index';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-crear-equipo',
@@ -163,7 +164,7 @@ export class CrearEquipo implements OnInit {
 
       this.http
         .post<{ success: boolean; url: string }>(
-          'http://localhost:3000/i/client/upload-equipo',
+          `${environment.apiUrl}/i/client/upload-equipo`,
           formData
         )
         .subscribe({

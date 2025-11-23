@@ -3,7 +3,10 @@
   <header class="dashboard-header">
     <div class="header-top">
       <div class="breadcrumbs">
-        <span class="breadcrumb-item">🏠 Inicio</span>
+        <span class="breadcrumb-item">
+          <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">home</span>
+          Inicio
+        </span>
         <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-item active">Torneos</span>
       </div>
@@ -27,48 +30,56 @@
     <!-- Stats Cards -->
     <div class="stats-grid" *ngIf="showStats">
       <div class="stat-card animate-fade-in" style="animation-delay: 0.1s">
-        <div class="stat-icon futbol">⚽</div>
+        <div class="stat-icon futbol">
+          <span class="material-icons">sports_soccer</span>
+        </div>
         <div class="stat-content">
           <div class="stat-label">Inscripciones Activas</div>
           <div class="stat-value">{{ stats.inscripcionesActivas }}</div>
           <div class="stat-trend up">
-            <span>📋</span>
+            <span class="material-icons">assignment</span>
             <span>Torneos activos</span>
           </div>
         </div>
       </div>
 
       <div class="stat-card animate-fade-in" style="animation-delay: 0.2s">
-        <div class="stat-icon padel">🎾</div>
+        <div class="stat-icon padel">
+          <span class="material-icons">sports_tennis</span>
+        </div>
         <div class="stat-content">
           <div class="stat-label">Próximos Partidos</div>
           <div class="stat-value">{{ stats.proximosPartidos }}</div>
           <div class="stat-trend">
-            <span>📅</span>
+            <span class="material-icons">event</span>
             <span>Programados</span>
           </div>
         </div>
       </div>
 
       <div class="stat-card animate-fade-in" style="animation-delay: 0.3s">
-        <div class="stat-icon basket">🏀</div>
+        <div class="stat-icon basket">
+          <span class="material-icons">sports_basketball</span>
+        </div>
         <div class="stat-content">
           <div class="stat-label">Victorias</div>
           <div class="stat-value">{{ stats.victorias }}</div>
           <div class="stat-trend up">
-            <span>🔥</span>
+            <span class="material-icons">local_fire_department</span>
             <span>Total ganados</span>
           </div>
         </div>
       </div>
 
       <div class="stat-card animate-fade-in" style="animation-delay: 0.4s">
-        <div class="stat-icon trophy">🏆</div>
+        <div class="stat-icon trophy">
+          <span class="material-icons">emoji_events</span>
+        </div>
         <div class="stat-content">
           <div class="stat-label">Torneos Ganados</div>
           <div class="stat-value">{{ stats.torneosGanados }}</div>
           <div class="stat-trend">
-            <span>�</span>
+            <span class="material-icons">star</span>
             <span>Campeonatos</span>
           </div>
         </div>
@@ -139,21 +150,21 @@
             class="filter-chip"
             [class.active]="selectedSport === 'futbol'"
             (click)="filterBySport('futbol')">
-            <span>⚽</span>
+            <span class="material-icons">sports_soccer</span>
             <span>Fútbol</span>
           </button>
           <button
             class="filter-chip"
             [class.active]="selectedSport === 'padel'"
             (click)="filterBySport('padel')">
-            <span>🎾</span>
+            <span class="material-icons">sports_tennis</span>
             <span>Padel</span>
           </button>
           <button
             class="filter-chip"
             [class.active]="selectedSport === 'basket'"
             (click)="filterBySport('basket')">
-            <span>🏀</span>
+            <span class="material-icons">sports_basketball</span>
             <span>Basket</span>
           </button>
         </div>

@@ -15,8 +15,8 @@
   <div class="search-section">
     <div class="search-box">
       <span class="material-icons">search</span>
-      <input 
-        type="text" 
+      <input
+        type="text"
         placeholder="Buscar equipos por nombre..."
         [(ngModel)]="searchTerm"
         (input)="filtrarEquipos()"
@@ -31,53 +31,59 @@
   </div>
 
   <!-- Lista de Equipos -->
-  <div class="equipos-grid" *ngIf="!isLoading && equiposFiltrados.length > 0; else contenidoAlternativo">
-    <div class="equipo-card" *ngFor="let equipo of equiposFiltrados">
+  @if (!isLoading && equiposFiltrados.length > 0) {
+    <div class="equipos-grid">
+      @for (equipo of equiposFiltrados; track equipo.id_equipo) {
+        <div class="equipo-card">
       <div class="equipo-logo">
-        <img 
-          *ngIf="equipo.logo_url" 
-          [src]="equipo.logo_url" 
-          [alt]="equipo.nombre_equipo"
-        />
-        <div class="logo-fallback" *ngIf="!equipo.logo_url">
-          <span class="material-icons">shield</span>
-        </div>
-      </div>
-      
-      <div class="equipo-info">
+        @if (equipo.logo_url) {
+          <img
+            [src]="equipo.logo_url"
+            [alt]="equipo.nombre_equipo"
+          />
+        } @else {
+          <div class="logo-fallback">
+            <span class="material-icons">shield</span>
+          </div>
+        }
+      </div>      <div class="equipo-info">
         <div class="titulo-con-badge">
           <h3>{{ equipo.nombre_equipo }}</h3>
-          <span class="deporte-badge" *ngIf="equipo.id_deporte" [attr.data-deporte]="equipo.id_deporte">
-            {{ obtenerNombreDeporte(equipo.id_deporte) }}
-          </span>
+          @if (equipo.id_deporte) {
+            <span class="deporte-badge" [attr.data-deporte]="equipo.id_deporte">
+              {{ obtenerNombreDeporte(equipo.id_deporte) }}
+            </span>
+          }
         </div>
         <p class="descripcion">{{ equipo.descripcion || 'Sin descripción' }}</p>
       </div>
 
       <div class="equipo-actions">
-        <button 
-          class="btn-action btn-edit" 
+        <button
+          class="btn-action btn-edit"
           (click)="editarEquipo(equipo)"
           title="Editar equipo"
         >
           <span class="material-icons">edit</span>
         </button>
-        <button 
-          class="btn-action btn-delete" 
+        <button
+          class="btn-action btn-delete"
           (click)="eliminarEquipo(equipo)"
           title="Eliminar equipo"
         >
           <span class="material-icons">delete</span>
         </button>
       </div>
+        </div>
+      }
     </div>
-  </div>
+  }
 
-  <!-- Skeleton Loading y Sin Equipos -->
-  <ng-template #contenidoAlternativo>
-    <!-- Skeleton Loading -->
-    <div class="equipos-grid" *ngIf="isLoading">
-      <div class="equipo-card skeleton" *ngFor="let item of [1,2,3,4,5,6]">
+  <!-- Skeleton Loading -->
+  @if (isLoading) {
+    <div class="equipos-grid">
+      @for (item of [1,2,3,4,5,6]; track item) {
+        <div class="equipo-card skeleton">
         <div class="equipo-logo skeleton-logo">
           <div class="skeleton-shimmer"></div>
         </div>
@@ -91,22 +97,26 @@
           <div class="skeleton-button"></div>
           <div class="skeleton-button"></div>
         </div>
-      </div>
+        </div>
+      }
     </div>
+  }
 
-    <!-- Sin equipos -->
-    <div class="empty-state" *ngIf="!isLoading && equiposFiltrados.length === 0">
+  <!-- Sin equipos -->
+  @if (!isLoading && equiposFiltrados.length === 0) {
+    <div class="empty-state">
       <div class="empty-icon">
         <span class="material-icons">sports_soccer</span>
       </div>
       <h3>No tienes equipos registrados</h3>
       <p>Crea tu primer equipo para empezar a organizar tus partidos</p>
     </div>
-  </ng-template>
+  }
 </div>
 
 <!-- Modal de Crear/Editar Equipo -->
-<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+@if (mostrarModal) {
+  <div class="modal-overlay">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <app-crear-equipo
       [equipoEditar]="equipoSeleccionado"
@@ -114,10 +124,12 @@
       (cerrarModal)="cerrarModal()"
     ></app-crear-equipo>
   </div>
-</div>
+  </div>
+}
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal-overlay" *ngIf="mostrarModalEliminar" (click)="cerrarModalEliminar()">
+@if (mostrarModalEliminar) {
+  <div class="modal-overlay">
   <div class="modal-confirm" (click)="$event.stopPropagation()">
     <div class="confirm-header">
       <span class="material-icons danger">warning</span>
@@ -135,4 +147,5 @@
       </button>
     </div>
   </div>
-</div>
+  </div>
+}

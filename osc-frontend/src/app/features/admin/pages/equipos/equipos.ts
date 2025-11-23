@@ -251,13 +251,13 @@ export class Equipos implements OnInit {
     this.equipoSeleccionado = { ...equipo };
     this.mostrarModalAsignar = true;
     this.searchUsuario = '';
-    
+
     // Simular miembros actuales del equipo (esto vendría de la API)
     this.miembrosEquipo = [
       { id: 1, nombre: 'Juan Pérez', email: 'juan.perez@example.com' },
       { id: 3, nombre: 'Carlos Rodríguez', email: 'carlos.rodriguez@example.com' }
     ];
-    
+
     this.usuariosFiltrados = [...this.usuariosDisponibles];
   }
 

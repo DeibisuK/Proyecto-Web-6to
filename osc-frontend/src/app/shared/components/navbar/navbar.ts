@@ -313,10 +313,16 @@ export class Navbar implements OnInit, OnDestroy {
 
   toggleCart() {
     this.showCart = !this.showCart;
+    if (this.showCart) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
   closeCart() {
     this.showCart = false;
+    document.body.style.overflow = '';
   }
 
   onSearch() {
