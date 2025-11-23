@@ -35,6 +35,7 @@ export class Equipos implements OnInit {
   isLoading = true;
   mostrarModalEliminar = false;
   mostrarModalEditar = false;
+  mostrarModalAsignar = false;
   equipoSeleccionado: Equipo | null = null;
 
   // Logo preview para modal de edición
@@ -45,6 +46,23 @@ export class Equipos implements OnInit {
   skeletonItems = Array(20).fill(0);
 
   deporte: Deporte[] = [];
+
+  // Modal de asignar personas
+  searchUsuario = '';
+  usuariosDisponibles: any[] = [
+    { id: 1, nombre: 'Juan Pérez', email: 'juan.perez@example.com' },
+    { id: 2, nombre: 'María González', email: 'maria.gonzalez@example.com' },
+    { id: 3, nombre: 'Carlos Rodríguez', email: 'carlos.rodriguez@example.com' },
+    { id: 4, nombre: 'Ana Martínez', email: 'ana.martinez@example.com' },
+    { id: 5, nombre: 'Luis Fernández', email: 'luis.fernandez@example.com' },
+    { id: 6, nombre: 'Sofia López', email: 'sofia.lopez@example.com' },
+    { id: 7, nombre: 'Diego Sánchez', email: 'diego.sanchez@example.com' },
+    { id: 8, nombre: 'Valentina Torres', email: 'valentina.torres@example.com' },
+    { id: 9, nombre: 'Miguel Ramírez', email: 'miguel.ramirez@example.com' },
+    { id: 10, nombre: 'Isabella Castro', email: 'isabella.castro@example.com' }
+  ];
+  usuariosFiltrados: any[] = [];
+  miembrosEquipo: any[] = [];
 
   constructor(
     private equipoService: EquipoService,
@@ -226,5 +244,63 @@ export class Equipos implements OnInit {
         this.dropdownDeporteAbierto.set(false);
       }
     });
+  }
+
+  // ========== MÉTODOS MODAL ASIGNAR PERSONAS ==========
+  abrirModalAsignar(equipo: Equipo) {
+    this.equipoSeleccionado = { ...equipo };
+    this.mostrarModalAsignar = true;
+    this.searchUsuario = '';
+    
+    // Simular miembros actuales del equipo (esto vendría de la API)
+    this.miembrosEquipo = [
+      { id: 1, nombre: 'Juan Pérez', email: 'juan.perez@example.com' },
+      { id: 3, nombre: 'Carlos Rodríguez', email: 'carlos.rodriguez@example.com' }
+    ];
+    
+    this.usuariosFiltrados = [...this.usuariosDisponibles];
+  }
+
+  cerrarModalAsignar() {
+    this.mostrarModalAsignar = false;
+    this.equipoSeleccionado = null;
+    this.searchUsuario = '';
+    this.miembrosEquipo = [];
+    this.usuariosFiltrados = [];
+  }
+
+  filtrarUsuarios() {
+    const search = this.searchUsuario.toLowerCase().trim();
+    if (!search) {
+      this.usuariosFiltrados = [...this.usuariosDisponibles];
+    } else {
+      this.usuariosFiltrados = this.usuariosDisponibles.filter(usuario =>
+        usuario.nombre.toLowerCase().includes(search) ||
+        usuario.email.toLowerCase().includes(search)
+      );
+    }
+  }
+
+  agregarMiembro(usuario: any) {
+    if (!this.esMiembro(usuario.id)) {
+      this.miembrosEquipo.push({ ...usuario });
+      this.notificationService.success(`${usuario.nombre} agregado al equipo`);
+    }
+  }
+
+  removerMiembro(miembro: any) {
+    this.miembrosEquipo = this.miembrosEquipo.filter(m => m.id !== miembro.id);
+    this.notificationService.success(`${miembro.nombre} removido del equipo`);
+  }
+
+  esMiembro(usuarioId: number): boolean {
+    return this.miembrosEquipo.some(m => m.id === usuarioId);
+  }
+
+  guardarAsignaciones() {
+    // Aquí iría la lógica para guardar en la API
+    console.log('Guardando asignaciones:', this.miembrosEquipo);
+    this.notificationService.success('Asignaciones guardadas exitosamente');
+    this.cerrarModalAsignar();
   }
 }
