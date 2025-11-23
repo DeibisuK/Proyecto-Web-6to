@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, inject, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,15 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth.service';
 import { SedeService } from '@shared/services/index';
 import { Sedes } from '@shared/models/index';
+
+interface Notification {
+  id: string;
+  subject: string;
+  description: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  date: Date;
+  read: boolean;
+}
 
 @Component({
   selector: 'app-navbar',
@@ -40,6 +49,51 @@ export class Navbar implements OnInit, OnDestroy {
   showSidebar = false;
   showCart:boolean = false;
   cartItemCount = 0;
+  showNotifications = false;
+  showUserMenu = false;
+
+  notifications: Notification[] = [
+    {
+      id: '1',
+      subject: 'Nueva reserva confirmada',
+      description: 'Se ha confirmado una nueva reserva para la Cancha de Fútbol 5 el día 25 de noviembre a las 18:00 horas.',
+      type: 'success',
+      date: new Date(Date.now() - 1000 * 60 * 5),
+      read: false
+    },
+    {
+      id: '2',
+      subject: 'Pago pendiente de verificación',
+      description: 'El pago del pedido #ORD-2024-045 está pendiente de verificación. Monto: $150.00',
+      type: 'warning',
+      date: new Date(Date.now() - 1000 * 60 * 30),
+      read: false
+    },
+    {
+      id: '3',
+      subject: 'Producto enviado',
+      description: 'Tu pedido #ORD-2024-038 ha sido enviado. Número de seguimiento: TRK123456789',
+      type: 'info',
+      date: new Date(Date.now() - 1000 * 60 * 60 * 2),
+      read: false
+    },
+    {
+      id: '4',
+      subject: 'Torneo próximo',
+      description: 'Tu equipo participará en el torneo "Copa de Verano 2025" el próximo sábado.',
+      type: 'info',
+      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
+      read: true
+    },
+    {
+      id: '5',
+      subject: 'Descuento especial',
+      description: '¡Tienes un 20% de descuento en tu próxima compra! Código: VERANO2025',
+      type: 'success',
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24),
+      read: true
+    }
+  ];
 
   // Componente React del carrito
   CartComponent = Cart;
@@ -171,6 +225,68 @@ export class Navbar implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.notifications-wrapper')) {
+      this.showNotifications = false;
+    }
+    if (!target.closest('.user-dropdown')) {
+      this.showUserMenu = false;
+    }
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showUserMenu = false;
+  }
+
+  closeNotifications(): void {
+    this.showNotifications = false;
+  }
+
+  toggleUserMenu(): void {
+    this.showUserMenu = !this.showUserMenu;
+    this.showNotifications = false;
+  }
+
+  closeUserMenu(): void {
+    this.showUserMenu = false;
+  }
+
+  markAsRead(notification: Notification): void {
+    notification.read = true;
+  }
+
+  markAllAsRead(): void {
+    this.notifications.forEach(n => n.read = true);
+  }
+
+  getNotificationIcon(type: string): string {
+    const icons: Record<string, string> = {
+      info: 'info',
+      success: 'check_circle',
+      warning: 'warning',
+      error: 'error'
+    };
+    return icons[type] || 'notifications';
+  }
+
+  getTimeAgo(date: Date): string {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'Hace unos segundos';
+    if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)} minutos`;
+    if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)} horas`;
+    if (seconds < 604800) return `Hace ${Math.floor(seconds / 86400)} días`;
+
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  }
+
   toggleDropdown(dropdown: keyof typeof this.dropdowns, show: boolean) {
     this.dropdowns[dropdown] = show;
   }
@@ -277,5 +393,12 @@ export class Navbar implements OnInit, OnDestroy {
       queryParams: { ciudad: ciudad },
     });
     this.toggleDropdown('sedes', false);
+  }
+
+  getUserDisplayName(): string {
+    if (!this.user) return 'Usuario';
+    if (this.user.displayName) return this.user.displayName;
+    if (this.user.email) return this.user.email.split('@')[0];
+    return 'Usuario';
   }
 }

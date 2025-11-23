@@ -33,6 +33,7 @@ import { ClasificacionComponent } from "./pages/reservas/components/dashboard-to
 import { PlanesSuscripcionComponent } from "./pages/subscription/planes-suscripcion.component";
 import { MiSuscripcionComponent } from "./pages/subscription/mi-suscripcion.component";
 import { premiumGuard } from "@app/core/guards/subscription.guard";
+import { BandejaNotificaciones } from "@app/shared/components/notificaciones/bandeja-notificaciones/bandeja-notificaciones";
 
 export const clienteRoutes: Routes = [
   {
@@ -157,5 +158,9 @@ export const clienteRoutes: Routes = [
   {
     path: 'mis-subscripciones',
     component: MiSuscripcionComponent
+  },
+  {
+    path: 'notificaciones',
+    component: BandejaNotificaciones
   }
 ]

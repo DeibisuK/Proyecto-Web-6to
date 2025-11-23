@@ -1,0 +1,141 @@
+<div class="notifications-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Bandeja de Notificaciones</h1>
+      <p class="page-subtitle">
+        Tienes <strong>{{ unreadCount }}</strong> notificaciones sin leer
+      </p>
+    </div>
+    <button class="btn-mark-all" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+      <span class="material-icons">done_all</span>
+      Marcar todas como leídas
+    </button>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="controls-bar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input
+        type="text"
+        placeholder="Buscar notificaciones..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()">
+    </div>
+
+    <div class="filter-tabs">
+      <button
+        class="filter-tab"
+        [class.active]="filterType === 'all'"
+        (click)="filterType = 'all'; onFilterChange()">
+        <span class="material-icons">inbox</span>
+        Todas
+      </button>
+      <button
+        class="filter-tab"
+        [class.active]="filterType === 'unread'"
+        (click)="filterType = 'unread'; onFilterChange()">
+        <span class="material-icons">mark_email_unread</span>
+        No leídas
+      </button>
+      <button
+        class="filter-tab info"
+        [class.active]="filterType === 'info'"
+        (click)="filterType = 'info'; onFilterChange()">
+        <span class="material-icons">info</span>
+        Info
+      </button>
+      <button
+        class="filter-tab success"
+        [class.active]="filterType === 'success'"
+        (click)="filterType = 'success'; onFilterChange()">
+        <span class="material-icons">check_circle</span>
+        Éxito
+      </button>
+      <button
+        class="filter-tab warning"
+        [class.active]="filterType === 'warning'"
+        (click)="filterType = 'warning'; onFilterChange()">
+        <span class="material-icons">warning</span>
+        Advertencia
+      </button>
+      <button
+        class="filter-tab error"
+        [class.active]="filterType === 'error'"
+        (click)="filterType = 'error'; onFilterChange()">
+        <span class="material-icons">error</span>
+        Error
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications List -->
+  <div class="notifications-container">
+    @if (filteredNotifications.length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">notifications_none</span>
+        <h3>No hay notificaciones</h3>
+        <p>No tienes notificaciones que coincidan con los filtros seleccionados</p>
+      </div>
+    } @else {
+      <div class="notifications-list">
+        @for (notification of filteredNotifications; track notification.id) {
+          <div class="notification-card"
+               [class.unread]="!notification.read"
+               [class.expanded]="notification.expanded"
+               (click)="toggleNotification(notification)">
+            <div class="notification-header">
+              <div class="notification-icon-wrapper" [ngClass]="notification.type">
+                <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+              </div>
+
+              <div class="notification-info">
+                <h3 class="notification-subject">
+                  {{ notification.subject }}
+                  @if (!notification.read) {
+                    <span class="new-badge">Nuevo</span>
+                  }
+                </h3>
+                <p class="notification-date">
+                  <span class="material-icons">schedule</span>
+                  {{ getFormattedDate(notification.date) }}
+                </p>
+              </div>
+
+              <div class="notification-actions">
+                <button
+                  class="action-btn delete"
+                  (click)="deleteNotification(notification, $event)"
+                  title="Eliminar">
+                  <span class="material-icons">delete</span>
+                </button>
+                <span class="material-icons expand-icon">
+                  {{ notification.expanded ? 'expand_less' : 'expand_more' }}
+                </span>
+              </div>
+            </div>
+
+            @if (notification.expanded) {
+              <div class="notification-body">
+                <div class="notification-description">
+                  <h4>Descripción</h4>
+                  <p>{{ notification.description }}</p>
+                </div>
+
+                <div class="notification-footer">
+                  @if (!notification.read) {
+                    <button class="btn-secondary" (click)="markAsRead(notification); $event.stopPropagation()">
+                      <span class="material-icons">done</span>
+                      Marcar como leída
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

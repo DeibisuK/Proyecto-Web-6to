@@ -50,6 +50,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   background: rgba(0, 0, 0, 0.3);
   position: relative;
   height: 70px;
@@ -189,13 +190,344 @@
   background: rgba(74, 222, 128, 0.7);
 }
 
+/* ========================================
+   NOTIFICATIONS SYSTEM
+   ======================================== */
+.notifications-wrapper {
+  position: relative;
+}
+
+.notification-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.notification-btn:hover {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.notification-btn i {
+  font-size: 18px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  animation: pulse 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.notifications-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  width: 380px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 10000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  max-height: 80vh;
+}
+
+.notifications-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+}
+
+.dropdown-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.mark-all-read {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #6B7280;
+}
+
+.mark-all-read:hover {
+  background: #E5E7EB;
+  color: #25D366;
+}
+
+.mark-all-read i {
+  font-size: 16px;
+}
+
+.notifications-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.no-notifications {
+  padding: 48px 20px;
+  text-align: center;
+  color: #9CA3AF;
+}
+
+.no-notifications i {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F3F4F6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-item:hover {
+  background: #F9FAFB;
+}
+
+.notification-item.unread {
+  background: linear-gradient(90deg, #ECFDF5 0%, #F0FDF4 100%);
+}
+
+.notification-item.unread:hover {
+  background: linear-gradient(90deg, #D1FAE5 0%, #ECFDF5 100%);
+}
+
+.notification-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon.info {
+  background: #DBEAFE;
+  color: #3B82F6;
+}
+
+.notification-icon.success {
+  background: #DCFCE7;
+  color: #22C55E;
+}
+
+.notification-icon.warning {
+  background: #FEF3C7;
+  color: #F59E0B;
+}
+
+.notification-icon.error {
+  background: #FEE2E2;
+  color: #EF4444;
+}
+
+.notification-icon i {
+  font-size: 18px;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-subject {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1F2937;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background: #25D366;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.dropdown-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #E5E7EB;
+  background: #F9FAFB;
+}
+
+.view-all-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #25D366;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.view-all-link:hover {
+  color: #1FAD53;
+  gap: 12px;
+}
+
+.view-all-link i {
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.view-all-link:hover i {
+  transform: translateX(4px);
+}
+
+/* Custom Scrollbar for Notifications */
+.notifications-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+  background: #F3F4F6;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ========================================
+   CUSTOM TOOLTIPS
+   ======================================== */
+[title] {
+  position: relative;
+}
+
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -10px;
+  background: #374151;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: tooltipFadeIn 0.2s ease;
+  pointer-events: none;
+}
+
+[title]:hover::before {
+  content: '';
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 5px;
+  border: 6px solid transparent;
+  border-bottom-color: #374151;
+  z-index: 10001;
+  animation: tooltipFadeIn 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Prevent default browser tooltip */
+[title] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .sidebar {
     width: 250px;
     transform: translateX(-100%);
   }
-  
+
   .sidebar.mobile-open {
     transform: translateX(0);
   }

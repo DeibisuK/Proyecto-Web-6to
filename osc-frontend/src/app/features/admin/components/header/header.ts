@@ -1,11 +1,11 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -29,7 +29,7 @@ export class Header implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.user-section')) {
+    if (!target.closest('.user-info')) {
       this.showUserMenu = false;
     }
   }

@@ -6,7 +6,7 @@
 
   <!-- Usuario y opciones a la derecha -->
   <div class="user-section">
-    <div class="user-info" (click)="toggleUserMenu()">
+    <div class="user-info" (click)="toggleUserMenu()" [title]="getUserName()">
       @if (user?.photoURL) {
         <img [src]="user.photoURL" alt="User Photo" class="user-avatar" />
       } @else {

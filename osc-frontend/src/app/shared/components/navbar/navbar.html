@@ -112,12 +112,64 @@
 
     <!-- Acciones del usuario -->
     <div class="user-actions">
-      <button class="notification-btn">
-        <span class="material-icons">notifications</span>
-      </button>
+      <!-- Notifications Bell -->
+      <div class="notifications-wrapper">
+        <button
+          class="notification-btn"
+          (click)="toggleNotifications(); $event.stopPropagation()"
+          [title]="'Tienes ' + unreadCount + ' notificaciones sin leer'">
+          <span class="material-icons">notifications</span>
+          @if (unreadCount > 0) {
+            <span class="notification-badge">{{ unreadCount }}</span>
+          }
+        </button>
+
+        <!-- Notifications Dropdown -->
+        <div class="notifications-dropdown" [class.show]="showNotifications">
+          <div class="dropdown-header">
+            <h3>Notificaciones</h3>
+            <button class="mark-all-read" (click)="markAllAsRead()">
+              <span class="material-icons">done_all</span>
+            </button>
+          </div>
+
+          <div class="notifications-list">
+            @if (notifications.length === 0) {
+              <div class="no-notifications">
+                <span class="material-icons">notifications_none</span>
+                <p>No tienes notificaciones</p>
+              </div>
+            } @else {
+              @for (notification of notifications; track notification.id) {
+                <div class="notification-item"
+                     [class.unread]="!notification.read"
+                     (click)="markAsRead(notification)">
+                  <div class="notification-icon" [ngClass]="notification.type">
+                    <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+                  </div>
+                  <div class="notification-content">
+                    <p class="notification-subject">{{ notification.subject }}</p>
+                    <span class="notification-time">{{ getTimeAgo(notification.date) }}</span>
+                  </div>
+                  @if (!notification.read) {
+                    <span class="unread-dot"></span>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <div class="dropdown-footer">
+            <a routerLink="/notificaciones" (click)="closeNotifications()" class="view-all-link">
+              Ver todas las notificaciones
+              <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
 
       <!-- <button class="cart-btn" (click)="toggleCart()"> -->
-      <button class="cart-btn" (click)="toggleCart()">
+      <button class="cart-btn" (click)="toggleCart()" title="Mostrar la ventana del carrito">
         <span class="material-icons">shopping_cart</span>
         @if (cartItemCount > 0) {
         <span class="cart-count">{{ cartItemCount }}</span>
@@ -127,10 +179,8 @@
       @if (user) {
       <div
         class="dropdown user-dropdown"
-        (mouseenter)="toggleDropdown('usuario', true)"
-        (mouseleave)="toggleDropdown('usuario', false)"
       >
-        <a class="dropdown-toggle user-toggle">
+        <a class="dropdown-toggle user-toggle" [title]="getUserDisplayName()" (click)="toggleUserMenu(); $event.stopPropagation()">
           @if(isArbitro$ | async){
           <div class="user-btn" style="border: 2px solid orange; background-color: orange">
             @if (user.photoURL) {
@@ -150,9 +200,9 @@
           }
         </a>
 
-        <div class="dropdown-menu user-menu" [class.show]="dropdowns.usuario">
+        <div class="dropdown-menu user-menu" [class.show]="showUserMenu">
           <div class="dropdown-section">
-            <a routerLink="/ver-perfil" (click)="toggleDropdown('usuario', false)">
+            <a routerLink="/ver-perfil" (click)="closeUserMenu()">
               <i class="fas fa-user"></i> Ver Perfil
             </a>
             @if (isAdmin$ | async) {
@@ -165,15 +215,15 @@
             >
             }
 
-            <a routerLink="/metodos-de-pago" (click)="toggleDropdown('usuario', false)">
+            <a routerLink="/metodos-de-pago" (click)="closeUserMenu()">
               <i class="fas fa-user"></i> Métodos de Pago
             </a>
-            <a (click)="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+            <a (click)="logout(); closeUserMenu()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
           </div>
         </div>
       </div>
       } @else {
-      <button (click)="abrirLoginModal()" class="user-btn">
+      <button (click)="abrirLoginModal()" class="user-btn" title="Iniciar sesión">
         <span class="material-icons">account_circle</span>
       </button>
       }

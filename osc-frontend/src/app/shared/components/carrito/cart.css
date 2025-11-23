@@ -1,13 +1,14 @@
 /* Estilos principales del carrito  */
 .carrito-container {
-  background: white;
+  background: var(--color-secondary);
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(39, 174, 96, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
   height: 100%;
+  color: var(--color-text-light);
 }
 
 /* Animaciones de apertura y cierre */
@@ -98,7 +99,7 @@
 
 /* Header del carrito */
 .carrito-header {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  background: rgba(0, 0, 0, 0.2);
   color: white;
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -117,7 +118,7 @@
   gap: 0.5rem;
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .carrito-title .material-icons {
@@ -167,7 +168,7 @@
 .empty-cart-icon {
   width: 80px;
   height: 80px;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -181,13 +182,13 @@
 }
 
 .empty-cart h3 {
-  color: #2c3e50;
+  color: var(--color-text-light);
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
 }
 
 .empty-cart p {
-  color: #7f8c8d;
+  color: var(--color-text-muted);
   margin-bottom: 2rem;
 }
 
@@ -218,15 +219,15 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
 }
 
 .cart-item:hover {
   border-color: #27ae60;
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.1);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
 }
 
 .item-image {
@@ -252,7 +253,7 @@
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--color-text-light);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -269,7 +270,7 @@
 .item-variant {
   margin: 0 0 0.25rem 0;
   font-size: 0.8rem;
-  color: #7f8c8d;
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
@@ -277,7 +278,7 @@
 .item-sku {
   margin: 0 0 0.5rem 0;
   font-size: 0.75rem;
-  color: #95a5a6;
+  color: var(--color-text-muted);
   font-family: 'Courier New', monospace;
 }
 
@@ -291,7 +292,7 @@
 
 .item-price {
   font-size: 0.875rem;
-  color: #7f8c8d;
+  color: var(--color-text-muted);
 }
 
 .item-controls {
@@ -310,8 +311,8 @@
 .qty-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid #e0e0e0;
-  background: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -330,10 +331,12 @@
 .quantity-input {
   width: 60px;
   height: 32px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   text-align: center;
   font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-light);
 }
 
 .quantity-input:focus {
@@ -343,7 +346,8 @@
 
 .item-total {
   font-size: 1rem;
-  color: #2c3e50;
+  color: var(--color-text-light);
+  font-weight: 600;
 }
 
 .remove-btn {
@@ -365,9 +369,9 @@
 .cart-summary {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .summary-row {
@@ -375,6 +379,7 @@
   justify-content: space-between;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
+  color: var(--color-text-light);
 }
 
 .summary-row:last-child {
@@ -382,18 +387,19 @@
 }
 
 .total-row {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 0.5rem;
   margin-top: 0.5rem;
   font-size: 1rem;
-  color: #2c3e50;
+  color: var(--color-text-light);
+  font-weight: 700;
 }
 
 /* Footer del carrito */
 .carrito-footer {
   padding: 1.5rem;
-  background: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 

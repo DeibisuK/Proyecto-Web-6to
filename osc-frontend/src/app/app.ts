@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import SuccessToaster from '@shared/components/notifications/success';
+import SuccessToaster from '@app/shared/components/alertas/success';
 import { NotificationService, NotificationPayload } from './core/services/notification.service';
 import { ReactWrapperComponent } from './shared/react-wrapper/react-wrapper.component';
 

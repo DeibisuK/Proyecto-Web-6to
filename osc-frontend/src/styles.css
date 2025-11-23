@@ -145,19 +145,26 @@ body.modal-open {
   overflow: hidden;
 }
 
-/* Scroll minimalista personalizado */
+/* Scroll minimalista personalizado con degradado verde */
 *::-webkit-scrollbar {
   width: 10px;
   height: 8px;
 }
 
+*::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
 *::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.22);
-  border-radius: 15px;
-  border: 5px transparent rgba(139, 139, 139, 0.088);
+  background: linear-gradient(180deg, #25D366 0%, #1FAD53 50%, #168F45 100%);
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+  transition: all 0.3s ease;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  transition: var(--transition-base);
-  background: rgba(0, 144, 41, 0.32);
+  background: linear-gradient(180deg, #1FAD53 0%, #168F45 50%, #0E6B2F 100%);
+  border-color: #e0e0e0;
+  box-shadow: 0 0 6px rgba(37, 211, 102, 0.4);
 }

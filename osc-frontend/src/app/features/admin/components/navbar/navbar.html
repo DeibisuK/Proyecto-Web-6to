@@ -4,6 +4,63 @@
     <div class="logo-container">
       <span class="logo-text">Oro Sports Club</span>
     </div>
+
+    <!-- Notifications Bell -->
+    <div class="notifications-wrapper">
+      <button
+        class="notification-btn"
+        (click)="toggleNotifications(); $event.stopPropagation()"
+        [title]="'Tienes ' + unreadCount + ' notificaciones sin leer'">
+        <i class="fas fa-bell"></i>
+        @if (unreadCount > 0) {
+          <span class="notification-badge">{{ unreadCount }}</span>
+        }
+      </button>
+
+      <!-- Notifications Dropdown -->
+      <div class="notifications-dropdown" [class.show]="showNotifications">
+        <div class="dropdown-header">
+          <h3>Notificaciones</h3>
+          <button class="mark-all-read" (click)="markAllAsRead()">
+            <i class="fas fa-check-double"></i>
+          </button>
+        </div>
+
+        <div class="notifications-list">
+          @if (notifications.length === 0) {
+            <div class="no-notifications">
+              <i class="fas fa-bell-slash"></i>
+              <p>No tienes notificaciones</p>
+            </div>
+          } @else {
+            @for (notification of notifications; track notification.id) {
+              <div class="notification-item"
+                   [class.unread]="!notification.read"
+                   (click)="markAsRead(notification)">
+                <div class="notification-icon" [ngClass]="notification.type">
+                  <i class="fas" [ngClass]="getNotificationIcon(notification.type)"></i>
+                </div>
+                <div class="notification-content">
+                  <p class="notification-subject">{{ notification.subject }}</p>
+                  <span class="notification-time">{{ getTimeAgo(notification.date) }}</span>
+                </div>
+                @if (!notification.read) {
+                  <span class="unread-dot"></span>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <div class="dropdown-footer">
+          <a routerLink="/admin/notificaciones" (click)="closeNotifications()" class="view-all-link">
+            Ver todas las notificaciones
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <button class="toggle-btn" (click)="toggleSidebar()">
       <i class="fas fa-bars"></i>
     </button>
