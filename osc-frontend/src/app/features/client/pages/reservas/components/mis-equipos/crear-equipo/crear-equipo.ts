@@ -204,9 +204,11 @@ export class CrearEquipo implements OnInit {
           this.isEditMode ? 'Equipo actualizado correctamente' : 'Equipo creado correctamente'
         );
 
-        // Si es modal, emitir evento
+        // Emitir evento con el equipo guardado
+        this.equipoGuardado.emit(equipo);
+
+        // Si es modal, cerrar
         if (this.equipoEditar || !this.route.snapshot.params['id']) {
-          this.equipoGuardado.emit(equipo);
           this.cerrar();
         } else {
           // Si es ruta, navegar a lista

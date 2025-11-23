@@ -60,6 +60,13 @@
 
       <div class="equipo-actions">
         <button
+          class="btn-action btn-assign"
+          (click)="abrirModalAsignar(equipo)"
+          title="Asignar usuarios"
+        >
+          <span class="material-icons">group_add</span>
+        </button>
+        <button
           class="btn-action btn-edit"
           (click)="editarEquipo(equipo)"
           title="Editar equipo"
@@ -116,21 +123,21 @@
 
 <!-- Modal de Crear/Editar Equipo -->
 @if (mostrarModal) {
-  <div class="modal-overlay">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <app-crear-equipo
-      [equipoEditar]="equipoSeleccionado"
-      (equipoGuardado)="onEquipoGuardado($event)"
-      (cerrarModal)="cerrarModal()"
-    ></app-crear-equipo>
-  </div>
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-crear-equipo
+        [equipoEditar]="equipoSeleccionado"
+        (equipoGuardado)="onEquipoGuardado($event)"
+        (cerrarModal)="cerrarModal()"
+      ></app-crear-equipo>
+    </div>
   </div>
 }
 
 <!-- Modal de Confirmación de Eliminación -->
 @if (mostrarModalEliminar) {
-  <div class="modal-overlay">
-  <div class="modal-confirm" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" (click)="cerrarModalEliminar()">
+    <div class="modal-confirm" (click)="$event.stopPropagation()">
     <div class="confirm-header">
       <span class="material-icons danger">warning</span>
       <h3>¿Eliminar Equipo?</h3>
@@ -147,5 +154,117 @@
       </button>
     </div>
   </div>
+  </div>
+}
+
+<!-- Modal de Asignar Usuarios -->
+@if (mostrarModalAsignar) {
+  <div class="modal-overlay" (click)="cerrarModalAsignar()">
+    <div class="modal-asignar" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-title">
+          <span class="material-icons">group_add</span>
+          <h3>Asignar Usuarios - {{ equipoParaAsignar?.nombre_equipo }}</h3>
+        </div>
+        <button class="btn-close" (click)="cerrarModalAsignar()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body-asignar">
+        <!-- Panel de Usuarios Disponibles -->
+        <div class="usuarios-panel">
+          <div class="panel-header">
+            <h4>
+              <span class="material-icons">people</span>
+              Usuarios Disponibles
+            </h4>
+            <span class="count-badge">{{ usuariosDisponibles.length }}</span>
+          </div>
+
+          @if (isLoadingUsuarios) {
+            <div class="loading-usuarios">
+              <span class="spinner"></span>
+              <p>Cargando usuarios...</p>
+            </div>
+          } @else if (usuariosDisponibles.length > 0) {
+            <div class="usuarios-list">
+              @for (usuario of usuariosDisponibles; track usuario.id) {
+                <div class="usuario-item">
+                  <div class="usuario-info">
+                    <span class="material-icons">person</span>
+                    <div class="info-text">
+                      <span class="nombre">{{ usuario.nombre }}</span>
+                      <span class="email">{{ usuario.email }}</span>
+                    </div>
+                  </div>
+                  <button
+                    class="btn-add"
+                    (click)="asignarUsuario(usuario)"
+                    title="Agregar al equipo"
+                  >
+                    <span class="material-icons">add_circle</span>
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-panel">
+              <span class="material-icons">inbox</span>
+              <p>No hay usuarios disponibles</p>
+            </div>
+          }
+        </div>
+
+        <!-- Panel de Usuarios del Equipo -->
+        <div class="usuarios-panel">
+          <div class="panel-header">
+            <h4>
+              <span class="material-icons">shield</span>
+              Miembros del Equipo
+            </h4>
+            <span class="count-badge">{{ usuariosEquipo.length }}</span>
+          </div>
+
+          @if (usuariosEquipo.length > 0) {
+            <div class="usuarios-list">
+              @for (usuario of usuariosEquipo; track usuario.id) {
+                <div class="usuario-item assigned">
+                  <div class="usuario-info">
+                    <span class="material-icons">person</span>
+                    <div class="info-text">
+                      <span class="nombre">{{ usuario.nombre }}</span>
+                      <span class="email">{{ usuario.email }}</span>
+                    </div>
+                  </div>
+                  <button
+                    class="btn-remove"
+                    (click)="removerUsuario(usuario)"
+                    title="Remover del equipo"
+                  >
+                    <span class="material-icons">remove_circle</span>
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-panel">
+              <span class="material-icons">group_off</span>
+              <p>No hay miembros asignados</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModalAsignar()">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="guardarAsignaciones()">
+          <span class="material-icons">save</span>
+          Guardar Asignaciones
+        </button>
+      </div>
+    </div>
   </div>
 }

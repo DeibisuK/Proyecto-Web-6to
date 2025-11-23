@@ -1,214 +1,171 @@
 <div class="anuncios-container">
   <!-- Formulario para crear anuncio -->
-  <div class="anuncio-form-section">
-    <div class="form-header">
-      <h3>Crear Nuevo Anuncio</h3>
+  <div class="anuncio-form-card">
+    <div class="card-header">
+      <h2>
+        <span class="material-icons">campaign</span>
+        Crear Nuevo Anuncio
+      </h2>
     </div>
 
-    <form [formGroup]="anuncioForm" (ngSubmit)="onSubmit()">
-      <!-- Mensaje (ocupa todo el ancho) -->
-      <div class="form-group full-width">
-        <label for="mensaje" class="form-label">Mensaje del Anuncio</label>
-        <textarea
+    <form [formGroup]="anuncioForm" (ngSubmit)="onSubmit()" class="anuncio-form">
+      <!-- Título/Asunto -->
+      <div class="form-group">
+        <label for="titulo" class="form-label">
+          <span class="material-icons">title</span>
+          Título del Anuncio
+        </label>
+        <input
+          type="text"
           class="form-input"
-          id="mensaje"
-          formControlName="mensaje"
-          rows="3"
-          placeholder="Escribe el mensaje que aparecerá en el anuncio (10-200 caracteres)"
-          maxlength="200"
+          id="titulo"
+          formControlName="titulo"
+          placeholder="Ej: ¡Nueva promoción disponible!"
+          maxlength="100"
+        />
+        <div class="form-meta">
+          <span class="char-counter">
+            {{ anuncioForm.get('titulo')?.value?.length || 0 }} / 100
+          </span>
+          @if (anuncioForm.get('titulo')?.invalid && anuncioForm.get('titulo')?.touched) {
+            <span class="error-message">
+              <span class="material-icons">error</span>
+              El título es obligatorio (mínimo 5 caracteres)
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Descripción/Mensaje -->
+      <div class="form-group">
+        <label for="descripcion" class="form-label">
+          <span class="material-icons">description</span>
+          Descripción del Anuncio
+        </label>
+        <textarea
+          class="form-textarea"
+          id="descripcion"
+          formControlName="descripcion"
+          rows="4"
+          placeholder="Escribe el mensaje completo del anuncio..."
+          maxlength="500"
         ></textarea>
-        <div class="char-counter">
-          {{ anuncioForm.get('mensaje')?.value?.length || 0 }} / 200 caracteres
+        <div class="form-meta">
+          <span class="char-counter">
+            {{ anuncioForm.get('descripcion')?.value?.length || 0 }} / 500
+          </span>
+          @if (anuncioForm.get('descripcion')?.invalid && anuncioForm.get('descripcion')?.touched) {
+            <span class="error-message">
+              <span class="material-icons">error</span>
+              La descripción es obligatoria (mínimo 10 caracteres)
+            </span>
+          }
         </div>
       </div>
 
-      <!-- Fila de controles - 4 columnas (3 colores + estado) -->
-      <div class="form-grid-colors">
-        <!-- Color texto -->
-        <div class="form-group">
-          <label for="color_texto" class="form-label">Color del Texto</label>
-          <div class="color-picker-wrapper">
-            <input
-              type="color"
-              class="form-color"
-              id="color_texto"
-              formControlName="color_texto"
-              title="Selecciona el color del texto"
-            />
-            <span class="color-hex">{{ anuncioForm.value.color_texto }}</span>
+      <!-- Tipo de Mensaje -->
+      <div class="form-group">
+        <label for="tipo" class="form-label">
+          <span class="material-icons">category</span>
+          Tipo de Mensaje
+        </label>
+        <select class="form-select" id="tipo" formControlName="tipo">
+          <option value="info">
+            Información - Para noticias generales y actualizaciones
+          </option>
+          <option value="success">
+            Éxito - Para anunciar logros y buenas noticias
+          </option>
+          <option value="warning">
+            Advertencia - Para avisos importantes
+          </option>
+          <option value="error">
+            Error/Urgente - Para problemas críticos o urgentes
+          </option>
+          <option value="promotion">
+            Promoción - Para ofertas y descuentos
+          </option>
+        </select>
+        <div class="tipo-preview">
+          <div class="preview-badge" [attr.data-tipo]="anuncioForm.get('tipo')?.value">
+            <span class="material-icons">
+              {{ getTipoIcon(anuncioForm.get('tipo')?.value) }}
+            </span>
+            {{ getTipoLabel(anuncioForm.get('tipo')?.value) }}
           </div>
-        </div>
-
-        <!-- Color inicio -->
-        <div class="form-group">
-          <label for="color_inicio" class="form-label">Color Inicial</label>
-          <div class="color-picker-wrapper">
-            <input
-              type="color"
-              class="form-color"
-              id="color_inicio"
-              formControlName="color_inicio"
-              title="Selecciona el color inicial del gradiente"
-            />
-            <span class="color-hex">{{ anuncioForm.value.color_inicio }}</span>
-          </div>
-        </div>
-
-        <!-- Color fin -->
-        <div class="form-group">
-          <label for="color_fin" class="form-label">Color Final</label>
-          <div class="color-picker-wrapper">
-            <input
-              type="color"
-              class="form-color"
-              id="color_fin"
-              formControlName="color_fin"
-              title="Selecciona el color final del gradiente"
-            />
-            <span class="color-hex">{{ anuncioForm.value.color_fin }}</span>
-          </div>
-        </div>
-
-        <!-- Estado -->
-        <div class="form-group">
-          <label for="estado" class="form-label">Estado</label>
-          <select class="form-select" id="estado" formControlName="estado">
-            <option value="Inactivo">Inactivo</option>
-            <option value="Activo">Activo</option>
-          </select>
         </div>
       </div>
 
-      <!-- Fila de fechas - 2 columnas -->
-      <div class="form-grid-dates">
-        <!-- Fecha inicio -->
-        <div class="form-group">
-          <label for="fecha_inicio" class="form-label">Fecha y Hora de Inicio</label>
-          <input
-            type="datetime-local"
-            class="form-date"
-            id="fecha_inicio"
-            formControlName="fecha_inicio"
-          />
-        </div>
-
-        <!-- Fecha fin -->
-        <div class="form-group">
-          <label for="fecha_fin" class="form-label">Fecha y Hora de Finalización</label>
-          <input
-            type="datetime-local"
-            class="form-date"
-            id="fecha_fin"
-            formControlName="fecha_fin"
-          />
-        </div>
-      </div>
-
-      <!-- Vista previa -->
-      <div class="form-group full-width">
-        <label class="form-label">Vista Previa del Anuncio</label>
-        <div
-          class="anuncio-preview"
-          [style.background]="
-            'linear-gradient(135deg, ' +
-            anuncioForm.value.color_inicio +
-            ', ' +
-            anuncioForm.value.color_fin +
-            ')'
-          "
-          [style.color]="anuncioForm.value.color_texto"
+      <!-- Botones -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="resetForm()"
         >
-          {{ anuncioForm.value.mensaje || 'Escribe tu mensaje para ver la vista previa...' }}
-        </div>
+          <span class="material-icons">restart_alt</span>
+          Limpiar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!anuncioForm.valid || isSubmitting"
+        >
+          @if (isSubmitting) {
+            <span class="spinner"></span>
+            Guardando...
+          } @else {
+            <span class="material-icons">save</span>
+            Guardar Anuncio
+          }
+        </button>
       </div>
-
-      <!-- Botón de enviar -->
-      <button
-        type="submit"
-        class="btn-submit"
-        [disabled]="!anuncioForm.valid"
-        [class.disabled]="!anuncioForm.valid"
-      >
-        Guardar Anuncio
-      </button>
     </form>
   </div>
 
   <!-- Lista de anuncios -->
-  <div class="anuncios-list-section">
-    <div class="list-header">
-      <h3 class="list-title">Anuncios Registrados</h3>
+  <div class="anuncios-list-card">
+    <div class="card-header">
+      <h2>
+        <span class="material-icons">list</span>
+        Anuncios Registrados
+      </h2>
+      <span class="count-badge">{{ anuncios.length }}</span>
     </div>
 
-    <div class="table-wrapper">
-      <table class="anuncios-table">
-        <thead>
-          <tr>
-            <th>Mensaje</th>
-            <th>Estado</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let anuncio of anuncios">
-            <td data-label="Mensaje">
-              <div class="mensaje-cell">
-                {{ truncateText(anuncio.mensaje, 60) }}
-              </div>
-            </td>
-            <td data-label="Estado">
-              <span
-                class="estado-badge"
-                [class.estado-activo]="anuncio.estado === 'Activo'"
-                [class.estado-inactivo]="anuncio.estado === 'Inactivo'"
-              >
-                {{ anuncio.estado }}
+    @if (anuncios.length > 0) {
+      <div class="anuncios-list">
+        @for (anuncio of anuncios; track anuncio.id) {
+          <div class="anuncio-item" [attr.data-tipo]="anuncio.tipo">
+            <div class="anuncio-icon" [attr.data-tipo]="anuncio.tipo">
+              <span class="material-icons">
+                {{ getTipoIcon(anuncio.tipo) }}
               </span>
-            </td>
-            <td data-label="Inicio">
-              <div class="fecha-cell">
-                {{ formatDateTimeDisplay(anuncio.fecha_inicio) }}
+            </div>
+            <div class="anuncio-info">
+              <div class="anuncio-header-row">
+                <h3 class="anuncio-titulo">{{ anuncio.titulo }}</h3>
+                <span class="tipo-badge" [attr.data-tipo]="anuncio.tipo">
+                  {{ getTipoLabel(anuncio.tipo) }}
+                </span>
               </div>
-            </td>
-            <td data-label="Fin">
-              <div class="fecha-cell">
-                {{ formatDateTimeDisplay(anuncio.fecha_fin) }}
-              </div>
-            </td>
-            <td data-label="Acciones">
-              <div class="acciones-cell">
-                <button
-                  class="action-btn btn-toggle"
-                  (click)="
-                    cambiarEstado(anuncio.id!, anuncio.estado === 'Activo' ? 'Inactivo' : 'Activo')
-                  "
-                  [title]="anuncio.estado === 'Activo' ? 'Desactivar' : 'Activar'"
-                >
-                  <i class="fa-solid fa-toggle-on"></i>
-                </button>
-                <button
-                  class="action-btn btn-delete"
-                  (click)="eliminarAnuncio(anuncio.id!)"
-                  title="Eliminar"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr *ngIf="anuncios.length === 0">
-            <td colspan="5" class="empty-state-row">
-              <div class="empty-state">
-                <div class="empty-icon">📢</div>
-                <h4 class="empty-title">No hay anuncios registrados</h4>
-                <p class="empty-message">Crea tu primer anuncio usando el formulario superior</p>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <p class="anuncio-descripcion">{{ anuncio.descripcion }}</p>
+              <span class="fecha-creacion">
+                <span class="material-icons">schedule</span>
+                {{ anuncio.creado_en ? formatDate(anuncio.creado_en) : 'Hoy' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <span class="material-icons">notifications_none</span>
+        </div>
+        <h3>No hay anuncios registrados</h3>
+        <p>Crea tu primer anuncio usando el formulario superior</p>
+      </div>
+    }
   </div>
 </div>

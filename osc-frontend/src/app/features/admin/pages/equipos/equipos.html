@@ -319,10 +319,13 @@
 
 <!-- Modal Asignar Personas -->
 @if (mostrarModalAsignar) {
-  <div class="modal-overlay">
-    <div class="modal-content modal-asignar">
+  <div class="modal-overlay" (click)="cerrarModalAsignar()">
+    <div class="modal-content modal-asignar" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Asignar Personas al Equipo</h2>
+        <div class="header-title">
+          <span class="material-icons">group_add</span>
+          <h2>Asignar Personas al Equipo</h2>
+        </div>
         <button class="btn-close" (click)="cerrarModalAsignar()">
           <span class="material-icons">close</span>
         </button>
@@ -330,93 +333,96 @@
 
       @if (equipoSeleccionado) {
         <div class="modal-body-asignar">
-          <!-- Panel Izquierdo: Info del equipo y miembros actuales -->
-          <div class="panel-equipo">
-            <div class="equipo-info-card">
-              <div class="equipo-logo-asignar">
-                @if (equipoSeleccionado.logo_url) {
-                  <img [src]="equipoSeleccionado.logo_url" [alt]="equipoSeleccionado.nombre_equipo" />
-                } @else {
-                  <div class="logo-placeholder">
-                    <span class="material-icons">groups</span>
-                  </div>
-                }
-              </div>
-              <h3>{{ equipoSeleccionado.nombre_equipo }}</h3>
-              <span class="deporte-tag">{{ obtenerNombreDeporte(equipoSeleccionado.id_deporte) }}</span>
-              <p class="equipo-desc">{{ equipoSeleccionado.descripcion }}</p>
+          <!-- Panel Izquierdo: Usuarios Disponibles -->
+          <div class="usuarios-panel">
+            <div class="panel-header">
+              <h4>
+                <span class="material-icons">person_search</span>
+                Usuarios Disponibles
+              </h4>
+              <span class="count-badge">{{ usuariosFiltrados.length - miembrosEquipo.length }}</span>
             </div>
 
-            <div class="miembros-actuales">
-              <div class="miembros-header">
-                <h4>Miembros del Equipo</h4>
-                <span class="miembros-count">{{ miembrosEquipo.length }}</span>
-              </div>
-
-              <div class="miembros-lista">
-                @if (miembrosEquipo.length === 0) {
-                  <div class="sin-miembros">
-                    <span class="material-icons">group_off</span>
-                    <p>No hay miembros asignados</p>
-                  </div>
-                } @else {
-                  @for (miembro of miembrosEquipo; track miembro.id) {
-                    <div class="miembro-item">
-                      <div class="miembro-avatar">
-                        <span class="material-icons">person</span>
-                      </div>
-                      <div class="miembro-info">
-                        <span class="miembro-nombre">{{ miembro.nombre }}</span>
-                        <span class="miembro-email">{{ miembro.email }}</span>
-                      </div>
-                      <button class="btn-remover" (click)="removerMiembro(miembro)" title="Remover del equipo">
-                        <span class="material-icons">close</span>
-                      </button>
-                    </div>
-                  }
-                }
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel Derecho: Lista de usuarios disponibles -->
-          <div class="panel-usuarios">
-            <div class="usuarios-header">
-              <h4>Usuarios Disponibles</h4>
-              <div class="search-usuarios">
-                <span class="material-icons">search</span>
-                <input
-                  type="text"
-                  placeholder="Buscar usuarios..."
-                  [(ngModel)]="searchUsuario"
-                  (input)="filtrarUsuarios()"
-                />
-              </div>
+            <div class="search-usuarios">
+              <span class="material-icons">search</span>
+              <input
+                type="text"
+                placeholder="Buscar usuarios..."
+                [(ngModel)]="searchUsuario"
+                (input)="filtrarUsuarios()"
+              />
             </div>
 
-            <div class="usuarios-lista">
+            <div class="usuarios-list">
               @if (usuariosFiltrados.length === 0) {
-                <div class="sin-resultados">
+                <div class="empty-panel">
                   <span class="material-icons">search_off</span>
                   <p>No se encontraron usuarios</p>
                 </div>
               } @else {
                 @for (usuario of usuariosFiltrados; track usuario.id) {
-                  <div class="usuario-item" [class.ya-asignado]="esMiembro(usuario.id)">
-                    <div class="usuario-avatar">
-                      <span class="material-icons">account_circle</span>
-                    </div>
-                    <div class="usuario-info">
-                      <span class="usuario-nombre">{{ usuario.nombre }}</span>
-                      <span class="usuario-email">{{ usuario.email }}</span>
-                    </div>
-                    @if (!esMiembro(usuario.id)) {
-                      <button class="btn-agregar" (click)="agregarMiembro(usuario)" title="Agregar al equipo">
+                  @if (!esMiembro(usuario.id)) {
+                    <div class="usuario-item">
+                      <div class="usuario-info">
+                        <span class="material-icons">person</span>
+                        <div class="info-text">
+                          <span class="nombre">{{ usuario.nombre }}</span>
+                          <span class="email">{{ usuario.email }}</span>
+                        </div>
+                      </div>
+                      <button class="btn-add" (click)="agregarMiembro(usuario)" title="Agregar al equipo">
                         <span class="material-icons">add_circle</span>
                       </button>
-                    } @else {
-                      <span class="badge-asignado">Asignado</span>
-                    }
+                    </div>
+                  }
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Panel Derecho: Miembros del Equipo -->
+          <div class="usuarios-panel">
+            <div class="panel-header">
+              <h4>
+                <span class="material-icons">groups</span>
+                Miembros del Equipo
+              </h4>
+              <span class="count-badge">{{ miembrosEquipo.length }}</span>
+            </div>
+
+            <div class="equipo-info-header">
+              @if (equipoSeleccionado.logo_url) {
+                <img class="equipo-mini-logo" [src]="equipoSeleccionado.logo_url" [alt]="equipoSeleccionado.nombre_equipo" />
+              } @else {
+                <div class="equipo-mini-logo-placeholder">
+                  <span class="material-icons">groups</span>
+                </div>
+              }
+              <div>
+                <h5>{{ equipoSeleccionado.nombre_equipo }}</h5>
+                <span class="deporte-mini-badge">{{ obtenerNombreDeporte(equipoSeleccionado.id_deporte) }}</span>
+              </div>
+            </div>
+
+            <div class="usuarios-list">
+              @if (miembrosEquipo.length === 0) {
+                <div class="empty-panel">
+                  <span class="material-icons">group_off</span>
+                  <p>No hay miembros asignados</p>
+                </div>
+              } @else {
+                @for (miembro of miembrosEquipo; track miembro.id) {
+                  <div class="usuario-item assigned">
+                    <div class="usuario-info">
+                      <span class="material-icons">person</span>
+                      <div class="info-text">
+                        <span class="nombre">{{ miembro.nombre }}</span>
+                        <span class="email">{{ miembro.email }}</span>
+                      </div>
+                    </div>
+                    <button class="btn-remove" (click)="removerMiembro(miembro)" title="Remover del equipo">
+                      <span class="material-icons">remove_circle</span>
+                    </button>
                   </div>
                 }
               }

@@ -20,8 +20,13 @@ export class ListEquipo implements OnInit {
   isLoading = true;
   mostrarModal = false;
   mostrarModalEliminar = false;
+  mostrarModalAsignar = false;
   equipoSeleccionado?: Equipo;
   equipoAEliminar?: Equipo;
+  equipoParaAsignar?: Equipo;
+  usuariosDisponibles: any[] = [];
+  usuariosEquipo: any[] = [];
+  isLoadingUsuarios = false;
 
   deportes: { [key: number]: string } = {
     1: 'Futbol',
@@ -123,6 +128,58 @@ export class ListEquipo implements OnInit {
   cerrarModalEliminar() {
     this.mostrarModalEliminar = false;
     this.equipoAEliminar = undefined;
+    document.body.classList.remove('modal-open');
+  }
+
+  abrirModalAsignar(equipo: Equipo) {
+    this.equipoParaAsignar = equipo;
+    this.mostrarModalAsignar = true;
+    document.body.classList.add('modal-open');
+    this.cargarUsuariosParaAsignar(equipo.id_equipo);
+  }
+
+  cargarUsuariosParaAsignar(idEquipo: number) {
+    this.isLoadingUsuarios = true;
+    // TODO: Implementar llamada al servicio para obtener usuarios disponibles y del equipo
+    // Por ahora, datos de prueba
+    setTimeout(() => {
+      this.usuariosDisponibles = [
+        { id: 1, nombre: 'Usuario 1', email: 'user1@email.com' },
+        { id: 2, nombre: 'Usuario 2', email: 'user2@email.com' },
+        { id: 3, nombre: 'Usuario 3', email: 'user3@email.com' }
+      ];
+      this.usuariosEquipo = [];
+      this.isLoadingUsuarios = false;
+    }, 500);
+  }
+
+  asignarUsuario(usuario: any) {
+    const index = this.usuariosDisponibles.findIndex(u => u.id === usuario.id);
+    if (index !== -1) {
+      this.usuariosDisponibles.splice(index, 1);
+      this.usuariosEquipo.push(usuario);
+    }
+  }
+
+  removerUsuario(usuario: any) {
+    const index = this.usuariosEquipo.findIndex(u => u.id === usuario.id);
+    if (index !== -1) {
+      this.usuariosEquipo.splice(index, 1);
+      this.usuariosDisponibles.push(usuario);
+    }
+  }
+
+  guardarAsignaciones() {
+    // TODO: Implementar llamada al servicio para guardar asignaciones
+    this.notificationService.success('Usuarios asignados correctamente');
+    this.cerrarModalAsignar();
+  }
+
+  cerrarModalAsignar() {
+    this.mostrarModalAsignar = false;
+    this.equipoParaAsignar = undefined;
+    this.usuariosDisponibles = [];
+    this.usuariosEquipo = [];
     document.body.classList.remove('modal-open');
   }
 }

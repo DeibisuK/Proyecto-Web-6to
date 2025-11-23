@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Anuncio } from '@shared/models/index';
+import { Anuncio } from '../../../../shared/models/anuncio.model';
 
 @Component({
   selector: 'app-anuncios',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './anuncios.html',
-  styleUrl: './anuncios.css'
+  styleUrls: ['./anuncios.css']
 })
 export class Anuncios implements OnInit {
   anuncioForm!: FormGroup;
   anuncios: Anuncio[] = [];
+  isSubmitting = false;
 
   constructor(private fb: FormBuilder) {}
 
@@ -21,137 +22,112 @@ export class Anuncios implements OnInit {
   }
 
   inicializarFormulario(): void {
-    const ahora = new Date();
-    const en24Horas = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
-
     this.anuncioForm = this.fb.group({
-      mensaje: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
-      color_texto: ['#ffffff', Validators.required],
-      color_inicio: ['#2ECC71', Validators.required],
-      color_fin: ['#27AE60', Validators.required],
-      fecha_inicio: [this.formatDateTimeLocal(ahora), Validators.required],
-      fecha_fin: [this.formatDateTimeLocal(en24Horas), Validators.required],
-      estado: ['Inactivo', Validators.required]
+      titulo: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
+      descripcion: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+      tipo: ['info', Validators.required]
     });
   }
 
   cargarAnuncios(): void {
-    // Datos de ejemplo
+    // Mock data para demostración
     this.anuncios = [
       {
         id: 1,
-        mensaje: '¡Reserva tu cancha de fútbol con 20% de descuento este fin de semana!',
-        color_texto: '#ffffff',
-        color_inicio: '#2ECC71',
-        color_fin: '#27AE60',
-        fecha_inicio: '2025-10-15T10:00',
-        fecha_fin: '2025-10-20T23:59',
-        estado: 'Activo',
-        creado_en: '2025-10-15T08:00:00',
-        actualizado_en: '2025-10-15T08:00:00'
+        titulo: '¡Nueva funcionalidad disponible!',
+        descripcion: 'Ahora puedes crear equipos y gestionar tus torneos de forma más fácil.',
+        tipo: 'info',
+        creado_en: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        actualizado_en: new Date().toISOString()
       },
       {
         id: 2,
-        mensaje: 'Mantenimiento programado para las canchas 3 y 4 el próximo lunes',
-        color_texto: '#000000',
-        color_inicio: '#F39C12',
-        color_fin: '#E67E22',
-        fecha_inicio: '2025-10-18T09:00',
-        fecha_fin: '2025-10-18T18:00',
-        estado: 'Inactivo',
-        creado_en: '2025-10-14T15:30:00',
-        actualizado_en: '2025-10-14T15:30:00'
+        titulo: '🎉 Promoción especial',
+        descripcion: '50% de descuento en todas las inscripciones de torneos este mes.',
+        tipo: 'promotion',
+        creado_en: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+        actualizado_en: new Date().toISOString()
       },
       {
         id: 3,
-        mensaje: 'Torneo relámpago de baloncesto - ¡Inscripciones abiertas!',
-        color_texto: '#ffffff',
-        color_inicio: '#3498DB',
-        color_fin: '#2980B9',
-        fecha_inicio: '2025-10-16T08:00',
-        fecha_fin: '2025-10-25T20:00',
-        estado: 'Activo',
-        creado_en: '2025-10-13T12:00:00',
-        actualizado_en: '2025-10-13T12:00:00'
+        titulo: 'Mantenimiento programado',
+        descripcion: 'El sistema estará en mantenimiento el próximo sábado de 2:00 AM a 6:00 AM.',
+        tipo: 'warning',
+        creado_en: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+        actualizado_en: new Date().toISOString()
       }
     ];
   }
 
   onSubmit(): void {
-    if (this.anuncioForm.valid) {
+    if (this.anuncioForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+
       const nuevoAnuncio: Anuncio = {
         id: this.anuncios.length + 1,
-        ...this.anuncioForm.value,
+        titulo: this.anuncioForm.value.titulo,
+        descripcion: this.anuncioForm.value.descripcion,
+        tipo: this.anuncioForm.value.tipo,
         creado_en: new Date().toISOString(),
         actualizado_en: new Date().toISOString()
       };
 
-      this.anuncios.unshift(nuevoAnuncio);
-
-      // Notificación de éxito
-      this.mostrarNotificacion('Anuncio creado exitosamente', 'success');
-
-      // Resetear formulario
-      this.anuncioForm.reset({
-        color_texto: '#ffffff',
-        color_inicio: '#2ECC71',
-        color_fin: '#27AE60',
-        estado: 'Inactivo'
-      });
-
-      // Reinicializar fechas
-      const ahora = new Date();
-      const en24Horas = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
-      this.anuncioForm.patchValue({
-        fecha_inicio: this.formatDateTimeLocal(ahora),
-        fecha_fin: this.formatDateTimeLocal(en24Horas)
-      });
+      // Simular delay de red
+      setTimeout(() => {
+        this.anuncios.unshift(nuevoAnuncio);
+        this.mostrarNotificacion('Anuncio creado exitosamente', 'success');
+        this.anuncioForm.reset({ tipo: 'info' });
+        this.isSubmitting = false;
+      }, 500);
     } else {
       this.mostrarNotificacion('Por favor completa todos los campos correctamente', 'error');
     }
   }
 
-  cambiarEstado(id: number, nuevoEstado: 'Activo' | 'Inactivo'): void {
-    const anuncio = this.anuncios.find(a => a.id === id);
-    if (anuncio) {
-      anuncio.estado = nuevoEstado;
-      anuncio.actualizado_en = new Date().toISOString();
-      this.mostrarNotificacion(
-        `Anuncio ${nuevoEstado === 'Activo' ? 'activado' : 'desactivado'} correctamente`,
-        'success'
-      );
-    }
+  resetForm(): void {
+    this.anuncioForm.reset({ tipo: 'info' });
   }
 
-  eliminarAnuncio(id: number): void {
-    const index = this.anuncios.findIndex(a => a.id === id);
-    if (index !== -1) {
-      this.anuncios.splice(index, 1);
-      this.mostrarNotificacion('Anuncio eliminado exitosamente', 'success');
-    }
+  getTipoIcon(tipo: string): string {
+    const iconos: { [key: string]: string } = {
+      info: 'info',
+      success: 'check_circle',
+      warning: 'warning',
+      error: 'error',
+      promotion: 'local_offer'
+    };
+    return iconos[tipo] || 'notifications';
   }
 
-  formatDateTimeLocal(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  getTipoLabel(tipo: string): string {
+    const labels: { [key: string]: string } = {
+      info: 'Información',
+      success: 'Éxito',
+      warning: 'Advertencia',
+      error: 'Error/Urgente',
+      promotion: 'Promoción'
+    };
+    return labels[tipo] || 'Información';
   }
 
-  formatDateTimeDisplay(dateString: string): string {
+  formatDate(dateString: string): string {
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-  }
+    const ahora = new Date();
+    const diff = ahora.getTime() - date.getTime();
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  truncateText(text: string, maxLength: number): string {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    if (dias === 0) {
+      return 'Hoy';
+    } else if (dias === 1) {
+      return 'Ayer';
+    } else if (dias < 7) {
+      return `Hace ${dias} días`;
+    } else {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
   }
 
   mostrarNotificacion(mensaje: string, tipo: 'success' | 'error'): void {
