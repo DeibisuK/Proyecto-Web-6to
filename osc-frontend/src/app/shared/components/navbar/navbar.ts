@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, inject, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,6 +42,8 @@ interface Notification {
 export class Navbar implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   private authService = inject(AuthService);
+
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   mostrarLogin = false;
   mostrarRecuperarPassword = false;
@@ -236,6 +238,15 @@ export class Navbar implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Ctrl+K para enfocar el buscador
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      this.searchInput?.nativeElement.focus();
+    }
+  }
+
   get unreadCount(): number {
     return this.notifications.filter(n => !n.read).length;
   }
@@ -310,8 +321,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   onSearch() {
     if (this.searchTerm.trim()) {
-      console.log('Searching for:', this.searchTerm);
-      // Aquí implementarías la lógica de búsqueda
+      // Navegar a la tienda con el término de búsqueda
+      this.router.navigate(['/tienda'], {
+        queryParams: { q: this.searchTerm.trim() }
+      });
     }
   }
 

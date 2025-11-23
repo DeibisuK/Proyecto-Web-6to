@@ -11,10 +11,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FiltrosProducto, OpcionesProducto } from '@shared/models/index';
-import { CategoriaService } from '@shared/services/index';
+import { CategoriaService, DeporteService } from '@shared/services/index';
 import { MarcaService } from '@shared/services/index';
 import { ProductoService } from '@shared/services/index';
-import { Marca } from '@shared/models/index';
+import { Marca, Deporte } from '@shared/models/index';
 import { Categoria } from '@shared/models/index';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -65,6 +65,8 @@ export class FiltroPanelComponent implements OnInit {
 
   categorias = signal<Categoria[]>([]);
   marcas = signal<Marca[]>([]);
+  deportes = signal<Deporte[]>([]);
+  isLoadingDeportes = signal<boolean>(true);
   opciones = signal<OpcionesProducto[]>([]);
   opcionesPorCategoria = signal<OpcionesProducto[]>([]);
 
@@ -108,6 +110,7 @@ export class FiltroPanelComponent implements OnInit {
 
   seccionesDesplegadas = signal({
     categoria: true,
+    deporte: true,
     marca: true,
     precio: true,
     color: true,
@@ -120,6 +123,7 @@ export class FiltroPanelComponent implements OnInit {
   private categoriaService = inject(CategoriaService);
   private marcaService = inject(MarcaService);
   private productoService = inject(ProductoService);
+  private deporteService = inject(DeporteService);
 
   // ====================
   // EFFECT para sincronizar filtrosActivos (input) con filtros (signal interno)
@@ -172,6 +176,18 @@ export class FiltroPanelComponent implements OnInit {
       this.marcas.set(marcas);
     });
 
+    // Cargar deportes desde el servicio
+    this.deporteService.getDeportes().subscribe({
+      next: (deportes: Deporte[]) => {
+        this.deportes.set(deportes);
+        this.isLoadingDeportes.set(false);
+      },
+      error: (error) => {
+        console.error('Error al cargar deportes:', error);
+        this.isLoadingDeportes.set(false);
+      }
+    });
+
     // Cargar opciones de productos (colores, tallas, etc.)
     this.productoService.getOpcionesCliente().subscribe((opciones: OpcionesProducto[]) => {
       this.opciones.set(opciones);
@@ -182,7 +198,7 @@ export class FiltroPanelComponent implements OnInit {
   // MÉTODOS
   // ====================
 
-  toggleFiltro(filtro: 'categoria' | 'marca' | 'precio' | 'color' | 'talla') {
+  toggleFiltro(filtro: 'categoria' | 'deporte' | 'marca' | 'precio' | 'color' | 'talla') {
     this.seccionesDesplegadas.update(secciones => ({
       ...secciones,
       [filtro]: !secciones[filtro]
@@ -227,6 +243,30 @@ export class FiltroPanelComponent implements OnInit {
 
   isMarcaSeleccionada(marcaId: number): boolean {
     return this.filtros().marcas?.includes(marcaId) ?? false;
+  }
+
+  // ====================
+  // MÉTODOS PARA FILTRO DE DEPORTES
+  // ====================
+
+  toggleDeporte(deporteId: number) {
+    this.filtros.update(filtrosActuales => {
+      const deportes = [...(filtrosActuales.deportes || [])];
+      const index = deportes.indexOf(deporteId);
+
+      if (index === -1) {
+        deportes.push(deporteId);
+      } else {
+        deportes.splice(index, 1);
+      }
+
+      return { ...filtrosActuales, deportes };
+    });
+    this.aplicarFiltros();
+  }
+
+  isDeporteSeleccionado(deporteId: number): boolean {
+    return this.filtros().deportes?.includes(deporteId) ?? false;
   }
 
   // ====================

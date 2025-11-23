@@ -25,10 +25,18 @@ export class DeporteSelector implements OnInit {
   // SIGNALS
   // ====================
   deportes = signal<Deporte[]>([]);
+  isLoading = signal<boolean>(true);
 
   ngOnInit(): void {
-    this.deporteService.getDeportes().subscribe((deportes) => {
-      this.deportes.set(deportes);
+    this.deporteService.getDeportes().subscribe({
+      next: (deportes) => {
+        this.deportes.set(deportes);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error al cargar deportes:', error);
+        this.isLoading.set(false);
+      }
     });
   }
 

@@ -104,7 +104,12 @@
 
     <!-- Barra de búsqueda -->
     <div class="search-bar">
-      <input type="text" placeholder="Buscar productos..." [(ngModel)]="searchTerm" />
+      <input
+        #searchInput
+        type="text"
+        placeholder="Buscar productos... (Ctrl + K)"
+        [(ngModel)]="searchTerm"
+        (keydown.enter)="onSearch()" />
       <button type="button" class="search-btn" (click)="onSearch()">
         <span class="material-icons">search</span>
       </button>

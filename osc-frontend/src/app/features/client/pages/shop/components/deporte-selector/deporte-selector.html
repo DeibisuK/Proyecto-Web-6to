@@ -1,25 +1,35 @@
 <div class="deportes-carousel">
   <h2>Tipo de Deporte</h2>
   <div class="deportes-items">
-    <!-- Opción "Todos los deportes" -->
-    <div
-      class="deporte-item"
-      [class.activo]="deporteActivo() === 0"
-      (click)="seleccionarDeporte(0)"
-    >
-      <img src="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.jpg" alt="Todos los deportes" />
-      <span class="deporte-nombre">Todos</span>
-    </div>
+    @if (isLoading()) {
+      <!-- Skeleton Loading -->
+      @for (item of [1,2,3,4,5]; track item) {
+        <div class="deporte-skeleton">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-text"></div>
+        </div>
+      }
+    } @else {
+      <!-- Opción "Todos los deportes" -->
+      <div
+        class="deporte-item"
+        [class.activo]="deporteActivo() === 0"
+        (click)="seleccionarDeporte(0)"
+      >
+        <img src="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.jpg" alt="Todos los deportes" />
+        <span class="deporte-nombre">Todos</span>
+      </div>
 
-    @for (deporte of deportes(); track deporte.id_deporte) {
-    <div
-      class="deporte-item"
-      [class.activo]="deporteActivo() === deporte.id_deporte"
-      (click)="seleccionarDeporte(deporte.id_deporte)"
-    >
-      <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" />
-      <span class="deporte-nombre">{{ deporte.nombre_deporte }}</span>
-    </div>
+      @for (deporte of deportes(); track deporte.id_deporte) {
+      <div
+        class="deporte-item"
+        [class.activo]="deporteActivo() === deporte.id_deporte"
+        (click)="seleccionarDeporte(deporte.id_deporte)"
+      >
+        <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" />
+        <span class="deporte-nombre">{{ deporte.nombre_deporte }}</span>
+      </div>
+      }
     }
   </div>
 </div>

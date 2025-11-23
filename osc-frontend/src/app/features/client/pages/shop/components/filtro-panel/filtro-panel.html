@@ -28,6 +28,40 @@
     </div>
   </div>
 
+  <!-- Tipo de Deporte -->
+  <div class="filtro-seccion">
+    <div class="filtro-titulo" (click)="toggleFiltro('deporte')">
+      <h4>Tipo de Deporte</h4>
+      <i class="fas"
+         [class.fa-chevron-down]="!seccionesDesplegadas().deporte"
+         [class.fa-chevron-up]="seccionesDesplegadas().deporte"></i>
+    </div>
+    <div class="filtro-contenido" [class.activo]="seccionesDesplegadas().deporte">
+      @if (isLoadingDeportes()) {
+        <!-- Skeleton Loading -->
+        <div class="skeleton-grid">
+          @for (item of [1,2,3,4]; track item) {
+            <div class="skeleton-item">
+              <div class="skeleton-checkbox"></div>
+              <div class="skeleton-text"></div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="opciones-grid">
+          @for (deporte of deportes(); track deporte.id_deporte) {
+            <label class="opcion-checkbox">
+              <input type="checkbox"
+                     [checked]="isDeporteSeleccionado(deporte.id_deporte)"
+                     (change)="toggleDeporte(deporte.id_deporte)">
+              <span>{{deporte.nombre_deporte}}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
   <!-- Rango de Precio -->
   <div class="filtro-seccion">
     <div class="filtro-titulo" (click)="toggleFiltro('precio')">
