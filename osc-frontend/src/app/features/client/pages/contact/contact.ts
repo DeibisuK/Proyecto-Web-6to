@@ -135,12 +135,6 @@ export class Contact implements OnInit {
       mensaje: this.contactForm.mensaje,
     };
 
-    // Mostrar loading
-    this.notificationService.notify({
-      message: 'Enviando mensaje...',
-      type: 'loading',
-    });
-
     // Enviar formulario
     this.contactoService.enviarContacto(dataToSend).subscribe({
       next: () => {

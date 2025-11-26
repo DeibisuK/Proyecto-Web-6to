@@ -189,7 +189,7 @@
           @if(isArbitro$ | async){
           <div class="user-btn" style="border: 2px solid orange; background-color: orange">
             @if (user.photoURL) {
-            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" (error)="onImageError($event)" />
             } @else {
             <span class="material-icons">account_circle</span>
             }
@@ -197,7 +197,7 @@
           }@else{
           <div class="user-btn">
             @if (user.photoURL) {
-            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" />
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" (error)="onImageError($event)" />
             } @else {
             <span class="material-icons">account_circle</span>
             }

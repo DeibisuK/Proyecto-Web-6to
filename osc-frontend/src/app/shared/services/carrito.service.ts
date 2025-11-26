@@ -67,6 +67,12 @@ export class CarritoService {
         this.actualizarTotales(items);
       }),
       catchError(err => {
+        // Si es error 500 (usuario nuevo sin carrito), simplemente inicializar vacío
+        if (err.status === 500 || err.status === 404) {
+          this.limpiarEstadoLocal();
+          return of([]);
+        }
+        // Para otros errores, mostrar notificación
         this.notificationService.error('Error al cargar el carrito');
         this.limpiarEstadoLocal();
         return of([]);

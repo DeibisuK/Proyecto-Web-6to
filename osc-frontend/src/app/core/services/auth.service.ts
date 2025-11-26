@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {
   Auth,
   onAuthStateChanged,
@@ -23,6 +24,7 @@ import {
   from,
 } from 'rxjs';
 import { UserApiService } from '@shared/services/index';
+import { environment } from '@env/environment';
 
 interface CustomClaims {
   role?: string;
@@ -33,6 +35,7 @@ interface CustomClaims {
 export class AuthService {
   private auth = inject(Auth);
   private userApi = inject(UserApiService);
+  private http = inject(HttpClient);
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   user$ = this.currentUserSubject.asObservable();
@@ -161,6 +164,20 @@ export class AuthService {
         id_rol: 2,
       };
       const resp = await firstValueFrom(this.userApi.createUser(payload));
+
+      // Enviar correo de bienvenida
+      try {
+        await firstValueFrom(
+          this.http.post(`${environment.apiUrl}/u/bienvenida`, {
+            nombre: displayName || 'Usuario',
+            email: credential.user.email
+          })
+        );
+      } catch (emailErr) {
+        console.error('Error al enviar correo de bienvenida', emailErr);
+        // No lanzamos error para no afectar el registro
+      }
+
       // Refresca el token para obtener los claims actualizados
       try {
         await credential.user.getIdToken(true);
@@ -247,6 +264,19 @@ export class AuthService {
         };
         try {
           const resp = await firstValueFrom(this.userApi.createUser(payload));
+
+          // Enviar correo de bienvenida
+          try {
+            await firstValueFrom(
+              this.http.post(`${environment.apiUrl}/u/bienvenida`, {
+                nombre: user.displayName || 'Usuario',
+                email: user.email
+              })
+            );
+          } catch (emailErr) {
+            console.error('Error al enviar correo de bienvenida', emailErr);
+            // No lanzamos error para no afectar el registro
+          }
         } catch (err) {
           console.error('Error al crear usuario en backend con proveedor', err);
         }

@@ -14,6 +14,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth.service';
 import { SedeService } from '@shared/services/index';
 import { Sedes } from '@shared/models/index';
+import { NotificationService } from '@core/services/notification.service';
 
 interface Notification {
   id: string;
@@ -124,7 +125,8 @@ export class Navbar implements OnInit, OnDestroy {
   constructor(
     private carritoService: CarritoService,
     private router: Router,
-    private sedeService: SedeService
+    private sedeService: SedeService,
+    private notificationService: NotificationService
   ) {
     // Cierra el menú al cambiar el tamaño de la ventana
     window.addEventListener('resize', () => {
@@ -369,13 +371,10 @@ export class Navbar implements OnInit, OnDestroy {
       await this.authService.logout();
       this.router.navigate(['/inicio']);
 
-      Swal.fire({
-        title: '¡Hasta pronto!',
-        text: 'Has cerrado sesión exitosamente',
-        icon: 'success',
-        confirmButtonColor: '#2ECC71',
-        timer: 2000,
-        showConfirmButton: false
+      // Usar toast en lugar de SweetAlert
+      this.notificationService.notify({
+        message: '¡Hasta pronto! Has cerrado sesión exitosamente',
+        type: 'success'
       });
     }
   }
@@ -419,5 +418,12 @@ export class Navbar implements OnInit, OnDestroy {
     if (this.user.displayName) return this.user.displayName;
     if (this.user.email) return this.user.email.split('@')[0];
     return 'Usuario';
+  }
+
+  onImageError(event: Event): void {
+    // Cuando la imagen falla al cargar, ocultamos la imagen y mostramos el icono
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.style.display = 'none';
+    // El icono de placeholder ya está en el template con @else
   }
 }
