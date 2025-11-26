@@ -1,0 +1,131 @@
+<div class="alineaciones-partido">
+  <h2>👥 Alineaciones</h2>
+
+  @if (cargando()) {
+    <div class="loading">Cargando alineaciones...</div>
+  } @else if (alineaciones().length === 0) {
+    <div class="sin-alineaciones">No hay jugadores en la alineación</div>
+  } @else {
+    <div class="equipos-container">
+      @for (idEquipo of getEquiposUnicos(); track idEquipo) {
+        <div class="equipo-card">
+          <div class="equipo-header">
+            <h3>{{ getNombreEquipo(idEquipo) }}</h3>
+            <button
+              class="btn btn-primary"
+              (click)="abrirModalSustitucion(idEquipo)">
+              🔄 Sustitución
+            </button>
+          </div>
+
+          <!-- Titulares -->
+          <div class="jugadores-seccion">
+            <h4>👕 Titulares</h4>
+            <div class="jugadores-lista">
+              @for (jugador of getTitularesPorEquipo(idEquipo); track jugador.id_alineacion) {
+                <div class="jugador-item titular">
+                  <span class="dorsal">{{ jugador.numero_dorsal }}</span>
+                  <span class="nombre">{{ jugador.nombre_completo }}</span>
+                  <span class="posicion">{{ jugador.posicion || 'N/A' }}</span>
+                  @if (jugador.minuto_entrada) {
+                    <span class="minuto-entrada">⏱️ {{ jugador.minuto_entrada }}'</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Suplentes -->
+          <div class="jugadores-seccion">
+            <h4>🧤 Suplentes</h4>
+            <div class="jugadores-lista">
+              @for (jugador of getSuplentePorEquipo(idEquipo); track jugador.id_alineacion) {
+                <div class="jugador-item suplente" [class.sustituido]="jugador.minuto_salida">
+                  <span class="dorsal">{{ jugador.numero_dorsal }}</span>
+                  <span class="nombre">{{ jugador.nombre_completo }}</span>
+                  <span class="posicion">{{ jugador.posicion || 'N/A' }}</span>
+                  @if (jugador.minuto_salida) {
+                    <span class="minuto-salida">❌ {{ jugador.minuto_salida }}'</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Sustitución -->
+  @if (mostrarModalSustitucion()) {
+    <div class="modal-overlay" (click)="cerrarModalSustitucion()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>🔄 Registrar Sustitución</h3>
+          <button class="btn-close" (click)="cerrarModalSustitucion()">✕</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="registrarSustitucion()">
+            <div class="form-group">
+              <label>Jugador que Sale *</label>
+              <select
+                [(ngModel)]="sustitucionData.id_jugador_sale"
+                name="jugador_sale"
+                class="form-control"
+                required>
+                <option value="0">Seleccione...</option>
+                @for (jugador of titulares; track jugador.id_jugador) {
+                  <option [value]="jugador.id_jugador">
+                    #{{ jugador.numero_dorsal }} - {{ jugador.nombre_completo }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Jugador que Entra *</label>
+              <select
+                [(ngModel)]="sustitucionData.id_jugador_entra"
+                name="jugador_entra"
+                class="form-control"
+                required>
+                <option value="0">Seleccione...</option>
+                @for (jugador of suplentes; track jugador.id_jugador) {
+                  <option [value]="jugador.id_jugador">
+                    #{{ jugador.numero_dorsal }} - {{ jugador.nombre_completo }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Minuto *</label>
+              <input
+                type="number"
+                [(ngModel)]="sustitucionData.minuto"
+                name="minuto"
+                class="form-control"
+                min="0"
+                required>
+            </div>
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="cerrarModalSustitucion()">
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="cargando()">
+                Registrar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</div>

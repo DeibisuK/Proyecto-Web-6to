@@ -16,7 +16,8 @@ export interface Torneo {
   estado: string;
   creado_por?: number;
   creado_en?: string;
-  
+  id_arbitro?: number;
+
   // Campos adicionales del JOIN
   nombre_deporte?: string;
   deporte_imagen?: string;

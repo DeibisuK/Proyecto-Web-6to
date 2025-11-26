@@ -34,6 +34,8 @@ export class InscripcionModalComponent {
   // State
   isSubmitting = signal(false);
   errorMessage = signal('');
+  dropdownEquipoAbierto = signal(false);
+  equipoSeleccionadoTexto = signal('Selecciona un equipo');
 
   // Form
   formData: InscripcionFormData = {
@@ -50,6 +52,23 @@ export class InscripcionModalComponent {
     const idEquipo = parseInt(event.target.value);
     this.formData.id_equipo = idEquipo || null;
     this.equipoSeleccionado = this.equiposDisponibles.find((e: EquipoUsuario) => e.id_equipo === idEquipo) || null;
+  }
+
+  /**
+   * Toggle dropdown de equipos
+   */
+  toggleDropdownEquipo(): void {
+    this.dropdownEquipoAbierto.set(!this.dropdownEquipoAbierto());
+  }
+
+  /**
+   * Selecciona un equipo del dropdown
+   */
+  seleccionarEquipo(equipo: EquipoUsuario): void {
+    this.formData.id_equipo = equipo.id_equipo;
+    this.equipoSeleccionado = equipo;
+    this.equipoSeleccionadoTexto.set(`${equipo.nombre_equipo} (${equipo.cantidad_jugadores || 0} jugadores)`);
+    this.dropdownEquipoAbierto.set(false);
   }
 
   /**
@@ -113,17 +132,21 @@ export class InscripcionModalComponent {
       notas: ''
     };
     this.equipoSeleccionado = null;
+    this.equipoSeleccionadoTexto.set('Selecciona un equipo');
+    this.dropdownEquipoAbierto.set(false);
     this.errorMessage.set('');
     this.isSubmitting.set(false);
   }
 
   /**
    * Maneja click en backdrop
+   * Desactivado: solo se cierra con el botón X
    */
   onBackdropClick(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
-      this.close();
-    }
+    // No cerrar al hacer click fuera - solo con botón X
+    // if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+    //   this.close();
+    // }
   }
 
   /**

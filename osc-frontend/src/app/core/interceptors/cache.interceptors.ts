@@ -16,6 +16,8 @@ const NO_CACHE_PATTERNS = [
   '/s',              // Suscripciones
   '/c/admin/torneos', // Torneos
   '/m/client/equipos', // Partidos
+  '/jugadores',      // Jugadores de equipos
+  '/equipos',        // Equipos
 ];
 
 export const CacheInterceptors: HttpInterceptorFn = (req, next) => {

@@ -1,198 +1,133 @@
-<div class="torneos-container">
-  <!-- Header con filtros avanzados -->
-  <div class="torneos-header">
-    <div class="header-title-section">
-      <h1 class="page-title">Torneos Disponibles</h1>
-      <p class="page-subtitle">Explora y únete a los mejores torneos deportivos</p>
-    </div>
-
-    <!-- Tabs mejoradas de deportes -->
-    <div class="deportes-tabs-modern">
-      <button
-        *ngFor="let deporte of deportes"
-        class="deporte-tab-modern"
-        [class.active]="activeTab === deporte.id_deporte"
-        (click)="selectTab(deporte.id_deporte)">
-        <div class="tab-icon">{{ deporte.icono }}</div>
-        <div class="tab-content">
-          <span class="tab-name">{{ deporte.nombre }}</span>
-          <span class="tab-count">{{ deporte.count }} torneos</span>
-        </div>
-        <div class="tab-indicator"></div>
-      </button>
-    </div>
-
-    <!-- Filtros adicionales -->
-    <div class="filters-bar">
-      <button class="filter-btn" [class.active]="filterStatus === 'todos'" (click)="setFilter('todos')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10"></circle>
-        </svg>
-        Todos
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'en_curso'" (click)="setFilter('en_curso')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="10 8 16 12 10 16"></polyline>
-        </svg>
-        En Curso
-        <span class="badge badge-live">LIVE</span>
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'abierto'" (click)="setFilter('abierto')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
-        </svg>
-        Inscripción Abierta
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'finalizado'" (click)="setFilter('finalizado')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        Finalizados
-      </button>
-    </div>
+<div class="torneos-wrapper">
+  <div class="page-header">
+    <h1>Torneos Disponibles</h1>
+    <p>Explora y únete a los mejores torneos deportivos</p>
   </div>
 
-  <!-- Skeleton Loader -->
-  <div class="leagues-skeleton" *ngIf="isLoading">
-    <div class="skeleton skeleton-card" *ngFor="let item of [1,2,3]"></div>
+  <div class="filters">
+    <button [class.active]="filterStatus === 'todos'" (click)="setFilter('todos')">Todos</button>
+    <button class="btn-en-curso" [class.active]="filterStatus === 'en_curso'" (click)="setFilter('en_curso')">
+      En Curso
+    </button>
+    <button [class.active]="filterStatus === 'abierto'" (click)="setFilter('abierto')">Inscripción Abierta</button>
+    <button [class.active]="filterStatus === 'finalizado'" (click)="setFilter('finalizado')">Finalizados</button>
   </div>
 
-  <!-- Grid de Torneos Moderno -->
-  <div class="leagues-grid-modern" *ngIf="!isLoading">
-    <div class="league-card" *ngFor="let torneo of torneosFiltrados; let i = index"
-         [style.animation-delay.s]="i * 0.1"
-         class="animate-slide-in"
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando torneos...</p>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="torneos-grid" *ngIf="!isLoading && !error">
+    <div class="torneo-card card card-hover card-interactive"
+         *ngFor="let torneo of torneosFiltrados"
          (click)="viewTournamentDetail(torneo)">
 
-      <!-- Header de Torneo mejorado -->
-      <div class="league-card-header">
-        <div class="league-info">
-          <img [src]="torneo.deporte_imagen"
-               [alt]="torneo.nombre"
-               class="league-logo-modern">
-          <div class="league-meta-modern">
-            <h2 class="league-title-modern">{{ torneo.nombre }}</h2>
-            <p class="league-subtitle-modern">
-              {{ torneo.nombre_deporte }} • {{ getRangoFechas(torneo) }}
-            </p>
-          </div>
+      <div class="card-header">
+        <img [src]="torneo.deporte_imagen" [alt]="torneo.nombre_deporte" class="deporte-icon">
+        <div class="header-info">
+          <h3>{{ torneo.nombre }}</h3>
+          <p>{{ torneo.nombre_deporte }}</p>
         </div>
-        <div class="league-badge">
-          <span class="badge" [class]="'badge-' + getColorEstado(torneo.estado)">
-            {{ getTextoEstado(torneo.estado) }}
-          </span>
-        </div>
+        <span class="status-badge badge" [class]="'badge-' + torneo.estado">
+          {{ getTextoEstado(torneo.estado) }}
+        </span>
       </div>
 
-      <!-- Información del Torneo -->
-      <div class="tournament-info-section">
+      <div class="card-body">
         <div class="info-row">
           <div class="info-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            <span class="info-label">Equipos:</span>
-            <span class="info-value">{{ torneo.equipos_inscritos }}/{{ torneo.max_equipos }}</span>
+            <span class="label">Equipos:</span>
+            <span class="value">{{ torneo.equipos_inscritos }}/{{ torneo.max_equipos }}</span>
           </div>
           <div class="info-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
             </svg>
-            <span class="info-label">Tipo:</span>
-            <span class="info-value">{{ torneo.tipo_torneo }}</span>
+            <span class="label">Tipo:</span>
+            <span class="value">{{ torneo.tipo_torneo }}</span>
           </div>
         </div>
 
-        <!-- Barra de progreso de ocupación -->
-        <div class="progress-bar-container" *ngIf="torneo.estado === 'abierto'">
-          <div class="progress-bar-label">
-            <span>Ocupación</span>
-            <span class="progress-percentage">{{ getPorcentajeOcupacion(torneo) }}%</span>
+        <div class="info-row">
+          <div class="info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span class="label">Inicio:</span>
+            <span class="value">{{ torneo.fecha_inicio | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span class="label">Fin:</span>
+            <span class="value">{{ torneo.fecha_fin | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="progress-section" *ngIf="torneo.estado === 'abierto'">
+          <div class="progress-header">
+            <span>Cupos</span>
+            <span>{{ getPorcentajeOcupacion(torneo) }}%</span>
           </div>
           <div class="progress-bar">
             <div class="progress-fill" [style.width.%]="getPorcentajeOcupacion(torneo)"></div>
           </div>
         </div>
 
-        <!-- Descripción -->
-        <p class="tournament-description" *ngIf="torneo.descripcion">
-          {{ torneo.descripcion }}
-        </p>
+        <p class="description" *ngIf="torneo.descripcion">{{ torneo.descripcion }}</p>
       </div>
 
-      <!-- Footer de Torneo -->
-      <div class="league-card-footer">
-        <button class="btn-quick-view" (click)="quickView(torneo, $event)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-          Vista rápida
+      <div class="card-footer">
+        <button class="btn btn-secondary btn-sm" (click)="quickView(torneo, $event)">
+          Vista Rápida
         </button>
 
-        <!-- Botón de Inscripción Directa -->
         <button
           *ngIf="torneo.estado === 'abierto' && tieneCupos(torneo)"
-          class="btn-inscribir"
+          class="btn btn-primary btn-sm"
           (click)="onQuickViewInscribirse(torneo); $event.stopPropagation()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <polyline points="17 11 19 13 23 9"></polyline>
-          </svg>
           Inscribirse
         </button>
 
-        <a class="link-clasificacion" (click)="viewClassification(torneo, $event)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <line x1="8" y1="6" x2="21" y2="6"></line>
-            <line x1="8" y1="12" x2="21" y2="12"></line>
-            <line x1="8" y1="18" x2="21" y2="18"></line>
-            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-          </svg>
-          Ver clasificación
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </a>
-
-        <span class="availability-badge" *ngIf="torneo.estado === 'abierto'">
-          <span *ngIf="tieneCupos(torneo)" class="badge badge-success">
-            ✓ Cupos disponibles
-          </span>
-          <span *ngIf="!tieneCupos(torneo)" class="badge badge-danger">
-            ✗ Cupos agotados
-          </span>
-        </span>
+        <button class="btn btn-ghost btn-sm" (click)="viewClassification(torneo, $event)">
+          Ver Clasificación
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Estado vacío -->
-  <div class="empty-state-modern" *ngIf="!isLoading && torneosFiltrados.length === 0">
-    <div class="empty-icon-large">🏆</div>
-    <h3>No hay torneos disponibles</h3>
-    <p>Por el momento no hay torneos con los filtros seleccionados</p>
-    <button class="btn btn-primary" (click)="refreshLeagues()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <polyline points="1 20 1 14 7 14"></polyline>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-      </svg>
-      Actualizar
-    </button>
+  <div class="empty-state" *ngIf="!isLoading && !error && torneosFiltrados.length === 0">
+    <svg class="empty-icon" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+      <path d="M4 22h16"></path>
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+    </svg>
+    <p class="empty-title">No se encontraron torneos</p>
+    <p class="empty-subtitle">Prueba ajustando los filtros o vuelve más tarde</p>
   </div>
 </div>
 
-<!-- Modales -->
 <app-torneo-quick-view-modal
   [isOpen]="showQuickViewModal"
   [torneo]="torneoSeleccionado"

@@ -1,0 +1,222 @@
+.clasificacion-torneo {
+  padding: 20px;
+}
+
+.clasificacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.clasificacion-header h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.75rem;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading, .sin-clasificacion {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.tabla-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tabla-clasificacion {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-clasificacion thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.tabla-clasificacion th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabla-clasificacion tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.3s;
+}
+
+.tabla-clasificacion tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.tabla-clasificacion tbody tr.top-position {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+.tabla-clasificacion td {
+  padding: 15px 12px;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.col-pos {
+  width: 50px;
+  text-align: center;
+}
+
+.col-equipo {
+  min-width: 200px;
+}
+
+.col-num {
+  width: 60px;
+  text-align: center;
+}
+
+.col-num.destacado {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.posicion {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  border-radius: 50%;
+  font-weight: bold;
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.posicion.pos-1 {
+  background: #fbbf24;
+  color: white;
+}
+
+.posicion.pos-2 {
+  background: #9ca3af;
+  color: white;
+}
+
+.posicion.pos-3 {
+  background: #cd7f32;
+  color: white;
+}
+
+.equipo-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-equipo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.nombre-equipo {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ganados {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.empatados {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.perdidos {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.positivo {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.negativo {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.leyenda {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.leyenda p {
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .clasificacion-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .clasificacion-header button {
+    width: 100%;
+  }
+
+  .tabla-clasificacion th,
+  .tabla-clasificacion td {
+    padding: 10px 6px;
+    font-size: 0.85rem;
+  }
+
+  .col-equipo {
+    min-width: 150px;
+  }
+
+  .logo-equipo {
+    width: 24px;
+    height: 24px;
+  }
+}

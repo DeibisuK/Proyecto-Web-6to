@@ -1,0 +1,70 @@
+<div class="clasificacion-torneo">
+  <div class="clasificacion-header">
+    <h2>🏆 Clasificación</h2>
+    <button
+      class="btn btn-primary"
+      (click)="recalcularClasificacion()"
+      [disabled]="cargando()">
+      🔄 Recalcular
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading">Cargando clasificación...</div>
+  } @else if (clasificacion().length === 0) {
+    <div class="sin-clasificacion">No hay datos de clasificación</div>
+  } @else {
+    <div class="tabla-container">
+      <table class="tabla-clasificacion">
+        <thead>
+          <tr>
+            <th class="col-pos">#</th>
+            <th class="col-equipo">Equipo</th>
+            <th class="col-num">PJ</th>
+            <th class="col-num">PG</th>
+            <th class="col-num">PE</th>
+            <th class="col-num">PP</th>
+            <th class="col-num">PF</th>
+            <th class="col-num">PC</th>
+            <th class="col-num">DIF</th>
+            <th class="col-num destacado">PTS</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (equipo of clasificacion(); track equipo.id_clasificacion) {
+            <tr [class.top-position]="equipo.posicion && equipo.posicion <= 3">
+              <td class="col-pos">
+                <span class="posicion" [class]="'pos-' + equipo.posicion">
+                  {{ equipo.posicion || '-' }}
+                </span>
+              </td>
+              <td class="col-equipo">
+                <div class="equipo-info">
+                  @if (equipo.logo_equipo) {
+                    <img [src]="equipo.logo_equipo" [alt]="equipo.nombre_equipo" class="logo-equipo">
+                  }
+                  <span class="nombre-equipo">{{ equipo.nombre_equipo }}</span>
+                </div>
+              </td>
+              <td class="col-num">{{ equipo.partidos_jugados }}</td>
+              <td class="col-num ganados">{{ equipo.partidos_ganados }}</td>
+              <td class="col-num empatados">{{ equipo.partidos_empatados }}</td>
+              <td class="col-num perdidos">{{ equipo.partidos_perdidos }}</td>
+              <td class="col-num">{{ equipo.puntos_favor }}</td>
+              <td class="col-num">{{ equipo.puntos_contra }}</td>
+              <td class="col-num" [class.positivo]="equipo.diferencia_puntos > 0" [class.negativo]="equipo.diferencia_puntos < 0">
+                {{ equipo.diferencia_puntos > 0 ? '+' : '' }}{{ equipo.diferencia_puntos }}
+              </td>
+              <td class="col-num destacado"><strong>{{ equipo.puntos_clasificacion }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="leyenda">
+      <p><strong>PJ:</strong> Partidos Jugados | <strong>PG:</strong> Ganados | <strong>PE:</strong> Empatados | <strong>PP:</strong> Perdidos</p>
+      <p><strong>PF:</strong> Puntos a Favor | <strong>PC:</strong> Puntos en Contra | <strong>DIF:</strong> Diferencia | <strong>PTS:</strong> Puntos</p>
+    </div>
+  }
+</div>

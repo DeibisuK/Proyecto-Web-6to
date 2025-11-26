@@ -35,10 +35,10 @@ class TorneoAdminService {
                      WHERE it.id_torneo = t.id_torneo 
                      AND it.aprobado = true) as equipos_inscritos,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo) as total_partidos,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'finalizado') as partidos_finalizados
                     
@@ -150,6 +150,7 @@ class TorneoAdminService {
                     t.estado,
                     t.creado_por,
                     t.creado_en,
+                    t.id_arbitro,
                     
                     -- Información del deporte
                     d.id_deporte,
@@ -160,19 +161,23 @@ class TorneoAdminService {
                     u.name_user as creador_nombre,
                     u.email_user as creador_email,
                     
+                    -- Información del árbitro (id_arbitro ya es id_usuario)
+                    ua.name_user as arbitro_nombre,
+                    ua.email_user as arbitro_email,
+                    
                     -- Estadísticas
                     (SELECT COUNT(*) FROM inscripciones_torneo it 
                      WHERE it.id_torneo = t.id_torneo 
                      AND it.aprobado = true) as equipos_inscritos,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo) as total_partidos,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'finalizado') as partidos_finalizados,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido IN ('programado', 'por_jugar')) as partidos_pendientes,
                     
@@ -191,12 +196,12 @@ class TorneoAdminService {
                 FROM torneos t
                 INNER JOIN deportes d ON t.id_deporte = d.id_deporte
                 LEFT JOIN usuarios u ON t.creado_por = u.id_user
+                LEFT JOIN usuarios ua ON t.id_arbitro = ua.id_user
                 WHERE t.id_torneo = $1
             `;
 
             const result = await client.query(query, [idTorneo]);
             return result.rows[0] || null;
-
         } finally {
             client.release();
         }
@@ -208,6 +213,8 @@ class TorneoAdminService {
     async crearTorneo(datos) {
         const client = await pool.connect();
         try {
+            // id_arbitro viene como id_usuario desde el frontend (usuarios con rol='Arbitro')
+            // Se guarda directamente porque la FK apunta a usuarios, no a arbitros
             const query = `
                 INSERT INTO torneos (
                     nombre,
@@ -220,9 +227,10 @@ class TorneoAdminService {
                     tipo_torneo,
                     estado,
                     creado_por,
+                    id_arbitro,
                     creado_en
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
                 RETURNING *
             `;
 
@@ -236,12 +244,15 @@ class TorneoAdminService {
                 datos.max_equipos,
                 datos.tipo_torneo,
                 datos.estado,
-                datos.creado_por
+                datos.creado_por,
+                datos.id_arbitro || null
             ];
 
             const result = await client.query(query, values);
             return result.rows[0];
 
+        } catch (error) {
+            throw error;
         } finally {
             client.release();
         }
@@ -253,6 +264,9 @@ class TorneoAdminService {
     async actualizarTorneo(idTorneo, datos) {
         const client = await pool.connect();
         try {
+            // id_arbitro viene como id_usuario desde el frontend (usuarios con rol='Arbitro')
+            // No necesita conversión porque la FK apunta a usuarios
+            
             const campos = [];
             const valores = [];
             let contador = 1;
@@ -282,6 +296,8 @@ class TorneoAdminService {
             const result = await client.query(query, valores);
             return result.rows[0];
 
+        } catch (error) {
+            throw error;
         } finally {
             client.release();
         }
@@ -312,9 +328,9 @@ class TorneoAdminService {
             // Verificar si tiene partidos finalizados
             const partidosQuery = `
                 SELECT COUNT(*) as total 
-                FROM torneos_partidos 
+                FROM partidos_torneo 
                 WHERE id_torneo = $1 
-                AND estado_partido = 'finalizado'
+                AND estado = 'finalizado'
             `;
             const partidos = await client.query(partidosQuery, [idTorneo]);
 
@@ -394,24 +410,24 @@ class TorneoAdminService {
                     t.max_equipos,
                     
                     -- Estadísticas de partidos
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo) as total_partidos,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'programado') as partidos_programados,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'en_curso') as partidos_en_curso,
                     
-                    (SELECT COUNT(*) FROM torneos_partidos tp 
+                    (SELECT COUNT(*) FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'finalizado') as partidos_finalizados,
                     
                     -- Estadísticas de goles
-                    (SELECT COALESCE(SUM(tp.goles_local + tp.goles_visitante), 0)
-                     FROM torneos_partidos tp 
+                    (SELECT COALESCE(SUM(tp.resultado_local + tp.resultado_visitante), 0)
+                     FROM partidos_torneo tp 
                      WHERE tp.id_torneo = t.id_torneo 
                      AND tp.estado_partido = 'finalizado') as total_goles,
                     

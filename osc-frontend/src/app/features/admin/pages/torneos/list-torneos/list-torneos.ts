@@ -16,11 +16,15 @@ import { Deporte } from '@shared/models/index';
 export class ListTorneos implements OnInit {
   torneos: Torneo[] = [];
   deportes: Deporte[] = [];
+  cargando: boolean = true;
 
   // Señales para dropdowns
   dropdownDeporteAbierto = signal<boolean>(false);
   dropdownEstadoAbierto = signal<boolean>(false);
   dropdownOrdenarAbierto = signal<boolean>(false);
+
+  // Control del dropdown de estado en cada card
+  dropdownEstadoTorneoId: number | null = null;
 
   deporteSeleccionado = signal<string>('Todos los deportes');
   estadoSeleccionado = signal<string>('Todos los estados');
@@ -45,6 +49,11 @@ export class ListTorneos implements OnInit {
     { value: 'cerrado', label: 'Cerrado' },
     { value: 'finalizado', label: 'Finalizado' }
   ];
+
+  // Modal Bracket
+  mostrarModalBracket = signal<boolean>(false);
+  torneoSeleccionado: Torneo | null = null;
+  bracket: any[] = [];
 
   // Ordenamiento
   opcionesOrden = [
@@ -84,6 +93,7 @@ export class ListTorneos implements OnInit {
   }
 
   cargarTorneos(): void {
+    this.cargando = true;
     this.torneosService.listarTorneos(this.filtros).subscribe({
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
@@ -94,6 +104,7 @@ export class ListTorneos implements OnInit {
             this.totalPages = response.pagination.totalPages;
           }
         }
+        this.cargando = false;
       },
       error: (err) => {
         this.notificationService.notify({
@@ -101,6 +112,7 @@ export class ListTorneos implements OnInit {
           type: 'error'
         });
         console.error('Error al cargar torneos:', err);
+        this.cargando = false;
       }
     });
   }
@@ -144,6 +156,9 @@ export class ListTorneos implements OnInit {
 
   cambiarEstado(torneo: Torneo, nuevoEstado: string): void {
     if (!torneo.id_torneo) return;
+
+    // Cerrar el dropdown
+    this.dropdownEstadoTorneoId = null;
 
     const confirmacion = confirm(`¿Cambiar el estado del torneo "${torneo.nombre}" a "${nuevoEstado}"?`);
 
@@ -305,11 +320,102 @@ export class ListTorneos implements OnInit {
       const target = event.target as HTMLElement;
       if (!target.closest('.dropdown-deporte') &&
           !target.closest('.dropdown-estado') &&
-          !target.closest('.dropdown-ordenar')) {
+          !target.closest('.dropdown-ordenar') &&
+          !target.closest('.btn-dropdown')) {
         this.dropdownDeporteAbierto.set(false);
         this.dropdownEstadoAbierto.set(false);
         this.dropdownOrdenarAbierto.set(false);
+        this.dropdownEstadoTorneoId = null;
       }
     });
+  }
+
+  // Toggle dropdown de estado en cards de torneos
+  toggleDropdownEstadoTorneo(event: Event, torneoId: number): void {
+    event.stopPropagation();
+    this.dropdownEstadoTorneoId = this.dropdownEstadoTorneoId === torneoId ? null : torneoId;
+  }
+
+  // Métodos para Bracket
+  abrirModalBracket(torneo: Torneo): void {
+    this.torneoSeleccionado = torneo;
+    this.generarBracket(torneo);
+    this.mostrarModalBracket.set(true);
+  }
+
+  cerrarModalBracket(): void {
+    this.mostrarModalBracket.set(false);
+    this.torneoSeleccionado = null;
+    this.bracket = [];
+  }
+
+  generarBracket(torneo: Torneo): void {
+    // Simulamos equipos participantes (en producción vendrían del backend)
+    const cantidadEquipos = torneo.max_equipos || 8;
+    const equipos = Array.from({ length: cantidadEquipos }, (_, i) => ({
+      id: i + 1,
+      nombre: `Equipo ${i + 1}`,
+      seed: i + 1
+    }));
+
+    // Mezclar aleatoriamente para no tener preferencias
+    const equiposMezclados = this.shuffleArray([...equipos]);
+
+    // Calcular número de rondas
+    const numRondas = Math.log2(cantidadEquipos);
+    this.bracket = [];
+
+    // Crear estructura de bracket
+    for (let ronda = 0; ronda < numRondas; ronda++) {
+      const partidosPorRonda = Math.pow(2, numRondas - ronda - 1);
+      const rondaNombre = this.obtenerNombreRonda(ronda, numRondas);
+
+      const partidos = [];
+      for (let i = 0; i < partidosPorRonda; i++) {
+        if (ronda === 0) {
+          // Primera ronda: asignar equipos
+          const equipo1 = equiposMezclados[i * 2];
+          const equipo2 = equiposMezclados[i * 2 + 1];
+          partidos.push({
+            id: `r${ronda}-p${i}`,
+            equipo1: equipo1,
+            equipo2: equipo2,
+            ganador: null
+          });
+        } else {
+          // Rondas siguientes: esperar ganadores
+          partidos.push({
+            id: `r${ronda}-p${i}`,
+            equipo1: null,
+            equipo2: null,
+            ganador: null
+          });
+        }
+      }
+
+      this.bracket.push({
+        ronda: ronda,
+        nombre: rondaNombre,
+        partidos: partidos
+      });
+    }
+  }
+
+  obtenerNombreRonda(indiceRonda: number, totalRondas: number): string {
+    const rondaDesdeElFinal = totalRondas - indiceRonda;
+    if (rondaDesdeElFinal === 1) return 'Final';
+    if (rondaDesdeElFinal === 2) return 'Semifinal';
+    if (rondaDesdeElFinal === 3) return 'Cuartos';
+    if (rondaDesdeElFinal === 4) return 'Octavos';
+    return `Ronda ${indiceRonda + 1}`;
+  }
+
+  shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 }

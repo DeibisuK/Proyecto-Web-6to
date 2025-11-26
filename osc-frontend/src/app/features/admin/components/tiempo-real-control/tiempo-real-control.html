@@ -1,0 +1,74 @@
+<div class="tiempo-control">
+  <h2>⏱️ Control de Tiempo</h2>
+
+  @if (cargando()) {
+    <div class="loading">Cargando...</div>
+  } @else if (estado()) {
+    <div class="cronometro-container">
+      <div class="cronometro" [class]="estadoCss">
+        <div class="tiempo-display">
+          {{ formatearTiempo(estado()!.tiempo_actual) }}
+        </div>
+        <div class="estado-label">
+          {{ estado()!.estado === 'corriendo' ? '▶️ EN JUEGO' :
+             estado()!.estado === 'pausado' ? '⏸️ PAUSADO' :
+             estado()!.estado === 'finalizado' ? '⏹️ FINALIZADO' : '⏹️ DETENIDO' }}
+        </div>
+        <div class="periodo-info">
+          Periodo {{ estado()!.periodo_actual }}
+        </div>
+      </div>
+
+      <div class="controles">
+        @if (estado()!.estado === 'no_iniciado' || estado()!.estado === 'pausado' || estado()!.estado === 'detenido') {
+          <div class="periodo-selector">
+            <label>Periodo:</label>
+            <input
+              type="number"
+              [(ngModel)]="periodo"
+              min="1"
+              max="4"
+              class="periodo-input">
+          </div>
+          <button
+            class="btn btn-primary"
+            (click)="iniciarCronometro()"
+            [disabled]="cargando()">
+            ▶️ Iniciar
+          </button>
+        }
+
+        @if (estado()!.estado === 'corriendo') {
+          <button
+            class="btn btn-warning"
+            (click)="pausarCronometro()">
+            ⏸️ Pausar
+          </button>
+        }
+
+        @if (estado()!.estado === 'corriendo' || estado()!.estado === 'pausado') {
+          <button
+            class="btn btn-danger"
+            (click)="detenerCronometro()">
+            ⏹️ Finalizar Partido
+          </button>
+        }
+
+        @if (estado()!.estado !== 'finalizado') {
+          <button
+            class="btn btn-secondary"
+            (click)="reiniciarCronometro()">
+            🔄 Reiniciar
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="sin-estado">
+      <p>No hay estado registrado para este partido</p>
+      <button class="btn btn-primary" (click)="iniciarCronometro()">
+        Crear e Iniciar
+      </button>
+    </div>
+  }
+</div>

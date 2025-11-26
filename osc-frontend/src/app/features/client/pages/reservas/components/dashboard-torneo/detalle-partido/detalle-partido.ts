@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PartidosService } from '../services/partidos.service';
 import { DetallePartido, EventoPartido, Jugador } from '../models/torneo.models';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-detalle-partido',
@@ -11,7 +12,7 @@ import { DetallePartido, EventoPartido, Jugador } from '../models/torneo.models'
   templateUrl: './detalle-partido.html',
   styleUrls: ['./detalle-partido.css']
 })
-export class DetallePartidoComponent implements OnInit {
+export class DetallePartidoComponent implements OnInit, OnDestroy {
   private partidosService = inject(PartidosService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -21,6 +22,9 @@ export class DetallePartidoComponent implements OnInit {
   error: string | null = null;
   selectedTab: 'alineacion' | 'eventos' | 'estadisticas' = 'alineacion';
 
+  // Suscripciones para tiempo real
+  private tiempoSub?: Subscription;
+
   ngOnInit(): void {
     const idPartido = this.route.snapshot.paramMap.get('id');
     if (idPartido) {
@@ -29,6 +33,10 @@ export class DetallePartidoComponent implements OnInit {
       this.error = 'ID de partido no válido';
       this.isLoading = false;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.tiempoSub?.unsubscribe();
   }
 
   /**

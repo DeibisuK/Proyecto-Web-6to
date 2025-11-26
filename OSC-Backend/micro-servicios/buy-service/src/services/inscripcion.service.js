@@ -66,17 +66,17 @@ class InscripcionService {
                     -- Estadísticas del equipo en el torneo
                     (
                         SELECT COUNT(*) 
-                        FROM torneos_partidos tp 
+                        FROM partidos_torneo tp 
                         WHERE tp.id_torneo = t.id_torneo 
-                        AND (tp.equipo_local = e.id_equipo OR tp.equipo_visitante = e.id_equipo)
+                        AND (tp.id_equipo_local = e.id_equipo OR tp.id_equipo_visitante = e.id_equipo)
                         AND tp.estado_partido = 'finalizado'
                     ) as partidos_jugados,
                     
                     (
                         SELECT COUNT(*) 
-                        FROM torneos_partidos tp 
+                        FROM partidos_torneo tp 
                         WHERE tp.id_torneo = t.id_torneo 
-                        AND (tp.equipo_local = e.id_equipo OR tp.equipo_visitante = e.id_equipo)
+                        AND (tp.id_equipo_local = e.id_equipo OR tp.id_equipo_visitante = e.id_equipo)
                         AND tp.estado_partido IN ('programado', 'por_jugar')
                     ) as partidos_pendientes,
                     
@@ -86,24 +86,24 @@ class InscripcionService {
                             'id_partido', tp.id_partido,
                             'fecha_hora_inicio', tp.fecha_hora_inicio,
                             'rival', CASE 
-                                WHEN tp.equipo_local = e.id_equipo THEN er.nombre_equipo
+                                WHEN tp.id_equipo_local = e.id_equipo THEN er.nombre_equipo
                                 ELSE el.nombre_equipo
                             END,
                             'rival_logo', CASE 
-                                WHEN tp.equipo_local = e.id_equipo THEN er.logo_url
+                                WHEN tp.id_equipo_local = e.id_equipo THEN er.logo_url
                                 ELSE el.logo_url
                             END,
-                            'es_local', CASE WHEN tp.equipo_local = e.id_equipo THEN true ELSE false END,
+                            'es_local', CASE WHEN tp.id_equipo_local = e.id_equipo THEN true ELSE false END,
                             'sede', s.nombre,
                             'cancha', c.nombre_cancha
                         )
-                        FROM torneos_partidos tp
-                        LEFT JOIN equipos el ON tp.equipo_local = el.id_equipo
-                        LEFT JOIN equipos er ON tp.equipo_visitante = er.id_equipo
+                        FROM partidos_torneo tp
+                        LEFT JOIN equipos el ON tp.id_equipo_local = el.id_equipo
+                        LEFT JOIN equipos er ON tp.id_equipo_visitante = er.id_equipo
                         LEFT JOIN sedes s ON tp.id_sede = s.id_sede
                         LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
                         WHERE tp.id_torneo = t.id_torneo 
-                        AND (tp.equipo_local = e.id_equipo OR tp.equipo_visitante = e.id_equipo)
+                        AND (tp.id_equipo_local = e.id_equipo OR tp.id_equipo_visitante = e.id_equipo)
                         AND tp.estado_partido IN ('programado', 'por_jugar')
                         AND tp.fecha_hora_inicio >= NOW()
                         ORDER BY tp.fecha_hora_inicio ASC

@@ -35,52 +35,59 @@
     <div class="equipos-grid">
       @for (equipo of equiposFiltrados; track equipo.id_equipo) {
         <div class="equipo-card">
-      <div class="equipo-logo">
-        @if (equipo.logo_url) {
-          <img
-            [src]="equipo.logo_url"
-            [alt]="equipo.nombre_equipo"
-          />
-        } @else {
-          <div class="logo-fallback">
-            <span class="material-icons">shield</span>
-          </div>
-        }
-      </div>      <div class="equipo-info">
-        <div class="titulo-con-badge">
-          <h3>{{ equipo.nombre_equipo }}</h3>
-          @if (equipo.id_deporte) {
-            <span class="deporte-badge" [attr.data-deporte]="equipo.id_deporte">
-              {{ obtenerNombreDeporte(equipo.id_deporte) }}
-            </span>
-          }
-        </div>
-        <p class="descripcion">{{ equipo.descripcion || 'Sin descripción' }}</p>
-      </div>
+          <div class="equipo-card-body">
+            <div class="equipo-logo">
+              @if (equipo.logo_url) {
+                <img
+                  [src]="equipo.logo_url"
+                  [alt]="equipo.nombre_equipo"
+                />
+              } @else {
+                <div class="logo-fallback">
+                  <span class="material-icons">shield</span>
+                </div>
+              }
+            </div>
 
-      <div class="equipo-actions">
-        <button
-          class="btn-action btn-assign"
-          (click)="abrirModalAsignar(equipo)"
-          title="Asignar usuarios"
-        >
-          <span class="material-icons">group_add</span>
-        </button>
-        <button
-          class="btn-action btn-edit"
-          (click)="editarEquipo(equipo)"
-          title="Editar equipo"
-        >
-          <span class="material-icons">edit</span>
-        </button>
-        <button
-          class="btn-action btn-delete"
-          (click)="eliminarEquipo(equipo)"
-          title="Eliminar equipo"
-        >
-          <span class="material-icons">delete</span>
-        </button>
-      </div>
+            <div class="equipo-info">
+              <h3>{{ equipo.nombre_equipo }}</h3>
+              <p class="descripcion">{{ equipo.descripcion || 'Sin descripción' }}</p>
+            </div>
+
+            <div class="equipo-actions">
+              <button
+                class="btn-action btn-assign"
+                (click)="abrirModalAsignar(equipo)"
+                title="Asignar usuarios"
+              >
+                <span class="material-icons">group_add</span>
+              </button>
+              <button
+                class="btn-action btn-edit"
+                (click)="editarEquipo(equipo)"
+                title="Editar equipo"
+              >
+                <span class="material-icons">edit</span>
+              </button>
+              <button
+                class="btn-action btn-delete"
+                (click)="eliminarEquipo(equipo)"
+                title="Eliminar equipo"
+              >
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Footer con el deporte -->
+          <div class="equipo-footer">
+            @if (equipo.id_deporte) {
+              <span class="deporte-badge" [attr.data-deporte]="equipo.id_deporte">
+                <span class="material-icons">sports_soccer</span>
+                {{ obtenerNombreDeporte(equipo.id_deporte) }}
+              </span>
+            }
+          </div>
         </div>
       }
     </div>
@@ -176,10 +183,20 @@
         <div class="usuarios-panel">
           <div class="panel-header">
             <h4>
-              <span class="material-icons">people</span>
+              <span class="material-icons">person_search</span>
               Usuarios Disponibles
             </h4>
             <span class="count-badge">{{ usuariosDisponibles.length }}</span>
+          </div>
+
+          <div class="search-usuarios">
+            <span class="material-icons">search</span>
+            <input
+              type="text"
+              placeholder="Buscar usuarios..."
+              [(ngModel)]="searchUsuario"
+              (input)="filtrarUsuariosDisponibles()"
+            />
           </div>
 
           @if (isLoadingUsuarios) {
@@ -187,21 +204,28 @@
               <span class="spinner"></span>
               <p>Cargando usuarios...</p>
             </div>
-          } @else if (usuariosDisponibles.length > 0) {
+          } @else if (usuariosFiltrados.length > 0) {
             <div class="usuarios-list">
-              @for (usuario of usuariosDisponibles; track usuario.id) {
-                <div class="usuario-item">
+              @for (usuario of usuariosFiltrados; track usuario.id) {
+                <div class="usuario-item" [class.no-disponible]="usuario.noDisponible">
                   <div class="usuario-info">
                     <span class="material-icons">person</span>
                     <div class="info-text">
                       <span class="nombre">{{ usuario.nombre }}</span>
                       <span class="email">{{ usuario.email }}</span>
+                      @if (usuario.noDisponible) {
+                        <span class="badge-conflicto">
+                          <span class="material-icons">warning</span>
+                          Ya está en {{ usuario.equipoActual }} (mismo deporte)
+                        </span>
+                      }
                     </div>
                   </div>
                   <button
                     class="btn-add"
+                    [disabled]="usuario.noDisponible"
                     (click)="asignarUsuario(usuario)"
-                    title="Agregar al equipo"
+                    [title]="usuario.noDisponible ? 'Este usuario ya está en un equipo del mismo deporte' : 'Agregar al equipo'"
                   >
                     <span class="material-icons">add_circle</span>
                   </button>
@@ -210,8 +234,10 @@
             </div>
           } @else {
             <div class="empty-panel">
-              <span class="material-icons">inbox</span>
-              <p>No hay usuarios disponibles</p>
+              <span class="material-icons">
+                {{ searchUsuario ? 'search_off' : 'inbox' }}
+              </span>
+              <p>{{ searchUsuario ? 'No se encontraron usuarios' : 'No hay usuarios disponibles' }}</p>
             </div>
           }
         </div>
@@ -220,30 +246,114 @@
         <div class="usuarios-panel">
           <div class="panel-header">
             <h4>
-              <span class="material-icons">shield</span>
+              <span class="material-icons">groups</span>
               Miembros del Equipo
             </h4>
             <span class="count-badge">{{ usuariosEquipo.length }}</span>
           </div>
 
+          <div class="equipo-info-header">
+            @if (equipoParaAsignar?.logo_url) {
+              <img class="equipo-mini-logo" [src]="equipoParaAsignar!.logo_url" [alt]="equipoParaAsignar!.nombre_equipo" />
+            } @else {
+              <div class="equipo-mini-logo-placeholder">
+                <span class="material-icons">shield</span>
+              </div>
+            }
+            <div>
+              <h5>{{ equipoParaAsignar?.nombre_equipo }}</h5>
+              @if (equipoParaAsignar?.id_deporte) {
+                <span class="deporte-mini-badge" [attr.data-deporte]="equipoParaAsignar!.id_deporte">
+                  {{ obtenerNombreDeporte(equipoParaAsignar!.id_deporte) }}
+                </span>
+              }
+            </div>
+          </div>
+
           @if (usuariosEquipo.length > 0) {
             <div class="usuarios-list">
-              @for (usuario of usuariosEquipo; track usuario.id) {
+              @for (usuario of usuariosEquipo; track usuario.id_jugador || usuario.id; let i = $index) {
                 <div class="usuario-item assigned">
-                  <div class="usuario-info">
-                    <span class="material-icons">person</span>
-                    <div class="info-text">
-                      <span class="nombre">{{ usuario.nombre }}</span>
-                      <span class="email">{{ usuario.email }}</span>
+                  <div class="usuario-full-info">
+                    <!-- Cabecera con nombre y botón remover -->
+                    <div class="usuario-header">
+                      <div class="usuario-basic">
+                        @if (usuario.numero_dorsal) {
+                          <div class="jersey-number">{{ usuario.numero_dorsal }}</div>
+                        } @else {
+                          <span class="material-icons">person</span>
+                        }
+                        <div class="info-text">
+                          <span class="nombre">
+                            {{ usuario.nombre }}
+                            @if (usuario.es_capitan) {
+                              <span class="capitan-badge" title="Capitán">
+                                <span class="material-icons">star</span>
+                              </span>
+                            }
+                          </span>
+                          <span class="email">{{ usuario.email }}</span>
+                        </div>
+                      </div>
+                      <button
+                        class="btn-remove"
+                        (click)="removerUsuario(usuario)"
+                        title="Remover del equipo"
+                      >
+                        <span class="material-icons">remove_circle</span>
+                      </button>
+                    </div>
+
+                    <!-- Formulario de datos del jugador -->
+                    <div class="jugador-form">
+                      <div class="form-group">
+                        <label for="dorsal-{{i}}">
+                          <span class="material-icons">tag</span>
+                          Dorsal
+                        </label>
+                        <input
+                          type="number"
+                          id="dorsal-{{i}}"
+                          [(ngModel)]="usuario.numero_dorsal"
+                          min="0"
+                          max="99"
+                          placeholder="Ej: 10"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="posicion-{{i}}">
+                          <span class="material-icons">sports</span>
+                          Posición
+                        </label>
+                        <input
+                          type="text"
+                          id="posicion-{{i}}"
+                          [(ngModel)]="usuario.posicion"
+                          placeholder="Ej: Delantero"
+                          [attr.list]="'posiciones-' + (equipoParaAsignar?.id_deporte || 0)"
+                        />
+                        <datalist [id]="'posiciones-' + (equipoParaAsignar?.id_deporte || 0)">
+                          @for (pos of obtenerPosicionesDeporte(equipoParaAsignar?.id_deporte); track pos) {
+                            <option [value]="pos">{{ pos }}</option>
+                          }
+                        </datalist>
+                      </div>
+
+                      <div class="form-group checkbox-group">
+                        <label for="capitan-{{i}}" class="checkbox-label">
+                          <input
+                            type="checkbox"
+                            id="capitan-{{i}}"
+                            [(ngModel)]="usuario.es_capitan"
+                            (change)="manejarCambioCapitan(usuario)"
+                          />
+                          <span class="material-icons">star</span>
+                          <span>Capitán</span>
+                        </label>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    class="btn-remove"
-                    (click)="removerUsuario(usuario)"
-                    title="Remover del equipo"
-                  >
-                    <span class="material-icons">remove_circle</span>
-                  </button>
                 </div>
               }
             </div>

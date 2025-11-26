@@ -18,7 +18,7 @@ export class DashboardTorneo implements OnInit {
   activeTab: string = 'torneos';
   searchQuery: string = '';
   showStats: boolean = false;
-  selectedSport: string = '';
+  selectedSport: string | null = null;
   loading: boolean = true;
   error: string | null = null;
 
@@ -47,10 +47,11 @@ export class DashboardTorneo implements OnInit {
     // TODO: Implementar modal de nueva inscripción
   }
 
-  filterBySport(sport: string): void {
-    this.selectedSport = this.selectedSport === sport ? '' : sport;
+  filterBySport(sport: string | null): void {
+    this.selectedSport = this.selectedSport === sport ? null : sport;
     console.log('Filtrando por deporte:', this.selectedSport);
-    // El filtro se manejará en el componente hijo (torneo.component)
+    // Comunicar el filtro al componente hijo a través del servicio
+    this.torneosService.setFiltroDeporte(this.selectedSport);
   }
 
   private loadDashboardData(): void {

@@ -126,26 +126,19 @@
           <span class="nav-text">Mis Inscripciones</span>
           <span class="nav-count" *ngIf="stats.inscripcionesActivas > 0">{{ stats.inscripcionesActivas }}</span>
         </a>
-
-        <div class="nav-divider"></div>
-
-        <div class="nav-section-title">Acciones Rápidas</div>
-
-        <button class="nav-link nav-link-action" (click)="openInscriptionModal()">
-          <div class="nav-icon-wrapper">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M12 5v14"></path>
-              <path d="M5 12h14"></path>
-            </svg>
-          </div>
-          <span class="nav-text">Nueva Inscripción</span>
-        </button>
       </nav>
 
       <!-- Quick Filters -->
       <div class="sidebar-filters">
         <div class="filter-title">Filtrar por Deporte</div>
         <div class="filter-chips">
+          <button
+            class="filter-chip"
+            [class.active]="selectedSport === null"
+            (click)="filterBySport(null)">
+            <span class="material-icons">grid_view</span>
+            <span>Todos</span>
+          </button>
           <button
             class="filter-chip"
             [class.active]="selectedSport === 'futbol'"

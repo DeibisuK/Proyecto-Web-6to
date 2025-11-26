@@ -63,7 +63,8 @@ export const create = async (equipo, user) => {
   equipo.id_usuario_creador = null; // Ya no usamos usuarios de BD
 
   const nuevoEquipo = await equipoModel.create(equipo);
-  await historialModel.create(nuevoEquipo.id_equipo);
+  // NO crear historial_partidos aquí - esa tabla es para registros por partido
+  // El historial se crea automáticamente cuando el equipo juega un partido
   return nuevoEquipo;
 };
 

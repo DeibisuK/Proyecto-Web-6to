@@ -75,14 +75,16 @@
 /* ===== DROPDOWNS CUSTOM ===== */
 .dropdown-deporte,
 .dropdown-tipo,
-.dropdown-estado {
+.dropdown-estado,
+.dropdown-arbitro {
   position: relative;
   z-index: 10;
 }
 
 .dropdown-deporte.activo,
 .dropdown-tipo.activo,
-.dropdown-estado.activo {
+.dropdown-estado.activo,
+.dropdown-arbitro.activo {
   z-index: 1000;
 }
 
@@ -123,6 +125,11 @@
   flex: 1;
   text-align: left;
   font-weight: 500;
+}
+
+.dropdown-icon-left {
+  color: #2ECC71;
+  margin-right: 0.5rem;
 }
 
 .dropdown-icon {
@@ -193,6 +200,66 @@
 
 .dropdown-menu::-webkit-scrollbar-thumb:hover {
   background: #27AE60;
+}
+
+/* ===== SELECT ÁRBITRO ===== */
+.form-group select.form-control {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid #E8EEF1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%232ECC71' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 24px;
+  padding-right: 3rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.form-group select.form-control:hover {
+  border-color: #2ECC71;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-group select.form-control:focus {
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
+  background-color: white;
+}
+
+.form-group select.form-control option {
+  padding: 0.875rem 1rem;
+  background: white;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.form-group select.form-control option:first-child {
+  color: #95a5a6;
+  font-style: italic;
+  background: #f8f9fa;
+  font-weight: 400;
+}
+
+.form-group select.form-control option:disabled {
+  background: #f8f9fa;
+  color: #bdc3c7;
+}
+
+.form-group select.form-control option:not(:first-child):checked {
+  background: linear-gradient(135deg, #EBF5FB 0%, #D6EAF8 100%);
+  color: #2ECC71;
+  font-weight: 600;
 }
 
 @keyframes slideDown {
@@ -332,6 +399,403 @@
   transform: none;
 }
 
+/* ===== DROPDOWN ÁRBITRO ===== */
+.dropdown-arbitro {
+  position: relative;
+  z-index: 10;
+}
+
+.dropdown-arbitro.activo {
+  z-index: 1000;
+}
+
+/* ===== SECCIÓN DE PARTICIPANTES ===== */
+.participantes-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title i {
+  color: #2ECC71;
+  font-size: 1.75rem;
+}
+
+.cantidad-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-cantidad {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #2ECC71;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-cantidad:hover {
+  background: #27AE60;
+  transform: scale(1.1);
+}
+
+.cantidad-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Cantidad Control en Input */
+.cantidad-control-input {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  height: 48px;
+}
+
+.cantidad-control-input .btn-cantidad {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 8px;
+  background: #2ECC71;
+  color: white;
+  border: 2px solid #2ECC71;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.cantidad-control-input .btn-cantidad:hover {
+  background: #27AE60;
+  border-color: #27AE60;
+  transform: scale(1.05);
+}
+
+.cantidad-control-input .btn-cantidad:active {
+  transform: scale(0.95);
+}
+
+.cantidad-display-input {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2c3e50;
+  pointer-events: none;
+  flex: 0 1 120px;
+  height: 48px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+/* Grid de Participantes */
+.participantes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.equipos-panel {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 500px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.panel-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-header i {
+  color: #2ECC71;
+}
+
+.count-badge {
+  background: #2ECC71;
+  color: white;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 45px;
+  text-align: center;
+}
+
+.count-badge.completo {
+  background: #27AE60;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Búsqueda de equipos */
+.search-box-participantes {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box-participantes i {
+  position: absolute;
+  left: 1rem;
+  color: #95A5A6;
+  pointer-events: none;
+}
+
+.search-input-participantes {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: white;
+  color: #2c3e50;
+}
+
+.search-input-participantes::placeholder {
+  color: #95A5A6;
+}
+
+.search-input-participantes:focus {
+  outline: none;
+  border-color: #2ECC71;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+  color: #2c3e50;
+}
+
+.search-input-participantes:focus::placeholder {
+  color: transparent;
+}
+
+/* Lista de equipos */
+.equipos-lista {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+}
+
+.equipo-item {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.equipo-item:hover {
+  border-color: #2ECC71;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.15);
+}
+
+.equipo-item.inscrito {
+  border-color: #2ECC71;
+  background: rgba(46, 204, 113, 0.05);
+}
+
+.equipo-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.equipo-logo-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.equipo-logo-placeholder-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2ECC71, #27AE60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.equipo-logo-placeholder-mini i {
+  font-size: 1.5rem;
+}
+
+.equipo-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.equipo-nombre {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.equipo-deporte {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-agregar-equipo,
+.btn-remover-equipo {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-agregar-equipo i {
+  font-size: 2rem;
+  color: #2ECC71;
+}
+
+.btn-agregar-equipo:hover i {
+  color: #27AE60;
+  transform: scale(1.2);
+}
+
+.btn-remover-equipo i {
+  font-size: 2rem;
+  color: #e74c3c;
+}
+
+.btn-remover-equipo:hover i {
+  color: #c0392b;
+  transform: scale(1.2);
+}
+
+/* Estado vacío */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #95a5a6;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #bdc3c7;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Alertas de participantes */
+.alerta-participantes {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.alerta-participantes.completo {
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.alerta-participantes i {
+  font-size: 1.2rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .crear-torneo-container {
@@ -354,5 +818,19 @@
   .btn-guardar {
     width: 100%;
     justify-content: center;
+  }
+
+  .participantes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .equipos-lista {
+    max-height: 300px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
 }

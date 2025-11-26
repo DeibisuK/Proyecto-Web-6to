@@ -174,28 +174,25 @@
       <div class="form-group">
         <label for="max_equipos" class="form-label">
           <i class="fas fa-users"></i>
-          Máximo de Equipos
+          Número de Participantes
         </label>
-        <input
-          type="number"
-          id="max_equipos"
-          formControlName="max_equipos"
-          class="form-input"
-          placeholder="Ej: 16"
-          min="2"
-          max="128"
-        />
-        <small class="form-hint">Dejar vacío para ilimitado</small>
-        @if (f['max_equipos'].invalid && f['max_equipos'].touched) {
-        <div class="error-message">
-          @if (f['max_equipos'].errors?.['min']) {
-          <span>Mínimo 2 equipos</span>
-          }
-          @if (f['max_equipos'].errors?.['max']) {
-          <span>Máximo 128 equipos</span>
-          }
+        <div class="cantidad-control-input">
+          <button type="button" class="btn-cantidad" (click)="cambiarCantidadParticipantes('disminuir')">
+            <i class="fas fa-minus"></i>
+          </button>
+          <input
+            type="number"
+            id="max_equipos"
+            formControlName="max_equipos"
+            class="form-input cantidad-display-input"
+            [value]="cantidadParticipantes"
+            readonly
+          />
+          <button type="button" class="btn-cantidad" (click)="cambiarCantidadParticipantes('aumentar')">
+            <i class="fas fa-plus"></i>
+          </button>
         </div>
-        }
+        <small class="form-hint">Potencias de 2: 2, 4, 8, 16, 32, 64 participantes</small>
       </div>
 
       <!-- Estado -->
@@ -209,7 +206,7 @@
           <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownEstadoAbierto()"></i>
         </button>
         @if (dropdownEstadoAbierto()) {
-          <div class="dropdown-menu">
+          <div class="dropdown-menu" (click)="$event.stopPropagation()">
             @for (estado of estadosPosibles; track estado.value) {
               <div class="dropdown-item" (click)="seleccionarEstado(estado)">
                 @if (estado.value === 'abierto') {
@@ -222,6 +219,32 @@
                   <i class="fas fa-flag-checkered"></i>
                 }
                 {{ estado.label }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Árbitro -->
+      <div class="form-group dropdown-arbitro" [class.activo]="dropdownArbitroAbierto()">
+        <label for="id_arbitro" class="form-label">
+          <i class="fa-solid fa-address-card"></i>
+          Árbitro (opcional)
+        </label>
+        <button type="button" class="btn-dropdown-custom" (click)="toggleDropdownArbitro()">
+          <span class="dropdown-text">{{ arbitroSeleccionado() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownArbitroAbierto()"></i>
+        </button>
+        @if (dropdownArbitroAbierto()) {
+          <div class="dropdown-menu" (click)="$event.stopPropagation()">
+            <div class="dropdown-item" (click)="seleccionarArbitro(null)">
+              <i class="fas fa-user-slash"></i>
+              Sin asignar
+            </div>
+            @for (arbitro of arbitros; track arbitro.id_usuario) {
+              <div class="dropdown-item" (click)="seleccionarArbitro(arbitro)">
+                <i class="fas fa-user-tie"></i>
+                {{ arbitro.nombre }} {{ arbitro.apellido }}
               </div>
             }
           </div>

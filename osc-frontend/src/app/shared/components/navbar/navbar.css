@@ -287,9 +287,9 @@
 .notification-btn {
   background: transparent;
   border: 2px solid var(--accent-opacity-40);
-  border-radius: 8px;
-  width: 42px;
-  height: 42px;
+  border-radius: 10px;
+  width: 41px;
+  height: 41px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -580,7 +580,6 @@
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  border: 2px solid var(--accent-opacity-40);
   font-family: 'Inter', sans-serif;
 }
 

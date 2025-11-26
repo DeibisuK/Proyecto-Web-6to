@@ -190,10 +190,6 @@
   transition: transform 0.2s ease;
 }
 
-.preview-badge:hover {
-  transform: translateY(-2px);
-}
-
 .preview-badge[data-tipo="info"] {
   background: #e3f2fd;
   color: #1976d2;

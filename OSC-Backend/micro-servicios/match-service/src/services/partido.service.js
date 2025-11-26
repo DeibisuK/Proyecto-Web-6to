@@ -93,11 +93,11 @@ export const getDetalleCompleto = async (id) => {
             SELECT 
                 tp.id_partido,
                 tp.id_torneo,
-                tp.fecha_hora_inicio,
-                tp.fecha_hora_fin,
+                tp.fecha_partido,
+                tp.hora_inicio,
                 tp.estado_partido,
-                tp.goles_local,
-                tp.goles_visitante,
+                tp.resultado_local,
+                tp.resultado_visitante,
                 tp.id_fase,
                 tp.id_grupo,
                 tp.nota,
@@ -125,14 +125,14 @@ export const getDetalleCompleto = async (id) => {
                 ar.id_arbitro,
                 u.name_user as arbitro_nombre
                 
-            FROM torneos_partidos tp
+            FROM partidos_torneo tp
             INNER JOIN torneos t ON tp.id_torneo = t.id_torneo
             INNER JOIN deportes d ON t.id_deporte = d.id_deporte
-            LEFT JOIN equipos el ON tp.equipo_local = el.id_equipo
-            LEFT JOIN equipos ev ON tp.equipo_visitante = ev.id_equipo
+            LEFT JOIN equipos el ON tp.id_equipo_local = el.id_equipo
+            LEFT JOIN equipos ev ON tp.id_equipo_visitante = ev.id_equipo
             LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
             LEFT JOIN sedes s ON c.id_sede = s.id_sede
-            LEFT JOIN arbitros ar ON tp.id_arbitro_principal = ar.id_arbitro
+            LEFT JOIN arbitros ar ON tp.id_arbitro = ar.id_arbitro
             LEFT JOIN usuarios u ON ar.id_usuario = u.id_user
             WHERE tp.id_partido = $1
         `;
@@ -195,7 +195,7 @@ export const getDetalleCompleto = async (id) => {
         // Estadísticas calculadas
         const estadisticas = {
             local: {
-                goles: partido.goles_local || 0,
+                goles: partido.resultado_local || 0,
                 tarjetas_amarillas: eventos.rows.filter(
                     e => e.id_equipo === partido.equipo_local_id && e.tipo_evento === 'tarjeta_amarilla'
                 ).length,
@@ -211,7 +211,7 @@ export const getDetalleCompleto = async (id) => {
                     }))
             },
             visitante: {
-                goles: partido.goles_visitante || 0,
+                goles: partido.resultado_visitante || 0,
                 tarjetas_amarillas: eventos.rows.filter(
                     e => e.id_equipo === partido.equipo_visitante_id && e.tipo_evento === 'tarjeta_amarilla'
                 ).length,

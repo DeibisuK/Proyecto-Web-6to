@@ -91,6 +91,7 @@ export const obtenerTorneoPorId = async (req, res) => {
  */
 export const crearTorneo = async (req, res) => {
     try {
+        
         const {
             nombre,
             descripcion,
@@ -100,8 +101,25 @@ export const crearTorneo = async (req, res) => {
             fecha_cierre_inscripcion,
             max_equipos,
             tipo_torneo,
-            estado
+            estado,
+            id_arbitro
         } = req.body;
+
+        // Obtener id_user del usuario autenticado usando su uid
+        const pool = (await import('../config/db.js')).default;
+        const userResult = await pool.query(
+            'SELECT id_user FROM usuarios WHERE uid = $1',
+            [req.user.uid]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Usuario no encontrado en la base de datos'
+            });
+        }
+
+        const creado_por = userResult.rows[0].id_user;
 
         // Validaciones básicas
         if (!nombre || !id_deporte || !fecha_inicio || !fecha_fin) {
@@ -137,7 +155,8 @@ export const crearTorneo = async (req, res) => {
             max_equipos: max_equipos ? parseInt(max_equipos) : null,
             tipo_torneo: tipo_torneo || 'grupo-eliminatoria',
             estado: estado || 'abierto',
-            creado_por: req.user.id_user // Del middleware authenticate
+            creado_por: creado_por, // Obtenido de la BD usando uid
+            id_arbitro: id_arbitro ? parseInt(id_arbitro) : null
         };
 
         const nuevoTorneo = await TorneoAdminService.crearTorneo(datosTorneo);
@@ -180,7 +199,8 @@ export const actualizarTorneo = async (req, res) => {
             fecha_cierre_inscripcion,
             max_equipos,
             tipo_torneo,
-            estado
+            estado,
+            id_arbitro
         } = req.body;
 
         // Verificar que el torneo existe
@@ -219,7 +239,8 @@ export const actualizarTorneo = async (req, res) => {
             fecha_cierre_inscripcion,
             max_equipos: max_equipos ? parseInt(max_equipos) : undefined,
             tipo_torneo,
-            estado
+            estado,
+            id_arbitro: id_arbitro !== undefined ? (id_arbitro ? parseInt(id_arbitro) : null) : undefined
         };
 
         // Remover campos undefined
@@ -228,7 +249,6 @@ export const actualizarTorneo = async (req, res) => {
         );
 
         const torneoActualizado = await TorneoAdminService.actualizarTorneo(parseInt(id), datosActualizacion);
-
         res.status(200).json({
             success: true,
             message: 'Torneo actualizado exitosamente',

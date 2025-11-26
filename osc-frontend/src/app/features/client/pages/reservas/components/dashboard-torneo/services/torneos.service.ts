@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../../../../../environments/environment';
 import {
@@ -18,6 +18,14 @@ import {
 export class TorneosService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/c/client`;
+
+  // Comunicación entre componentes
+  private filtroDeporteSubject = new BehaviorSubject<string | null>(null);
+  filtroDeporte$ = this.filtroDeporteSubject.asObservable();
+
+  setFiltroDeporte(deporte: string | null): void {
+    this.filtroDeporteSubject.next(deporte);
+  }
 
   /**
    * Obtiene las estadísticas del usuario autenticado para el dashboard

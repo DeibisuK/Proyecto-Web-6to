@@ -1,0 +1,115 @@
+<div class="eventos-partido">
+  <h2>⚽ Eventos del Partido</h2>
+
+  <!-- Formulario de registro -->
+  <div class="registro-evento">
+    <h3>Registrar Nuevo Evento</h3>
+    <form (ngSubmit)="registrarEvento()" class="evento-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Evento *</label>
+          <select
+            [(ngModel)]="nuevoEvento.tipo_evento"
+            name="tipo_evento"
+            class="form-control"
+            required>
+            <option value="">Seleccione...</option>
+            @for (config of eventosConfig(); track config.id_config) {
+              <option [value]="config.tipo_evento">
+                {{ config.icono }} {{ config.nombre_evento }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>ID Equipo *</label>
+          <input
+            type="number"
+            [(ngModel)]="nuevoEvento.id_equipo"
+            name="id_equipo"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>ID Jugador</label>
+          <input
+            type="number"
+            [(ngModel)]="nuevoEvento.id_jugador"
+            name="id_jugador"
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Minuto *</label>
+          <input
+            type="number"
+            [(ngModel)]="nuevoEvento.minuto"
+            name="minuto"
+            class="form-control"
+            min="0"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Periodo</label>
+          <input
+            type="number"
+            [(ngModel)]="nuevoEvento.periodo"
+            name="periodo"
+            class="form-control"
+            min="1"
+            max="4">
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="cargando()">
+        ➕ Registrar Evento
+      </button>
+    </form>
+  </div>
+
+  <!-- Lista de eventos -->
+  <div class="eventos-lista">
+    <h3>Eventos Registrados ({{ eventos().length }})</h3>
+
+    @if (cargando()) {
+      <div class="loading">Cargando eventos...</div>
+    } @else if (eventos().length === 0) {
+      <div class="sin-eventos">No hay eventos registrados</div>
+    } @else {
+      <div class="eventos-grid">
+        @for (evento of eventos(); track evento.id_evento) {
+          <div class="evento-card" [style.border-left-color]="getEventoColor(evento.tipo_evento)">
+            <div class="evento-header">
+              <span class="evento-icon">{{ getEventoIcon(evento.tipo_evento) }}</span>
+              <span class="evento-nombre">{{ evento.nombre_evento }}</span>
+              <span class="evento-minuto">{{ evento.minuto }}'</span>
+            </div>
+            <div class="evento-body">
+              <p><strong>Equipo:</strong> {{ evento.nombre_equipo || 'N/A' }}</p>
+              <p><strong>Jugador:</strong> {{ evento.nombre_jugador || 'N/A' }}</p>
+              @if (evento.valor_puntos) {
+                <p><strong>Puntos:</strong> {{ evento.valor_puntos }}</p>
+              }
+              <p class="evento-periodo">Periodo {{ evento.periodo || 1 }}</p>
+            </div>
+            <div class="evento-actions">
+              <button
+                class="btn-delete"
+                (click)="eliminarEvento(evento.id_evento!)">
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

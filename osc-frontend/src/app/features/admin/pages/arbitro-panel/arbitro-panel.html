@@ -1,0 +1,50 @@
+<div class="arbitro-panel">
+  <div class="panel-header">
+    <h1>Panel de Árbitro</h1>
+    <p class="partido-info">Partido #{{ idPartido() }}</p>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <div class="tabs-container">
+    <button
+      class="tab-button"
+      [class.active]="tabActiva() === 'tiempo'"
+      (click)="cambiarTab('tiempo')">
+      ⏱️ Gestionar Tiempo
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="tabActiva() === 'eventos'"
+      (click)="cambiarTab('eventos')">
+      ⚽ Eventos
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="tabActiva() === 'alineaciones'"
+      (click)="cambiarTab('alineaciones')">
+      👥 Alineaciones
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="tabActiva() === 'clasificacion'"
+      (click)="cambiarTab('clasificacion')">
+      🏆 Clasificación
+    </button>
+  </div>
+
+  <!-- Contenido de tabs -->
+  <div class="tab-content">
+    @if (tabActiva() === 'tiempo') {
+      <app-tiempo-real-control [idPartido]="idPartido()" />
+    }
+    @if (tabActiva() === 'eventos') {
+      <app-eventos-partido [idPartido]="idPartido()" />
+    }
+    @if (tabActiva() === 'alineaciones') {
+      <app-alineaciones-partido [idPartido]="idPartido()" />
+    }
+    @if (tabActiva() === 'clasificacion' && idTorneo() > 0) {
+      <app-clasificacion-torneo [idTorneo]="idTorneo()" />
+    }
+  </div>
+</div>

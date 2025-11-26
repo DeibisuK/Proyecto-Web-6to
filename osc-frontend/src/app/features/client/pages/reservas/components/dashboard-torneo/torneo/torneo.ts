@@ -6,13 +6,6 @@ import { EquiposService, type EquipoUsuario } from '../services/equipos.service'
 import { Torneo as TorneoModel, FiltrosTorneos } from '../models/torneo.models';
 import { TorneoQuickViewModalComponent, InscripcionModalComponent } from '../modals';
 
-interface DeporteTab {
-  id_deporte: number;
-  nombre: string;
-  icono: string;
-  count: number;
-}
-
 @Component({
   selector: 'app-torneo',
   standalone: true,
@@ -26,8 +19,8 @@ export class Torneo implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  activeTab: number = 0; // 0 = Todos
   filterStatus: string = 'todos';
+  deporteFiltrado: string | null = null;
   isLoading: boolean = true;
   error: string | null = null;
 
@@ -40,21 +33,18 @@ export class Torneo implements OnInit {
   equiposDisponibles: EquipoUsuario[] = [];
   equiposDelTorneo: EquipoUsuario[] = [];
 
-  deportes: DeporteTab[] = [
-    { id_deporte: 0, nombre: 'Todos', icono: '🏅', count: 0 }
-  ];
-
   torneos: TorneoModel[] = [];
   torneosFiltrados: TorneoModel[] = [];
 
   ngOnInit(): void {
     this.loadTorneos();
     this.loadEquipos();
-  }
 
-  selectTab(deporteId: number): void {
-    this.activeTab = deporteId;
-    this.aplicarFiltros();
+    // Suscribirse al filtro de deporte del sidebar
+    this.torneosService.filtroDeporte$.subscribe(deporte => {
+      this.deporteFiltrado = deporte;
+      this.aplicarFiltros();
+    });
   }
 
   setFilter(filter: string): void {
@@ -74,7 +64,6 @@ export class Torneo implements OnInit {
       next: (torneos) => {
         this.torneos = torneos;
         this.torneosFiltrados = torneos;
-        this.actualizarContadoresDeportes();
         this.isLoading = false;
       },
       error: (err) => {
@@ -104,9 +93,32 @@ export class Torneo implements OnInit {
   private aplicarFiltros(): void {
     let resultado = this.torneos;
 
-    // Filtrar por deporte
-    if (this.activeTab !== 0) {
-      resultado = resultado.filter(t => t.id_deporte === this.activeTab);
+    // Filtrar por deporte (del sidebar)
+    if (this.deporteFiltrado) {
+      console.log('🔍 Filtrando por:', this.deporteFiltrado);
+      console.log('🎯 Torneos disponibles:', this.torneos.map(t => ({ nombre: t.nombre, deporte: t.nombre_deporte })));
+
+      resultado = resultado.filter(t => {
+        const nombreDeporte = t.nombre_deporte?.toLowerCase() || '';
+        const filtro = this.deporteFiltrado!.toLowerCase();
+
+        // Mapeo de nombres: basket -> baloncesto, padel -> pádel
+        const deportesEquivalentes: { [key: string]: string[] } = {
+          'basket': ['baloncesto', 'basketball', 'basket'],
+          'futbol': ['fútbol', 'futbol', 'soccer'],
+          'padel': ['pádel', 'padel'],
+          'tenis': ['tenis', 'tennis']
+        };
+
+        // Verificar si el filtro tiene equivalentes
+        const equivalentes = deportesEquivalentes[filtro] || [filtro];
+        const match = equivalentes.some(eq => nombreDeporte.includes(eq));
+
+        console.log(`  ${t.nombre} (${nombreDeporte}) -> ${match ? '✅' : '❌'}`);
+        return match;
+      });
+
+      console.log('✅ Torneos filtrados:', resultado.length);
     }
 
     // Filtrar por estado
@@ -115,48 +127,6 @@ export class Torneo implements OnInit {
     }
 
     this.torneosFiltrados = resultado;
-  }
-
-  private actualizarContadoresDeportes(): void {
-    // Contar torneos por deporte
-    const deportesMap = new Map<number, { nombre: string; icono: string; count: number }>();
-
-    this.torneos.forEach(torneo => {
-      if (!deportesMap.has(torneo.id_deporte)) {
-        deportesMap.set(torneo.id_deporte, {
-          nombre: torneo.nombre_deporte,
-          icono: this.getIconoDeporte(torneo.nombre_deporte),
-          count: 0
-        });
-      }
-      const deporte = deportesMap.get(torneo.id_deporte)!;
-      deporte.count++;
-    });
-
-    // Actualizar array de deportes
-    this.deportes = [
-      { id_deporte: 0, nombre: 'Todos', icono: '🏅', count: this.torneos.length }
-    ];
-
-    deportesMap.forEach((value, key) => {
-      this.deportes.push({
-        id_deporte: key,
-        nombre: value.nombre,
-        icono: value.icono,
-        count: value.count
-      });
-    });
-  }
-
-  private getIconoDeporte(nombreDeporte: string): string {
-    const iconos: Record<string, string> = {
-      'Fútbol': '⚽',
-      'Baloncesto': '🏀',
-      'Pádel': '🎾',
-      'Tenis': '🎾',
-      'Voleibol': '🏐'
-    };
-    return iconos[nombreDeporte] || '🏅';
   }
 
   getColorEstado(estado: string): string {

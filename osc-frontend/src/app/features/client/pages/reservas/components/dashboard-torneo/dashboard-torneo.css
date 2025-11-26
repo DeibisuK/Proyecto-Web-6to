@@ -227,10 +227,9 @@
   border: 1px solid var(--border-color);
   padding: var(--spacing-lg);
   height: fit-content;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+  align-self: start;
   position: sticky;
-  top: calc(140px + var(--spacing-xl));
+  top: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
 }
 

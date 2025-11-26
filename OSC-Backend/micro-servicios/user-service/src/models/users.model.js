@@ -3,15 +3,21 @@ import db from "../config/db.js";
 export const findAll = async () => {
   const res = await db.query(`
     SELECT 
+      u.id_user as id_usuario,
       u.uid,
       u.name_user as nombre,
       u.email_user as email,
       u.id_rol,
-      r.nombre_rol as rol
+      r.nombre_rol as rol,
+      u.fecha_registro,
+      u.estado
     FROM usuarios u
     LEFT JOIN roles r ON u.id_rol = r.id_rol
     ORDER BY u.name_user ASC
   `);
+  
+  console.log('📋 [USER-MODEL] Total usuarios encontrados:', res.rows.length);
+  console.log('📋 [USER-MODEL] Primer usuario:', res.rows[0]);
   
   // Intentar enriquecer con datos de Firebase (foto de perfil)
   try {
@@ -48,11 +54,14 @@ export const findById = async (uid) => {
   // Buscar por uid (Firebase UID)
   const res = await db.query(`
     SELECT 
+      u.id_user as id_usuario,
       u.uid,
       u.name_user as nombre,
       u.email_user as email,
       u.id_rol,
-      r.nombre_rol as rol
+      r.nombre_rol as rol,
+      u.fecha_registro,
+      u.estado
     FROM usuarios u
     LEFT JOIN roles r ON u.id_rol = r.id_rol
     WHERE u.uid = $1

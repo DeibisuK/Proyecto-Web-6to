@@ -130,7 +130,52 @@
   <!-- Lista de torneos -->
   <div class="torneos-list">
 
-    @if (torneos.length === 0) {
+    <!-- Skeleton Loading -->
+    @if (cargando) {
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="torneo-card skeleton-card">
+          <div class="card-header">
+            <div class="torneo-info">
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-text"></div>
+            </div>
+            <div class="skeleton skeleton-badge"></div>
+          </div>
+
+          <div class="card-body">
+            <div class="torneo-detalles">
+              <div class="detalle-item">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-text-small"></div>
+              </div>
+              <div class="detalle-item">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-text-small"></div>
+              </div>
+              <div class="detalle-item">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-text-small"></div>
+              </div>
+              <div class="detalle-item">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-text-small"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="acciones-grupo">
+              <div class="skeleton skeleton-button"></div>
+              <div class="skeleton skeleton-button"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Empty State -->
+    @if (!cargando && torneos.length === 0) {
     <div class="empty-state">
       <i class="fas fa-trophy"></i>
       <p>No se encontraron torneos</p>
@@ -141,7 +186,9 @@
     </div>
     }
 
-    @for (torneo of torneos; track $index) {
+    <!-- Torneos -->
+    @if (!cargando && torneos.length > 0) {
+      @for (torneo of torneos; track $index) {
     <div class="torneo-card">
       <div class="card-header">
         <div class="torneo-info">
@@ -203,6 +250,11 @@
 
       <div class="card-footer">
         <div class="acciones-grupo">
+          <button class="btn-accion btn-bracket" (click)="abrirModalBracket(torneo)" title="Ver Bracket">
+            <i class="fas fa-sitemap"></i>
+            Bracket
+          </button>
+
           <button class="btn-accion btn-editar" (click)="editarTorneo(torneo)" title="Editar">
             <i class="fas fa-edit"></i>
             Editar
@@ -214,24 +266,28 @@
           </button>
 
           <!-- Cambiar estado -->
-          <div class="btn-dropdown">
-            <button class="btn-accion btn-estado">
-              <i class="fas fa-sync-alt"></i>
-              Estado
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="dropdown-content">
-              @for (estado of estadosPosibles; track estado.value) {
-              <button
-                (click)="cambiarEstado(torneo, estado.value)"
-                [disabled]="!estado.value || torneo.estado === estado.value"
-                class="dropdown-item"
-              >
-                {{ estado.label }}
+          @if (torneo.id_torneo) {
+            <div class="btn-dropdown" [class.activo]="dropdownEstadoTorneoId === torneo.id_torneo">
+              <button class="btn-accion btn-estado" (click)="toggleDropdownEstadoTorneo($event, torneo.id_torneo)">
+                <i class="fas fa-sync-alt"></i>
+                Estado
+                <i class="fas fa-chevron-down" [class.rotado]="dropdownEstadoTorneoId === torneo.id_torneo"></i>
               </button>
+              @if (dropdownEstadoTorneoId === torneo.id_torneo) {
+                <div class="dropdown-content" (click)="$event.stopPropagation()">
+                  @for (estado of estadosPosibles; track estado.value) {
+                  <button
+                    (click)="cambiarEstado(torneo, estado.value)"
+                    [disabled]="!estado.value || torneo.estado === estado.value"
+                    class="dropdown-item"
+                  >
+                    {{ estado.label }}
+                  </button>
+                  }
+                </div>
               }
             </div>
-          </div>
+          }
 
           <button class="btn-accion btn-eliminar" (click)="eliminarTorneo(torneo)" title="Eliminar">
             <i class="fas fa-trash"></i>
@@ -240,6 +296,7 @@
         </div>
       </div>
     </div>
+    }
     }
   </div>
 
@@ -278,3 +335,57 @@
   </div>
   }
 </div>
+
+<!-- Modal Bracket -->
+@if (mostrarModalBracket()) {
+  <div class="modal-overlay" (click)="cerrarModalBracket()">
+    <div class="modal-bracket" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-sitemap"></i>
+          Bracket: {{ torneoSeleccionado?.nombre }}
+        </h2>
+        <button class="btn-cerrar" (click)="cerrarModalBracket()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-bracket">
+        <div class="bracket-container">
+          @for (ronda of bracket; track ronda.ronda) {
+            <div class="bracket-ronda">
+              <div class="ronda-header">
+                <h3>{{ ronda.nombre }}</h3>
+              </div>
+              <div class="partidos-lista">
+                @for (partido of ronda.partidos; track partido.id) {
+                  <div class="partido-wrapper">
+                    <div class="partido-card">
+                      <div class="equipo" [class.ganador]="partido.ganador === 1">
+                        @if (partido.equipo1) {
+                          <span class="equipo-nombre">{{ partido.equipo1.nombre }}</span>
+                          <span class="equipo-seed">{{ partido.equipo1.seed }}</span>
+                        } @else {
+                          <span class="equipo-placeholder">TBD</span>
+                        }
+                      </div>
+                      <div class="vs-divider">VS</div>
+                      <div class="equipo" [class.ganador]="partido.ganador === 2">
+                        @if (partido.equipo2) {
+                          <span class="equipo-nombre">{{ partido.equipo2.nombre }}</span>
+                          <span class="equipo-seed">{{ partido.equipo2.seed }}</span>
+                        } @else {
+                          <span class="equipo-placeholder">TBD</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

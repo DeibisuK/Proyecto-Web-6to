@@ -15,6 +15,7 @@ import { ListReservas } from "./pages/reservas/list-reservas/list-reservas";
 import { Historial } from "./pages/historial/historial";
 import { Partidos } from "./pages/partidos/partidos";
 import { ListPedidos } from "./pages/comercio/list-pedidos/list-pedidos";
+import { ArbitroPanel } from "./pages/arbitro-panel/arbitro-panel";
 
 export const adminRoutes: Routes = [
   {
@@ -114,6 +115,11 @@ export const adminRoutes: Routes = [
     path: 'anuncios',
     component: Anuncios,
     title: 'Anuncios'
+  },
+  {
+    path: 'arbitro-panel/:idPartido',
+    component: ArbitroPanel,
+    title: 'Panel de Árbitro'
   },
   {
     path: '**',

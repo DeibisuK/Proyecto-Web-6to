@@ -26,22 +26,22 @@ class TorneoService {
             // Obtener próximos partidos
             const proximosPartidosQuery = `
                 SELECT COUNT(*) as total
-                FROM torneos_partidos tp
-                INNER JOIN inscripciones_torneo it1 ON tp.equipo_local = it1.id_equipo
+                FROM partidos_torneo tp
+                INNER JOIN inscripciones_torneo it1 ON tp.id_equipo_local = it1.id_equipo
                 INNER JOIN equipos e1 ON it1.id_equipo = e1.id_equipo
                 WHERE e1.firebase_uid = $1
                 AND tp.estado_partido IN ('programado', 'por_jugar')
-                AND tp.fecha_hora_inicio >= NOW()
+                AND tp.fecha_partido >= CURRENT_DATE
                 
                 UNION ALL
                 
                 SELECT COUNT(*) as total
-                FROM torneos_partidos tp
-                INNER JOIN inscripciones_torneo it2 ON tp.equipo_visitante = it2.id_equipo
+                FROM partidos_torneo tp
+                INNER JOIN inscripciones_torneo it2 ON tp.id_equipo_visitante = it2.id_equipo
                 INNER JOIN equipos e2 ON it2.id_equipo = e2.id_equipo
                 WHERE e2.firebase_uid = $1
                 AND tp.estado_partido IN ('programado', 'por_jugar')
-                AND tp.fecha_hora_inicio >= NOW()
+                AND tp.fecha_partido >= CURRENT_DATE
             `;
             const proximosPartidos = await client.query(proximosPartidosQuery, [firebaseUid]);
             const totalProximosPartidos = proximosPartidos.rows.reduce((sum, row) => sum + parseInt(row.total), 0);
@@ -60,12 +60,12 @@ class TorneoService {
 
             // Obtener victorias totales
             const victoriasQuery = `
-                SELECT COUNT(*) as total
-                FROM torneos_partidos tp
+                SELECT COUNT(*) as total 
+                FROM partidos_torneo tp
                 INNER JOIN inscripciones_torneo it ON (
-                    (tp.equipo_local = it.id_equipo AND tp.goles_local > tp.goles_visitante)
+                    (tp.id_equipo_local = it.id_equipo AND tp.resultado_local > tp.resultado_visitante)
                     OR
-                    (tp.equipo_visitante = it.id_equipo AND tp.goles_visitante > tp.goles_local)
+                    (tp.id_equipo_visitante = it.id_equipo AND tp.resultado_visitante > tp.resultado_local)
                 )
                 INNER JOIN equipos e ON it.id_equipo = e.id_equipo
                 WHERE e.firebase_uid = $1
@@ -195,11 +195,11 @@ class TorneoService {
                     tp.id_torneo,
                     tp.id_fase,
                     tp.id_grupo,
-                    tp.fecha_hora_inicio,
-                    tp.fecha_hora_fin,
+                    tp.fecha_partido,
+                    tp.hora_inicio,
                     tp.estado_partido,
-                    tp.goles_local,
-                    tp.goles_visitante,
+                    tp.resultado_local,
+                    tp.resultado_visitante,
                     tp.id_cancha,
                     tp.id_sede,
                     tp.nota,
@@ -229,9 +229,9 @@ class TorneoService {
                     -- Grupo
                     g.nombre as nombre_grupo
                     
-                FROM torneos_partidos tp
-                LEFT JOIN equipos el ON tp.equipo_local = el.id_equipo
-                LEFT JOIN equipos ev ON tp.equipo_visitante = ev.id_equipo
+                FROM partidos_torneo tp
+                LEFT JOIN equipos el ON tp.id_equipo_local = el.id_equipo
+                LEFT JOIN equipos ev ON tp.id_equipo_visitante = ev.id_equipo
                 LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
                 LEFT JOIN sedes s ON tp.id_sede = s.id_sede
                 LEFT JOIN arbitros ar ON tp.id_arbitro_principal = ar.id_arbitro
@@ -242,7 +242,7 @@ class TorneoService {
                 ORDER BY 
                     f.orden ASC,
                     g.nombre ASC,
-                    tp.fecha_hora_inicio ASC
+                    tp.fecha_partido ASC, tp.hora_inicio ASC
             `;
 
             const result = await client.query(query, [idTorneo]);
@@ -271,41 +271,41 @@ class TorneoService {
                     
                     COUNT(CASE 
                         WHEN tp.estado_partido = 'finalizado' AND (
-                            (tp.equipo_local = e.id_equipo AND tp.goles_local > tp.goles_visitante) OR
-                            (tp.equipo_visitante = e.id_equipo AND tp.goles_visitante > tp.goles_local)
+                            (tp.id_equipo_local = e.id_equipo AND tp.resultado_local > tp.resultado_visitante) OR
+                            (tp.id_equipo_visitante = e.id_equipo AND tp.resultado_visitante > tp.resultado_local)
                         ) THEN 1 
                     END) as victorias,
                     
                     COUNT(CASE 
-                        WHEN tp.estado_partido = 'finalizado' AND tp.goles_local = tp.goles_visitante
+                        WHEN tp.estado_partido = 'finalizado' AND tp.resultado_local = tp.resultado_visitante
                         THEN 1 
                     END) as empates,
                     
                     COUNT(CASE 
                         WHEN tp.estado_partido = 'finalizado' AND (
-                            (tp.equipo_local = e.id_equipo AND tp.goles_local < tp.goles_visitante) OR
-                            (tp.equipo_visitante = e.id_equipo AND tp.goles_visitante < tp.goles_local)
+                            (tp.id_equipo_local = e.id_equipo AND tp.resultado_local < tp.resultado_visitante) OR
+                            (tp.id_equipo_visitante = e.id_equipo AND tp.resultado_visitante < tp.resultado_local)
                         ) THEN 1 
                     END) as derrotas,
                     
                     -- Goles a favor
                     COALESCE(SUM(CASE 
-                        WHEN tp.equipo_local = e.id_equipo THEN tp.goles_local
-                        WHEN tp.equipo_visitante = e.id_equipo THEN tp.goles_visitante
+                        WHEN tp.id_equipo_local = e.id_equipo THEN tp.resultado_local
+                        WHEN tp.id_equipo_visitante = e.id_equipo THEN tp.resultado_visitante
                         ELSE 0
                     END), 0) as goles_favor,
                     
                     -- Goles en contra
                     COALESCE(SUM(CASE 
-                        WHEN tp.equipo_local = e.id_equipo THEN tp.goles_visitante
-                        WHEN tp.equipo_visitante = e.id_equipo THEN tp.goles_local
+                        WHEN tp.id_equipo_local = e.id_equipo THEN tp.resultado_visitante
+                        WHEN tp.id_equipo_visitante = e.id_equipo THEN tp.resultado_local
                         ELSE 0
                     END), 0) as goles_contra,
                     
                     -- Diferencia de goles
                     COALESCE(SUM(CASE 
-                        WHEN tp.equipo_local = e.id_equipo THEN tp.goles_local - tp.goles_visitante
-                        WHEN tp.equipo_visitante = e.id_equipo THEN tp.goles_visitante - tp.goles_local
+                        WHEN tp.id_equipo_local = e.id_equipo THEN tp.resultado_local - tp.resultado_visitante
+                        WHEN tp.id_equipo_visitante = e.id_equipo THEN tp.resultado_visitante - tp.resultado_local
                         ELSE 0
                     END), 0) as diferencia_goles,
                     
@@ -313,12 +313,12 @@ class TorneoService {
                     COALESCE(
                         3 * COUNT(CASE 
                             WHEN tp.estado_partido = 'finalizado' AND (
-                                (tp.equipo_local = e.id_equipo AND tp.goles_local > tp.goles_visitante) OR
-                                (tp.equipo_visitante = e.id_equipo AND tp.goles_visitante > tp.goles_local)
+                                (tp.id_equipo_local = e.id_equipo AND tp.resultado_local > tp.resultado_visitante) OR
+                                (tp.id_equipo_visitante = e.id_equipo AND tp.resultado_visitante > tp.resultado_local)
                             ) THEN 1 
                         END) +
                         COUNT(CASE 
-                            WHEN tp.estado_partido = 'finalizado' AND tp.goles_local = tp.goles_visitante
+                            WHEN tp.estado_partido = 'finalizado' AND tp.resultado_local = tp.resultado_visitante
                             THEN 1 
                         END)
                     , 0) as puntos
@@ -328,9 +328,9 @@ class TorneoService {
                 LEFT JOIN grupo_equipos ge ON ge.id_equipo = e.id_equipo
                 LEFT JOIN grupos_torneo gt ON ge.id_grupo = gt.id_grupo
                     AND gt.id_fase IN (SELECT id_fase FROM fases_torneo WHERE id_torneo = $1)
-                LEFT JOIN torneos_partidos tp ON 
+                LEFT JOIN partidos_torneo tp ON 
                     tp.id_torneo = it.id_torneo AND 
-                    (tp.equipo_local = e.id_equipo OR tp.equipo_visitante = e.id_equipo)
+                    (tp.id_equipo_local = e.id_equipo OR tp.id_equipo_visitante = e.id_equipo)
                 WHERE it.id_torneo = $1
                 AND it.aprobado = true
                 GROUP BY e.id_equipo, e.nombre_equipo, e.logo_url, gt.nombre
