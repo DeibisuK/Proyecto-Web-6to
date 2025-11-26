@@ -8,6 +8,7 @@ import canchaAdmin from "./api/admin/cancha.admin.routes.js";
 import reservaAdmin from "./api/admin/reserva.admin.routes.js";
 import sedeAdmin from "./api/admin/sede.admin.routes.js";
 import torneoAdmin from "./api/admin/torneo.admin.routes.js";
+import partidoAdmin from "./api/admin/partido.admin.routes.js";
 import authenticate from "../../../middleware/authenticate.js";
 import authorizeRole from "../../../middleware/authorizeRole.js";
 
@@ -28,5 +29,6 @@ app.use("/admin", authenticate(), authorizeRole(1), canchaAdmin);
 app.use("/admin", authenticate(), authorizeRole(1), reservaAdmin);
 app.use("/admin", authenticate(), authorizeRole(1), sedeAdmin);
 app.use("/admin", authenticate(), authorizeRole(1), torneoAdmin);
+app.use("/admin/partidos", authenticate(), authorizeRole(1), partidoAdmin);
 
 export default app;

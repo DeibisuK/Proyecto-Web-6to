@@ -173,14 +173,34 @@ export class Torneo implements OnInit {
     console.log('🔍 Filtrando por id_deporte:', torneo.id_deporte);
 
     // Filtrar equipos por deporte del torneo
-    this.equiposDelTorneo = this.equiposService.filtrarPorDeporte(
+    let equiposFiltrados = this.equiposService.filtrarPorDeporte(
       this.equiposDisponibles,
       torneo.id_deporte
     );
 
-    console.log('✅ Equipos filtrados para este torneo:', this.equiposDelTorneo);
+    console.log('✅ Equipos filtrados por deporte:', equiposFiltrados);
 
-    this.showInscripcionModal = true;
+    // Cargar equipos ya inscritos en este torneo y filtrarlos
+    this.torneosService.getEquiposInscritos(torneo.id_torneo).subscribe({
+      next: (equiposInscritos) => {
+        console.log('📋 Equipos ya inscritos:', equiposInscritos);
+
+        // Filtrar equipos que ya están inscritos
+        const idsInscritos = equiposInscritos.map((e: any) => e.id_equipo);
+        this.equiposDelTorneo = equiposFiltrados.filter(
+          equipo => !idsInscritos.includes(equipo.id_equipo)
+        );
+
+        console.log('✅ Equipos disponibles para inscripción:', this.equiposDelTorneo);
+        this.showInscripcionModal = true;
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar equipos inscritos:', err);
+        // Si falla, mostrar todos los equipos filtrados por deporte
+        this.equiposDelTorneo = equiposFiltrados;
+        this.showInscripcionModal = true;
+      }
+    });
   }
 
   onInscripcionModalCerrar(): void {

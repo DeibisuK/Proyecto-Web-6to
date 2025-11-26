@@ -17,7 +17,14 @@ export interface Torneo {
   estado: string;
   creado_por?: number;
   creado_en?: string;
-  id_arbitro?: number;
+
+  // ✅ NUEVOS CAMPOS - Programación automática
+  id_sede?: number;
+  dias_juego?: string[]; // ['lunes', 'martes', 'sabado']
+  horario_inicio?: string; // '18:00'
+  horarios_disponibles?: string[]; // ['18:00', '20:00', '22:00']
+  partidos_por_dia?: number;
+  fecha_fin_calculada?: string;
 
   // Campos adicionales del JOIN
   nombre_deporte?: string;
@@ -134,5 +141,23 @@ export class TorneosAdminService {
   obtenerEquiposInscritosTorneo(id: number): Observable<any[]> {
     return this.http.get<any>(`${environment.apiUrl}/c/client/torneos/${id}/equipos-inscritos`)
       .pipe(map((response: any) => response.data || []));
+  }
+
+  /**
+   * ✅ NUEVO: Generar fixture automático
+   */
+  generarFixture(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${id}/generar-fixture`, {});
+  }
+
+  /**
+   * ✅ NUEVO: Obtener partidos del torneo
+   */
+  obtenerPartidosTorneo(id: number, filtros?: { estado?: string; fecha?: string }): Observable<any> {
+    let params = new HttpParams();
+    if (filtros?.estado) params = params.set('estado', filtros.estado);
+    if (filtros?.fecha) params = params.set('fecha', filtros.fecha);
+
+    return this.http.get<any>(`${this.apiUrl}/${id}/partidos`, { params });
   }
 }

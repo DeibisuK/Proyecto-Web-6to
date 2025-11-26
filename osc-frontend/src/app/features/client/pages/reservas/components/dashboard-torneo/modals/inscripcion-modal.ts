@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { InscripcionesService } from '../services/inscripciones.service';
 import { type EquipoUsuario } from '../services/equipos.service';
 import { NotificationService } from '@core/services/notification.service';
+import { DeporteService } from '@shared/services/deportes.service';
 
 interface JugadorEquipo {
   id_usuario: number;
@@ -32,6 +33,7 @@ export class InscripcionModalComponent {
 
   private inscripcionesService = inject(InscripcionesService);
   private notificationService = inject(NotificationService);
+  private deporteService = inject(DeporteService);
 
   // State
   isSubmitting = signal(false);
@@ -67,9 +69,20 @@ export class InscripcionModalComponent {
    * Selecciona un equipo del dropdown
    */
   seleccionarEquipo(equipo: EquipoUsuario): void {
+    const jugadoresMinimos = this.deporteService.getJugadoresMinimos(this.torneo?.nombre_deporte || '');
+    const cantidadJugadores = equipo.cantidad_jugadores || 0;
+
+    if (cantidadJugadores < jugadoresMinimos) {
+      this.notificationService.notify({
+        message: `Este equipo no tiene suficientes jugadores. Se requieren al menos ${jugadoresMinimos} jugadores para ${this.torneo?.nombre_deporte}.`,
+        type: 'error'
+      });
+      return;
+    }
+
     this.formData.id_equipo = equipo.id_equipo;
     this.equipoSeleccionado = equipo;
-    this.equipoSeleccionadoTexto.set(`${equipo.nombre_equipo} (${equipo.cantidad_jugadores || 0} jugadores)`);
+    this.equipoSeleccionadoTexto.set(`${equipo.nombre_equipo} (${cantidadJugadores} jugadores)`);
     this.dropdownEquipoAbierto.set(false);
   }
 

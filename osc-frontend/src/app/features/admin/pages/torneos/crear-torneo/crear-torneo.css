@@ -76,7 +76,7 @@
 .dropdown-deporte,
 .dropdown-tipo,
 .dropdown-estado,
-.dropdown-arbitro {
+.dropdown-sede {
   position: relative;
   z-index: 10;
 }
@@ -84,7 +84,7 @@
 .dropdown-deporte.activo,
 .dropdown-tipo.activo,
 .dropdown-estado.activo,
-.dropdown-arbitro.activo {
+.dropdown-sede.activo {
   z-index: 1000;
 }
 
@@ -399,14 +399,96 @@
   transform: none;
 }
 
-/* ===== DROPDOWN ÁRBITRO ===== */
-.dropdown-arbitro {
-  position: relative;
-  z-index: 10;
+/* ===== DÍAS DE LA SEMANA ===== */
+.dias-semana-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.dropdown-arbitro.activo {
-  z-index: 1000;
+.btn-dia {
+  padding: 0.75rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-dia:hover {
+  border-color: #2ECC71;
+  background: #f0fff4;
+}
+
+.btn-dia.activo {
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  border-color: #27AE60;
+  color: white;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+/* ===== HORARIOS CALCULADOS ===== */
+.badge-info {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #f0f0f0;
+  color: #666;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.horarios-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.horario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 6px;
+  border-left: 4px solid #2ECC71;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.numero-partido {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.hora-partido {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ===== FECHA FIN CALCULADA ===== */
+.fecha-calculada {
+  padding: 1rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2e7d32;
+  text-align: center;
+  margin-top: 0.5rem;
 }
 
 /* ===== SECCIÓN DE PARTICIPANTES ===== */

@@ -1,0 +1,386 @@
+<div class="panel-arbitro-container">
+  <!-- Cabecera -->
+  <div class="header">
+    <div class="header-content">
+      <h1>Panel de Árbitro</h1>
+      <p class="subtitle">Gestiona tus partidos asignados</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  @if (!partidoActual()) {
+    <div class="filtros-bar">
+      <button
+        class="filtro-btn"
+        [class.active]="filtroEstado() === 'programado'"
+        (click)="cambiarFiltro('programado')">
+        <i class="fas fa-calendar"></i> Programados
+      </button>
+      <button
+        class="filtro-btn"
+        [class.active]="filtroEstado() === 'en_curso'"
+        (click)="cambiarFiltro('en_curso')">
+        <i class="fas fa-play-circle"></i> En Curso
+      </button>
+      <button
+        class="filtro-btn"
+        [class.active]="filtroEstado() === 'finalizado'"
+        (click)="cambiarFiltro('finalizado')">
+        <i class="fas fa-check-circle"></i> Finalizados
+      </button>
+      <button
+        class="filtro-btn"
+        [class.active]="filtroEstado() === 'todos'"
+        (click)="cambiarFiltro('todos')">
+        <i class="fas fa-list"></i> Todos
+      </button>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando partidos...</p>
+    </div>
+  }
+
+  <!-- Sin partidos asignados -->
+  @if (!cargando() && partidosAsignados().length === 0 && !partidoActual()) {
+    <div class="sin-partidos">
+      <div class="empty-icon">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <h3>No tienes partidos asignados</h3>
+      <p>Espera a que el administrador te asigne partidos</p>
+    </div>
+  }
+
+  <!-- Vista de Partido Actual (Durante el partido) -->
+  @if (partidoActual() && !cargando()) {
+    <div class="partido-en-vivo">
+      <div class="vivo-header">
+        <button class="btn-volver" (click)="cerrarPartidoActual()">
+          <i class="fas fa-arrow-left"></i> Volver
+        </button>
+        <span class="badge-estado" [class.en-curso]="partidoActual()!.estado_partido === 'en_curso'">
+          <i class="fas" [class.fa-circle]="partidoActual()!.estado_partido === 'en_curso'" [class.fa-pause]="partidoActual()!.estado_partido === 'pausado'"></i>
+          {{ partidoActual()!.estado_partido === 'en_curso' ? 'EN VIVO' : 'PAUSADO' }}
+        </span>
+      </div>
+
+      <!-- Marcador -->
+      <div class="marcador-grande">
+        <div class="equipo">
+          <img [src]="partidoActual()!.equipo_local_logo" alt="Local" class="logo-grande">
+          <h2>{{ partidoActual()!.equipo_local_nombre }}</h2>
+          <div class="resultado">{{ partidoActual()!.resultado_local }}</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="equipo">
+          <img [src]="partidoActual()!.equipo_visitante_logo" alt="Visitante" class="logo-grande">
+          <h2>{{ partidoActual()!.equipo_visitante_nombre }}</h2>
+          <div class="resultado">{{ partidoActual()!.resultado_visitante }}</div>
+        </div>
+      </div>
+
+      <!-- Información del partido -->
+      <div class="info-partido">
+        <span><i class="fas fa-trophy"></i> {{ partidoActual()!.torneo_nombre }}</span>
+        <span><i class="fas fa-map-marker-alt"></i> {{ partidoActual()!.nombre_cancha || 'Sin cancha' }}</span>
+        <span><i class="fas fa-calendar-alt"></i> {{ partidoActual()!.fecha_partido | date:'dd/MM/yyyy' }}</span>
+        <span><i class="fas fa-clock"></i> {{ partidoActual()!.hora_inicio }}</span>
+      </div>
+
+      <!-- Controles del Partido -->
+      <div class="controles-partido">
+        @if (partidoActual()!.estado_partido === 'en_curso') {
+          <button class="btn-control pause" (click)="pausarPartido()">
+            <i class="fas fa-pause"></i> Pausar
+          </button>
+        }
+        @if (partidoActual()!.estado_partido === 'pausado') {
+          <button class="btn-control play" (click)="reanudarPartido()">
+            <i class="fas fa-play"></i> Reanudar
+          </button>
+        }
+        <button class="btn-control finalizar" (click)="abrirModalFinalizar()">
+          <i class="fas fa-flag-checkered"></i> Finalizar Partido
+        </button>
+      </div>
+
+      <!-- Botones de Registro de Eventos -->
+      <div class="eventos-rapidos">
+        <h3><i class="fas fa-bolt"></i> Registrar Evento</h3>
+        <div class="eventos-grid">
+          <button class="evento-btn gol" (click)="abrirModalEvento('gol')">
+            <i class="fas fa-futbol"></i>
+            <span>Gol</span>
+          </button>
+          <button class="evento-btn tarjeta-amarilla" (click)="abrirModalEvento('tarjeta_amarilla')">
+            <i class="fas fa-square"></i>
+            <span>T. Amarilla</span>
+          </button>
+          <button class="evento-btn tarjeta-roja" (click)="abrirModalEvento('tarjeta_roja')">
+            <i class="fas fa-square"></i>
+            <span>T. Roja</span>
+          </button>
+          <button class="evento-btn sustitucion" (click)="abrirModalEvento('sustitucion')">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Sustitución</span>
+          </button>
+          <button class="evento-btn lesion" (click)="abrirModalEvento('lesion')">
+            <i class="fas fa-plus-circle"></i>
+            <span>Lesión</span>
+          </button>
+          <button class="evento-btn otro" (click)="abrirModalEvento('otro')">
+            <i class="fas fa-ellipsis-h"></i>
+            <span>Otro</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Historial de Eventos -->
+      <div class="eventos-historial">
+        <h3><i class="fas fa-history"></i> Historial del Partido</h3>
+        @for (evento of eventosPartido(); track evento.id_evento) {
+          <div class="evento-item">
+            <div class="evento-icono">
+              <i class="fas" [ngClass]="getIconoEvento(evento.tipo_evento)"></i>
+            </div>
+            <div class="evento-info">
+              <strong>{{ evento.tipo_evento | uppercase }}</strong>
+              <span>{{ evento.nombre_equipo }}</span>
+              @if (evento.jugador_nombre) {
+                <span>• {{ evento.jugador_nombre }}</span>
+              }
+            </div>
+            <div class="evento-tiempo">
+              {{ evento.minuto }}'
+            </div>
+          </div>
+        }
+        @if (eventosPartido().length === 0) {
+          <div class="no-eventos">
+            <i class="fas fa-info-circle"></i>
+            <p>No hay eventos registrados aún</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Lista de Partidos Asignados -->
+  @if (!partidoActual() && !cargando()) {
+    <div class="partidos-lista">
+      <!-- Partidos de Hoy -->
+      @if (partidosHoy().length > 0) {
+        <div class="seccion-partidos">
+          <h2><i class="fas fa-calendar-day"></i> Hoy</h2>
+          @for (partido of partidosHoy(); track partido.id_partido) {
+            <div class="partido-card">
+              <div class="partido-header">
+                <span class="badge-deporte">
+                  <i class="fas fa-futbol"></i> {{ partido.nombre_deporte }}
+                </span>
+                <span class="badge-estado" [ngClass]="partido.estado_partido">
+                  {{ partido.estado_partido | uppercase }}
+                </span>
+              </div>
+
+              <div class="partido-equipos">
+                <div class="equipo-info">
+                  <img [src]="partido.equipo_local_logo" alt="Local" class="logo-equipo">
+                  <span class="nombre-equipo">{{ partido.equipo_local_nombre }}</span>
+                  @if (partido.estado_partido !== 'programado') {
+                    <span class="resultado">{{ partido.resultado_local }}</span>
+                  }
+                </div>
+                <div class="vs-separator">VS</div>
+                <div class="equipo-info">
+                  <img [src]="partido.equipo_visitante_logo" alt="Visitante" class="logo-equipo">
+                  <span class="nombre-equipo">{{ partido.equipo_visitante_nombre }}</span>
+                  @if (partido.estado_partido !== 'programado') {
+                    <span class="resultado">{{ partido.resultado_visitante }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="partido-info">
+                <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin asignar' }}</span>
+                <span><i class="fas fa-clock"></i> {{ partido.hora_inicio }}</span>
+              </div>
+
+              <div class="partido-acciones">
+                @if (partido.estado_partido === 'programado') {
+                  <button class="btn-accion iniciar" (click)="iniciarPartido(partido)">
+                    <i class="fas fa-play"></i> Iniciar Partido
+                  </button>
+                }
+                @if (partido.estado_partido === 'en_curso' || partido.estado_partido === 'pausado') {
+                  <button class="btn-accion ver" (click)="verPartido(partido)">
+                    <i class="fas fa-eye"></i> Ver Partido
+                  </button>
+                }
+                @if (partido.estado_partido === 'finalizado') {
+                  <button class="btn-accion detalles" (click)="verPartido(partido)">
+                    <i class="fas fa-chart-bar"></i> Ver Detalles
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Próximos Partidos -->
+      @if (partidosProximos().length > 0) {
+        <div class="seccion-partidos">
+          <h2><i class="fas fa-calendar-alt"></i> Próximos Partidos</h2>
+          @for (partido of partidosProximos(); track partido.id_partido) {
+            <div class="partido-card">
+              <div class="partido-header">
+                <span class="badge-deporte">
+                  <i class="fas fa-futbol"></i> {{ partido.nombre_deporte }}
+                </span>
+                <span class="badge-fecha">
+                  <i class="fas fa-calendar"></i> {{ partido.fecha_partido | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+
+              <div class="partido-equipos">
+                <div class="equipo-info">
+                  <img [src]="partido.equipo_local_logo" alt="Local" class="logo-equipo">
+                  <span class="nombre-equipo">{{ partido.equipo_local_nombre }}</span>
+                </div>
+                <div class="vs-separator">VS</div>
+                <div class="equipo-info">
+                  <img [src]="partido.equipo_visitante_logo" alt="Visitante" class="logo-equipo">
+                  <span class="nombre-equipo">{{ partido.equipo_visitante_nombre }}</span>
+                </div>
+              </div>
+
+              <div class="partido-info">
+                <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin asignar' }}</span>
+                <span><i class="fas fa-clock"></i> {{ partido.hora_inicio }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal: Registrar Evento -->
+@if (modalEventoAbierto()) {
+  <div class="modal-overlay" (click)="cerrarModalEvento()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <i class="fas" [ngClass]="getIconoEvento(eventoTemporal.tipo_evento || '')"></i>
+          Registrar {{ eventoTemporal.tipo_evento | uppercase }}
+        </h3>
+        <button class="btn-cerrar" (click)="cerrarModalEvento()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-users"></i> Equipo *</label>
+          <select [(ngModel)]="eventoTemporal.id_equipo" required>
+            <option [value]="undefined">Seleccionar equipo</option>
+            <option [value]="partidoActual()!.equipo_local_id">{{ partidoActual()!.equipo_local_nombre }}</option>
+            <option [value]="partidoActual()!.equipo_visitante_id">{{ partidoActual()!.equipo_visitante_nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Jugador (opcional)</label>
+          <input type="number" [(ngModel)]="eventoTemporal.id_jugador" placeholder="ID del jugador">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-clock"></i> Minuto</label>
+            <input type="number" [(ngModel)]="eventoTemporal.minuto" min="0" max="120" placeholder="45">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-hourglass-half"></i> Periodo</label>
+            <select [(ngModel)]="eventoTemporal.periodo">
+              <option value="primer_tiempo">Primer Tiempo</option>
+              <option value="segundo_tiempo">Segundo Tiempo</option>
+              <option value="tiempo_extra">Tiempo Extra</option>
+              <option value="penales">Penales</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-comment"></i> Descripción (opcional)</label>
+          <textarea [(ngModel)]="eventoTemporal.descripcion" rows="3" placeholder="Detalles del evento..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="cerrarModalEvento()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn-primario" (click)="registrarEvento()">
+          <i class="fas fa-check"></i> Registrar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal: Finalizar Partido -->
+@if (modalFinalizarAbierto()) {
+  <div class="modal-overlay" (click)="cerrarModalFinalizar()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-flag-checkered"></i> Finalizar Partido</h3>
+        <button class="btn-cerrar" (click)="cerrarModalFinalizar()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="resultado-final">
+          <h4>Resultado Final</h4>
+          <div class="marcador-final">
+            <span>{{ partidoActual()!.equipo_local_nombre }}</span>
+            <span class="score">{{ partidoActual()!.resultado_local }} - {{ partidoActual()!.resultado_visitante }}</span>
+            <span>{{ partidoActual()!.equipo_visitante_nombre }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-file-alt"></i> Notas del Árbitro (opcional)</label>
+          <textarea
+            [(ngModel)]="notasArbitro"
+            rows="5"
+            placeholder="Incidentes, observaciones, comportamiento de los equipos..."></textarea>
+        </div>
+
+        <div class="alerta-info">
+          <i class="fas fa-exclamation-triangle"></i>
+          Esta acción finalizará el partido y no podrá ser modificado posteriormente.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="cerrarModalFinalizar()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn-danger" (click)="finalizarPartido()">
+          <i class="fas fa-flag-checkered"></i> Finalizar Partido
+        </button>
+      </div>
+    </div>
+  </div>
+}

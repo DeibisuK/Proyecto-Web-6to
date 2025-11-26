@@ -1,0 +1,117 @@
+<nav class="navbar-ecommerce">
+  <div class="navbar-container">
+    <!-- Logo alineado verticalmente -->
+    <div class="logo-section">
+      <a class="logo" routerLink="/arbitro/panel">
+        <img src="Imagotipo Oro Sport Club Blanco.png" alt="Sports Club" />
+      </a>
+    </div>
+
+    <!-- Enlaces de navegación -->
+    <ul class="nav-links">
+
+      <li>
+        <a routerLink="/arbitro/panel" routerLinkActive="active-link">
+          <span class="material-icons">assignment</span> Panel Árbitro
+        </a>
+      </li>
+
+      <li>
+        <a routerLink="/arbitro/estadisticas" routerLinkActive="active-link">
+          <span class="material-icons">bar_chart</span> Estadísticas
+        </a>
+      </li>
+    </ul>
+
+    <!-- Acciones del usuario -->
+    <div class="user-actions">
+      <!-- Notifications Bell -->
+      <div class="notifications-wrapper">
+        <button
+          class="notification-btn"
+          (click)="toggleNotifications(); $event.stopPropagation()"
+          [title]="'Tienes ' + unreadCount + ' notificaciones sin leer'">
+          <span class="material-icons">notifications</span>
+          @if (unreadCount > 0) {
+            <span class="notification-badge">{{ unreadCount }}</span>
+          }
+        </button>
+
+        <!-- Notifications Dropdown -->
+        <div class="notifications-dropdown" [class.show]="showNotifications">
+          <div class="dropdown-header">
+            <h3>Notificaciones</h3>
+            <button class="mark-all-read" (click)="markAllAsRead()">
+              <span class="material-icons">done_all</span>
+            </button>
+          </div>
+
+          <div class="notifications-list">
+            @if (notifications.length === 0) {
+              <div class="no-notifications">
+                <span class="material-icons">notifications_none</span>
+                <p>No tienes notificaciones</p>
+              </div>
+            } @else {
+              @for (notification of notifications; track notification.id) {
+                <div class="notification-item"
+                     [class.unread]="!notification.read"
+                     (click)="markAsRead(notification)">
+                  <div class="notification-icon" [ngClass]="notification.type">
+                    <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+                  </div>
+                  <div class="notification-content">
+                    <p class="notification-subject">{{ notification.subject }}</p>
+                    <span class="notification-time">{{ getTimeAgo(notification.date) }}</span>
+                  </div>
+                  @if (!notification.read) {
+                    <span class="unread-dot"></span>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          <div class="dropdown-footer">
+            <a routerLink="/arbitro/notificaciones" (click)="closeNotifications()" class="view-all-link">
+              Ver todas las notificaciones
+              <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      @if (user) {
+      <div class="dropdown user-dropdown">
+        <a class="dropdown-toggle user-toggle" [title]="getUserDisplayName()" (click)="toggleUserMenu(); $event.stopPropagation()">
+          <div class="user-btn">
+            @if (user.photoURL && !imageError) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" (error)="onImageError()" />
+            } @else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+        </a>
+
+        <div class="dropdown-menu user-menu" [class.show]="showUserMenu">
+          <div class="dropdown-section">
+            <a routerLink="/ver-perfil" (click)="closeUserMenu()">
+              <i class="fas fa-user"></i> Ver Perfil
+            </a>
+            <a routerLink="/inicio"><i class="fas fa-sign-out-alt"></i> Salir del Modo Arbitro</a>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <button class="user-btn" title="Usuario">
+        <span class="material-icons">account_circle</span>
+      </button>
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="arbitro-main">
+  <router-outlet></router-outlet>
+</main>

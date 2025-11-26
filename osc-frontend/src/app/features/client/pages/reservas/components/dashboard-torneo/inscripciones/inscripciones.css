@@ -1,27 +1,20 @@
-/* ===== INSCRIPCIONES WRAPPER ===== */
-.inscripciones-wrapper {
+/* ===== WRAPPER PRINCIPAL ===== */
+.page-container {
   width: 100%;
-  animation: fadeIn 0.3s var(--ease-out);
+  padding: var(--spacing-xl);
+  animation: fadeIn 0.3s ease-out;
 }
 
 /* ===== HEADER ===== */
-.inscripciones-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-xl);
-  gap: var(--spacing-lg);
+.page-header {
+  margin-bottom: var(--spacing-2xl);
 }
 
-.header-content {
-  flex: 1;
-}
-
-.page-title {
+.header-content h1 {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm);
+  margin: 0 0 var(--spacing-sm) 0;
   font-family: var(--font-secondary);
 }
 
@@ -31,202 +24,347 @@
   margin: 0;
 }
 
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary svg {
+  color: white;
+  stroke: white;
+}
+
 /* ===== TABS ===== */
-.inscripciones-tabs {
+.tabs-container {
   display: flex;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-2xl);
   border-bottom: 2px solid var(--border-light);
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.inscripciones-tabs::-webkit-scrollbar {
+.tabs-container::-webkit-scrollbar {
   display: none;
 }
 
-.inscripciones-tabs .tab {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+.tab-button {
   padding: var(--spacing-md) var(--spacing-lg);
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: var(--transition-base);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
-.inscripciones-tabs .tab:hover {
+.tab-button:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
-.inscripciones-tabs .tab.active {
+.tab-button.active {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
 }
 
-.tab-badge {
+.tab-button .badge {
   padding: 0.125rem var(--spacing-sm);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--radius-full);
   min-width: 1.5rem;
   text-align: center;
 }
 
-.inscripciones-tabs .tab.active .tab-badge {
+.tab-button.active .badge {
   background: var(--color-accent);
   color: white;
 }
 
-/* ===== SKELETON ===== */
-.inscripciones-skeleton {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: var(--spacing-lg);
+.badge-warning {
+  background: var(--warning-light) !important;
+  color: var(--warning-dark) !important;
 }
 
-/* ===== INSCRIPCIONES CONTENT ===== */
-.inscripciones-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: var(--spacing-lg);
-}
-
-/* ===== INSCRIPCION CARD ===== */
-.inscripcion-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
-  transition: var(--transition-base);
-  box-shadow: var(--shadow-sm);
-}
-
-.inscripcion-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
-}
-
-/* Inscripcion Header */
-.inscripcion-header {
+/* ===== LOADING STATE ===== */
+.loading-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: var(--spacing-lg);
+  justify-content: center;
+  padding: var(--spacing-4xl);
+  gap: var(--spacing-lg);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-light);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ===== ERROR STATE ===== */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4xl);
+  gap: var(--spacing-lg);
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-light);
-  gap: var(--spacing-md);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border-light);
 }
 
-.tournament-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  flex: 1;
-}
-
-.tournament-icon {
-  width: 3rem;
-  height: 3rem;
+.error-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--bg-tertiary);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.error-icon svg {
+  stroke: white;
+}
+
+.error-container h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.error-container p {
+  margin: 0;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4xl);
+  gap: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--border-color);
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: var(--text-tertiary);
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 400px;
+}
+
+/* ===== INSCRIPCIONES GRID ===== */
+.inscripciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+/* ===== INSCRIPCION CARD (estilo torneos) ===== */
+.inscripcion-card {
   background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-xl);
   overflow: hidden;
+  transition: var(--transition-base);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
-.tournament-icon img {
-  width: 100%;
-  height: 100%;
+.inscripcion-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-accent);
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-bottom: 2px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.deporte-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
   object-fit: cover;
+  border: 2px solid var(--border-color);
+  background: white;
+  flex-shrink: 0;
 }
 
-.tournament-details {
+.header-info {
   flex: 1;
   min-width: 0;
 }
 
-.tournament-name {
+.header-info h3 {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 0.25rem;
-  white-space: nowrap;
+  margin: 0 0 var(--spacing-xs) 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tournament-category {
-  font-size: 0.75rem;
+.header-info p {
+  font-size: 0.813rem;
   color: var(--text-secondary);
   margin: 0;
 }
 
-/* Inscripcion Body */
-.inscripcion-body {
-  padding: var(--spacing-lg);
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-}
-
-.info-item {
-  display: flex;
-  gap: var(--spacing-md);
-}
-
-.info-item svg {
-  width: 16px;
-  height: 16px;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.info-content {
+.badges-group {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  min-width: 0;
+  gap: var(--spacing-xs);
+  align-items: flex-end;
 }
 
-.info-label {
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-weight: 500;
+.status-badge {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: 0.688rem;
+  font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
   letter-spacing: 0.025em;
 }
 
-.info-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.badge-deporte {
+  background: #dbdbdb;
+  color: #3b3b3b;
 }
 
-/* Progress Section */
+.badge-success {
+  background: var(--success-light);
+  color: var(--success-dark);
+}
+
+.badge-warning {
+  background: var(--warning-light);
+  color: var(--warning-dark);
+}
+
+.badge-info {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* Card Body */
+.card-body {
+  padding: var(--spacing-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.813rem;
+}
+
+.info-item svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.info-item .label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.info-item .value {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Progress Bar */
 .progress-section {
+  margin-top: var(--spacing-lg);
   padding: var(--spacing-md);
   background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
 }
 
 .progress-header {
@@ -238,21 +376,21 @@
 
 .progress-label {
   font-size: 0.75rem;
-  color: var(--text-secondary);
   font-weight: 600;
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.5px;
 }
 
-.progress-percentage {
+.progress-value {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-accent);
 }
 
 .progress-bar {
-  height: 0.5rem;
-  background: var(--bg-tertiary);
+  height: 8px;
+  background: var(--border-light);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -261,118 +399,141 @@
   height: 100%;
   background: var(--gradient-primary);
   border-radius: var(--radius-full);
-  transition: width 0.5s var(--ease-out);
+  transition: width 0.5s ease-out;
 }
 
-/* Inscripcion Footer */
-.inscripcion-footer {
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--border-light);
+/* Next Match */
+.next-match {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
   background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent);
 }
 
-.footer-actions {
+.next-match-header {
   display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-xs);
 }
 
-.text-danger {
-  color: var(--error) !important;
+.next-match-header svg {
+  color: var(--color-accent);
+  flex-shrink: 0;
 }
 
-.text-danger:hover {
-  color: var(--error-dark) !important;
+.next-match-date {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-/* ===== EMPTY STATE MODERNO ===== */
-.empty-state-modern {
+/* Card Actions */
+.card-actions {
   display: flex;
-  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-light);
+}
+
+.btn-secondary {
+  flex: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-3xl);
-  text-align: center;
-  background: var(--bg-primary);
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-2xl);
-}
-
-.empty-animation {
-  margin-bottom: var(--spacing-xl);
-}
-
-.empty-icon-large {
-  animation: float 3s ease-in-out infinite;
-}
-
-.empty-icon-large svg {
-  color: var(--text-tertiary);
-  opacity: 0.5;
-}
-
-.empty-state-modern h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  margin-right: 0.5rem;
   color: var(--text-primary);
-  margin: 0 0 var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--transition-base);
 }
 
-.empty-state-modern p {
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-xl);
-  max-width: 400px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--transition-base);
 }
 
-/* ===== ANIMATIONS ===== */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.btn-danger:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+  transform: translateY(-1px);
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
-  .inscripciones-content,
-  .inscripciones-skeleton {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 768px) {
-  .inscripciones-header {
+  .page-container {
+    padding: var(--spacing-lg);
+  }
+
+  .page-header {
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .inscripciones-header .btn {
-    width: 100%;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
     gap: var(--spacing-md);
   }
 
-  .footer-actions {
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .inscripciones-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions {
     flex-direction: column;
   }
 
-  .footer-actions .btn {
+  .btn-secondary,
+  .btn-danger {
     width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .page-title {
-    font-size: 1.5rem;
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-
-  .tournament-name {
-    font-size: 0.875rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-

@@ -1,0 +1,191 @@
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        Mis Inscripciones
+      </h1>
+    </div>
+    <p class="page-subtitle">Gestiona tus inscripciones a torneos</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'activas'"
+      (click)="setActiveTab('activas')">
+      <i class="fas fa-trophy"></i>
+      Activas
+      @if (getActiveCount() > 0) {
+        <span class="badge">{{ getActiveCount() }}</span>
+      }
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'pendientes'"
+      (click)="setActiveTab('pendientes')">
+      <i class="fas fa-clock"></i>
+      Pendientes
+      @if (getPendingCount() > 0) {
+        <span class="badge badge-warning">{{ getPendingCount() }}</span>
+      }
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'finalizadas'"
+      (click)="setActiveTab('finalizadas')">
+      <i class="fas fa-history"></i>
+      Finalizadas
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando inscripciones...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !isLoading) {
+    <div class="error-container">
+      <div class="error-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <h3>Error al cargar</h3>
+      <p>{{ error }}</p>
+      <button class="btn-primary" (click)="loadInscripciones()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading && !error) {
+    @if (getFilteredInscripciones().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>{{ getEmptyStateTitle() }}</h3>
+        <p>{{ getEmptyStateMessage() }}</p>
+        <button class="btn-primary" (click)="openNewInscriptionWizard()">
+          <i class="fas fa-plus"></i>
+          Inscribirme a un torneo
+        </button>
+      </div>
+    } @else {
+      <!-- Inscripciones List -->
+      <div class="inscripciones-grid">
+        @for (inscripcion of getFilteredInscripciones(); track inscripcion.id_inscripcion) {
+          <div class="inscripcion-card" (click)="viewDetails(inscripcion)">
+            <!-- Header de la card -->
+            <div class="card-header">
+              <img [src]="inscripcion.deporte_imagen" [alt]="inscripcion.nombre_deporte" class="deporte-icon">
+              <div class="header-info">
+                <h3>{{ inscripcion.torneo_nombre }}</h3>
+                <p>{{ inscripcion.nombre_equipo }}</p>
+              </div>
+              <div class="badges-group">
+                <span class="status-badge badge-deporte">{{ inscripcion.nombre_deporte }}</span>
+                <span class="status-badge badge" [class]="getStatusBadgeClass(inscripcion.estado_inscripcion)">
+                  {{ getStatusText(inscripcion.estado_inscripcion) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Detalles -->
+            <div class="card-body">
+              <div class="info-row">
+                <div class="info-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span class="label">Fechas:</span>
+                  <span class="value">{{ getRangoFechas(inscripcion) }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                  </svg>
+                  <span class="label">Tipo:</span>
+                  <span class="value">{{ inscripcion.tipo_torneo }}</span>
+                </div>
+              </div>
+
+              @if (activeTab === 'activas') {
+                <!-- Progreso del torneo -->
+                @if (inscripcion.partidos_jugados > 0 || inscripcion.partidos_pendientes > 0) {
+                  <div class="progress-section">
+                    <div class="progress-header">
+                      <span class="progress-label">Progreso del torneo</span>
+                      <span class="progress-value">{{ getProgreso(inscripcion) }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="getProgreso(inscripcion)"></div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Próximo partido -->
+                @if (inscripcion.proximo_partido) {
+                  <div class="next-match">
+                    <div class="next-match-header">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      <span>Próximo partido</span>
+                    </div>
+                    <p class="next-match-date">{{ getProximoPartidoFecha(inscripcion) }}</p>
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- Footer con acciones -->
+            <div class="card-footer">
+              <button class="btn-secondary" (click)="viewDetails(inscripcion)">
+                <i class="fas fa-eye"></i>
+                Ver detalles
+              </button>
+
+              @if (puedeCancelar(inscripcion)) {
+                <button class="btn-danger" (click)="cancelInscription(inscripcion, $event)">
+                  <i class="fas fa-times"></i>
+                  Cancelar
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal de Confirmación -->
+@if (showConfirmacionModal && confirmacionConfig) {
+  <app-confirmacion-modal
+    [config]="confirmacionConfig"
+    (confirmar)="onConfirmacionModalConfirmar()"
+    (cancelar)="onConfirmacionModalCancelar()"
+    (cerrar)="onConfirmacionModalCerrar()">
+  </app-confirmacion-modal>
+}

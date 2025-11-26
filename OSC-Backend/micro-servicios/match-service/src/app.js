@@ -21,6 +21,7 @@ import eventosClient from "./api/client/eventos.client.routes.js";
 import eventosArbitro from "./api/arbitro/eventos.arbitro.routes.js";
 import alineacionesArbitro from "./api/arbitro/alineaciones.arbitro.routes.js";
 import tiempoRealArbitro from "./api/arbitro/tiempo_real.arbitro.routes.js";
+import panelArbitro from "./api/arbitro/panel.arbitro.routes.js"; // ✅ NUEVO
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/admin", clasificacionAdmin);
 app.use("/admin", configuracionEventosAdmin);
 
 // ===== ÁRBITRO ROUTES (Requieren autenticación y rol árbitro) =====
+app.use("/arbitro", panelArbitro); // ✅ NUEVO - Panel principal del árbitro
 app.use("/arbitro", eventosArbitro);
 app.use("/arbitro", alineacionesArbitro);
 app.use("/arbitro", tiempoRealArbitro);

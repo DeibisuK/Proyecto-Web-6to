@@ -178,3 +178,17 @@ export const assignRole = async (uid, id_rol) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene usuarios por rol específico
+ * @param {number} idRol - ID del rol a filtrar
+ * @returns {Promise<Array>} Lista de usuarios con ese rol
+ */
+export const getUsersByRole = async (idRol) => {
+  try {
+    const dbUsers = await adminModel.getUsersByRole(idRol);
+    return dbUsers;
+  } catch (error) {
+    throw error;
+  }
+};

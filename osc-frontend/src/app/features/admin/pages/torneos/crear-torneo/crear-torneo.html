@@ -127,30 +127,11 @@
           formControlName="fecha_inicio"
           class="form-input"
           [class.invalid]="f['fecha_inicio'].invalid && f['fecha_inicio'].touched"
+          (change)="calcularFechaFin()"
         />
         @if (f['fecha_inicio'].invalid && f['fecha_inicio'].touched) {
         <div class="error-message">
           La fecha de inicio es requerida
-        </div>
-        }
-      </div>
-
-      <!-- Fecha Fin -->
-      <div class="form-group">
-        <label for="fecha_fin" class="form-label">
-          <i class="fas fa-calendar-check"></i>
-          Fecha de Fin
-        </label>
-        <input
-          type="date"
-          id="fecha_fin"
-          formControlName="fecha_fin"
-          class="form-input"
-          [class.invalid]="f['fecha_fin'].invalid && f['fecha_fin'].touched"
-        />
-        @if (f['fecha_fin'].invalid && f['fecha_fin'].touched) {
-        <div class="error-message">
-          La fecha de fin es requerida
         </div>
         }
       </div>
@@ -225,31 +206,135 @@
         }
       </div>
 
-      <!-- Árbitro -->
-      <div class="form-group dropdown-arbitro" [class.activo]="dropdownArbitroAbierto()">
-        <label for="id_arbitro" class="form-label">
-          <i class="fa-solid fa-address-card"></i>
-          Árbitro (opcional)
+      <!-- Días de Juego -->
+      <div class="form-group full-width">
+        <label class="form-label">
+          <i class="fas fa-calendar-week"></i>
+          Días de Juego
         </label>
-        <button type="button" class="btn-dropdown-custom" (click)="toggleDropdownArbitro()">
-          <span class="dropdown-text">{{ arbitroSeleccionado() }}</span>
-          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownArbitroAbierto()"></i>
+        <div class="dias-semana-grid">
+          @for (dia of diasSemana; track dia.value) {
+            <button
+              type="button"
+              class="btn-dia"
+              [class.activo]="dia.checked"
+              (click)="toggleDiaJuego(dia)"
+            >
+              {{ dia.label }}
+            </button>
+          }
+        </div>
+        <small class="form-hint">Selecciona los días en que se jugarán los partidos</small>
+      </div>
+
+      <!-- Sede -->
+      <div class="form-group dropdown-sede" [class.activo]="dropdownSedeAbierto()">
+        <label for="id_sede" class="form-label">
+          <i class="fas fa-map-marker-alt"></i>
+          Sede
+        </label>
+        <button
+          type="button"
+          class="btn-dropdown-custom"
+          (click)="toggleDropdownSede()"
+          [class.invalid]="f['id_sede'].invalid && f['id_sede'].touched"
+        >
+          <span class="dropdown-text">{{ sedeSeleccionada() }}</span>
+          <i class="fas fa-chevron-down dropdown-icon" [class.rotado]="dropdownSedeAbierto()"></i>
         </button>
-        @if (dropdownArbitroAbierto()) {
-          <div class="dropdown-menu" (click)="$event.stopPropagation()">
-            <div class="dropdown-item" (click)="seleccionarArbitro(null)">
-              <i class="fas fa-user-slash"></i>
-              Sin asignar
-            </div>
-            @for (arbitro of arbitros; track arbitro.id_usuario) {
-              <div class="dropdown-item" (click)="seleccionarArbitro(arbitro)">
-                <i class="fas fa-user-tie"></i>
-                {{ arbitro.nombre }} {{ arbitro.apellido }}
+        @if (dropdownSedeAbierto()) {
+          <div class="dropdown-menu">
+            @for (sede of sedes; track sede.id_sede) {
+              <div class="dropdown-item" (click)="seleccionarSede(sede)">
+                <i class="fas fa-building"></i>
+                {{ sede.nombre_sede }}
               </div>
             }
           </div>
         }
+        @if (f['id_sede'].invalid && f['id_sede'].touched) {
+        <div class="error-message">
+          La sede es requerida
+        </div>
+        }
       </div>
+
+      <!-- Horario de Inicio -->
+      <div class="form-group">
+        <label for="horario_inicio" class="form-label">
+          <i class="fas fa-clock"></i>
+          Horario de Inicio
+        </label>
+        <select
+          id="horario_inicio"
+          formControlName="horario_inicio"
+          class="form-input"
+          (change)="seleccionarHorarioInicio($any($event.target).value)"
+        >
+          @for (horario of horariosInicio; track horario) {
+            <option [value]="horario">{{ horario }}</option>
+          }
+        </select>
+        <small class="form-hint">Hora de inicio del primer partido del día</small>
+      </div>
+
+      <!-- Partidos por Día -->
+      <div class="form-group">
+        <label for="partidos_por_dia" class="form-label">
+          <i class="fas fa-list-ol"></i>
+          Partidos por Día
+        </label>
+        <input
+          type="number"
+          id="partidos_por_dia"
+          formControlName="partidos_por_dia"
+          class="form-input"
+          [min]="1"
+          [max]="getMaxPartidosPorDia()"
+          placeholder="3"
+          (change)="calcularHorariosDisponibles(); calcularFechaFin()"
+        />
+        @if (f['partidos_por_dia'].invalid && f['partidos_por_dia'].touched) {
+        <div class="error-message">
+          Máximo {{ getMaxPartidosPorDia() }} partidos para este torneo
+        </div>
+        }
+        <small class="form-hint">Cantidad máxima de partidos por día (máx: {{ getMaxPartidosPorDia() }})</small>
+      </div>
+
+      <!-- Vista Previa de Horarios -->
+      @if (horariosCalculados().length > 0) {
+      <div class="form-group full-width">
+        <label class="form-label">
+          <i class="fas fa-calendar-day"></i>
+          Horarios Calculados
+          <span class="badge-info">{{ getDuracionDeporte() }}h por partido</span>
+        </label>
+        <div class="horarios-preview">
+          @for (horario of horariosCalculados(); track horario; let i = $index) {
+            <div class="horario-item">
+              <span class="numero-partido">Partido {{ i + 1 }}</span>
+              <span class="hora-partido">{{ horario }}</span>
+            </div>
+          }
+        </div>
+        <small class="form-hint">Los partidos se programarán automáticamente en estos horarios</small>
+      </div>
+      }
+
+      <!-- Fecha Fin Calculada -->
+      @if (fechaFinCalculada()) {
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-calculator"></i>
+          Fecha Fin Estimada
+        </label>
+        <div class="fecha-calculada">
+          {{ fechaFinCalculada() }}
+        </div>
+        <small class="form-hint">Calculada automáticamente según la configuración</small>
+      </div>
+      }
     </div>
 
     <!-- Botones de Acción -->

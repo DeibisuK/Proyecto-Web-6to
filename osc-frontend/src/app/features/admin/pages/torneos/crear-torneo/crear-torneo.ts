@@ -4,10 +4,8 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TorneosAdminService, Torneo } from '../torneos.service';
 import { NotificationService } from '@core/services/notification.service';
-import { DeporteService } from '@shared/services/index';
-import { Deporte } from '@shared/models/index';
-import { UserApiService } from '@shared/services/user-api.service';
-import { Usuario } from '@shared/models/usuario.model';
+import { DeporteService, SedeService } from '@shared/services/index';
+import { Deporte, Sedes } from '@shared/models/index';
 
 @Component({
   selector: 'app-crear-torneo',
@@ -26,15 +24,47 @@ export class CrearTorneo implements OnInit {
   dropdownDeporteAbierto = signal<boolean>(false);
   dropdownTipoAbierto = signal<boolean>(false);
   dropdownEstadoAbierto = signal<boolean>(false);
-  dropdownArbitroAbierto = signal<boolean>(false);
+  dropdownSedeAbierto = signal<boolean>(false);
 
   deporteSeleccionado = signal<string>('Selecciona un deporte');
   tipoSeleccionado = signal<string>('Grupo + Eliminatoria');
   estadoSeleccionado = signal<string>('Abierto');
-  arbitroSeleccionado = signal<string>('Sin asignar');
+  sedeSeleccionada = signal<string>('Selecciona una sede');
 
-  // Árbitros desde la BD
-  arbitros: Usuario[] = [];
+  // Sedes desde la BD
+  sedes: Sedes[] = [];
+
+  // Días de la semana
+  diasSemana = [
+    { value: 'lunes', label: 'Lunes', checked: false },
+    { value: 'martes', label: 'Martes', checked: false },
+    { value: 'miercoles', label: 'Miércoles', checked: false },
+    { value: 'jueves', label: 'Jueves', checked: false },
+    { value: 'viernes', label: 'Viernes', checked: false },
+    { value: 'sabado', label: 'Sábado', checked: false },
+    { value: 'domingo', label: 'Domingo', checked: false }
+  ];
+
+  // Duraciones aproximadas por deporte (en horas)
+  duracionesPorDeporte: { [key: string]: number } = {
+    'Fútbol': 2,
+    'Fútbol 7': 1.5,
+    'Básquetbol': 2,
+    'Vóleibol': 1.5,
+    'Tenis': 2,
+    'Pádel': 1.5,
+    'default': 2
+  };
+
+  // Horarios de inicio disponibles (cada hora de 08:00 a 20:00)
+  horariosInicio = [
+    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
+    '16:00', '17:00', '18:00', '19:00', '20:00'
+  ];
+
+  horarioInicioSeleccionado: string = '18:00';
+  horariosCalculados = signal<string[]>([]);
+  fechaFinCalculada = signal<string>('');
 
   // Control de participantes
   cantidadParticipantes: number = 4;
@@ -58,7 +88,7 @@ export class CrearTorneo implements OnInit {
     private fb: FormBuilder,
     private torneosService: TorneosAdminService,
     private deporteService: DeporteService,
-    private userApiService: UserApiService,
+    private sedeService: SedeService,
     private notificationService: NotificationService,
     private router: Router,
     private route: ActivatedRoute,
@@ -69,12 +99,16 @@ export class CrearTorneo implements OnInit {
       descripcion: [''],
       id_deporte: [null, Validators.required],
       fecha_inicio: ['', Validators.required],
-      fecha_fin: ['', Validators.required],
+      fecha_fin: [''],
       fecha_cierre_inscripcion: [''],
       max_equipos: [4, [Validators.required, Validators.min(2), Validators.max(64)]],
       tipo_torneo: ['grupo-eliminatoria', Validators.required],
       estado: ['abierto', Validators.required],
-      id_arbitro: [null]
+      id_sede: [null, Validators.required],
+      dias_juego: [[]],
+      horario_inicio: ['18:00', Validators.required],
+      partidos_por_dia: [3, [Validators.min(1), Validators.max(10)]],
+      fecha_fin_calculada: [null]
     });
 
     afterNextRender(() => {
@@ -84,7 +118,7 @@ export class CrearTorneo implements OnInit {
 
   ngOnInit(): void {
     this.cargarDeportes();
-    this.cargarArbitros();
+    this.cargarSedes();
 
     // Verificar si es edición
     this.route.params.subscribe(params => {
@@ -100,6 +134,52 @@ export class CrearTorneo implements OnInit {
     this.torneoForm.patchValue({
       fecha_inicio: hoy
     });
+
+    // Actualizar validador de partidos_por_dia cuando cambie max_equipos o tipo_torneo
+    this.torneoForm.get('max_equipos')?.valueChanges.subscribe(() => {
+      this.actualizarMaxPartidosPorDia();
+    });
+    this.torneoForm.get('tipo_torneo')?.valueChanges.subscribe(() => {
+      this.actualizarMaxPartidosPorDia();
+    });
+  }
+
+  getMaxPartidosPorDia(): number {
+    const maxEquipos = this.torneoForm.get('max_equipos')?.value || 4;
+    const tipoTorneo = this.torneoForm.get('tipo_torneo')?.value;
+
+    let totalPartidos = 0;
+
+    if (tipoTorneo === 'eliminatoria-directa') {
+      totalPartidos = maxEquipos - 1; // n-1 partidos
+    } else if (tipoTorneo === 'todos-contra-todos' || tipoTorneo === 'liga') {
+      totalPartidos = (maxEquipos * (maxEquipos - 1)) / 2; // n(n-1)/2
+    } else {
+      // grupo-eliminatoria: estimación
+      totalPartidos = Math.ceil(maxEquipos * 1.5);
+    }
+
+    // Máximo realista: total de partidos (no tiene sentido más)
+    return Math.max(1, totalPartidos);
+  }
+
+  actualizarMaxPartidosPorDia(): void {
+    const maxPermitido = this.getMaxPartidosPorDia();
+    const partidosActual = this.torneoForm.get('partidos_por_dia')?.value || 3;
+
+    // Si el valor actual excede el máximo, ajustarlo
+    if (partidosActual > maxPermitido) {
+      this.torneoForm.patchValue({ partidos_por_dia: Math.min(3, maxPermitido) });
+    }
+
+    // Actualizar validadores
+    this.torneoForm.get('partidos_por_dia')?.setValidators([
+      Validators.min(1),
+      Validators.max(maxPermitido)
+    ]);
+    this.torneoForm.get('partidos_por_dia')?.updateValueAndValidity();
+
+    this.calcularHorariosDisponibles();
   }
 
   cargarDeportes(): void {
@@ -116,49 +196,14 @@ export class CrearTorneo implements OnInit {
     });
   }
 
-  cargarArbitros(): void {
-    console.log('🔍 [CREAR-TORNEO] Cargando árbitros...');
-    this.userApiService.getAllUsersFromDB().subscribe({
-      next: (usuarios) => {
-        console.log('📋 [CREAR-TORNEO] Usuarios recibidos:', usuarios);
-        console.log('📋 [CREAR-TORNEO] Primer usuario:', usuarios[0]);
-
-        // Filtrar solo usuarios con rol "Arbitro" (id_rol = 3 o rol = 'Arbitro')
-        this.arbitros = usuarios.filter(u => {
-          const esArbitro = u.rol === 'Arbitro' || (u as any).id_rol === 3;
-          if (esArbitro) {
-            console.log('✅ [CREAR-TORNEO] Árbitro encontrado:', {
-              id_usuario: u.id_usuario,
-              nombre: u.nombre,
-              apellido: (u as any).apellido,
-              rol: u.rol,
-              id_rol: (u as any).id_rol
-            });
-          }
-          return esArbitro;
-        });
-
-        console.log(`✅ [CREAR-TORNEO] Total árbitros filtrados: ${this.arbitros.length}`);
-
-        // Si estamos en modo edición y ya hay un árbitro asignado, actualizar el texto
-        const idArbitroActual = this.torneoForm.get('id_arbitro')?.value;
-        console.log('🔍 [CREAR-TORNEO] ID árbitro actual del form:', idArbitroActual);
-
-        if (idArbitroActual) {
-          const arbitro = this.arbitros.find(a => a.id_usuario === idArbitroActual);
-          console.log('🔍 [CREAR-TORNEO] Árbitro encontrado para ID', idArbitroActual, ':', arbitro);
-
-          if (arbitro) {
-            const nombreCompleto = `${arbitro.nombre || ''} ${(arbitro as any).apellido || ''}`.trim() || 'Sin asignar';
-            console.log('✅ [CREAR-TORNEO] Nombre árbitro seleccionado:', nombreCompleto);
-            this.arbitroSeleccionado.set(nombreCompleto);
-          }
-        }
+  cargarSedes(): void {
+    this.sedeService.getSedes().subscribe({
+      next: (data) => {
+        this.sedes = data;
       },
       error: (err) => {
-        console.error('❌ [CREAR-TORNEO] Error al cargar árbitros:', err);
         this.notificationService.notify({
-          message: 'Error al cargar la lista de árbitros',
+          message: 'Error al cargar las sedes',
           type: 'error'
         });
       }
@@ -178,15 +223,31 @@ export class CrearTorneo implements OnInit {
             descripcion: torneo.descripcion || '',
             id_deporte: torneo.id_deporte,
             fecha_inicio: this.formatearFechaParaInput(torneo.fecha_inicio),
-            fecha_fin: this.formatearFechaParaInput(torneo.fecha_fin),
+            fecha_fin: torneo.fecha_fin ? this.formatearFechaParaInput(torneo.fecha_fin) : '',
             fecha_cierre_inscripcion: torneo.fecha_cierre_inscripcion
               ? this.formatearFechaHoraParaInput(torneo.fecha_cierre_inscripcion)
               : '',
             max_equipos: torneo.max_equipos,
             tipo_torneo: torneo.tipo_torneo,
             estado: torneo.estado,
-            id_arbitro: torneo.id_arbitro || null
+            id_sede: (torneo as any).id_sede || null,
+            dias_juego: (torneo as any).dias_juego || [],
+            horario_inicio: (torneo as any).horario_inicio || '18:00',
+            partidos_por_dia: (torneo as any).partidos_por_dia || 3,
+            fecha_fin_calculada: (torneo as any).fecha_fin_calculada || null
           });
+
+          // Actualizar días de juego checkboxes
+          if ((torneo as any).dias_juego && Array.isArray((torneo as any).dias_juego)) {
+            this.diasSemana.forEach(dia => {
+              dia.checked = (torneo as any).dias_juego.includes(dia.value);
+            });
+          }
+
+          // Actualizar horario de inicio
+          if ((torneo as any).horario_inicio) {
+            this.horarioInicioSeleccionado = (torneo as any).horario_inicio;
+          }
 
           // Actualizar cantidad de participantes si es potencia de 2
           if (torneo.max_equipos && this.potenciasEquipos.includes(torneo.max_equipos)) {
@@ -209,8 +270,13 @@ export class CrearTorneo implements OnInit {
             this.estadoSeleccionado.set(estado.label);
           }
 
-          // Actualizar árbitro si existe (se actualizará cuando cargarArbitros termine)
-          // La actualización real se hace en cargarArbitros() después de cargar la lista
+          const sede = this.sedes.find(s => s.id_sede === (torneo as any).id_sede);
+          if (sede) {
+            this.sedeSeleccionada.set(sede.nombre_sede);
+          }
+
+          // Calcular fecha fin si tiene los datos necesarios
+          this.calcularFechaFin();
         }
         this.cargando = false;
       },
@@ -253,18 +319,9 @@ export class CrearTorneo implements OnInit {
 
     // Validar fechas
     const fechaInicio = new Date(this.torneoForm.value.fecha_inicio);
-    const fechaFin = new Date(this.torneoForm.value.fecha_fin);
     const fechaCierre = this.torneoForm.value.fecha_cierre_inscripcion
       ? new Date(this.torneoForm.value.fecha_cierre_inscripcion)
       : null;
-
-    if (fechaFin <= fechaInicio) {
-      this.notificationService.notify({
-        message: 'La fecha de fin debe ser posterior a la fecha de inicio',
-        type: 'error'
-      });
-      return;
-    }
 
     if (fechaCierre && fechaCierre >= fechaInicio) {
       this.notificationService.notify({
@@ -278,12 +335,13 @@ export class CrearTorneo implements OnInit {
 
     const torneoData = {
       ...this.torneoForm.value,
+      fecha_fin: this.torneoForm.value.fecha_fin_calculada || this.torneoForm.value.fecha_inicio,
       max_equipos: this.torneoForm.value.max_equipos || null,
-      fecha_cierre_inscripcion: this.torneoForm.value.fecha_cierre_inscripcion || null
+      fecha_cierre_inscripcion: this.torneoForm.value.fecha_cierre_inscripcion || null,
+      horarios_disponibles: this.horariosCalculados() // Array calculado automáticamente
     };
 
     console.log('💾 [CREAR-TORNEO] Datos a enviar:', torneoData);
-    console.log('💾 [CREAR-TORNEO] ID Árbitro a enviar:', torneoData.id_arbitro);
 
     const operacion = this.esEdicion && this.idTorneo
       ? this.torneosService.actualizarTorneo(this.idTorneo, torneoData)
@@ -337,6 +395,8 @@ export class CrearTorneo implements OnInit {
     this.torneoForm.patchValue({ id_deporte: deporte.id_deporte });
     this.deporteSeleccionado.set(deporte.nombre_deporte);
     this.dropdownDeporteAbierto.set(false);
+    this.calcularHorariosDisponibles();
+    this.calcularFechaFin();
   }
 
   toggleDropdownTipo(): void {
@@ -351,6 +411,7 @@ export class CrearTorneo implements OnInit {
     this.torneoForm.patchValue({ tipo_torneo: tipo.value });
     this.tipoSeleccionado.set(tipo.label);
     this.dropdownTipoAbierto.set(false);
+    this.calcularFechaFin();
   }
 
   toggleDropdownEstado(): void {
@@ -367,36 +428,106 @@ export class CrearTorneo implements OnInit {
     this.dropdownEstadoAbierto.set(false);
   }
 
-  toggleDropdownArbitro(): void {
-    this.dropdownArbitroAbierto.set(!this.dropdownArbitroAbierto());
-    if (this.dropdownArbitroAbierto()) {
+  toggleDropdownSede(): void {
+    this.dropdownSedeAbierto.set(!this.dropdownSedeAbierto());
+    if (this.dropdownSedeAbierto()) {
       this.dropdownDeporteAbierto.set(false);
       this.dropdownTipoAbierto.set(false);
       this.dropdownEstadoAbierto.set(false);
     }
   }
 
-  seleccionarArbitro(arbitro: Usuario | null): void {
-    console.log('🎯 [CREAR-TORNEO] Árbitro seleccionado:', arbitro);
+  seleccionarSede(sede: Sedes): void {
+    this.torneoForm.patchValue({ id_sede: sede.id_sede });
+    this.sedeSeleccionada.set(sede.nombre_sede);
+    this.dropdownSedeAbierto.set(false);
+    this.calcularFechaFin();
+  }
 
-    if (arbitro) {
-      console.log('📝 [CREAR-TORNEO] Asignando id_usuario al form:', arbitro.id_usuario);
-      this.torneoForm.patchValue({ id_arbitro: arbitro.id_usuario });
+  toggleDiaJuego(dia: { value: string; label: string; checked: boolean }): void {
+    dia.checked = !dia.checked;
+    const diasSeleccionados = this.diasSemana.filter(d => d.checked).map(d => d.value);
+    this.torneoForm.patchValue({ dias_juego: diasSeleccionados });
+    this.calcularFechaFin();
+  }
 
-      const nombre = (arbitro.nombre || '').trim();
-      const apellido = ((arbitro as any).apellido || '').trim();
-      const nombreCompleto = `${nombre} ${apellido}`.trim();
+  seleccionarHorarioInicio(horario: string): void {
+    this.horarioInicioSeleccionado = horario;
+    this.torneoForm.patchValue({ horario_inicio: horario });
+    this.calcularHorariosDisponibles();
+    this.calcularFechaFin();
+  }
 
-      console.log('📝 [CREAR-TORNEO] Nombre completo árbitro:', nombreCompleto);
-      this.arbitroSeleccionado.set(nombreCompleto || 'Sin asignar');
-    } else {
-      console.log('📝 [CREAR-TORNEO] Quitando árbitro (null)');
-      this.torneoForm.patchValue({ id_arbitro: null });
-      this.arbitroSeleccionado.set('Sin asignar');
+  calcularHorariosDisponibles(): void {
+    const deporteId = this.torneoForm.get('id_deporte')?.value;
+    const deporteSeleccionadoObj = this.deportes.find(d => d.id_deporte === deporteId);
+    const nombreDeporte = deporteSeleccionadoObj?.nombre_deporte || 'default';
+
+    const duracion = this.duracionesPorDeporte[nombreDeporte] || this.duracionesPorDeporte['default'];
+    const partidosPorDia = this.torneoForm.get('partidos_por_dia')?.value || 1;
+    const horarioInicio = this.horarioInicioSeleccionado;
+
+    if (!horarioInicio) {
+      this.horariosCalculados.set([]);
+      return;
     }
 
-    console.log('📝 [CREAR-TORNEO] Valor actual del form:', this.torneoForm.value);
-    this.dropdownArbitroAbierto.set(false);
+    const horarios: string[] = [];
+    const [hora, minuto] = horarioInicio.split(':').map(Number);
+
+    for (let i = 0; i < partidosPorDia; i++) {
+      const horaPartido = hora + (i * duracion);
+      const horaFormateada = String(Math.floor(horaPartido)).padStart(2, '0');
+      const minutoFormateado = String(minuto).padStart(2, '0');
+      horarios.push(`${horaFormateada}:${minutoFormateado}`);
+    }
+
+    this.horariosCalculados.set(horarios);
+  }
+
+  getDuracionDeporte(): number {
+    const deporteId = this.torneoForm.get('id_deporte')?.value;
+    const deporteObj = this.deportes.find(d => d.id_deporte === deporteId);
+    const nombreDeporte = deporteObj?.nombre_deporte || 'default';
+    return this.duracionesPorDeporte[nombreDeporte] || this.duracionesPorDeporte['default'];
+  }
+
+  calcularFechaFin(): void {
+    const fechaInicio = this.torneoForm.get('fecha_inicio')?.value;
+    const maxEquipos = this.torneoForm.get('max_equipos')?.value;
+    const diasJuego = this.torneoForm.get('dias_juego')?.value || [];
+    const partidosPorDia = this.torneoForm.get('partidos_por_dia')?.value || 3;
+
+    if (!fechaInicio || !maxEquipos || diasJuego.length === 0 || partidosPorDia === 0) {
+      this.fechaFinCalculada.set('');
+      this.torneoForm.patchValue({ fecha_fin_calculada: null });
+      return;
+    }
+
+    // Calcular total de partidos aproximado (depende del tipo de torneo)
+    let totalPartidos = 0;
+    const tipoTorneo = this.torneoForm.get('tipo_torneo')?.value;
+
+    if (tipoTorneo === 'eliminatoria-directa') {
+      totalPartidos = maxEquipos - 1; // n-1 partidos en eliminatoria directa
+    } else if (tipoTorneo === 'todos-contra-todos' || tipoTorneo === 'liga') {
+      totalPartidos = (maxEquipos * (maxEquipos - 1)) / 2; // n(n-1)/2
+    } else {
+      // grupo-eliminatoria: estimación (grupos + eliminatoria)
+      totalPartidos = Math.ceil(maxEquipos * 1.5);
+    }
+
+    // Calcular días necesarios
+    const diasNecesarios = Math.ceil(totalPartidos / (partidosPorDia * diasJuego.length));
+    const semanasNecesarias = Math.ceil(diasNecesarios / diasJuego.length);
+
+    // Calcular fecha fin
+    const fecha = new Date(fechaInicio);
+    fecha.setDate(fecha.getDate() + (semanasNecesarias * 7));
+
+    const fechaFinStr = fecha.toISOString().split('T')[0];
+    this.fechaFinCalculada.set(fechaFinStr);
+    this.torneoForm.patchValue({ fecha_fin_calculada: fechaFinStr });
   }
 
   cambiarCantidadParticipantes(direccion: 'aumentar' | 'disminuir'): void {
@@ -405,9 +536,13 @@ export class CrearTorneo implements OnInit {
     if (direccion === 'aumentar' && indiceActual < this.potenciasEquipos.length - 1) {
       this.cantidadParticipantes = this.potenciasEquipos[indiceActual + 1];
       this.torneoForm.patchValue({ max_equipos: this.cantidadParticipantes });
+      this.calcularHorariosDisponibles();
+      this.calcularFechaFin();
     } else if (direccion === 'disminuir' && indiceActual > 0) {
       this.cantidadParticipantes = this.potenciasEquipos[indiceActual - 1];
       this.torneoForm.patchValue({ max_equipos: this.cantidadParticipantes });
+      this.calcularHorariosDisponibles();
+      this.calcularFechaFin();
     }
   }
 
@@ -417,11 +552,11 @@ export class CrearTorneo implements OnInit {
       if (!target.closest('.dropdown-deporte') &&
           !target.closest('.dropdown-tipo') &&
           !target.closest('.dropdown-estado') &&
-          !target.closest('.dropdown-arbitro')) {
+          !target.closest('.dropdown-sede')) {
         this.dropdownDeporteAbierto.set(false);
         this.dropdownTipoAbierto.set(false);
         this.dropdownEstadoAbierto.set(false);
-        this.dropdownArbitroAbierto.set(false);
+        this.dropdownSedeAbierto.set(false);
       }
     });
   }

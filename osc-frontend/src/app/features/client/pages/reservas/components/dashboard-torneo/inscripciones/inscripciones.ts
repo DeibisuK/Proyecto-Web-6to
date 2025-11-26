@@ -11,7 +11,7 @@ type EstadoTab = 'activas' | 'pendientes' | 'finalizadas';
 @Component({
   selector: 'app-inscripciones',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmacionModalComponent],
   templateUrl: './inscripciones.html',
   styleUrls: ['./inscripciones.css', '../shared-styles.css']
 })
@@ -266,5 +266,22 @@ export class Inscripciones implements OnInit {
    */
   puedeCancelar(inscripcion: Inscripcion): boolean {
     return this.inscripcionesService.puedeCancelar(inscripcion);
+  }
+
+  /**
+   * Obtiene el rango de fechas del torneo
+   */
+  getRangoFechas(inscripcion: Inscripcion): string {
+    const inicio = new Date(inscripcion.fecha_inicio);
+    const fin = inscripcion.fecha_fin ? new Date(inscripcion.fecha_fin) : null;
+
+    const formatoFecha = (fecha: Date) => {
+      return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+    };
+
+    if (fin) {
+      return `${formatoFecha(inicio)} - ${formatoFecha(fin)}`;
+    }
+    return formatoFecha(inicio);
   }
 }

@@ -1,1 +1,325 @@
-<p>partidos works!</p>
+<div class="partidos-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fas fa-futbol"></i> Gestión de Partidos</h1>
+      <p class="subtitle">Asigna árbitros y gestiona los partidos de los torneos</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-card">
+    <div class="filtros-grid">
+      <div class="form-group">
+        <label><i class="fas fa-trophy"></i> Torneo</label>
+        <select [(ngModel)]="filtroTorneo" (change)="aplicarFiltros()" class="form-control">
+          <option [value]="null">Todos los torneos</option>
+          @for (torneo of torneos(); track torneo.id_torneo) {
+            <option [value]="torneo.id_torneo">{{ torneo.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-filter"></i> Estado</label>
+        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="form-control">
+          <option value="todos">Todos</option>
+          <option value="programado">Programados</option>
+          <option value="en_curso">En Curso</option>
+          <option value="finalizado">Finalizados</option>
+          <option value="cancelado">Cancelados</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="align-self: flex-end;">
+        <button (click)="limpiarFiltros()" class="btn btn-secondary">
+          <i class="fas fa-redo"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando partidos...</p>
+    </div>
+  }
+
+  <!-- Estadísticas rápidas -->
+  @if (!cargando()) {
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <i class="fas fa-futbol"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ partidosFiltrados().length }}</div>
+          <div class="stat-label">Total Partidos</div>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ partidosSinArbitro().length }}</div>
+          <div class="stat-label">Sin Árbitro</div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ partidosConArbitro().length }}</div>
+          <div class="stat-label">Con Árbitro</div>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ arbitros().length }}</div>
+          <div class="stat-label">Árbitros Disponibles</div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Lista de partidos SIN árbitro -->
+  @if (!cargando() && partidosSinArbitro().length > 0) {
+    <div class="seccion">
+      <h2><i class="fas fa-exclamation-circle"></i> Partidos Sin Árbitro Asignado ({{ partidosSinArbitro().length }})</h2>
+      <div class="partidos-grid">
+        @for (partido of partidosSinArbitro(); track partido.id_partido) {
+          <div class="partido-card sin-arbitro">
+            <div class="partido-header">
+              <span class="badge {{ getEstadoBadgeClass(partido.estado_partido) }}">
+                {{ partido.estado_partido }}
+              </span>
+              <span class="torneo-badge">
+                <i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}
+              </span>
+            </div>
+
+            <div class="partido-equipos">
+              <div class="equipo">
+                @if (partido.logo_equipo_local) {
+                  <img [src]="partido.logo_equipo_local" alt="Logo" class="logo-equipo">
+                } @else {
+                  <div class="logo-placeholder">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                }
+                <span class="nombre-equipo">{{ partido.nombre_equipo_local }}</span>
+              </div>
+
+              <div class="vs">VS</div>
+
+              <div class="equipo">
+                @if (partido.logo_equipo_visitante) {
+                  <img [src]="partido.logo_equipo_visitante" alt="Logo" class="logo-equipo">
+                } @else {
+                  <div class="logo-placeholder">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                }
+                <span class="nombre-equipo">{{ partido.nombre_equipo_visitante }}</span>
+              </div>
+            </div>
+
+            <div class="partido-info">
+              <div class="info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ formatearFecha(partido.fecha_partido) }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span>{{ formatearHora(partido.hora_inicio || '') }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ partido.nombre_cancha || 'Sin cancha' }}</span>
+              </div>
+            </div>
+
+            <div class="partido-actions">
+              <button (click)="abrirModalAsignacion(partido)" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i> Asignar Árbitro
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Lista de partidos CON árbitro -->
+  @if (!cargando() && partidosConArbitro().length > 0) {
+    <div class="seccion">
+      <h2><i class="fas fa-check-circle"></i> Partidos Con Árbitro Asignado ({{ partidosConArbitro().length }})</h2>
+      <div class="partidos-grid">
+        @for (partido of partidosConArbitro(); track partido.id_partido) {
+          <div class="partido-card con-arbitro">
+            <div class="partido-header">
+              <span class="badge {{ getEstadoBadgeClass(partido.estado_partido) }}">
+                {{ partido.estado_partido }}
+              </span>
+              <span class="torneo-badge">
+                <i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}
+              </span>
+            </div>
+
+            <div class="partido-equipos">
+              <div class="equipo">
+                @if (partido.logo_equipo_local) {
+                  <img [src]="partido.logo_equipo_local" alt="Logo" class="logo-equipo">
+                } @else {
+                  <div class="logo-placeholder">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                }
+                <span class="nombre-equipo">{{ partido.nombre_equipo_local }}</span>
+                @if (partido.resultado_local !== null && partido.resultado_local !== undefined) {
+                  <span class="resultado">{{ partido.resultado_local }}</span>
+                }
+              </div>
+
+              <div class="vs">VS</div>
+
+              <div class="equipo">
+                @if (partido.logo_equipo_visitante) {
+                  <img [src]="partido.logo_equipo_visitante" alt="Logo" class="logo-equipo">
+                } @else {
+                  <div class="logo-placeholder">
+                    <i class="fas fa-shield-alt"></i>
+                  </div>
+                }
+                <span class="nombre-equipo">{{ partido.nombre_equipo_visitante }}</span>
+                @if (partido.resultado_visitante !== null && partido.resultado_visitante !== undefined) {
+                  <span class="resultado">{{ partido.resultado_visitante }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="partido-info">
+              <div class="info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ formatearFecha(partido.fecha_partido) }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span>{{ formatearHora(partido.hora_inicio || '') }}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ partido.nombre_cancha || 'Sin cancha' }}</span>
+              </div>
+            </div>
+
+            <div class="arbitro-asignado">
+              <div class="arbitro-info">
+                <i class="fas fa-user-tie"></i>
+                <div>
+                  <div class="arbitro-nombre">{{ partido.nombre_arbitro }}</div>
+                  <div class="arbitro-email">{{ partido.email_arbitro }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="partido-actions">
+              <button (click)="abrirModalAsignacion(partido)" class="btn btn-secondary">
+                <i class="fas fa-exchange-alt"></i> Cambiar
+              </button>
+              <button (click)="removerArbitro(partido)" class="btn btn-danger">
+                <i class="fas fa-times"></i> Remover
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Estado vacío -->
+  @if (!cargando() && partidosFiltrados().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <h3>No hay partidos</h3>
+      <p>No se encontraron partidos con los filtros aplicados</p>
+      <button (click)="limpiarFiltros()" class="btn btn-primary">
+        Ver Todos los Partidos
+      </button>
+    </div>
+  }
+</div>
+
+<!-- Modal de asignación de árbitro -->
+@if (modalAsignacionAbierto()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-plus"></i> Asignar Árbitro al Partido</h3>
+        <button (click)="cerrarModal()" class="btn-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      @if (partidoSeleccionado(); as partido) {
+        <div class="modal-body">
+          <div class="partido-info-modal">
+            <h4>{{ partido.nombre_equipo_local }} vs {{ partido.nombre_equipo_visitante }}</h4>
+            <div class="info-row">
+              <span><i class="fas fa-calendar-alt"></i> {{ formatearFecha(partido.fecha_partido) }}</span>
+              <span><i class="fas fa-clock"></i> {{ formatearHora(partido.hora_inicio || '') }}</span>
+            </div>
+            <div class="info-row">
+              <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
+              <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin cancha' }}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-user-tie"></i> Seleccione Árbitro *</label>
+            <select [(ngModel)]="arbitroSeleccionado" class="form-control">
+              <option [value]="null">-- Seleccione un árbitro --</option>
+              @for (arbitro of arbitros(); track arbitro.uid) {
+                <option [value]="arbitro.uid">
+                  {{ arbitro.name_user }} ({{ arbitro.email_user }})
+                </option>
+              }
+            </select>
+          </div>
+
+          @if (arbitros().length === 0) {
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>No hay árbitros disponibles en el sistema. Primero debe crear usuarios con rol "Árbitro".</span>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button (click)="cerrarModal()" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button
+            (click)="asignarArbitro()"
+            class="btn btn-primary"
+            [disabled]="!arbitroSeleccionado() || cargando()">
+            <i class="fas fa-check"></i>
+            {{ cargando() ? 'Asignando...' : 'Asignar Árbitro' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

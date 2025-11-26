@@ -88,6 +88,7 @@ export const obtenerTorneoPorId = async (req, res) => {
 
 /**
  * Crear un nuevo torneo
+ * ACTUALIZADO: recibe campos de programación automática
  */
 export const crearTorneo = async (req, res) => {
     try {
@@ -102,7 +103,13 @@ export const crearTorneo = async (req, res) => {
             max_equipos,
             tipo_torneo,
             estado,
-            id_arbitro
+            // Nuevos campos de programación
+            id_sede,
+            dias_juego, // Array: ['lunes', 'martes', 'sabado']
+            horario_inicio, // '18:00'
+            horarios_disponibles, // Array: ['18:00', '20:00', '22:00']
+            partidos_por_dia,
+            fecha_fin_calculada
         } = req.body;
 
         // Obtener id_user del usuario autenticado usando su uid
@@ -155,8 +162,14 @@ export const crearTorneo = async (req, res) => {
             max_equipos: max_equipos ? parseInt(max_equipos) : null,
             tipo_torneo: tipo_torneo || 'grupo-eliminatoria',
             estado: estado || 'abierto',
-            creado_por: creado_por, // Obtenido de la BD usando uid
-            id_arbitro: id_arbitro ? parseInt(id_arbitro) : null
+            creado_por: creado_por,
+            // Nuevos campos
+            id_sede: id_sede ? parseInt(id_sede) : null,
+            dias_juego: dias_juego || null, // PostgreSQL array
+            horario_inicio: horario_inicio || null,
+            horarios_disponibles: horarios_disponibles || null, // PostgreSQL array
+            partidos_por_dia: partidos_por_dia ? parseInt(partidos_por_dia) : null,
+            fecha_fin_calculada: fecha_fin_calculada || null
         };
 
         const nuevoTorneo = await TorneoAdminService.crearTorneo(datosTorneo);
@@ -400,6 +413,64 @@ export const obtenerEstadisticasTorneo = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error al obtener estadísticas del torneo',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * Generar fixture automático para un torneo
+ * POST /c/admin/torneos/:id/generar-fixture
+ */
+export const generarFixture = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const resultado = await TorneoAdminService.generarFixture(parseInt(id));
+        
+        res.status(200).json({
+            success: true,
+            message: resultado.mensaje,
+            data: {
+                partidosCreados: resultado.partidosCreados
+            }
+        });
+    } catch (error) {
+        console.error('Error al generar fixture:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al generar fixture',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * Obtener todos los partidos de un torneo
+ * GET /c/admin/torneos/:id/partidos
+ */
+export const obtenerPartidosTorneo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado, fecha } = req.query;
+        
+        const filtros = {
+            estado,
+            fecha
+        };
+        
+        const partidos = await TorneoAdminService.obtenerPartidosTorneo(parseInt(id), filtros);
+        
+        res.status(200).json({
+            success: true,
+            data: partidos,
+            total: partidos.length
+        });
+    } catch (error) {
+        console.error('Error al obtener partidos del torneo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener partidos del torneo',
             error: error.message
         });
     }

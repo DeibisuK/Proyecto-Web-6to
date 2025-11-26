@@ -30,4 +30,16 @@ router.post(
   AdminController.assignRole
 );
 
+/**
+ * GET /admin/users/arbitros
+ * Obtiene todos los usuarios con rol de árbitro (id_rol = 3)
+ * Requiere: Autenticación + Rol de Admin (id_rol = 1)
+ */
+router.get(
+  "/users/arbitros",
+  authenticate(),
+  authorizeRole(1),
+  AdminController.getArbitros
+);
+
 export default router;

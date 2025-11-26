@@ -209,12 +209,11 @@ class TorneoAdminService {
 
     /**
      * Crear un nuevo torneo
+     * ACTUALIZADO: incluye campos de programación (sede, días, horarios)
      */
     async crearTorneo(datos) {
         const client = await pool.connect();
         try {
-            // id_arbitro viene como id_usuario desde el frontend (usuarios con rol='Arbitro')
-            // Se guarda directamente porque la FK apunta a usuarios, no a arbitros
             const query = `
                 INSERT INTO torneos (
                     nombre,
@@ -227,10 +226,15 @@ class TorneoAdminService {
                     tipo_torneo,
                     estado,
                     creado_por,
-                    id_arbitro,
+                    id_sede,
+                    dias_juego,
+                    horario_inicio,
+                    horarios_disponibles,
+                    partidos_por_dia,
+                    fecha_fin_calculada,
                     creado_en
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
                 RETURNING *
             `;
 
@@ -245,7 +249,12 @@ class TorneoAdminService {
                 datos.tipo_torneo,
                 datos.estado,
                 datos.creado_por,
-                datos.id_arbitro || null
+                datos.id_sede || null,
+                datos.dias_juego || null, // Array: ['lunes', 'martes']
+                datos.horario_inicio || null, // '18:00'
+                datos.horarios_disponibles || null, // Array: ['18:00', '20:00', '22:00']
+                datos.partidos_por_dia || null,
+                datos.fecha_fin_calculada || null
             ];
 
             const result = await client.query(query, values);
@@ -447,6 +456,332 @@ class TorneoAdminService {
 
             const result = await client.query(query, [idTorneo]);
             return result.rows[0] || null;
+
+        } finally {
+            client.release();
+        }
+    }
+
+    /**
+     * Generar fixture automático para un torneo
+     * Crea los partidos basándose en los equipos inscritos y el tipo de torneo
+     */
+    async generarFixture(idTorneo) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            // Obtener información del torneo
+            const torneoQuery = `
+                SELECT 
+                    t.*,
+                    d.nombre_deporte
+                FROM torneos t
+                INNER JOIN deportes d ON t.id_deporte = d.id_deporte
+                WHERE t.id_torneo = $1
+            `;
+            const torneoResult = await client.query(torneoQuery, [idTorneo]);
+            
+            if (torneoResult.rows.length === 0) {
+                throw new Error('Torneo no encontrado');
+            }
+
+            const torneo = torneoResult.rows[0];
+
+            // Verificar que tenga configuración de horarios
+            if (!torneo.horarios_disponibles || torneo.horarios_disponibles.length === 0) {
+                throw new Error('El torneo no tiene horarios configurados');
+            }
+
+            if (!torneo.dias_juego || torneo.dias_juego.length === 0) {
+                throw new Error('El torneo no tiene días de juego configurados');
+            }
+
+            // Obtener equipos inscritos y aprobados
+            const equiposQuery = `
+                SELECT e.id_equipo, e.nombre_equipo
+                FROM inscripciones_torneo it
+                INNER JOIN equipos e ON it.id_equipo = e.id_equipo
+                WHERE it.id_torneo = $1 AND it.aprobado = true
+                ORDER BY e.nombre_equipo
+            `;
+            const equiposResult = await client.query(equiposQuery, [idTorneo]);
+            const equipos = equiposResult.rows;
+
+            if (equipos.length < 2) {
+                throw new Error('Se necesitan al menos 2 equipos inscritos para generar el fixture');
+            }
+
+            // Generar partidos según el tipo de torneo
+            let partidos = [];
+            
+            if (torneo.tipo_torneo === 'eliminatoria-directa') {
+                partidos = this._generarEliminatoriaDirecta(equipos);
+            } else if (torneo.tipo_torneo === 'todos-contra-todos' || torneo.tipo_torneo === 'liga') {
+                partidos = this._generarTodosContraTodos(equipos);
+            } else if (torneo.tipo_torneo === 'grupo-eliminatoria') {
+                partidos = this._generarGruposYEliminatoria(equipos);
+            }
+
+            // Asignar fechas y horarios a los partidos
+            const partidosConFechas = this._asignarFechasYHorarios(
+                partidos, 
+                torneo.fecha_inicio, 
+                torneo.dias_juego, 
+                torneo.horarios_disponibles,
+                torneo.partidos_por_dia
+            );
+
+            // Insertar partidos en la base de datos
+            const insertQuery = `
+                INSERT INTO partidos_torneo (
+                    id_torneo, 
+                    id_equipo_local, 
+                    id_equipo_visitante, 
+                    fecha_partido, 
+                    hora_inicio,
+                    estado_partido,
+                    id_sede
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `;
+
+            let partidosCreados = 0;
+            for (const partido of partidosConFechas) {
+                await client.query(insertQuery, [
+                    idTorneo,
+                    partido.id_equipo_local,
+                    partido.id_equipo_visitante,
+                    partido.fecha_partido,
+                    partido.hora_inicio,
+                    'por_programar',
+                    torneo.id_sede
+                ]);
+                partidosCreados++;
+            }
+
+            // Actualizar estado del torneo
+            await client.query(
+                'UPDATE torneos SET estado = $1 WHERE id_torneo = $2',
+                ['en_curso', idTorneo]
+            );
+
+            await client.query('COMMIT');
+
+            return {
+                success: true,
+                partidosCreados,
+                mensaje: `Se generaron ${partidosCreados} partidos para el torneo`
+            };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
+    /**
+     * Generar emparejamientos para eliminatoria directa
+     */
+    _generarEliminatoriaDirecta(equipos) {
+        const partidos = [];
+        const numEquipos = equipos.length;
+        
+        // Primera ronda: emparejar equipos de 2 en 2
+        for (let i = 0; i < numEquipos; i += 2) {
+            if (i + 1 < numEquipos) {
+                partidos.push({
+                    id_equipo_local: equipos[i].id_equipo,
+                    id_equipo_visitante: equipos[i + 1].id_equipo,
+                    fase: 'primera_ronda'
+                });
+            }
+        }
+        
+        return partidos;
+    }
+
+    /**
+     * Generar emparejamientos para todos contra todos (liga)
+     */
+    _generarTodosContraTodos(equipos) {
+        const partidos = [];
+        const numEquipos = equipos.length;
+        
+        // Algoritmo round-robin: cada equipo juega contra todos los demás
+        for (let i = 0; i < numEquipos; i++) {
+            for (let j = i + 1; j < numEquipos; j++) {
+                partidos.push({
+                    id_equipo_local: equipos[i].id_equipo,
+                    id_equipo_visitante: equipos[j].id_equipo,
+                    fase: 'liga'
+                });
+            }
+        }
+        
+        return partidos;
+    }
+
+    /**
+     * Generar emparejamientos para grupos + eliminatoria
+     */
+    _generarGruposYEliminatoria(equipos) {
+        const partidos = [];
+        const numEquipos = equipos.length;
+        const equiposPorGrupo = Math.ceil(numEquipos / 2);
+        
+        // Dividir en 2 grupos
+        const grupoA = equipos.slice(0, equiposPorGrupo);
+        const grupoB = equipos.slice(equiposPorGrupo);
+        
+        // Fase de grupos: todos contra todos en cada grupo
+        // Grupo A
+        for (let i = 0; i < grupoA.length; i++) {
+            for (let j = i + 1; j < grupoA.length; j++) {
+                partidos.push({
+                    id_equipo_local: grupoA[i].id_equipo,
+                    id_equipo_visitante: grupoA[j].id_equipo,
+                    fase: 'grupo_a'
+                });
+            }
+        }
+        
+        // Grupo B
+        for (let i = 0; i < grupoB.length; i++) {
+            for (let j = i + 1; j < grupoB.length; j++) {
+                partidos.push({
+                    id_equipo_local: grupoB[i].id_equipo,
+                    id_equipo_visitante: grupoB[j].id_equipo,
+                    fase: 'grupo_b'
+                });
+            }
+        }
+        
+        // Nota: Las semifinales y final se crearían después de terminar la fase de grupos
+        // Por ahora solo generamos los partidos de grupos
+        
+        return partidos;
+    }
+
+    /**
+     * Asignar fechas y horarios a los partidos generados
+     */
+    _asignarFechasYHorarios(partidos, fechaInicio, diasJuego, horariosDisponibles, partidosPorDia) {
+        const partidosConFechas = [];
+        const diasSemana = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+        
+        // Mapear días de juego a números (0 = domingo, 1 = lunes, etc.)
+        const diasJuegoNumeros = diasJuego.map(dia => diasSemana.indexOf(dia.toLowerCase()));
+        
+        let fechaActual = new Date(fechaInicio);
+        let indiceHorario = 0;
+        let partidosAsignadosHoy = 0;
+
+        for (const partido of partidos) {
+            // Si ya asignamos todos los partidos del día, pasar al siguiente día de juego
+            if (partidosAsignadosHoy >= partidosPorDia) {
+                fechaActual = this._obtenerSiguienteDiaDeJuego(fechaActual, diasJuegoNumeros);
+                partidosAsignadosHoy = 0;
+                indiceHorario = 0;
+            }
+
+            // Asignar fecha y hora
+            partidosConFechas.push({
+                ...partido,
+                fecha_partido: fechaActual.toISOString().split('T')[0],
+                hora_inicio: horariosDisponibles[indiceHorario]
+            });
+
+            indiceHorario++;
+            partidosAsignadosHoy++;
+
+            // Si se acabaron los horarios del día, resetear y avanzar al siguiente día
+            if (indiceHorario >= horariosDisponibles.length) {
+                fechaActual = this._obtenerSiguienteDiaDeJuego(fechaActual, diasJuegoNumeros);
+                indiceHorario = 0;
+                partidosAsignadosHoy = 0;
+            }
+        }
+
+        return partidosConFechas;
+    }
+
+    /**
+     * Obtener el siguiente día de juego válido
+     */
+    _obtenerSiguienteDiaDeJuego(fechaActual, diasJuegoNumeros) {
+        let siguienteFecha = new Date(fechaActual);
+        siguienteFecha.setDate(siguienteFecha.getDate() + 1);
+        
+        // Buscar el siguiente día que esté en los días de juego
+        while (!diasJuegoNumeros.includes(siguienteFecha.getDay())) {
+            siguienteFecha.setDate(siguienteFecha.getDate() + 1);
+        }
+        
+        return siguienteFecha;
+    }
+
+    /**
+     * Obtener todos los partidos de un torneo
+     */
+    async obtenerPartidosTorneo(idTorneo, filtros = {}) {
+        const client = await pool.connect();
+        try {
+            let query = `
+                SELECT 
+                    pt.id_partido,
+                    pt.id_torneo,
+                    pt.fecha_partido,
+                    pt.hora_inicio,
+                    pt.estado_partido,
+                    pt.resultado_local,
+                    pt.resultado_visitante,
+                    
+                    el.id_equipo as equipo_local_id,
+                    el.nombre_equipo as equipo_local_nombre,
+                    el.logo_url as equipo_local_logo,
+                    
+                    ev.id_equipo as equipo_visitante_id,
+                    ev.nombre_equipo as equipo_visitante_nombre,
+                    ev.logo_url as equipo_visitante_logo,
+                    
+                    c.nombre_cancha,
+                    s.nombre as sede_nombre,
+                    
+                    u.name_user as arbitro_nombre,
+                    pt.id_arbitro
+                    
+                FROM partidos_torneo pt
+                LEFT JOIN equipos el ON pt.id_equipo_local = el.id_equipo
+                LEFT JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
+                LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
+                LEFT JOIN sedes s ON pt.id_sede = s.id_sede
+                LEFT JOIN usuarios u ON pt.id_arbitro = u.id_user
+                WHERE pt.id_torneo = $1
+            `;
+
+            const params = [idTorneo];
+            let paramCount = 1;
+
+            // Filtros opcionales
+            if (filtros.estado) {
+                paramCount++;
+                query += ` AND pt.estado_partido = $${paramCount}`;
+                params.push(filtros.estado);
+            }
+
+            if (filtros.fecha) {
+                paramCount++;
+                query += ` AND pt.fecha_partido = $${paramCount}`;
+                params.push(filtros.fecha);
+            }
+
+            query += ` ORDER BY pt.fecha_partido, pt.hora_inicio`;
+
+            const result = await client.query(query, params);
+            return result.rows;
 
         } finally {
             client.release();

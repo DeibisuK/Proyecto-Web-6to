@@ -7,6 +7,8 @@ import {
     eliminarTorneo,
     cambiarEstadoTorneo,
     obtenerEstadisticasTorneo,
+    generarFixture,
+    obtenerPartidosTorneo
 } from '../../controllers/torneo.admin.controller.js';
 
 const router = Router();
@@ -37,5 +39,11 @@ router.patch('/torneos/:id/estado', cambiarEstadoTorneo);
 
 // Obtener estadísticas completas de un torneo
 router.get('/torneos/:id/estadisticas', obtenerEstadisticasTorneo);
+
+// ✅ NUEVO: Generar fixture automático
+router.post('/torneos/:id/generar-fixture', generarFixture);
+
+// ✅ NUEVO: Obtener partidos del torneo
+router.get('/torneos/:id/partidos', obtenerPartidosTorneo);
 
 export default router;

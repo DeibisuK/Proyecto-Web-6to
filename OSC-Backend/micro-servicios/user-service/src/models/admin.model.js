@@ -67,3 +67,21 @@ export const getRoleById = async (id_rol) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene usuarios por rol específico
+ * @param {number} id_rol - ID del rol
+ * @returns {Promise<Array>} Lista de usuarios
+ */
+export const getUsersByRole = async (id_rol) => {
+  try {
+    const res = await db.query(
+      'SELECT uid, name_user, email_user, id_rol FROM usuarios WHERE id_rol = $1 ORDER BY name_user ASC',
+      [id_rol]
+    );
+    
+    return res.rows;
+  } catch (error) {
+    throw error;
+  }
+};

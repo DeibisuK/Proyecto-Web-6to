@@ -59,4 +59,26 @@ export class AdminController {
       });
     }
   }
+
+  /**
+   * GET /admin/users/arbitros
+   * Obtiene todos los usuarios con rol de árbitro (id_rol = 3)
+   */
+  static async getArbitros(req, res) {
+    try {
+      const result = await adminService.getUsersByRole(3);
+      
+      res.status(200).json({
+        success: true,
+        data: result,
+        total: result.length
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'internal_error',
+        message: error.message || String(error)
+      });
+    }
+  }
 }
