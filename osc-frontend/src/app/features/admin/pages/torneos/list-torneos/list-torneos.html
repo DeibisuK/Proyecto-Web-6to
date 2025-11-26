@@ -351,6 +351,18 @@
       </div>
 
       <div class="modal-body-bracket">
+        @if (cargandoBracket()) {
+          <div class="loading-bracket">
+            <div class="spinner"></div>
+            <p>Cargando bracket...</p>
+          </div>
+        } @else if (bracket.length === 0) {
+          <div class="empty-bracket">
+            <i class="fas fa-sitemap"></i>
+            <p>No hay equipos inscritos en este torneo</p>
+            <span>Los equipos aparecerán aquí una vez que se inscriban</span>
+          </div>
+        } @else {
         <div class="bracket-container">
           @for (ronda of bracket; track ronda.ronda) {
             <div class="bracket-ronda">
@@ -363,8 +375,17 @@
                     <div class="partido-card">
                       <div class="equipo" [class.ganador]="partido.ganador === 1">
                         @if (partido.equipo1) {
-                          <span class="equipo-nombre">{{ partido.equipo1.nombre }}</span>
-                          <span class="equipo-seed">{{ partido.equipo1.seed }}</span>
+                          <div class="equipo-info">
+                            @if (partido.equipo1.logo) {
+                              <img [src]="partido.equipo1.logo" [alt]="partido.equipo1.nombre" class="equipo-logo-small">
+                            } @else {
+                              <div class="equipo-logo-placeholder">
+                                <i class="fas fa-shield-alt"></i>
+                              </div>
+                            }
+                            <span class="equipo-nombre">{{ partido.equipo1.nombre }}</span>
+                            <span class="equipo-seed">#{{ partido.equipo1.seed }}</span>
+                          </div>
                         } @else {
                           <span class="equipo-placeholder">TBD</span>
                         }
@@ -372,8 +393,17 @@
                       <div class="vs-divider">VS</div>
                       <div class="equipo" [class.ganador]="partido.ganador === 2">
                         @if (partido.equipo2) {
-                          <span class="equipo-nombre">{{ partido.equipo2.nombre }}</span>
-                          <span class="equipo-seed">{{ partido.equipo2.seed }}</span>
+                          <div class="equipo-info">
+                            @if (partido.equipo2.logo) {
+                              <img [src]="partido.equipo2.logo" [alt]="partido.equipo2.nombre" class="equipo-logo-small">
+                            } @else {
+                              <div class="equipo-logo-placeholder">
+                                <i class="fas fa-shield-alt"></i>
+                              </div>
+                            }
+                            <span class="equipo-nombre">{{ partido.equipo2.nombre }}</span>
+                            <span class="equipo-seed">#{{ partido.equipo2.seed }}</span>
+                          </div>
                         } @else {
                           <span class="equipo-placeholder">TBD</span>
                         }
@@ -385,6 +415,7 @@
             </div>
           }
         </div>
+        }
       </div>
     </div>
   </div>

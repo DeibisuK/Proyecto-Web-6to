@@ -49,13 +49,14 @@
 }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
+  background: linear-gradient(135deg, #3375c2 0%, #2766ae 100%);
+  color: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .btn-icon {

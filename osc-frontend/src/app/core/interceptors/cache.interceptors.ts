@@ -14,10 +14,12 @@ const NO_CACHE_PATTERNS = [
   '/payment',        // Pagos
   '/checkout',       // Checkout
   '/s',              // Suscripciones
-  '/c/admin/torneos', // Torneos
+  '/c/admin/torneos', // Torneos admin
+  '/c/client/torneos', // Torneos cliente
   '/m/client/equipos', // Partidos
   '/jugadores',      // Jugadores de equipos
   '/equipos',        // Equipos
+  '/inscripciones',  // Inscripciones
 ];
 
 export const CacheInterceptors: HttpInterceptorFn = (req, next) => {

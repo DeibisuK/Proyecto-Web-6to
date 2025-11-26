@@ -126,3 +126,35 @@ export const getClasificacionTorneo = async (req, res) => {
         });
     }
 };
+
+/**
+ * Obtiene los equipos inscritos en un torneo
+ * Params: id (id_torneo)
+ */
+export const getEquiposInscritosTorneo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!id || isNaN(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID de torneo inválido'
+            });
+        }
+
+        const equipos = await TorneoService.obtenerEquiposInscritos(parseInt(id));
+        
+        res.status(200).json({
+            success: true,
+            data: equipos,
+            count: equipos.length
+        });
+    } catch (error) {
+        console.error('Error al obtener equipos inscritos del torneo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener equipos inscritos del torneo',
+            error: error.message
+        });
+    }
+};

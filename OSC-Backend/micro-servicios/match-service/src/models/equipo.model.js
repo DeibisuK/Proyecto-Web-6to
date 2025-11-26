@@ -33,7 +33,8 @@ export const findByFirebaseUid = async (firebaseUid) => {
     const result = await pool.query(`
         SELECT 
             e.*,
-            d.nombre_deporte
+            d.nombre_deporte,
+            (SELECT COUNT(*) FROM jugadores j WHERE j.id_equipo = e.id_equipo AND j.estado = 'activo') as cantidad_jugadores
         FROM equipos e
         LEFT JOIN deportes d ON e.id_deporte = d.id_deporte
         WHERE e.firebase_uid = $1

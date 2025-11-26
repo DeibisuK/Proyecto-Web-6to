@@ -27,7 +27,11 @@ export class Torneo implements OnInit {
   // Modales
   showQuickViewModal: boolean = false;
   showInscripcionModal: boolean = false;
+  showBracketModal: boolean = false;
   torneoSeleccionado: TorneoModel | null = null;
+
+  // Bracket
+  bracket: any[] = [];
 
   // Equipos del usuario
   equiposDisponibles: EquipoUsuario[] = [];
@@ -190,8 +194,8 @@ export class Torneo implements OnInit {
     this.torneoSeleccionado = null;
     // Recargar torneos para actualizar cupos
     this.loadTorneos();
-    // Mostrar mensaje de éxito (podrías usar un toast notification)
-    alert('¡Inscripción exitosa! Te has inscrito al torneo.');
+    // Recargar equipos también por si hay cambios
+    this.loadEquipos();
   }
 
   refreshLeagues(): void {
@@ -209,6 +213,110 @@ export class Torneo implements OnInit {
     event.stopPropagation();
     // Navegar a la clasificación del torneo
     this.router.navigate(['../clasificacion', torneo.id_torneo], { relativeTo: this.route });
+  }
+
+  viewBracket(torneo: TorneoModel, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.torneoSeleccionado = torneo;
+    this.generarBracket(torneo);
+    this.showBracketModal = true;
+  }
+
+  closeBracketModal(): void {
+    this.showBracketModal = false;
+    this.bracket = [];
+  }
+
+  generarBracket(torneo: TorneoModel): void {
+    // Cargar equipos inscritos reales del backend
+    this.torneosService.getEquiposInscritos(torneo.id_torneo).subscribe({
+      next: (equiposInscritos) => {
+        if (equiposInscritos.length === 0) {
+          this.bracket = [];
+          return;
+        }
+
+        // Usar equipos reales
+        const equipos = equiposInscritos.map((eq, index) => ({
+          id: eq.id_equipo,
+          nombre: eq.nombre_equipo,
+          logo: eq.logo_url,
+          seed: index + 1
+        }));
+
+        // Calcular número de rondas basado en potencia de 2 más cercana
+        const cantidadEquipos = Math.pow(2, Math.ceil(Math.log2(equipos.length)));
+        const numRondas = Math.log2(cantidadEquipos);
+
+        // Mezclar aleatoriamente para no tener preferencias
+        const equiposMezclados: (typeof equipos[0] | null)[] = this.shuffleArray([...equipos]);
+
+        // Rellenar con equipos TBD si es necesario
+        while (equiposMezclados.length < cantidadEquipos) {
+          equiposMezclados.push(null);
+        }
+
+        this.bracket = [];
+
+        // Crear estructura de bracket
+        for (let ronda = 0; ronda < numRondas; ronda++) {
+          const partidosPorRonda = Math.pow(2, numRondas - ronda - 1);
+          const rondaNombre = this.obtenerNombreRonda(ronda, numRondas);
+
+          const partidos = [];
+          for (let i = 0; i < partidosPorRonda; i++) {
+            if (ronda === 0) {
+              // Primera ronda: asignar equipos
+              const equipo1 = equiposMezclados[i * 2];
+              const equipo2 = equiposMezclados[i * 2 + 1];
+              partidos.push({
+                id: `r${ronda}-p${i}`,
+                equipo1: equipo1,
+                equipo2: equipo2,
+                ganador: null
+              });
+            } else {
+              // Rondas siguientes: esperar ganadores
+              partidos.push({
+                id: `r${ronda}-p${i}`,
+                equipo1: null,
+                equipo2: null,
+                ganador: null
+              });
+            }
+          }
+
+          this.bracket.push({
+            ronda: ronda,
+            nombre: rondaNombre,
+            partidos: partidos
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar equipos inscritos:', error);
+        this.bracket = [];
+      }
+    });
+  }
+
+  obtenerNombreRonda(indiceRonda: number, totalRondas: number): string {
+    const rondaDesdeElFinal = totalRondas - indiceRonda;
+    if (rondaDesdeElFinal === 1) return 'Final';
+    if (rondaDesdeElFinal === 2) return 'Semifinal';
+    if (rondaDesdeElFinal === 3) return 'Cuartos';
+    if (rondaDesdeElFinal === 4) return 'Octavos';
+    return `Ronda ${indiceRonda + 1}`;
+  }
+
+  shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   // Métodos de compatibilidad con el HTML existente

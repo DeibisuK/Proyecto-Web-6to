@@ -4,6 +4,7 @@ import {
     getTorneosPublicos,
     getPartidosPorTorneo,
     getClasificacionTorneo,
+    getEquiposInscritosTorneo,
 } from '../../controllers/torneo.controller.js';
 
 const router = Router();
@@ -20,5 +21,8 @@ router.get('/torneos/:id/partidos', getPartidosPorTorneo);
 
 // Endpoint para obtener la clasificación/tabla de posiciones de un torneo
 router.get('/torneos/:id/clasificacion', getClasificacionTorneo);
+
+// Endpoint para obtener equipos inscritos en un torneo
+router.get('/torneos/:id/equipos-inscritos', getEquiposInscritosTorneo);
 
 export default router;

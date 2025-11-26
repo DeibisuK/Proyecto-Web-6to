@@ -11,7 +11,7 @@ type EstadoTab = 'activas' | 'pendientes' | 'finalizadas';
 @Component({
   selector: 'app-inscripciones',
   standalone: true,
-  imports: [CommonModule, ConfirmacionModalComponent],
+  imports: [CommonModule],
   templateUrl: './inscripciones.html',
   styleUrls: ['./inscripciones.css', '../shared-styles.css']
 })

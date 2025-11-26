@@ -348,6 +348,37 @@ class TorneoService {
             client.release();
         }
     }
+
+    /**
+     * Obtiene los equipos inscritos en un torneo con su información completa
+     */
+    async obtenerEquiposInscritos(idTorneo) {
+        const client = await pool.connect();
+        try {
+            const query = `
+                SELECT 
+                    e.id_equipo,
+                    e.nombre_equipo,
+                    e.logo_url,
+                    e.descripcion,
+                    it.id_inscripcion,
+                    it.fecha_inscripcion,
+                    it.aprobado,
+                    (SELECT COUNT(*) FROM jugadores j WHERE j.id_equipo = e.id_equipo AND j.estado = 'activo') as cantidad_jugadores
+                FROM inscripciones_torneo it
+                INNER JOIN equipos e ON it.id_equipo = e.id_equipo
+                WHERE it.id_torneo = $1
+                AND it.aprobado = true
+                ORDER BY it.fecha_inscripcion ASC
+            `;
+
+            const result = await client.query(query, [idTorneo]);
+            return result.rows;
+
+        } finally {
+            client.release();
+        }
+    }
 }
 
 export default new TorneoService();

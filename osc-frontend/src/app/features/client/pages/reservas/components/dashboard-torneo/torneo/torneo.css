@@ -388,3 +388,242 @@
     min-width: calc(50% - var(--spacing-xs));
   }
 }
+
+/* Modal Bracket */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-bracket {
+  background: white;
+  border-radius: 16px;
+  width: 95%;
+  max-width: 1400px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header-bracket {
+  background: var(--color-accent);
+  color: white;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header-bracket h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-close-bracket {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-close-bracket:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-body-bracket {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  border-radius: 0 0 16px 16px;
+  padding: 2rem;
+  background: #f8f9fa;
+}
+
+.bracket-container {
+  display: flex;
+  gap: 2rem;
+  min-width: max-content;
+  padding-bottom: 1rem;
+}
+
+.bracket-ronda {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 250px;
+  margin-right: 2rem;
+  position: relative;
+}
+
+.ronda-header {
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--color-accent);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.ronda-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.partidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  justify-content: center;
+  position: relative;
+  padding: 1rem;
+}
+
+.partido-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.partido-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  flex: 1;
+  position: relative;
+}
+
+.partido-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.2);
+  transform: translateY(-2px);
+}
+
+.equipo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.equipo.ganador {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(25, 118, 210, 0.1));
+  border: 2px solid var(--color-accent);
+  font-weight: 700;
+}
+
+.equipo-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.equipo-logo-small {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ecf0f1;
+}
+
+.equipo-logo-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+}
+
+.equipo-nombre {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.equipo-seed {
+  background: var(--color-accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 30px;
+  text-align: center;
+}
+
+.equipo-placeholder {
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.vs-divider {
+  text-align: center;
+  padding: 0.5rem;
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.empty-bracket {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #95a5a6;
+}
+
+.empty-bracket svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-bracket p {
+  font-size: 1.1rem;
+  margin: 0;
+}

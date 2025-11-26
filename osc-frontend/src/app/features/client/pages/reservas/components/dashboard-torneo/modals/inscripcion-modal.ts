@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InscripcionesService } from '../services/inscripciones.service';
 import { type EquipoUsuario } from '../services/equipos.service';
+import { NotificationService } from '@core/services/notification.service';
 
 interface JugadorEquipo {
   id_usuario: number;
@@ -30,6 +31,7 @@ export class InscripcionModalComponent {
   @Output() inscripcionExitosa = new EventEmitter<any>();
 
   private inscripcionesService = inject(InscripcionesService);
+  private notificationService = inject(NotificationService);
 
   // State
   isSubmitting = signal(false);
@@ -95,19 +97,18 @@ export class InscripcionModalComponent {
       id_equipo: this.formData.id_equipo!,
       notas: this.formData.notas || undefined
     };
-
     this.inscripcionesService.crearInscripcion(inscripcionData).subscribe({
       next: (response) => {
+        this.notificationService.success('¡Inscripción exitosa! Te has inscrito al torneo.');
         this.inscripcionExitosa.emit(response);
         this.resetForm();
         this.close();
       },
       error: (error) => {
         console.error('Error al crear inscripción:', error);
-        this.errorMessage.set(
-          error.error?.message ||
-          'Error al procesar la inscripción. Verifica que el torneo tenga cupos disponibles.'
-        );
+        const errorMsg = error.error?.message || 'Error al procesar la inscripción. Verifica que el torneo tenga cupos disponibles.';
+        this.errorMessage.set(errorMsg);
+        this.notificationService.error(errorMsg);
         this.isSubmitting.set(false);
       }
     });

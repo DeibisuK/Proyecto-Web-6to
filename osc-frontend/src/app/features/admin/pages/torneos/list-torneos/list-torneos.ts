@@ -54,6 +54,7 @@ export class ListTorneos implements OnInit {
   mostrarModalBracket = signal<boolean>(false);
   torneoSeleccionado: Torneo | null = null;
   bracket: any[] = [];
+  cargandoBracket = signal<boolean>(false);
 
   // Ordenamiento
   opcionesOrden = [
@@ -350,55 +351,100 @@ export class ListTorneos implements OnInit {
   }
 
   generarBracket(torneo: Torneo): void {
-    // Simulamos equipos participantes (en producción vendrían del backend)
-    const cantidadEquipos = torneo.max_equipos || 8;
-    const equipos = Array.from({ length: cantidadEquipos }, (_, i) => ({
-      id: i + 1,
-      nombre: `Equipo ${i + 1}`,
-      seed: i + 1
-    }));
+    if (!torneo.id_torneo) {
+      this.notificationService.notify({
+        message: 'ID de torneo inválido',
+        type: 'error'
+      });
+      return;
+    }
 
-    // Mezclar aleatoriamente para no tener preferencias
-    const equiposMezclados = this.shuffleArray([...equipos]);
-
-    // Calcular número de rondas
-    const numRondas = Math.log2(cantidadEquipos);
+    this.cargandoBracket.set(true);
     this.bracket = [];
 
-    // Crear estructura de bracket
-    for (let ronda = 0; ronda < numRondas; ronda++) {
-      const partidosPorRonda = Math.pow(2, numRondas - ronda - 1);
-      const rondaNombre = this.obtenerNombreRonda(ronda, numRondas);
-
-      const partidos = [];
-      for (let i = 0; i < partidosPorRonda; i++) {
-        if (ronda === 0) {
-          // Primera ronda: asignar equipos
-          const equipo1 = equiposMezclados[i * 2];
-          const equipo2 = equiposMezclados[i * 2 + 1];
-          partidos.push({
-            id: `r${ronda}-p${i}`,
-            equipo1: equipo1,
-            equipo2: equipo2,
-            ganador: null
+    // Cargar equipos inscritos reales del backend
+    this.torneosService.obtenerEquiposInscritosTorneo(torneo.id_torneo).subscribe({
+      next: (equiposInscritos) => {
+        if (equiposInscritos.length === 0) {
+          this.notificationService.notify({
+            message: 'No hay equipos inscritos en este torneo aún',
+            type: 'default'
           });
-        } else {
-          // Rondas siguientes: esperar ganadores
-          partidos.push({
-            id: `r${ronda}-p${i}`,
-            equipo1: null,
-            equipo2: null,
-            ganador: null
+          this.bracket = [];
+          return;
+        }
+
+        // Usar equipos reales
+        const equipos = equiposInscritos.map((eq, index) => ({
+          id: eq.id_equipo,
+          nombre: eq.nombre_equipo,
+          logo: eq.logo_url,
+          seed: index + 1
+        }));
+
+        // Calcular número de rondas basado en potencia de 2 más cercana
+        const cantidadEquipos = Math.pow(2, Math.ceil(Math.log2(equipos.length)));
+        const numRondas = Math.log2(cantidadEquipos);
+
+        // Mezclar aleatoriamente para no tener preferencias
+        const equiposMezclados: (typeof equipos[0] | null)[] = this.shuffleArray([...equipos]);
+
+        // Rellenar con equipos TBD si es necesario
+        while (equiposMezclados.length < cantidadEquipos) {
+          equiposMezclados.push(null);
+        }
+
+        this.bracket = [];
+
+        // Crear estructura de bracket
+        for (let ronda = 0; ronda < numRondas; ronda++) {
+          const partidosPorRonda = Math.pow(2, numRondas - ronda - 1);
+          const rondaNombre = this.obtenerNombreRonda(ronda, numRondas);
+
+          const partidos = [];
+          for (let i = 0; i < partidosPorRonda; i++) {
+            if (ronda === 0) {
+              // Primera ronda: asignar equipos
+              const equipo1 = equiposMezclados[i * 2];
+              const equipo2 = equiposMezclados[i * 2 + 1];
+              partidos.push({
+                id: `r${ronda}-p${i}`,
+                equipo1: equipo1,
+                equipo2: equipo2,
+                ganador: null
+              });
+            } else {
+              // Rondas siguientes: esperar ganadores
+              partidos.push({
+                id: `r${ronda}-p${i}`,
+                equipo1: null,
+                equipo2: null,
+                ganador: null
+              });
+            }
+          }
+
+          this.bracket.push({
+            ronda: ronda,
+            nombre: rondaNombre,
+            partidos: partidos
           });
         }
-      }
 
-      this.bracket.push({
-        ronda: ronda,
-        nombre: rondaNombre,
-        partidos: partidos
-      });
-    }
+        this.torneoSeleccionado = torneo;
+        this.mostrarModalBracket.set(true);
+        this.cargandoBracket.set(false);
+      },
+      error: (error) => {
+        console.error('Error al cargar equipos inscritos:', error);
+        this.notificationService.notify({
+          message: 'Error al cargar equipos inscritos',
+          type: 'error'
+        });
+        this.bracket = [];
+        this.cargandoBracket.set(false);
+      }
+    });
   }
 
   obtenerNombreRonda(indiceRonda: number, totalRondas: number): string {

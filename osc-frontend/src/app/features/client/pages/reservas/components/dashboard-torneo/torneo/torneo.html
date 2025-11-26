@@ -82,6 +82,17 @@
           </div>
         </div>
 
+        <div class="info-row" *ngIf="torneo.fecha_cierre_inscripcion && torneo.estado === 'abierto'">
+          <div class="info-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="label">Cierre inscripciones:</span>
+            <span class="value">{{ torneo.fecha_cierre_inscripcion | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
         <div class="progress-section" *ngIf="torneo.estado === 'abierto'">
           <div class="progress-header">
             <span>Cupos</span>
@@ -107,8 +118,9 @@
           Inscribirse
         </button>
 
-        <button class="btn btn-ghost btn-sm" (click)="viewClassification(torneo, $event)">
-          Ver Clasificación
+        <button class="btn btn-ghost btn-sm" (click)="viewBracket(torneo, $event)">
+          <i class="fas fa-sitemap"></i>
+          Ver Bracket
         </button>
       </div>
     </div>
@@ -142,3 +154,78 @@
   (cerrar)="onInscripcionModalCerrar()"
   (inscripcionExitosa)="onInscripcionExitosa($event)">
 </app-inscripcion-modal>
+
+<!-- Modal Bracket -->
+<div class="modal-overlay" *ngIf="showBracketModal && torneoSeleccionado" (click)="closeBracketModal()">
+  <div class="modal-bracket" (click)="$event.stopPropagation()">
+    <div class="modal-header-bracket">
+      <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18"></path>
+          <path d="M3 12h9"></path>
+          <path d="M12 3v18"></path>
+          <path d="M12 6h9"></path>
+          <path d="M12 18h9"></path>
+        </svg>
+        Bracket: {{ torneoSeleccionado.nombre }}
+      </h2>
+      <button class="btn-close-bracket" (click)="closeBracketModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body-bracket">
+      <div class="bracket-container" *ngIf="bracket.length > 0">
+        <div class="bracket-ronda" *ngFor="let ronda of bracket">
+          <div class="ronda-header">
+            <h3>{{ ronda.nombre }}</h3>
+          </div>
+          <div class="partidos-lista">
+            <div class="partido-wrapper" *ngFor="let partido of ronda.partidos">
+              <div class="partido-card">
+                <div class="equipo" [class.ganador]="partido.ganador === 1">
+                  <div class="equipo-info" *ngIf="partido.equipo1; else tbdTemplate1">
+                    <img *ngIf="partido.equipo1.logo" [src]="partido.equipo1.logo" [alt]="partido.equipo1.nombre" class="equipo-logo-small">
+                    <div *ngIf="!partido.equipo1.logo" class="equipo-logo-placeholder">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                      </svg>
+                    </div>
+                    <span class="equipo-nombre">{{ partido.equipo1.nombre }}</span>
+                    <span class="equipo-seed">#{{ partido.equipo1.seed }}</span>
+                  </div>
+                  <ng-template #tbdTemplate1>
+                    <span class="equipo-placeholder">TBD</span>
+                  </ng-template>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="equipo" [class.ganador]="partido.ganador === 2">
+                  <div class="equipo-info" *ngIf="partido.equipo2; else tbdTemplate2">
+                    <img *ngIf="partido.equipo2.logo" [src]="partido.equipo2.logo" [alt]="partido.equipo2.nombre" class="equipo-logo-small">
+                    <div *ngIf="!partido.equipo2.logo" class="equipo-logo-placeholder">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                      </svg>
+                    </div>
+                    <span class="equipo-nombre">{{ partido.equipo2.nombre }}</span>
+                    <span class="equipo-seed">#{{ partido.equipo2.seed }}</span>
+                  </div>
+                  <ng-template #tbdTemplate2>
+                    <span class="equipo-placeholder">TBD</span>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="empty-bracket"  *ngIf="bracket.length === 0" >
+        <i class="fas fa-sitemap"></i>
+        <p>No hay equipos inscritos en este torneo aún</p>
+      </div>
+    </div>
+  </div>
+</div>

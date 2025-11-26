@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 
 export interface Torneo {
@@ -125,5 +126,13 @@ export class TorneosAdminService {
    */
   obtenerEstadisticas(id: number): Observable<TorneoResponse> {
     return this.http.get<TorneoResponse>(`${this.apiUrl}/${id}/estadisticas`);
+  }
+
+  /**
+   * Obtener equipos inscritos en un torneo
+   */
+  obtenerEquiposInscritosTorneo(id: number): Observable<any[]> {
+    return this.http.get<any>(`${environment.apiUrl}/c/client/torneos/${id}/equipos-inscritos`)
+      .pipe(map((response: any) => response.data || []));
   }
 }

@@ -91,6 +91,17 @@ export class TorneosService {
   }
 
   /**
+   * Obtiene los equipos inscritos en un torneo
+   */
+  getEquiposInscritos(idTorneo: number): Observable<any[]> {
+    return this.http.get<ApiResponse<any[]>>(
+      `${this.API_URL}/torneos/${idTorneo}/equipos-inscritos`
+    ).pipe(
+      map(response => response.data || [])
+    );
+  }
+
+  /**
    * Busca torneos por texto
    */
   buscarTorneos(termino: string): Observable<Torneo[]> {
