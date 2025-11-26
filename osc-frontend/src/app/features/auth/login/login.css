@@ -74,7 +74,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  color: #2C3E50;
+  color: rgb(116, 127, 138);
   background: transparent;
   box-shadow: none;
   cursor: pointer;
@@ -83,13 +83,13 @@
 }
 
 .modal-close-btn .material-icons {
-  color: #2C3E50;
+  color: rgb(116, 127, 138);
   font-size: 28px;
   font-weight: bold;
 }
 
 .modal-close-btn:hover .material-icons {
-  color: #4b5d71;
+  color: rgb(134, 146, 158);
   transform: none;
 }
 

@@ -143,6 +143,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.user$.subscribe((u) => {
         this.user = u;
+        this.imageError = false; // Reset error state when user changes
 
         if (u) {
           this.carritoService.cargarCarrito(u.uid).subscribe();
@@ -420,10 +421,10 @@ export class Navbar implements OnInit, OnDestroy {
     return 'Usuario';
   }
 
-  onImageError(event: Event): void {
-    // Cuando la imagen falla al cargar, ocultamos la imagen y mostramos el icono
-    const imgElement = event.target as HTMLImageElement;
-    imgElement.style.display = 'none';
-    // El icono de placeholder ya está en el template con @else
+  imageError = false;
+
+  onImageError(): void {
+    // Cuando la imagen falla al cargar, marcamos el error para mostrar el placeholder
+    this.imageError = true;
   }
 }
