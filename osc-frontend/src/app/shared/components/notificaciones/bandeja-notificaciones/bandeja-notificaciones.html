@@ -87,7 +87,7 @@
       </div>
     } @else {
       <div class="notifications-list">
-        @for (notification of filteredNotifications; track notification.id_notificacion) {
+        @for (notification of filteredNotifications; track notification.origen + '-' + notification.id_notificacion) {
           <div class="notification-card"
                [class.unread]="!notification.leida"
                [class.expanded]="notification.expanded"

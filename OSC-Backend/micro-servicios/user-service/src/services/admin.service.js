@@ -42,6 +42,14 @@ export const getAllUsersCombined = async () => {
     const combinedUsers = firebaseUsers.map(firebaseUser => {
       const dbUser = dbUsersByUid[firebaseUser.uid];
       
+      // Construir customClaims combinando Firebase y BD
+      const customClaims = firebaseUser.customClaims || {};
+      if (dbUser?.id_rol) {
+        // Si hay rol en BD, usarlo como fuente de verdad
+        customClaims.id_rol = dbUser.id_rol;
+        customClaims.role = dbUser.nombre_rol || customClaims.role;
+      }
+      
       return {
         // Datos de Firebase
         uid: firebaseUser.uid,
@@ -50,7 +58,7 @@ export const getAllUsersCombined = async () => {
         photoURL: firebaseUser.photoURL,
         emailVerified: firebaseUser.emailVerified,
         disabled: firebaseUser.disabled,
-        customClaims: firebaseUser.customClaims || {},
+        customClaims,
         providerData: firebaseUser.providerData,
         metadata: {
           creationTime: firebaseUser.metadata.creationTime,
@@ -80,7 +88,10 @@ export const getAllUsersCombined = async () => {
         photoURL: null,
         emailVerified: false,
         disabled: false,
-        customClaims: {},
+        customClaims: {
+          role: dbUser.nombre_rol,
+          id_rol: dbUser.id_rol
+        },
         providerData: [],
         metadata: {
           creationTime: dbUser.fecha_registro || null,

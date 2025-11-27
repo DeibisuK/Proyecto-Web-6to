@@ -31,9 +31,11 @@ export class AnuncioService {
    */
   createAnuncio(anuncio: Omit<Anuncio, 'id_anuncio'>): Observable<Anuncio> {
     return this.http.post<Anuncio>(this.apiUrl, anuncio).pipe(
-      tap(() => {
-        console.log('✅ Anuncio creado exitosamente');
-        this.anunciosUpdated.next(); // Notificar que hubo cambios
+      tap((result) => {
+        console.log('✅ Anuncio creado exitosamente:', result);
+        console.log('📢 Emitiendo anunciosUpdated.next()');
+        // Notificar cambios para recargar lista en el componente
+        this.anunciosUpdated.next();
       })
     );
   }

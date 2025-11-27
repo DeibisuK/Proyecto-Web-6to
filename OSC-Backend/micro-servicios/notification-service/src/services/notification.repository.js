@@ -143,10 +143,9 @@ export class NotificationRepository {
     if (result.rows.length === 0) {
       // Marcar anuncio como leído
       await pool.query(`
-        INSERT INTO notificaciones_anuncios_leidas (uid_usuario, id_anuncio, fecha_leida)
-        VALUES ($1, $2, CURRENT_TIMESTAMP)
-        ON CONFLICT (uid_usuario, id_anuncio) DO UPDATE
-        SET fecha_leida = CURRENT_TIMESTAMP
+        INSERT INTO notificaciones_anuncios_leidas (uid_usuario, id_anuncio)
+        VALUES ($1, $2)
+        ON CONFLICT (uid_usuario, id_anuncio) DO NOTHING
       `, [uid, id_notificacion]);
       
       // Devolver el anuncio con formato de notificación

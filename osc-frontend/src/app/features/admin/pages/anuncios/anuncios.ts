@@ -25,7 +25,9 @@ export class Anuncios implements OnInit {
     this.cargarAnuncios();
 
     // Suscribirse a cambios en anuncios
+    console.log('📡 Suscribiéndose a anunciosUpdated$');
     this.anuncioService.anunciosUpdated$.subscribe(() => {
+      console.log('🔄 Detectado cambio en anuncios, recargando...');
       this.cargarAnuncios();
     });
   }
@@ -55,6 +57,9 @@ export class Anuncios implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('🎯 onSubmit llamado. Formulario válido:', this.anuncioForm.valid, 'Submitting:', this.isSubmitting);
+    console.log('📝 Valores del formulario:', this.anuncioForm.value);
+
     if (this.anuncioForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
@@ -65,13 +70,16 @@ export class Anuncios implements OnInit {
         activo: true
       };
 
+      console.log('📤 Enviando anuncio al backend:', nuevoAnuncio);
+
       this.anuncioService.createAnuncio(nuevoAnuncio).subscribe({
         next: (anuncio) => {
           console.log('✅ Anuncio creado:', anuncio);
           this.mostrarNotificacion('Anuncio creado exitosamente', 'success');
           this.anuncioForm.reset({ tipo: 'info' });
           this.isSubmitting = false;
-          // Recargar inmediatamente la lista
+          // FORZAR recarga inmediata
+          console.log('🔄 Forzando recarga inmediata de anuncios');
           this.cargarAnuncios();
         },
         error: (error) => {
@@ -81,6 +89,7 @@ export class Anuncios implements OnInit {
         }
       });
     } else {
+      console.warn('⚠️ Formulario inválido o ya está enviando');
       this.mostrarNotificacion('Por favor completa todos los campos correctamente', 'error');
     }
   }

@@ -68,36 +68,42 @@ export class Header implements OnInit {
 
   markAsRead(notification: SystemNotification): void {
     if (this.user?.uid && !notification.leida) {
+      // Guardar estado original para revertir si falla
+      const currentNotifs = this.notificationService.notifications();
+
+      // Actualizar UI inmediatamente (NO mutar el objeto original)
+      const updatedNotifs = currentNotifs.map(n =>
+        n.id_notificacion === notification.id_notificacion ? { ...n, leida: true } : n
+      );
+      this.notificationService.notifications.set(updatedNotifs);
+
+      // Hacer llamada al backend
       this.notificationService.markAsRead(notification.id_notificacion, this.user.uid).subscribe({
-        next: () => {
-          console.log('✅ Notificación marcada como leída');
-          // Recargar notificaciones después de marcar como leída
-          this.notificationService.getNotifications({
-            uid: this.user!.uid,
-            limit: 20
-          }).subscribe(notifs => {
-            this.notificationService.notifications.set(notifs);
-          });
-        },
-        error: (error) => console.error('❌ Error al marcar notificación:', error)
+        next: () => console.log('✅ Notificación marcada como leída'),
+        error: (error) => {
+          console.error('❌ Error al marcar notificación:', error);
+          // Revertir cambio si falla
+          this.notificationService.notifications.set(currentNotifs);
+        }
       });
     }
   }
 
   markAllAsRead(): void {
     if (this.user?.uid) {
+      // Actualizar UI inmediatamente
+      const currentNotifs = this.notificationService.notifications();
+      const updatedNotifs = currentNotifs.map(n => ({ ...n, leida: true }));
+      this.notificationService.notifications.set(updatedNotifs);
+
+      // Hacer llamada al backend
       this.notificationService.markAllAsRead(this.user.uid).subscribe({
-        next: () => {
-          console.log('✅ Todas las notificaciones marcadas como leídas');
-          // Recargar notificaciones después de marcar todas como leídas
-          this.notificationService.getNotifications({
-            uid: this.user!.uid,
-            limit: 20
-          }).subscribe(notifs => {
-            this.notificationService.notifications.set(notifs);
-          });
-        },
-        error: (error) => console.error('❌ Error al marcar todas:', error)
+        next: () => console.log('✅ Todas las notificaciones marcadas como leídas'),
+        error: (error) => {
+          console.error('❌ Error al marcar todas:', error);
+          // Revertir cambio si falla
+          this.notificationService.notifications.set(currentNotifs);
+        }
       });
     }
   }

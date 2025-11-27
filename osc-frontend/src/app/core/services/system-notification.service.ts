@@ -35,14 +35,14 @@ export class SystemNotificationService {
    * Iniciar polling automático cada 30 segundos
    */
   startPolling(uid: string): void {
-    // Poll inicial - cargar notificaciones y contador
+    // Poll inicial - cargar notificaciones
     this.loadNotifications(uid);
 
-    // Poll cada 30 segundos - recargar notificaciones y contador
+    // Poll cada 30 segundos - recargar notificaciones (el contador se actualiza dentro de loadNotifications)
     interval(30000).pipe(
       switchMap(() => {
         this.loadNotifications(uid);
-        return this.getUnreadCount(uid);
+        return []; // No hacer nada más, loadNotifications ya actualiza el contador
       })
     ).subscribe();
   }
@@ -53,11 +53,27 @@ export class SystemNotificationService {
   private loadNotifications(uid: string): void {
     this.getNotifications({ uid, limit: 20 }).subscribe(notifs => {
       console.log('🔔 Notificaciones cargadas:', notifs.length, notifs);
-      this.notifications.set(notifs);
-    });
-  }
 
-  /**
+      // Preservar estado local de notificaciones ya marcadas como leídas
+      const currentNotifs = this.notifications();
+      const localReadIds = new Set(
+        currentNotifs.filter(n => n.leida).map(n => n.id_notificacion)
+      );
+
+      // Marcar como leídas localmente las que el usuario ya marcó
+      const mergedNotifs = notifs.map(n => ({
+        ...n,
+        leida: n.leida || localReadIds.has(n.id_notificacion)
+      }));
+
+      this.notifications.set(mergedNotifs);
+
+      // Actualizar contador basado en notificaciones fusionadas
+      const unread = mergedNotifs.filter(n => !n.leida).length;
+      console.log('📊 No leídas locales:', unread);
+      this.unreadCount.set(unread);
+    });
+  }  /**
    * Obtener notificaciones con filtros
    */
   getNotifications(filters: {
@@ -106,11 +122,11 @@ export class SystemNotificationService {
   markAsRead(id_notificacion: number, uid: string): Observable<SystemNotification> {
     return this.http.put<SystemNotification>(`${this.apiUrl}/${id_notificacion}/leer`, { uid }).pipe(
       map(notification => {
-        // Actualizar contador local
-        const currentCount = this.unreadCount();
-        if (currentCount > 0) {
-          this.unreadCount.set(currentCount - 1);
-        }
+        // Actualizar contador basado en notificaciones actuales
+        const currentNotifs = this.notifications();
+        const unreadAfter = currentNotifs.filter(n => !n.leida && n.id_notificacion !== id_notificacion).length;
+        this.unreadCount.set(unreadAfter);
+        console.log('📉 Contador actualizado después de marcar:', unreadAfter);
         return notification;
       })
     );

@@ -20,6 +20,8 @@ const NO_CACHE_PATTERNS = [
   '/jugadores',      // Jugadores de equipos
   '/equipos',        // Equipos
   '/inscripciones',  // Inscripciones
+  '/anuncios',       // Anuncios globales (deben ser frescos)
+  '/notificaciones', // Notificaciones (deben ser frescas)
 ];
 
 export const CacheInterceptors: HttpInterceptorFn = (req, next) => {

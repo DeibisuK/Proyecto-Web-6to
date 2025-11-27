@@ -244,20 +244,30 @@ export class Navbar implements OnInit, OnDestroy {
   markAsRead(notification: SystemNotification): void {
     if (!this.user?.uid || notification.leida) return;
 
-    this.systemNotificationService.markAsRead(notification.id_notificacion, this.user.uid)
-      .subscribe(() => {
-        // Recargar notificaciones después de marcar como leída
-        this.systemNotificationService.getNotifications({
-          uid: this.user!.uid,
-          limit: 20
-        }).subscribe(notifs => {
-          this.systemNotificationService.notifications.set(notifs);
-        });
+    // Guardar estado original para revertir si falla
+    const currentNotifs = this.systemNotificationService.notifications();
 
-        // Navegar si hay URL de acción
-        if (notification.url_accion) {
-          this.router.navigate([notification.url_accion]);
-          this.closeNotifications();
+    // Actualizar UI inmediatamente (NO mutar el objeto original)
+    const updatedNotifs = currentNotifs.map(n =>
+      n.id_notificacion === notification.id_notificacion ? { ...n, leida: true } : n
+    );
+    this.systemNotificationService.notifications.set(updatedNotifs);
+
+    // Hacer llamada al backend
+    this.systemNotificationService.markAsRead(notification.id_notificacion, this.user.uid)
+      .subscribe({
+        next: () => {
+          console.log('✅ Notificación marcada como leída');
+          // Navegar si hay URL de acción
+          if (notification.url_accion) {
+            this.router.navigate([notification.url_accion]);
+            this.closeNotifications();
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al marcar notificación:', error);
+          // Revertir cambio si falla
+          this.systemNotificationService.notifications.set(currentNotifs);
         }
       });
   }
@@ -265,15 +275,20 @@ export class Navbar implements OnInit, OnDestroy {
   markAllAsRead(): void {
     if (!this.user?.uid) return;
 
+    // Actualizar UI inmediatamente
+    const currentNotifs = this.systemNotificationService.notifications();
+    const updatedNotifs = currentNotifs.map(n => ({ ...n, leida: true }));
+    this.systemNotificationService.notifications.set(updatedNotifs);
+
+    // Hacer llamada al backend
     this.systemNotificationService.markAllAsRead(this.user.uid)
-      .subscribe(() => {
-        // Recargar notificaciones después de marcar todas como leídas
-        this.systemNotificationService.getNotifications({
-          uid: this.user!.uid,
-          limit: 20
-        }).subscribe(notifs => {
-          this.systemNotificationService.notifications.set(notifs);
-        });
+      .subscribe({
+        next: () => console.log('✅ Todas marcadas como leídas'),
+        error: (error) => {
+          console.error('❌ Error al marcar todas:', error);
+          // Revertir cambio si falla
+          this.systemNotificationService.notifications.set(currentNotifs);
+        }
       });
   }
 

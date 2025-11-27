@@ -53,7 +53,7 @@
                 <p>No tienes notificaciones</p>
               </div>
             } @else {
-              @for (notification of notifications; track notification.id_notificacion) {
+              @for (notification of notifications; track notification.origen + '-' + notification.id_notificacion) {
                 <div class="notification-item"
                      [class.unread]="!notification.leida"
                      (click)="markAsRead(notification)">
