@@ -6,9 +6,63 @@
 
   <!-- Usuario y opciones a la derecha -->
   <div class="user-section">
+    <!-- Icono de notificaciones -->
+    <div class="notification-btn" (click)="toggleNotifications(); $event.stopPropagation()" title="Bandeja de notificaciones">
+      <span class="material-icons">notifications</span>
+      @if (unreadCount() > 0) {
+        <span class="notification-badge">{{ unreadCount() }}</span>
+      }
+    </div>
+
+    <!-- Dropdown de notificaciones (mismo diseño que navbar cliente) -->
+    <div class="notifications-dropdown" [class.show]="showNotifications">
+      <div class="dropdown-header">
+        <h3>Notificaciones</h3>
+        @if (unreadCount() > 0) {
+          <button (click)="markAllAsRead()" class="mark-all-read">
+            Marcar todas como leídas
+          </button>
+        }
+      </div>
+
+      <div class="notifications-list">
+        @if (notifications().length === 0) {
+          <div class="no-notifications">
+            <span class="material-icons">notifications_none</span>
+            <p>No tienes notificaciones</p>
+          </div>
+        } @else {
+          @for (notification of notifications(); track notification.id_notificacion) {
+            <div class="notification-item"
+                 [class.unread]="!notification.leida"
+                 (click)="markAsRead(notification)">
+              <div class="notification-icon" [ngClass]="notification.tipo">
+                <span class="material-icons">{{ getNotificationIcon(notification.tipo) }}</span>
+              </div>
+              <div class="notification-content">
+                <p class="notification-subject">{{ notification.asunto }}</p>
+                <span class="notification-time">{{ getTimeAgo(notification.fecha_creacion) }}</span>
+              </div>
+              @if (!notification.leida) {
+                <span class="unread-dot"></span>
+              }
+            </div>
+          }
+        }
+      </div>
+
+      <div class="dropdown-footer">
+        <a routerLink="/admin/notificaciones" (click)="toggleNotifications()" class="view-all-link">
+          Ver todas las notificaciones
+          <span class="material-icons">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Menú de usuario -->
     <div class="user-info" (click)="toggleUserMenu()" [title]="getUserName()">
-      @if (user?.photoURL) {
-        <img [src]="user.photoURL" alt="User Photo" class="user-avatar" />
+      @if (user?.photoURL && !imageError) {
+        <img [src]="user.photoURL" alt="User Photo" class="user-avatar" (error)="onImageError()" />
       } @else {
         <div class="user-avatar-placeholder">
           <span class="material-icons">account_circle</span>
@@ -17,7 +71,7 @@
       <span class="material-icons dropdown-arrow">{{ showUserMenu ? 'expand_less' : 'expand_more' }}</span>
     </div>
 
-    <!-- Dropdown menu -->
+    <!-- Dropdown de usuario -->
     <div class="user-dropdown" [class.show]="showUserMenu">
       <a (click)="verPerfil()" class="dropdown-item">
         <span class="material-icons">person</span>

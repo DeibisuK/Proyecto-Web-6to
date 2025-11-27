@@ -15,5 +15,6 @@ app.use('/m',proxy(process.env.MATCH_SERVICE_URL || ""));
 app.use('/b',proxy(process.env.BUY_SERVICE_URL || ""));
 app.use('/i',proxy(process.env.CLOUDINARY_SERVICE_URL || ""));
 app.use('/s',proxy(process.env.SUBSCRIPTION_SERVICE_URL || ""));
+app.use('/n',proxy(process.env.NOTIFICATION_SERVICE_URL || ""));
 
 export default app;

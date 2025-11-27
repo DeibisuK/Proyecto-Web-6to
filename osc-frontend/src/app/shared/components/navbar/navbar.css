@@ -839,6 +839,11 @@ body.modal-open {
   color: #EF4444;
 }
 
+.notification-icon.promotion {
+  background: #FEF3C7;
+  color: #F59E0B;
+}
+
 .notification-icon .material-icons {
   font-size: 20px;
 }

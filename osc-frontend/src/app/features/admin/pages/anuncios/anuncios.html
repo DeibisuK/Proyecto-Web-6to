@@ -133,9 +133,14 @@
       <span class="count-badge">{{ anuncios.length }}</span>
     </div>
 
-    @if (anuncios.length > 0) {
+    @if (isLoading) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando anuncios...</p>
+      </div>
+    } @else if (anuncios.length > 0) {
       <div class="anuncios-list">
-        @for (anuncio of anuncios; track anuncio.id) {
+        @for (anuncio of anuncios; track anuncio.id_anuncio) {
           <div class="anuncio-item" [attr.data-tipo]="anuncio.tipo">
             <div class="anuncio-icon" [attr.data-tipo]="anuncio.tipo">
               <span class="material-icons">
@@ -150,10 +155,18 @@
                 </span>
               </div>
               <p class="anuncio-descripcion">{{ anuncio.descripcion }}</p>
-              <span class="fecha-creacion">
-                <span class="material-icons">schedule</span>
-                {{ anuncio.creado_en ? formatDate(anuncio.creado_en) : 'Hoy' }}
-              </span>
+              <div class="anuncio-footer">
+                <span class="fecha-creacion">
+                  <span class="material-icons">schedule</span>
+                  {{ anuncio.fecha_creacion ? formatDate(anuncio.fecha_creacion) : 'Hoy' }}
+                </span>
+                @if (!anuncio.activo) {
+                  <span class="status-badge inactive">
+                    <span class="material-icons">visibility_off</span>
+                    Inactivo
+                  </span>
+                }
+              </div>
             </div>
           </div>
         }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Anuncio } from '../../../../shared/models/anuncio.model';
+import { AnuncioService, Anuncio } from '../../../../core/services/anuncio.service';
 
 @Component({
   selector: 'app-anuncios',
@@ -13,12 +13,21 @@ export class Anuncios implements OnInit {
   anuncioForm!: FormGroup;
   anuncios: Anuncio[] = [];
   isSubmitting = false;
+  isLoading = true;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private anuncioService: AnuncioService
+  ) {}
 
   ngOnInit(): void {
     this.inicializarFormulario();
     this.cargarAnuncios();
+
+    // Suscribirse a cambios en anuncios
+    this.anuncioService.anunciosUpdated$.subscribe(() => {
+      this.cargarAnuncios();
+    });
   }
 
   inicializarFormulario(): void {
@@ -30,55 +39,47 @@ export class Anuncios implements OnInit {
   }
 
   cargarAnuncios(): void {
-    // Mock data para demostración
-    this.anuncios = [
-      {
-        id: 1,
-        titulo: '¡Nueva funcionalidad disponible!',
-        descripcion: 'Ahora puedes crear equipos y gestionar tus torneos de forma más fácil.',
-        tipo: 'info',
-        creado_en: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        actualizado_en: new Date().toISOString()
+    this.isLoading = true;
+    this.anuncioService.getAllAnuncios().subscribe({
+      next: (anuncios) => {
+        this.anuncios = anuncios;
+        this.isLoading = false;
+        console.log('✅ Anuncios cargados:', anuncios.length);
       },
-      {
-        id: 2,
-        titulo: '🎉 Promoción especial',
-        descripcion: '50% de descuento en todas las inscripciones de torneos este mes.',
-        tipo: 'promotion',
-        creado_en: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-        actualizado_en: new Date().toISOString()
-      },
-      {
-        id: 3,
-        titulo: 'Mantenimiento programado',
-        descripcion: 'El sistema estará en mantenimiento el próximo sábado de 2:00 AM a 6:00 AM.',
-        tipo: 'warning',
-        creado_en: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
-        actualizado_en: new Date().toISOString()
+      error: (error) => {
+        console.error('❌ Error al cargar anuncios:', error);
+        this.mostrarNotificacion('Error al cargar anuncios', 'error');
+        this.isLoading = false;
       }
-    ];
+    });
   }
 
   onSubmit(): void {
     if (this.anuncioForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
 
-      const nuevoAnuncio: Anuncio = {
-        id: this.anuncios.length + 1,
+      const nuevoAnuncio = {
         titulo: this.anuncioForm.value.titulo,
         descripcion: this.anuncioForm.value.descripcion,
         tipo: this.anuncioForm.value.tipo,
-        creado_en: new Date().toISOString(),
-        actualizado_en: new Date().toISOString()
+        activo: true
       };
 
-      // Simular delay de red
-      setTimeout(() => {
-        this.anuncios.unshift(nuevoAnuncio);
-        this.mostrarNotificacion('Anuncio creado exitosamente', 'success');
-        this.anuncioForm.reset({ tipo: 'info' });
-        this.isSubmitting = false;
-      }, 500);
+      this.anuncioService.createAnuncio(nuevoAnuncio).subscribe({
+        next: (anuncio) => {
+          console.log('✅ Anuncio creado:', anuncio);
+          this.mostrarNotificacion('Anuncio creado exitosamente', 'success');
+          this.anuncioForm.reset({ tipo: 'info' });
+          this.isSubmitting = false;
+          // Recargar inmediatamente la lista
+          this.cargarAnuncios();
+        },
+        error: (error) => {
+          console.error('❌ Error al crear anuncio:', error);
+          this.mostrarNotificacion('Error al crear anuncio', 'error');
+          this.isSubmitting = false;
+        }
+      });
     } else {
       this.mostrarNotificacion('Por favor completa todos los campos correctamente', 'error');
     }
@@ -89,25 +90,11 @@ export class Anuncios implements OnInit {
   }
 
   getTipoIcon(tipo: string): string {
-    const iconos: { [key: string]: string } = {
-      info: 'info',
-      success: 'check_circle',
-      warning: 'warning',
-      error: 'error',
-      promotion: 'local_offer'
-    };
-    return iconos[tipo] || 'notifications';
+    return this.anuncioService.getTipoIcon(tipo);
   }
 
   getTipoLabel(tipo: string): string {
-    const labels: { [key: string]: string } = {
-      info: 'Información',
-      success: 'Éxito',
-      warning: 'Advertencia',
-      error: 'Error/Urgente',
-      promotion: 'Promoción'
-    };
-    return labels[tipo] || 'Información';
+    return this.anuncioService.getTipoLabel(tipo);
   }
 
   formatDate(dateString: string): string {
@@ -116,8 +103,15 @@ export class Anuncios implements OnInit {
     const diff = ahora.getTime() - date.getTime();
     const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (dias === 0) {
-      return 'Hoy';
+    if (dias < 0) {
+      return 'Recién creado';
+    } else if (dias === 0) {
+      const horas = Math.floor(diff / (1000 * 60 * 60));
+      if (horas === 0) {
+        const minutos = Math.floor(diff / (1000 * 60));
+        return minutos <= 1 ? 'Recién creado' : `Hace ${minutos} minutos`;
+      }
+      return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
     } else if (dias === 1) {
       return 'Ayer';
     } else if (dias < 7) {

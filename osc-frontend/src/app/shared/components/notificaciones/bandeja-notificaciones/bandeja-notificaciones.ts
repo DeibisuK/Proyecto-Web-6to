@@ -1,14 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SystemNotificationService, SystemNotification } from '../../../../core/services/system-notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
-interface Notification {
-  id: string;
-  subject: string;
-  description: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  date: Date;
-  read: boolean;
+// Extender la interfaz para agregar propiedad expanded
+interface ExtendedNotification extends SystemNotification {
   expanded?: boolean;
 }
 
@@ -19,105 +16,58 @@ interface Notification {
   styleUrl: './bandeja-notificaciones.css',
 })
 export class BandejaNotificaciones implements OnInit {
-  notifications: Notification[] = [];
-  filteredNotifications: Notification[] = [];
+  private notificationService = inject(SystemNotificationService);
+  private authService = inject(AuthService);
+
+  notifications: ExtendedNotification[] = [];
+  filteredNotifications: ExtendedNotification[] = [];
   filterType: string = 'all';
   searchQuery: string = '';
+  isLoading = true;
 
   ngOnInit(): void {
-    this.loadNotifications();
-    this.applyFilters();
+    this.authService.user$.subscribe(user => {
+      if (user?.uid) {
+        this.loadNotifications(user.uid);
+      }
+    });
   }
 
-  loadNotifications(): void {
-    this.notifications = [
-      {
-        id: '1',
-        subject: 'Nueva reserva confirmada',
-        description: 'Se ha confirmado una nueva reserva para la Cancha de Fútbol 5 el día 25 de noviembre a las 18:00 horas. El cliente Juan Pérez ha completado el pago exitosamente.',
-        type: 'success',
-        date: new Date(Date.now() - 1000 * 60 * 5),
-        read: false,
-        expanded: false
+  loadNotifications(uid: string): void {
+    this.isLoading = true;
+    this.notificationService.getNotifications({ uid, limit: 100 }).subscribe({
+      next: (notifications) => {
+        this.notifications = notifications.map(n => ({ ...n, expanded: false }));
+        this.applyFilters();
+        this.isLoading = false;
       },
-      {
-        id: '2',
-        subject: 'Pago pendiente de verificación',
-        description: 'El pago del pedido #ORD-2024-045 está pendiente de verificación. Monto: $150.00. Por favor, revisa el estado del pago en la plataforma de procesamiento.',
-        type: 'warning',
-        date: new Date(Date.now() - 1000 * 60 * 30),
-        read: false,
-        expanded: false
-      },
-      {
-        id: '3',
-        subject: 'Mantenimiento programado',
-        description: 'Se realizará mantenimiento en la Cancha de Tenis #2 el próximo martes 26 de noviembre de 08:00 a 12:00. Durante este periodo, la cancha no estará disponible para reservas.',
-        type: 'info',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        read: false,
-        expanded: false
-      },
-      {
-        id: '4',
-        subject: 'Producto agotado - Acción requerida',
-        description: 'El producto "Pelota de Fútbol Profesional" está agotado. Quedan 0 unidades en inventario. Se recomienda realizar un nuevo pedido a proveedores lo antes posible.',
-        type: 'error',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 5),
-        read: true,
-        expanded: false
-      },
-      {
-        id: '5',
-        subject: 'Nuevo torneo registrado',
-        description: 'Se ha registrado un nuevo torneo: "Copa de Verano 2025" con 16 equipos inscritos. El torneo comenzará el 5 de diciembre y finalizará el 20 de diciembre. Revisa el calendario de partidos.',
-        type: 'success',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        read: true,
-        expanded: false
-      },
-      {
-        id: '6',
-        subject: 'Actualización del sistema',
-        description: 'Nuevas funcionalidades disponibles en el sistema de gestión: Dashboard mejorado, reportes personalizables y sistema de notificaciones en tiempo real. Revisa el panel de novedades para más detalles.',
-        type: 'info',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-        read: true,
-        expanded: false
-      },
-      {
-        id: '7',
-        subject: 'Cancelación de reserva',
-        description: 'El cliente María García ha cancelado su reserva para la Cancha de Pádel #1 programada para hoy a las 16:00. Se ha procesado el reembolso automáticamente.',
-        type: 'warning',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-        read: true,
-        expanded: false
-      },
-      {
-        id: '8',
-        subject: 'Facturación mensual generada',
-        description: 'Se ha generado la facturación mensual correspondiente a octubre 2024. Total: $24,850.00. Puedes descargar el reporte completo desde el panel de reportes.',
-        type: 'success',
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
-        read: true,
-        expanded: false
+      error: (error) => {
+        console.error('❌ Error al cargar notificaciones:', error);
+        this.isLoading = false;
       }
-    ];
+    });
   }
 
   applyFilters(): void {
-    this.filteredNotifications = this.notifications.filter(notification => {
-      const matchesType = this.filterType === 'all' ||
-        (this.filterType === 'unread' && !notification.read) ||
-        (this.filterType !== 'all' && this.filterType !== 'unread' && notification.type === this.filterType);
+    let result = this.notifications;
 
-      const matchesSearch = !this.searchQuery ||
-        notification.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        notification.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+    // Filtrar por tipo
+    if (this.filterType === 'unread') {
+      result = result.filter(n => !n.leida);
+    } else if (this.filterType !== 'all') {
+      result = result.filter(n => n.tipo === this.filterType);
+    }
 
-      return matchesType && matchesSearch;
-    });
+    // Filtrar por búsqueda
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase();
+      result = result.filter(n =>
+        n.asunto.toLowerCase().includes(query) ||
+        n.descripcion.toLowerCase().includes(query)
+      );
+    }
+
+    this.filteredNotifications = result;
   }
 
   onFilterChange(): void {
@@ -128,29 +78,38 @@ export class BandejaNotificaciones implements OnInit {
     this.applyFilters();
   }
 
-  toggleNotification(notification: Notification): void {
+  toggleNotification(notification: ExtendedNotification): void {
     notification.expanded = !notification.expanded;
-    if (notification.expanded && !notification.read) {
-      notification.read = true;
+    if (!notification.leida) {
+      this.markAsRead(notification);
     }
   }
 
-  markAsRead(notification: Notification): void {
-    notification.read = true;
+  markAsRead(notification: SystemNotification): void {
+    this.authService.user$.subscribe(user => {
+      if (user?.uid && !notification.leida) {
+        this.notificationService.markAsRead(notification.id_notificacion, user.uid).subscribe({
+          next: () => {
+            console.log('✅ Notificación marcada como leída');
+          },
+          error: (error) => console.error('❌ Error al marcar notificación:', error)
+        });
+      }
+    });
   }
 
   markAllAsRead(): void {
-    this.notifications.forEach(n => n.read = true);
-    this.applyFilters();
-  }
-
-  deleteNotification(notification: Notification, event: Event): void {
-    event.stopPropagation();
-    const index = this.notifications.findIndex(n => n.id === notification.id);
-    if (index > -1) {
-      this.notifications.splice(index, 1);
-      this.applyFilters();
-    }
+    this.authService.user$.subscribe(user => {
+      if (user?.uid) {
+        this.notificationService.markAllAsRead(user.uid).subscribe({
+          next: () => {
+            console.log('✅ Todas marcadas como leídas');
+            this.loadNotifications(user.uid);
+          },
+          error: (error) => console.error('❌ Error:', error)
+        });
+      }
+    });
   }
 
   getNotificationIcon(type: string): string {
@@ -158,12 +117,14 @@ export class BandejaNotificaciones implements OnInit {
       info: 'info',
       success: 'check_circle',
       warning: 'warning',
-      error: 'error'
+      error: 'error',
+      promotion: 'local_offer'
     };
     return icons[type] || 'notifications';
   }
 
-  getFormattedDate(date: Date): string {
+  getFormattedDate(dateString: string): string {
+    const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -174,6 +135,6 @@ export class BandejaNotificaciones implements OnInit {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter(n => !n.leida).length;
   }
 }

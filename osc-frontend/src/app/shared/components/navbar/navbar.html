@@ -122,7 +122,7 @@
         <button
           class="notification-btn"
           (click)="toggleNotifications(); $event.stopPropagation()"
-          [title]="'Tienes ' + unreadCount + ' notificaciones sin leer'">
+          title="Bandeja de notificaciones">
           <span class="material-icons">notifications</span>
           @if (unreadCount > 0) {
             <span class="notification-badge">{{ unreadCount }}</span>
@@ -133,30 +133,32 @@
         <div class="notifications-dropdown" [class.show]="showNotifications">
           <div class="dropdown-header">
             <h3>Notificaciones</h3>
-            <button class="mark-all-read" (click)="markAllAsRead()">
-              <span class="material-icons">done_all</span>
-            </button>
+            @if (unreadCount > 0) {
+              <button class="mark-all-read" (click)="markAllAsRead()">
+                <span class="material-icons">done_all</span>
+              </button>
+            }
           </div>
 
           <div class="notifications-list">
-            @if (notifications.length === 0) {
+            @if (notifications().length === 0) {
               <div class="no-notifications">
                 <span class="material-icons">notifications_none</span>
                 <p>No tienes notificaciones</p>
               </div>
             } @else {
-              @for (notification of notifications; track notification.id) {
+              @for (notification of notifications(); track notification.id_notificacion) {
                 <div class="notification-item"
-                     [class.unread]="!notification.read"
+                     [class.unread]="!notification.leida"
                      (click)="markAsRead(notification)">
-                  <div class="notification-icon" [ngClass]="notification.type">
-                    <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+                  <div class="notification-icon" [ngClass]="notification.tipo">
+                    <span class="material-icons">{{ getNotificationIcon(notification.tipo) }}</span>
                   </div>
                   <div class="notification-content">
-                    <p class="notification-subject">{{ notification.subject }}</p>
-                    <span class="notification-time">{{ getTimeAgo(notification.date) }}</span>
+                    <p class="notification-subject">{{ notification.asunto }}</p>
+                    <span class="notification-time">{{ getTimeAgo(notification.fecha_creacion) }}</span>
                   </div>
-                  @if (!notification.read) {
+                  @if (!notification.leida) {
                     <span class="unread-dot"></span>
                   }
                 </div>

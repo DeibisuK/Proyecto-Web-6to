@@ -15,15 +15,7 @@ import { AuthService } from '@core/services/auth.service';
 import { SedeService } from '@shared/services/index';
 import { Sedes } from '@shared/models/index';
 import { NotificationService } from '@core/services/notification.service';
-
-interface Notification {
-  id: string;
-  subject: string;
-  description: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  date: Date;
-  read: boolean;
-}
+import { SystemNotificationService, SystemNotification } from '@core/services/system-notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -55,48 +47,14 @@ export class Navbar implements OnInit, OnDestroy {
   showNotifications = false;
   showUserMenu = false;
 
-  notifications: Notification[] = [
-    {
-      id: '1',
-      subject: 'Nueva reserva confirmada',
-      description: 'Se ha confirmado una nueva reserva para la Cancha de Fútbol 5 el día 25 de noviembre a las 18:00 horas.',
-      type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 5),
-      read: false
-    },
-    {
-      id: '2',
-      subject: 'Pago pendiente de verificación',
-      description: 'El pago del pedido #ORD-2024-045 está pendiente de verificación. Monto: $150.00',
-      type: 'warning',
-      date: new Date(Date.now() - 1000 * 60 * 30),
-      read: false
-    },
-    {
-      id: '3',
-      subject: 'Producto enviado',
-      description: 'Tu pedido #ORD-2024-038 ha sido enviado. Número de seguimiento: TRK123456789',
-      type: 'info',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      read: false
-    },
-    {
-      id: '4',
-      subject: 'Torneo próximo',
-      description: 'Tu equipo participará en el torneo "Copa de Verano 2025" el próximo sábado.',
-      type: 'info',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
-      read: true
-    },
-    {
-      id: '5',
-      subject: 'Descuento especial',
-      description: '¡Tienes un 20% de descuento en tu próxima compra! Código: VERANO2025',
-      type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24),
-      read: true
-    }
-  ];
+  // Usar signals del servicio directamente (sin copias locales)
+  get notifications() {
+    return this.systemNotificationService.notifications;
+  }
+
+  get unreadCountSignal() {
+    return this.systemNotificationService.unreadCount;
+  }
 
   // Componente React del carrito
   CartComponent = Cart;
@@ -126,7 +84,8 @@ export class Navbar implements OnInit, OnDestroy {
     private carritoService: CarritoService,
     private router: Router,
     private sedeService: SedeService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private systemNotificationService: SystemNotificationService
   ) {
     // Cierra el menú al cambiar el tamaño de la ventana
     window.addEventListener('resize', () => {
@@ -190,6 +149,16 @@ export class Navbar implements OnInit, OnDestroy {
     );
 
     this.cargarSedes();
+
+    // Cargar notificaciones reales cuando el usuario inicia sesión
+    this.subscriptions.add(
+      this.authService.user$.subscribe((u) => {
+        if (u?.uid) {
+          // Iniciar polling automático (ya carga las notificaciones iniciales)
+          this.systemNotificationService.startPolling(u.uid);
+        }
+      })
+    );
   }
 
   cargarSedes() {
@@ -251,7 +220,7 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.systemNotificationService.unreadCount();
   }
 
   toggleNotifications(): void {
@@ -272,12 +241,40 @@ export class Navbar implements OnInit, OnDestroy {
     this.showUserMenu = false;
   }
 
-  markAsRead(notification: Notification): void {
-    notification.read = true;
+  markAsRead(notification: SystemNotification): void {
+    if (!this.user?.uid || notification.leida) return;
+
+    this.systemNotificationService.markAsRead(notification.id_notificacion, this.user.uid)
+      .subscribe(() => {
+        // Recargar notificaciones después de marcar como leída
+        this.systemNotificationService.getNotifications({
+          uid: this.user!.uid,
+          limit: 20
+        }).subscribe(notifs => {
+          this.systemNotificationService.notifications.set(notifs);
+        });
+
+        // Navegar si hay URL de acción
+        if (notification.url_accion) {
+          this.router.navigate([notification.url_accion]);
+          this.closeNotifications();
+        }
+      });
   }
 
   markAllAsRead(): void {
-    this.notifications.forEach(n => n.read = true);
+    if (!this.user?.uid) return;
+
+    this.systemNotificationService.markAllAsRead(this.user.uid)
+      .subscribe(() => {
+        // Recargar notificaciones después de marcar todas como leídas
+        this.systemNotificationService.getNotifications({
+          uid: this.user!.uid,
+          limit: 20
+        }).subscribe(notifs => {
+          this.systemNotificationService.notifications.set(notifs);
+        });
+      });
   }
 
   getNotificationIcon(type: string): string {
@@ -285,20 +282,14 @@ export class Navbar implements OnInit, OnDestroy {
       info: 'info',
       success: 'check_circle',
       warning: 'warning',
-      error: 'error'
+      error: 'error',
+      promotion: 'local_offer'
     };
     return icons[type] || 'notifications';
   }
 
-  getTimeAgo(date: Date): string {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-
-    if (seconds < 60) return 'Hace unos segundos';
-    if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)} minutos`;
-    if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)} horas`;
-    if (seconds < 604800) return `Hace ${Math.floor(seconds / 86400)} días`;
-
-    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  getTimeAgo(date: string | Date): string {
+    return this.systemNotificationService.getTimeAgo(date);
   }
 
   toggleDropdown(dropdown: keyof typeof this.dropdowns, show: boolean) {

@@ -53,18 +53,18 @@
                 <p>No tienes notificaciones</p>
               </div>
             } @else {
-              @for (notification of notifications; track notification.id) {
+              @for (notification of notifications; track notification.id_notificacion) {
                 <div class="notification-item"
-                     [class.unread]="!notification.read"
+                     [class.unread]="!notification.leida"
                      (click)="markAsRead(notification)">
-                  <div class="notification-icon" [ngClass]="notification.type">
-                    <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+                  <div class="notification-icon" [ngClass]="notification.tipo">
+                    <span class="material-icons">{{ getNotificationIcon(notification.tipo) }}</span>
                   </div>
                   <div class="notification-content">
-                    <p class="notification-subject">{{ notification.subject }}</p>
-                    <span class="notification-time">{{ getTimeAgo(notification.date) }}</span>
+                    <p class="notification-subject">{{ notification.asunto }}</p>
+                    <span class="notification-time">{{ getTimeAgo(notification.fecha_creacion) }}</span>
                   </div>
-                  @if (!notification.read) {
+                  @if (!notification.leida) {
                     <span class="unread-dot"></span>
                   }
                 </div>

@@ -25,8 +25,8 @@
   position: absolute;
   top: calc(100% + 12px);
   right: -10px;
-  background: #374151;
-  color: white;
+  background: white;
+  color: #1F2937;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -34,6 +34,7 @@
   white-space: nowrap;
   z-index: 10000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E5E7EB;
   animation: tooltipFadeIn 0.2s ease;
   pointer-events: none;
 }
@@ -44,7 +45,7 @@
   top: calc(100% + 6px);
   right: 5px;
   border: 6px solid transparent;
-  border-bottom-color: #374151;
+  border-bottom-color: white;
   z-index: 10000;
   animation: tooltipFadeIn 0.2s ease;
   pointer-events: none;
@@ -107,8 +108,8 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  border: none;
-  background: transparent;
+  border: 2px solid #25D366;
+  background: white;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -117,12 +118,13 @@
 }
 
 .notification-btn:hover {
-  background: #f8f9fa;
+  background: #f0f9f4;
+  border-color: #1FAD53;
 }
 
 .notification-btn .material-icons {
   font-size: 24px;
-  color: #6B7280;
+  color: #25D366;
 }
 
 .notification-badge {
@@ -165,6 +167,7 @@
   z-index: 9999;
   border: 1px solid #E5E7EB;
   overflow: hidden;
+  max-height: 80vh;
 }
 
 .notifications-dropdown.show {
@@ -291,6 +294,11 @@
 .notification-icon.error {
   background: #FEF2F2;
   color: #EF4444;
+}
+
+.notification-icon.promotion {
+  background: #FFFBEB;
+  color: #F59E0B;
 }
 
 .notification-icon .material-icons {

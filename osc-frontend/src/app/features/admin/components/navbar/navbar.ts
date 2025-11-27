@@ -1,15 +1,8 @@
-import { Component, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-interface Notification {
-  id: string;
-  subject: string;
-  description: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  date: Date;
-  read: boolean;
-}
+import { SystemNotificationService, SystemNotification } from '../../../../core/services/system-notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,77 +10,38 @@ interface Notification {
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar {
+export class Navbar implements OnInit {
   @Output() sidebarToggled = new EventEmitter<boolean>();
+
+  private notificationService = inject(SystemNotificationService);
+  private authService = inject(AuthService);
+
   isCollapsed = false;
   showNotifications = false;
 
-  notifications: Notification[] = [
-    {
-      id: '1',
-      subject: 'Nueva reserva confirmada',
-      description: 'Se ha confirmado una nueva reserva para la Cancha de Fútbol 5 el día 25 de noviembre a las 18:00 horas.',
-      type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 5),
-      read: false
-    },
-    {
-      id: '2',
-      subject: 'Pago pendiente de verificación',
-      description: 'El pago del pedido #ORD-2024-045 está pendiente de verificación. Monto: $150.00',
-      type: 'warning',
-      date: new Date(Date.now() - 1000 * 60 * 30),
-      read: false
-    },
-    {
-      id: '3',
-      subject: 'Mantenimiento programado',
-      description: 'Se realizará mantenimiento en la Cancha de Tenis #2 el próximo martes 26 de noviembre de 08:00 a 12:00.',
-      type: 'info',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      read: false
-    },
-    {
-      id: '4',
-      subject: 'Producto agotado',
-      description: 'El producto "Pelota de Fútbol Profesional" está agotado. Quedan 0 unidades en inventario.',
-      type: 'error',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
-      read: true
-    },
-    {
-      id: '5',
-      subject: 'Nuevo torneo registrado',
-      description: 'Se ha registrado un nuevo torneo: "Copa de Verano 2025" con 16 equipos inscritos.',
-      type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24),
-      read: true
-    },
-    {
-      id: '6',
-      subject: 'Actualización del sistema',
-      description: 'Nuevas funcionalidades disponibles en el sistema de gestión. Revisa el panel de novedades.',
-      type: 'info',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-      read: true
-    }
-  ];
+  // Usar signals del servicio
+  notifications = signal<SystemNotification[]>([]);
+  unreadCount = signal<number>(0);
 
-  constructor() { }
+  ngOnInit(): void {
+    // Suscribirse a cambios de usuario para iniciar polling
+    this.authService.user$.subscribe(user => {
+      if (user?.uid) {
+        this.notificationService.startPolling(user.uid);
+        this.loadNotifications(user.uid);
+      }
+    });
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.notifications-wrapper')) {
-      this.showNotifications = false;
-    }
+    // Usar signals del servicio directamente
+    this.notifications = this.notificationService.notifications;
+    this.unreadCount = this.notificationService.unreadCount;
   }
 
-  get unreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+  loadNotifications(uid: string): void {
+    this.notificationService.getNotifications({ uid }).subscribe();
   }
 
-  toggleSidebar() {
+  toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
     this.sidebarToggled.emit(this.isCollapsed);
   }
@@ -100,12 +54,30 @@ export class Navbar {
     this.showNotifications = false;
   }
 
-  markAsRead(notification: Notification): void {
-    notification.read = true;
+  markAsRead(notification: SystemNotification): void {
+    this.authService.user$.subscribe(user => {
+      if (user?.uid) {
+        this.notificationService.markAsRead(notification.id_notificacion, user.uid).subscribe({
+          next: () => {
+            console.log('✅ Notificación marcada como leída');
+          },
+          error: (error) => console.error('❌ Error al marcar notificación:', error)
+        });
+      }
+    });
   }
 
   markAllAsRead(): void {
-    this.notifications.forEach(n => n.read = true);
+    this.authService.user$.subscribe(user => {
+      if (user?.uid) {
+        this.notificationService.markAllAsRead(user.uid).subscribe({
+          next: () => {
+            console.log('✅ Todas las notificaciones marcadas como leídas');
+          },
+          error: (error) => console.error('❌ Error al marcar todas:', error)
+        });
+      }
+    });
   }
 
   getNotificationIcon(type: string): string {
@@ -118,7 +90,8 @@ export class Navbar {
     return icons[type] || 'fa-bell';
   }
 
-  getTimeAgo(date: Date): string {
+  getTimeAgo(dateString: string): string {
+    const date = new Date(dateString);
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
 
     if (seconds < 60) return 'Hace unos segundos';

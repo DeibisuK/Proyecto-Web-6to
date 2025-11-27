@@ -2,16 +2,8 @@ import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/cor
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
+import { SystemNotificationService, SystemNotification } from '../../../../core/services/system-notification.service';
 import { Subscription } from 'rxjs';
-
-interface Notification {
-  id: string;
-  subject: string;
-  description: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  date: Date;
-  read: boolean;
-}
 
 @Component({
   selector: 'app-arbitro-layout',
@@ -29,42 +21,34 @@ export class ArbitroLayout implements OnInit, OnDestroy {
   showUserMenu = false;
   imageError = false;
 
-  notifications: Notification[] = [
-    {
-      id: '1',
-      subject: 'Partido próximo',
-      description: 'Tienes un partido asignado para hoy a las 18:00 en la Cancha 5.',
-      type: 'warning',
-      date: new Date(Date.now() - 1000 * 60 * 30),
-      read: false
-    },
-    {
-      id: '2',
-      subject: 'Nuevo partido asignado',
-      description: 'Se te ha asignado un partido para el torneo "Copa de Verano 2025".',
-      type: 'info',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      read: false
-    },
-    {
-      id: '3',
-      subject: 'Partido finalizado',
-      description: 'El partido entre Tigres vs Leones ha sido finalizado correctamente.',
-      type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
-      read: true
-    }
-  ];
+  notifications: SystemNotification[] = [];
 
   user = this.authService.currentUser;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private systemNotificationService: SystemNotificationService
+  ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.authService.user$.subscribe((u) => {
         this.user = u;
         this.imageError = false;
+
+        if (u?.uid) {
+          // Iniciar polling automático
+          this.systemNotificationService.startPolling(u.uid);
+
+          // Cargar notificaciones iniciales (solo de origen 'partido' o 'arbitro')
+          this.systemNotificationService.getNotifications({
+            uid: u.uid,
+            origen: 'partido',
+            limit: 20
+          }).subscribe(notifs => {
+            this.notifications = notifs;
+          });
+        }
       })
     );
   }
@@ -86,7 +70,7 @@ export class ArbitroLayout implements OnInit, OnDestroy {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.systemNotificationService.unreadCount();
   }
 
   toggleNotifications(): void {
@@ -107,12 +91,28 @@ export class ArbitroLayout implements OnInit, OnDestroy {
     this.showUserMenu = false;
   }
 
-  markAsRead(notification: Notification): void {
-    notification.read = true;
+  markAsRead(notification: SystemNotification): void {
+    if (!this.user?.uid) return;
+
+    this.systemNotificationService.markAsRead(notification.id_notificacion, this.user.uid)
+      .subscribe(() => {
+        notification.leida = true;
+
+        // Navegar si hay URL de acción
+        if (notification.url_accion) {
+          this.router.navigate([notification.url_accion]);
+          this.closeNotifications();
+        }
+      });
   }
 
   markAllAsRead(): void {
-    this.notifications.forEach(n => n.read = true);
+    if (!this.user?.uid) return;
+
+    this.systemNotificationService.markAllAsRead(this.user.uid)
+      .subscribe(() => {
+        this.notifications.forEach(n => n.leida = true);
+      });
   }
 
   getNotificationIcon(type: string): string {
@@ -125,15 +125,8 @@ export class ArbitroLayout implements OnInit, OnDestroy {
     return icons[type] || 'notifications';
   }
 
-  getTimeAgo(date: Date): string {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-
-    if (seconds < 60) return 'Hace unos segundos';
-    if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)} minutos`;
-    if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)} horas`;
-    if (seconds < 604800) return `Hace ${Math.floor(seconds / 86400)} días`;
-
-    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  getTimeAgo(date: string | Date): string {
+    return this.systemNotificationService.getTimeAgo(date);
   }
 
   toggleSidebar(): void {

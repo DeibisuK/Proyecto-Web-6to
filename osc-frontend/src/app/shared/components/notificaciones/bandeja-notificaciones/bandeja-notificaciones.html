@@ -74,7 +74,12 @@
 
   <!-- Notifications List -->
   <div class="notifications-container">
-    @if (filteredNotifications.length === 0) {
+    @if (isLoading) {
+      <div class="loading-state">
+        <span class="spinner"></span>
+        <p>Cargando notificaciones...</p>
+      </div>
+    } @else if (filteredNotifications.length === 0) {
       <div class="empty-state">
         <span class="material-icons">notifications_none</span>
         <h3>No hay notificaciones</h3>
@@ -82,36 +87,30 @@
       </div>
     } @else {
       <div class="notifications-list">
-        @for (notification of filteredNotifications; track notification.id) {
+        @for (notification of filteredNotifications; track notification.id_notificacion) {
           <div class="notification-card"
-               [class.unread]="!notification.read"
+               [class.unread]="!notification.leida"
                [class.expanded]="notification.expanded"
                (click)="toggleNotification(notification)">
             <div class="notification-header">
-              <div class="notification-icon-wrapper" [ngClass]="notification.type">
-                <span class="material-icons">{{ getNotificationIcon(notification.type) }}</span>
+              <div class="notification-icon-wrapper" [ngClass]="notification.tipo">
+                <span class="material-icons">{{ getNotificationIcon(notification.tipo) }}</span>
               </div>
 
               <div class="notification-info">
                 <h3 class="notification-subject">
-                  {{ notification.subject }}
-                  @if (!notification.read) {
+                  {{ notification.asunto }}
+                  @if (!notification.leida) {
                     <span class="new-badge">Nuevo</span>
                   }
                 </h3>
                 <p class="notification-date">
                   <span class="material-icons">schedule</span>
-                  {{ getFormattedDate(notification.date) }}
+                  {{ getFormattedDate(notification.fecha_creacion) }}
                 </p>
               </div>
 
               <div class="notification-actions">
-                <button
-                  class="action-btn delete"
-                  (click)="deleteNotification(notification, $event)"
-                  title="Eliminar">
-                  <span class="material-icons">delete</span>
-                </button>
                 <span class="material-icons expand-icon">
                   {{ notification.expanded ? 'expand_less' : 'expand_more' }}
                 </span>
@@ -122,11 +121,11 @@
               <div class="notification-body">
                 <div class="notification-description">
                   <h4>Descripción</h4>
-                  <p>{{ notification.description }}</p>
+                  <p>{{ notification.descripcion }}</p>
                 </div>
 
                 <div class="notification-footer">
-                  @if (!notification.read) {
+                  @if (!notification.leida) {
                     <button class="btn-secondary" (click)="markAsRead(notification); $event.stopPropagation()">
                       <span class="material-icons">done</span>
                       Marcar como leída

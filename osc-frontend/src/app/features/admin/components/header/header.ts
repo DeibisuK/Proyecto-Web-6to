@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, HostListener } from '@angular/core';
+import { Component, Input, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { SystemNotificationService, SystemNotification } from '@core/services/system-notification.service';
 
 @Component({
   selector: 'app-header',
@@ -12,30 +13,116 @@ import { AuthService } from '@core/services/auth.service';
 export class Header implements OnInit {
   @Input() currentPageTitle: string = 'Dashboard';
 
+  private notificationService = inject(SystemNotificationService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   user: any = null;
   showUserMenu = false;
+  showNotifications = false;
+  imageError = false;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  // Usar signals del servicio directamente mediante getters
+  get notifications() {
+    return this.notificationService.notifications;
+  }
+
+  get unreadCount() {
+    return this.notificationService.unreadCount;
+  }
 
   ngOnInit(): void {
     this.authService.user$.subscribe(user => {
       this.user = user;
+      this.imageError = false; // Reset error state when user changes
+
+      if (user?.uid) {
+        this.notificationService.startPolling(user.uid);
+      }
     });
   }
+
+  // Método eliminado ya que startPolling lo hace automáticamente
+  // loadNotifications(uid: string): void {
+  //   this.notificationService.getNotifications({ uid }).subscribe();
+  // }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.user-info')) {
+    if (!target.closest('.user-info') && !target.closest('.notifications-wrapper')) {
       this.showUserMenu = false;
+      this.showNotifications = false;
     }
   }
 
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
+    this.showNotifications = false; // Cerrar notificaciones si se abre el menú de usuario
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showUserMenu = false; // Cerrar menú de usuario si se abren notificaciones
+  }
+
+  markAsRead(notification: SystemNotification): void {
+    if (this.user?.uid && !notification.leida) {
+      this.notificationService.markAsRead(notification.id_notificacion, this.user.uid).subscribe({
+        next: () => {
+          console.log('✅ Notificación marcada como leída');
+          // Recargar notificaciones después de marcar como leída
+          this.notificationService.getNotifications({
+            uid: this.user!.uid,
+            limit: 20
+          }).subscribe(notifs => {
+            this.notificationService.notifications.set(notifs);
+          });
+        },
+        error: (error) => console.error('❌ Error al marcar notificación:', error)
+      });
+    }
+  }
+
+  markAllAsRead(): void {
+    if (this.user?.uid) {
+      this.notificationService.markAllAsRead(this.user.uid).subscribe({
+        next: () => {
+          console.log('✅ Todas las notificaciones marcadas como leídas');
+          // Recargar notificaciones después de marcar todas como leídas
+          this.notificationService.getNotifications({
+            uid: this.user!.uid,
+            limit: 20
+          }).subscribe(notifs => {
+            this.notificationService.notifications.set(notifs);
+          });
+        },
+        error: (error) => console.error('❌ Error al marcar todas:', error)
+      });
+    }
+  }
+
+  getNotificationIcon(type: string): string {
+    const icons: Record<string, string> = {
+      info: 'info',
+      success: 'check_circle',
+      warning: 'warning',
+      error: 'error',
+      promotion: 'local_offer'
+    };
+    return icons[type] || 'notifications';
+  }
+
+  getTimeAgo(dateString: string): string {
+    const date = new Date(dateString);
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'Hace unos segundos';
+    if (seconds < 3600) return `Hace ${Math.floor(seconds / 60)} minutos`;
+    if (seconds < 86400) return `Hace ${Math.floor(seconds / 3600)} horas`;
+    if (seconds < 604800) return `Hace ${Math.floor(seconds / 86400)} días`;
+
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
   }
 
   verPerfil(): void {
@@ -62,5 +149,10 @@ export class Header implements OnInit {
       return this.user.email.split('@')[0];
     }
     return 'Administrador';
+  }
+
+  onImageError(): void {
+    // Cuando la imagen falla al cargar, marcamos el error para mostrar el placeholder
+    this.imageError = true;
   }
 }
