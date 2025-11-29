@@ -25,6 +25,97 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Sección de Cashback */
+.cashback-section {
+  margin-bottom: 2rem;
+}
+
+.cashback-card {
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.cashback-card::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -5%;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cashback-icon {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cashback-icon svg {
+  stroke: white;
+}
+
+.cashback-content {
+  flex: 1;
+  color: white;
+}
+
+.cashback-content h4 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.cashback-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.cashback-amount .currency {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.cashback-amount .amount {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.cashback-description {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .cashback-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cashback-amount {
+    justify-content: center;
+  }
+}
+
 /* Sección de tarjetas */
 .cards-section h3 {
   font-size: 24px;
