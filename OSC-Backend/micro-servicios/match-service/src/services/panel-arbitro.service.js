@@ -48,7 +48,7 @@ class PanelArbitroService {
                 LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
                 LEFT JOIN sedes s ON pt.id_sede = s.id_sede
                 LEFT JOIN fases_torneo f ON pt.id_fase = f.id_fase
-                WHERE t.id_arbitro = $1
+                WHERE pt.id_arbitro = $1
             `;
 
             const params = [idArbitro];

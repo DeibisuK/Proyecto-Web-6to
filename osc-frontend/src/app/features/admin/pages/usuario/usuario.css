@@ -37,12 +37,23 @@
   border-radius: 8px;
   font-size: 0.9rem;
   transition: all 0.2s ease;
+  color: #333333;
+}
+
+.search-box input::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
 }
 
 .search-box input:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+  color: #000000;
+}
+
+.search-box input:focus::placeholder {
+  color: transparent;
 }
 
 /* Dropdown Custom para Filtro Rol */

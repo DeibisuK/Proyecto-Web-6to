@@ -13,10 +13,10 @@
           <h2>Iniciar Sesión</h2>
 
           <h4>Correo electrónico</h4>
-          <input type="email" [(ngModel)]="usuario" placeholder="gary@gmail.com" />
+          <input type="email" [(ngModel)]="usuario" placeholder="gary@gmail.com" (keyup.enter)="loginConEmail()" />
 
           <h4>Contraseña</h4>
-          <input type="password" [(ngModel)]="password" placeholder="Ingrese su contraseña" />
+          <input type="password" [(ngModel)]="password" placeholder="Ingrese su contraseña" (keyup.enter)="loginConEmail()" />
 
           <a href="#" (click)="abrirRecuperacion(); $event.preventDefault()"
             >Olvidaste tu contraseña?</a
@@ -41,13 +41,13 @@
           <h2>Crear Cuenta</h2>
 
           <h4>Nombre completo</h4>
-          <input type="text" [(ngModel)]="nombre" placeholder="Tu nombre completo" />
+          <input type="text" [(ngModel)]="nombre" placeholder="Tu nombre completo" (keyup.enter)="registroConEmail()" />
 
           <h4>Correo electrónico</h4>
-          <input type="email" [(ngModel)]="email" placeholder="usuario@email.com" />
+          <input type="email" [(ngModel)]="email" placeholder="usuario@email.com" (keyup.enter)="registroConEmail()" />
 
           <h4>Contraseña</h4>
-          <input type="password" [(ngModel)]="passwordRegistro" placeholder="Crea una contraseña" />
+          <input type="password" [(ngModel)]="passwordRegistro" placeholder="Crea una contraseña" (keyup.enter)="registroConEmail()" />
 
           <button class="btn-primary" (click)="registroConEmail()">Registrarse</button>
 

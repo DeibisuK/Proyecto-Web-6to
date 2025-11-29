@@ -1,0 +1,17 @@
+/* Estilos para el input de búsqueda */
+.search-input {
+  color: #333333;
+}
+
+.search-input::placeholder {
+  color: #9CA3AF;
+  opacity: 1;
+}
+
+.search-input:focus {
+  color: #000000;
+}
+
+.search-input:focus::placeholder {
+  color: transparent;
+}

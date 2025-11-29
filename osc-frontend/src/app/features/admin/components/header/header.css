@@ -445,7 +445,7 @@
   color: #333;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   border: none;
   background: none;
   width: 100%;
@@ -454,7 +454,7 @@
 }
 
 .dropdown-item:hover {
-  background: #f8f9fa;
+  background: #E5E7EB;
 }
 
 .dropdown-item.danger {
