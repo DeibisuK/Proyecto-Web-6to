@@ -24,6 +24,7 @@ import {
   from,
 } from 'rxjs';
 import { UserApiService } from '@shared/services/index';
+import { NotificationService } from '../services/notification.service';
 import { environment } from '@env/environment';
 
 interface CustomClaims {
@@ -36,6 +37,7 @@ export class AuthService {
   private auth = inject(Auth);
   private userApi = inject(UserApiService);
   private http = inject(HttpClient);
+  private notificationService = inject(NotificationService);
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   user$ = this.currentUserSubject.asObservable();
@@ -136,58 +138,74 @@ export class AuthService {
     password: string,
     displayName?: string
   ): Promise<UserCredential> {
-    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-    if (displayName) {
-      try {
-        // @ts-ignore
-        await updateProfile(credential.user as any, { displayName });
-        // Actualiza el subject local para reflejar el nombre inmediatamente
-        const current = this.currentUserSubject.value;
-        if (current && current.uid === credential.user.uid) {
-          const updated = Object.assign(Object.create(Object.getPrototypeOf(current)), current);
+    const loadingKey = 'register-loading';
+
+    // ✅ Mostrar notificación de creación de cuenta
+    this.notificationService.loading('Creando cuenta...', loadingKey);
+
+    try {
+      const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+
+      if (displayName) {
+        try {
           // @ts-ignore
-          updated.displayName = displayName;
-          this.currentUserSubject.next(updated);
+          await updateProfile(credential.user as any, { displayName });
+          // Actualiza el subject local para reflejar el nombre inmediatamente
+          const current = this.currentUserSubject.value;
+          if (current && current.uid === credential.user.uid) {
+            const updated = Object.assign(Object.create(Object.getPrototypeOf(current)), current);
+            // @ts-ignore
+            updated.displayName = displayName;
+            this.currentUserSubject.next(updated);
+          }
+        } catch (err) {
+          console.error('Error al establecer displayName después del registro', err);
+        }
+      }
+
+      // Persiste la información del usuario en el backend
+      try {
+        const uid = credential.user.uid;
+        const payload = {
+          uid,
+          nombre: displayName || null,
+          email: credential.user.email || null,
+          id_rol: 2,
+        };
+        const resp = await firstValueFrom(this.userApi.createUser(payload));
+
+        // Enviar correo de bienvenida
+        try {
+          await firstValueFrom(
+            this.http.post(`${environment.apiUrl}/u/bienvenida`, {
+              nombre: displayName || 'Usuario',
+              email: credential.user.email
+            })
+          );
+        } catch (emailErr) {
+          console.error('Error al enviar correo de bienvenida', emailErr);
+          // No lanzamos error para no afectar el registro
+        }
+
+        // Refresca el token para obtener los claims actualizados
+        try {
+          await credential.user.getIdToken(true);
+        } catch (err) {
+          console.error('Error al refrescar token después del registro', err);
         }
       } catch (err) {
-        console.error('Error al establecer displayName después del registro', err);
+        console.error('Error al persistir usuario en el backend', err);
       }
+
+      // ✅ Cerrar notificación de loading y mostrar éxito
+      this.notificationService.success('¡Cuenta creada exitosamente!');
+
+      return credential;
+    } catch (error) {
+      // ✅ En caso de error, mostrar mensaje de error
+      this.notificationService.error('Error al crear cuenta');
+      throw error;
     }
-
-    // Persiste la información del usuario en el backend
-    try {
-      const uid = credential.user.uid;
-      const payload = {
-        uid,
-        nombre: displayName || null,
-        email: credential.user.email || null,
-        id_rol: 2,
-      };
-      const resp = await firstValueFrom(this.userApi.createUser(payload));
-
-      // Enviar correo de bienvenida
-      try {
-        await firstValueFrom(
-          this.http.post(`${environment.apiUrl}/u/bienvenida`, {
-            nombre: displayName || 'Usuario',
-            email: credential.user.email
-          })
-        );
-      } catch (emailErr) {
-        console.error('Error al enviar correo de bienvenida', emailErr);
-        // No lanzamos error para no afectar el registro
-      }
-
-      // Refresca el token para obtener los claims actualizados
-      try {
-        await credential.user.getIdToken(true);
-      } catch (err) {
-        console.error('Error al refrescar token después del registro', err);
-      }
-    } catch (err) {
-      console.error('Error al persistir usuario en el backend', err);
-    }
-    return credential;
   }
 
   async sendPasswordReset(email: string): Promise<void> {

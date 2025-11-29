@@ -292,8 +292,20 @@
             <select [(ngModel)]="arbitroSeleccionado" class="form-control">
               <option [value]="null">-- Seleccione un árbitro --</option>
               @for (arbitro of arbitros(); track arbitro.uid) {
-                <option [value]="arbitro.uid">
+                <option [value]="arbitro.id_user">
                   {{ arbitro.name_user }} ({{ arbitro.email_user }})
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-map-marker-alt"></i> Seleccione Cancha</label>
+            <select [(ngModel)]="canchaSeleccionada" class="form-control">
+              <option [value]="null">-- Sin cancha asignada --</option>
+              @for (cancha of canchasFiltradas(); track cancha.id_cancha) {
+                <option [value]="cancha.id_cancha">
+                  {{ cancha.nombre_cancha }}
                 </option>
               }
             </select>

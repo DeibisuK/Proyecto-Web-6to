@@ -12,13 +12,15 @@ export const obtenerPartidos = async (filtros = {}) => {
         pt.id_partido,
         pt.id_torneo,
         t.nombre as torneo_nombre,
+        t.id_sede,
+        t.id_deporte,
         d.nombre_deporte,
         pt.id_equipo_local,
         el.nombre_equipo as nombre_equipo_local,
-        el.logo as logo_equipo_local,
+        el.logo_url as logo_equipo_local,
         pt.id_equipo_visitante,
         ev.nombre_equipo as nombre_equipo_visitante,
-        ev.logo as logo_equipo_visitante,
+        ev.logo_url as logo_equipo_visitante,
         pt.fecha_partido,
         pt.hora_inicio,
         pt.estado_partido,
@@ -26,11 +28,11 @@ export const obtenerPartidos = async (filtros = {}) => {
         pt.resultado_visitante,
         pt.id_cancha,
         c.nombre_cancha,
-        s.nombre_sede as sede_nombre,
-        t.id_arbitro,
+        s.nombre as sede_nombre,
+        pt.id_arbitro,
         u.name_user as nombre_arbitro,
         u.email_user as email_arbitro,
-        pt.notas
+        pt.nota
       FROM partidos_torneo pt
       INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
       INNER JOIN deportes d ON t.id_deporte = d.id_deporte
@@ -38,7 +40,7 @@ export const obtenerPartidos = async (filtros = {}) => {
       INNER JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
       LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
       LEFT JOIN sedes s ON c.id_sede = s.id_sede
-      LEFT JOIN usuarios u ON t.id_arbitro = u.uid
+      LEFT JOIN usuarios u ON pt.id_arbitro = u.id_user
       WHERE 1=1
     `;
 
@@ -64,8 +66,8 @@ export const obtenerPartidos = async (filtros = {}) => {
     }
 
     if (filtros.id_arbitro) {
-      query += ` AND t.id_arbitro = $${paramIndex}`;
-      params.push(filtros.id_arbitro); // Ya es string (uid)
+      query += ` AND pt.id_arbitro = $${paramIndex}`;
+      params.push(parseInt(filtros.id_arbitro));
       paramIndex++;
     }
 
@@ -91,11 +93,11 @@ export const obtenerPartidoPorId = async (id) => {
         t.nombre as torneo_nombre,
         d.nombre_deporte,
         el.nombre_equipo as nombre_equipo_local,
-        el.logo as logo_equipo_local,
+        el.logo_url as logo_equipo_local,
         ev.nombre_equipo as nombre_equipo_visitante,
-        ev.logo as logo_equipo_visitante,
+        ev.logo_url as logo_equipo_visitante,
         c.nombre_cancha,
-        s.nombre_sede as sede_nombre,
+        s.nombre as sede_nombre,
         u.name_user as nombre_arbitro,
         u.email_user as email_arbitro
       FROM partidos_torneo pt
@@ -105,7 +107,7 @@ export const obtenerPartidoPorId = async (id) => {
       INNER JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
       LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
       LEFT JOIN sedes s ON c.id_sede = s.id_sede
-      LEFT JOIN usuarios u ON t.id_arbitro = u.uid
+      LEFT JOIN usuarios u ON CAST(t.id_arbitro AS TEXT) = u.uid
       WHERE pt.id_partido = $1
     `;
 
@@ -139,13 +141,13 @@ export const asignarArbitro = async (idPartido, idArbitro) => {
     }
 
     const { id_torneo, estado_partido } = partidoResult.rows[0];
-    if (estado_partido !== 'programado') {
+    if (estado_partido !== 'programado' && estado_partido !== 'por_programar') {
       throw new Error(`No se puede asignar árbitro a un partido con estado "${estado_partido}"`);
     }
 
     // Verificar que el árbitro existe y tiene rol correcto
     const arbitroResult = await client.query(
-      'SELECT id_rol FROM usuarios WHERE uid = $1',
+      'SELECT id_rol FROM usuarios WHERE id_user = $1',
       [idArbitro]
     );
 
@@ -157,13 +159,13 @@ export const asignarArbitro = async (idPartido, idArbitro) => {
       throw new Error('El usuario seleccionado no tiene rol de árbitro');
     }
 
-    // Asignar árbitro al torneo
+    // Asignar árbitro al partido
     const updateResult = await client.query(
-      `UPDATE torneos 
+      `UPDATE partidos_torneo 
        SET id_arbitro = $1
-       WHERE id_torneo = $2
+       WHERE id_partido = $2
        RETURNING *`,
-      [idArbitro, id_torneo]
+      [idArbitro, idPartido]
     );
 
     // Obtener partido actualizado
@@ -173,6 +175,8 @@ export const asignarArbitro = async (idPartido, idArbitro) => {
     );
 
     // Registrar en historial (si existe la tabla)
+    // TODO: Verificar estructura de tabla historial_cambios_partido
+    /*
     try {
       await client.query(
         `INSERT INTO historial_cambios_partido 
@@ -184,6 +188,7 @@ export const asignarArbitro = async (idPartido, idArbitro) => {
       // Ignorar si la tabla no existe
       console.log('Historial no disponible:', historialError.message);
     }
+    */
 
     await client.query('COMMIT');
     return partidoActualizado.rows[0];
@@ -245,6 +250,8 @@ export const removerArbitro = async (idPartido) => {
     );
 
     // Registrar en historial (si existe la tabla)
+    // TODO: Verificar estructura de tabla historial_cambios_partido
+    /*
     try {
       await client.query(
         `INSERT INTO historial_cambios_partido 
@@ -255,6 +262,7 @@ export const removerArbitro = async (idPartido) => {
     } catch (historialError) {
       console.log('Historial no disponible:', historialError.message);
     }
+    */
 
     await client.query('COMMIT');
     return partidoActualizado.rows[0];

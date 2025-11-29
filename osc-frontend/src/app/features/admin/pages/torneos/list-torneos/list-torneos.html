@@ -255,6 +255,14 @@
             Bracket
           </button>
 
+          <!-- Botón Generar Calendario (solo si estado es 'cerrado', no tiene partidos y tiene equipos inscritos) -->
+          @if (torneo.estado === 'cerrado' && (!torneo.total_partidos || +torneo.total_partidos === 0) && torneo.equipos_inscritos && +torneo.equipos_inscritos > 0) {
+            <button class="btn-accion btn-fixture" (click)="generarFixture(torneo)" title="Generar Calendario de Partidos">
+              <i class="fas fa-calendar-plus"></i>
+              Generar Calendario
+            </button>
+          }
+
           <button class="btn-accion btn-editar" (click)="editarTorneo(torneo)" title="Editar">
             <i class="fas fa-edit"></i>
             Editar

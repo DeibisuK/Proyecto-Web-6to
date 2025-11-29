@@ -7,6 +7,8 @@ export interface Partido {
   id_partido: number;
   id_torneo: number;
   torneo_nombre?: string;
+  id_sede?: number;
+  id_deporte?: number;
   nombre_deporte?: string;
   id_equipo_local: number;
   nombre_equipo_local?: string;
@@ -29,6 +31,7 @@ export interface Partido {
 }
 
 export interface Usuario {
+  id_user: number;
   uid: string;
   name_user: string;
   email_user: string;

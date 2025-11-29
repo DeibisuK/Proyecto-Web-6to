@@ -554,7 +554,7 @@ class TorneoAdminService {
                     partido.id_equipo_visitante,
                     partido.fecha_partido,
                     partido.hora_inicio,
-                    'por_programar',
+                    'programado', // ✅ Cambiado de 'por_programar' a 'programado'
                     torneo.id_sede
                 ]);
                 partidosCreados++;

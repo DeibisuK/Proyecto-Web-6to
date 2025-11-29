@@ -259,6 +259,39 @@ class InscripcionService {
                 }
             }
 
+            // ✅ VERIFICAR SI SE LLENARON LOS CUPOS DEL TORNEO
+            const checkCuposQuery = `
+                SELECT 
+                    t.max_equipos,
+                    t.estado,
+                    (SELECT COUNT(*) FROM inscripciones_torneo WHERE id_torneo = t.id_torneo AND aprobado = true) as inscritos
+                FROM torneos t
+                WHERE t.id_torneo = $1
+            `;
+            const torneoResult = await client.query(checkCuposQuery, [datos.id_torneo]);
+            const torneoInfo = torneoResult.rows[0];
+
+            // Si se llenaron todos los cupos y el torneo está abierto, cerrarlo automáticamente
+            if (torneoInfo && torneoInfo.inscritos >= torneoInfo.max_equipos && torneoInfo.estado === 'abierto') {
+                await client.query(
+                    `UPDATE torneos SET estado = 'cerrado' WHERE id_torneo = $1`,
+                    [datos.id_torneo]
+                );
+
+                // Notificar a los administradores
+                await client.query(`
+                    INSERT INTO notificaciones (uid_usuario, titulo, mensaje, tipo, fecha_creacion)
+                    SELECT 
+                        u.uid,
+                        'Torneo Completo - Cupos Llenos',
+                        'El torneo ha alcanzado el máximo de equipos inscritos y fue cerrado automáticamente. Ya puedes generar el fixture.',
+                        'info',
+                        NOW()
+                    FROM usuarios u
+                    WHERE u.id_rol = 1
+                `);
+            }
+
             await client.query('COMMIT');
             return inscripcion;
 

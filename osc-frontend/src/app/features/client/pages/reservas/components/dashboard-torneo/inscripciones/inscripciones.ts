@@ -269,6 +269,61 @@ export class Inscripciones implements OnInit {
   }
 
   /**
+   * Obtiene el mensaje explicando por qué NO se puede cancelar
+   */
+  getMensajeNoPuedeCancelar(inscripcion: Inscripcion): string {
+    // Si ya está cancelada
+    if (inscripcion.estado_inscripcion === 'cancelado') {
+      return 'Inscripción ya cancelada';
+    }
+
+    const ahora = new Date();
+    const fechaInicio = new Date(inscripcion.fecha_inicio);
+    const fechaFin = inscripcion.fecha_fin ? new Date(inscripcion.fecha_fin) : null;
+
+    // Si el torneo ya pasó su fecha de fin
+    if (fechaFin && fechaFin < ahora) {
+      return 'El torneo ha finalizado';
+    }
+
+    // Si el torneo ya finalizó (por estado)
+    if (inscripcion.torneo_estado === 'finalizado') {
+      return 'El torneo ha finalizado';
+    }
+
+    // Si el torneo está en curso
+    if (inscripcion.torneo_estado === 'en_curso') {
+      return 'El torneo ya comenzó';
+    }
+
+    // Si el torneo ya comenzó por fecha
+    if (fechaInicio < ahora) {
+      return 'El torneo ya comenzó';
+    }
+
+    // Si el torneo está cerrado (inscripciones cerradas)
+    if (inscripcion.torneo_estado === 'cerrado') {
+      return 'Las inscripciones están cerradas';
+    }
+
+    // Verificar las horas restantes
+    const horasRestantes = (fechaInicio.getTime() - ahora.getTime()) / (1000 * 60 * 60);
+
+    if (horasRestantes < 24 && horasRestantes >= 0) {
+      const horasRedondeadas = Math.floor(horasRestantes);
+      const minutos = Math.floor((horasRestantes - horasRedondeadas) * 60);
+      return `Faltan menos de 24h (quedan ${horasRedondeadas}h ${minutos}min)`;
+    }
+
+    // Si llegamos aquí con horas negativas, el torneo ya pasó
+    if (horasRestantes < 0) {
+      return 'El torneo ya comenzó';
+    }
+
+    return 'No disponible';
+  }
+
+  /**
    * Obtiene el rango de fechas del torneo
    */
   getRangoFechas(inscripcion: Inscripcion): string {

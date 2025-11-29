@@ -7,6 +7,9 @@ import { NotificationService } from '@core/services/notification.service';
 import { DeporteService } from '@shared/services/index';
 import { Deporte } from '@shared/models/index';
 
+// SweetAlert2 está cargado globalmente via CDN
+declare const Swal: any;
+
 @Component({
   selector: 'app-list-torneos',
   imports: [CommonModule, FormsModule],
@@ -463,5 +466,45 @@ export class ListTorneos implements OnInit {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  }
+
+  /**
+   * Generar calendario automático para un torneo
+   */
+  generarFixture(torneo: Torneo): void {
+    Swal.fire({
+      title: '¿Generar calendario de partidos?',
+      html: `<p>Se creará automáticamente el calendario completo del torneo <strong>"${torneo.nombre}"</strong> con todos los partidos según los equipos inscritos.</p>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, generar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.torneosService.generarFixture(torneo.id_torneo!).subscribe({
+          next: (response) => {
+            Swal.fire({
+              title: '¡Calendario generado!',
+              text: `Se crearon ${response.data.partidosCreados} partidos exitosamente`,
+              icon: 'success',
+              confirmButtonText: 'Entendido'
+            });
+            // Recargar torneos para ver los partidos creados
+            this.cargarTorneos();
+          },
+          error: (error) => {
+            console.error('Error al generar calendario:', error);
+            Swal.fire({
+              title: 'Error',
+              text: error.error?.message || 'No se pudo generar el calendario de partidos',
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
+          }
+        });
+      }
+    });
   }
 }

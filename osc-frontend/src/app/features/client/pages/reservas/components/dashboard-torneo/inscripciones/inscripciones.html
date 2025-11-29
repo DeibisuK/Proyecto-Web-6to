@@ -171,6 +171,12 @@
                   <i class="fas fa-times"></i>
                   Cancelar
                 </button>
+              } @else {
+                <!-- Mostrar por qué NO se puede cancelar -->
+                <div class="cancel-disabled-info">
+                  <i class="fas fa-info-circle"></i>
+                  <span>{{ getMensajeNoPuedeCancelar(inscripcion) }}</span>
+                </div>
               }
             </div>
           </div>

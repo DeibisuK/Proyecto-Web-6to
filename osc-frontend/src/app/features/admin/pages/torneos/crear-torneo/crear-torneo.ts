@@ -270,10 +270,26 @@ export class CrearTorneo implements OnInit {
             this.estadoSeleccionado.set(estado.label);
           }
 
-          const sede = this.sedes.find(s => s.id_sede === (torneo as any).id_sede);
-          if (sede) {
-            this.sedeSeleccionada.set(sede.nombre_sede);
+          // ✅ Cargar sede después de que las sedes estén disponibles
+          const idSedeGuardado = (torneo as any).id_sede;
+          if (idSedeGuardado) {
+            // Si ya tenemos las sedes cargadas, actualizar
+            const sede = this.sedes.find(s => s.id_sede === idSedeGuardado);
+            if (sede) {
+              this.sedeSeleccionada.set(sede.nombre_sede);
+            } else {
+              // Si aún no se cargaron las sedes, esperar y actualizar después
+              setTimeout(() => {
+                const sedeRetrasada = this.sedes.find(s => s.id_sede === idSedeGuardado);
+                if (sedeRetrasada) {
+                  this.sedeSeleccionada.set(sedeRetrasada.nombre_sede);
+                }
+              }, 500);
+            }
           }
+
+          // ✅ Recalcular horarios disponibles con los datos cargados
+          this.calcularHorariosDisponibles();
 
           // Calcular fecha fin si tiene los datos necesarios
           this.calcularFechaFin();

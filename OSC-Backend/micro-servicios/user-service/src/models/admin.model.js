@@ -76,7 +76,7 @@ export const getRoleById = async (id_rol) => {
 export const getUsersByRole = async (id_rol) => {
   try {
     const res = await db.query(
-      'SELECT uid, name_user, email_user, id_rol FROM usuarios WHERE id_rol = $1 ORDER BY name_user ASC',
+      'SELECT id_user, uid, name_user, email_user, id_rol FROM usuarios WHERE id_rol = $1 ORDER BY name_user ASC',
       [id_rol]
     );
     

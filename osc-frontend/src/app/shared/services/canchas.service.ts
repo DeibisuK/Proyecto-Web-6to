@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CanchaService {
   // Usamos API_URL para definir la URL base de canchas para operaciones CRUD
-  private canchasUrl = `${environment.apiUrl}/c/client/canchas`;
+  private canchasUrl = `${environment.apiUrl}/c/admin/canchas`;
 
   constructor(private http: HttpClient) {} // Obtener todas las canchas (GET /u/canchas)
 

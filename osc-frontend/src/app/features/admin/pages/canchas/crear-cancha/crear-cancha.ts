@@ -139,7 +139,7 @@ export class CrearCancha implements OnInit {
     const formData = new FormData();
     formData.append('imagen', this.imagenFile!);
 
-    this.http.post<{ success: boolean, url: string }>('http://localhost:3000/i/imagen/upload-cancha', formData)
+    this.http.post<{ success: boolean, url: string }>('http://localhost:3000/i/admin/upload-cancha', formData)
       .subscribe({
         next: (response) => {
           if (response.success) {

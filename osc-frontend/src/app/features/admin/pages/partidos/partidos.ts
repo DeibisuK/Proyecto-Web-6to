@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PartidosAdminService, Partido, Usuario } from './partidos.service';
 import { TorneosAdminService, Torneo } from '../torneos/torneos.service';
+import { CanchaService } from '@shared/services/canchas.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { Cancha } from '@app/shared/models';
 
 @Component({
   selector: 'app-partidos',
@@ -17,6 +19,7 @@ export class Partidos implements OnInit {
   partidos = signal<Partido[]>([]);
   arbitros = signal<Usuario[]>([]);
   torneos = signal<Torneo[]>([]);
+  canchas = signal<Cancha[]>([]);
   cargando = signal(false);
 
   // Filtros
@@ -27,6 +30,7 @@ export class Partidos implements OnInit {
   modalAsignacionAbierto = signal(false);
   partidoSeleccionado = signal<Partido | null>(null);
   arbitroSeleccionado = signal<number | null>(null);
+  canchaSeleccionada = signal<number | null>(null);
 
   // Computed
   partidosFiltrados = computed(() => {
@@ -44,16 +48,28 @@ export class Partidos implements OnInit {
   });
 
   partidosSinArbitro = computed(() =>
-    this.partidosFiltrados().filter(p => !p.id_arbitro && p.estado_partido === 'programado')
+    this.partidosFiltrados().filter(p => !p.id_arbitro && (p.estado_partido === 'programado' || p.estado_partido === 'por_programar'))
   );
 
   partidosConArbitro = computed(() =>
     this.partidosFiltrados().filter(p => p.id_arbitro)
   );
 
+  // Computed para canchas filtradas por sede y deporte del torneo
+  canchasFiltradas = computed(() => {
+    const partido = this.partidoSeleccionado();
+    if (!partido) return [];
+
+    return this.canchas().filter(cancha =>
+      cancha.id_sede === partido.id_sede &&
+      cancha.id_deporte === partido.id_deporte
+    );
+  });
+
   constructor(
     private partidosService: PartidosAdminService,
     private torneosService: TorneosAdminService,
+    private canchaService: CanchaService,
     private notification: NotificationService
   ) {}
 
@@ -64,11 +80,12 @@ export class Partidos implements OnInit {
   cargarDatos(): void {
     this.cargando.set(true);
 
-    // Cargar partidos, árbitros y torneos en paralelo
+    // Cargar partidos, árbitros, torneos y canchas en paralelo
     Promise.all([
       this.cargarPartidos(),
       this.cargarArbitros(),
-      this.cargarTorneos()
+      this.cargarTorneos(),
+      this.cargarCanchas()
     ]).finally(() => {
       this.cargando.set(false);
     });
@@ -133,9 +150,25 @@ export class Partidos implements OnInit {
     });
   }
 
+  cargarCanchas(): Promise<void> {
+    return new Promise((resolve) => {
+      this.canchaService.getCanchas().subscribe({
+        next: (canchas) => {
+          this.canchas.set(canchas);
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error al cargar canchas:', error);
+          resolve();
+        }
+      });
+    });
+  }
+
   abrirModalAsignacion(partido: Partido): void {
     this.partidoSeleccionado.set(partido);
     this.arbitroSeleccionado.set(partido.id_arbitro || null);
+    this.canchaSeleccionada.set(partido.id_cancha || null);
     this.modalAsignacionAbierto.set(true);
   }
 
@@ -143,6 +176,7 @@ export class Partidos implements OnInit {
     this.modalAsignacionAbierto.set(false);
     this.partidoSeleccionado.set(null);
     this.arbitroSeleccionado.set(null);
+    this.canchaSeleccionada.set(null);
   }
 
   asignarArbitro(): void {

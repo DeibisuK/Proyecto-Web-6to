@@ -492,6 +492,31 @@
   transform: translateY(-1px);
 }
 
+/* Mensaje cuando NO se puede cancelar */
+.cancel-disabled-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.75rem;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(255, 193, 7, 0.1);
+  color: #F39C12;
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.cancel-disabled-info i {
+  font-size: 0.875rem;
+}
+
+.cancel-disabled-info span {
+  line-height: 1.2;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .page-container {

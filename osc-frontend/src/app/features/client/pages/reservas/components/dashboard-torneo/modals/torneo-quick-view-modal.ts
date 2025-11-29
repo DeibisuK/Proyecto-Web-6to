@@ -48,7 +48,8 @@ export class TorneoQuickViewModalComponent {
 
   verClasificacion(): void {
     if (this.torneo) {
-      this.router.navigate(['/client/reservas/dashboard-torneo/clasificacion', this.torneo.id_torneo]);
+      // Navegar al bracket del torneo
+      this.router.navigate(['/client/reservas/dashboard-torneo/partido', this.torneo.id_torneo]);
       this.close();
     }
   }

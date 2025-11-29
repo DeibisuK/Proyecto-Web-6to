@@ -61,19 +61,14 @@
 }
 
 .filters .btn-en-curso {
-  background: #ca4e4e;
-  border-color: #ca4e4e;
   color: white;
-}
-
-.filters .btn-en-curso:hover {
-  background: #a73a3a;
-  border-color: #a73a3a;
+  border-color: #e24949;
+  color: var(--text-primary);
 }
 
 .filters .btn-en-curso.active {
-  background: #991b1b;
-  border-color: #991b1b;
+  background: #ce2f2f;
+  border-color: #cc4848;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
 
