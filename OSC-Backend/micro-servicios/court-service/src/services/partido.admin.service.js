@@ -275,6 +275,67 @@ export const removerArbitro = async (idPartido) => {
 };
 
 /**
+ * Asigna una cancha a un partido
+ * @param {number} idPartido - ID del partido
+ * @param {number} idCancha - ID de la cancha
+ * @returns {Promise<Object>}
+ */
+export const asignarCancha = async (idPartido, idCancha) => {
+  const client = await db.connect();
+  
+  try {
+    await client.query('BEGIN');
+
+    // Verificar que el partido existe
+    const partidoResult = await client.query(
+      'SELECT estado_partido FROM partidos_torneo WHERE id_partido = $1',
+      [idPartido]
+    );
+
+    if (partidoResult.rows.length === 0) {
+      throw new Error('Partido no encontrado');
+    }
+
+    const { estado_partido } = partidoResult.rows[0];
+    if (estado_partido !== 'programado' && estado_partido !== 'por_programar') {
+      throw new Error(`No se puede asignar cancha a un partido con estado "${estado_partido}"`);
+    }
+
+    // Verificar que la cancha existe
+    const canchaResult = await client.query(
+      'SELECT id_cancha FROM canchas WHERE id_cancha = $1',
+      [idCancha]
+    );
+
+    if (canchaResult.rows.length === 0) {
+      throw new Error('Cancha no encontrada');
+    }
+
+    // Asignar cancha al partido
+    await client.query(
+      `UPDATE partidos_torneo 
+       SET id_cancha = $1
+       WHERE id_partido = $2`,
+      [idCancha, idPartido]
+    );
+
+    // Obtener partido actualizado
+    const partidoActualizado = await client.query(
+      'SELECT * FROM partidos_torneo WHERE id_partido = $1',
+      [idPartido]
+    );
+
+    await client.query('COMMIT');
+    return partidoActualizado.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * Actualiza datos de un partido
  * @param {number} id - ID del partido
  * @param {Object} datos - Datos a actualizar

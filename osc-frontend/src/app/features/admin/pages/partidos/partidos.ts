@@ -182,6 +182,7 @@ export class Partidos implements OnInit {
   asignarArbitro(): void {
     const partido = this.partidoSeleccionado();
     const arbitroId = this.arbitroSeleccionado();
+    const canchaId = this.canchaSeleccionada();
 
     if (!partido || !arbitroId) {
       this.notification.error('Seleccione un árbitro');
@@ -189,11 +190,29 @@ export class Partidos implements OnInit {
     }
 
     this.cargando.set(true);
+
+    // Asignar árbitro primero
     this.partidosService.asignarArbitro(partido.id_partido, arbitroId).subscribe({
       next: (response) => {
-        this.notification.success('Árbitro asignado exitosamente');
-        this.cerrarModal();
-        this.cargarPartidos();
+        // Si hay cancha seleccionada, asignarla también
+        if (canchaId) {
+          this.partidosService.asignarCancha(partido.id_partido, canchaId).subscribe({
+            next: () => {
+              this.notification.success('Árbitro y cancha asignados exitosamente');
+              this.cerrarModal();
+              this.cargarPartidos();
+            },
+            error: (error) => {
+              console.error('Error al asignar cancha:', error);
+              this.notification.error('Árbitro asignado pero error al asignar cancha');
+              this.cargando.set(false);
+            }
+          });
+        } else {
+          this.notification.success('Árbitro asignado exitosamente');
+          this.cerrarModal();
+          this.cargarPartidos();
+        }
       },
       error: (error) => {
         console.error('Error al asignar árbitro:', error);

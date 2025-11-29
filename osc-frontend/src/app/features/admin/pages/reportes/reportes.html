@@ -59,30 +59,28 @@
         </div>
 
         @if (isCategoryExpanded(category.id)) {
-          <div class="category-content">
-            <div class="option-list">
-              @for (option of category.options; track option.id) {
-                <div class="option-item">
-                  <span class="option-label">{{ option.label }}</span>
-                  <div class="option-actions">
-                    <button
-                      class="action-btn pdf"
-                      (click)="handleExport('PDF', option.label)"
-                    >
-                      <span class="material-icons">description</span>
-                      PDF
-                    </button>
-                    <button
-                      class="action-btn excel"
-                      (click)="handleExport('Excel', option.label)"
-                    >
-                      <span class="material-icons">table_chart</span>
-                      Excel
-                    </button>
-                  </div>
+          <div class="dropdown-menu">
+            @for (option of category.options; track option.id) {
+              <div class="dropdown-item">
+                <span class="item-name">{{ option.label }}</span>
+                <div class="item-actions">
+                  <button
+                    class="btn-export pdf"
+                    (click)="handleExport('PDF', option.label)"
+                  >
+                    <span class="material-icons">description</span>
+                    PDF
+                  </button>
+                  <button
+                    class="btn-export excel"
+                    (click)="handleExport('Excel', option.label)"
+                  >
+                    <span class="material-icons">table_chart</span>
+                    Excel
+                  </button>
                 </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         }
       </div>

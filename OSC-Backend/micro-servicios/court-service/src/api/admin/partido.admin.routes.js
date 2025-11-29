@@ -12,6 +12,9 @@ router.get('/:id', partidoController.obtenerPartidoPorId);
 // PUT /c/admin/partidos/:id/asignar-arbitro - Asignar árbitro a partido
 router.put('/:id/asignar-arbitro', partidoController.asignarArbitro);
 
+// PUT /c/admin/partidos/:id/asignar-cancha - Asignar cancha a partido
+router.put('/:id/asignar-cancha', partidoController.asignarCancha);
+
 // DELETE /c/admin/partidos/:id/remover-arbitro - Remover árbitro del partido
 router.delete('/:id/remover-arbitro', partidoController.removerArbitro);
 

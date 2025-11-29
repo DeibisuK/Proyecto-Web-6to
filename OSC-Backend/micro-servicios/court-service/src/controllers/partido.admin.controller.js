@@ -141,6 +141,49 @@ export const removerArbitro = async (req, res) => {
 };
 
 /**
+ * Asigna una cancha a un partido
+ */
+export const asignarCancha = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { id_cancha } = req.body;
+
+    if (!id_cancha) {
+      return res.status(400).json({
+        success: false,
+        message: 'El campo id_cancha es requerido'
+      });
+    }
+
+    const partidoActualizado = await partidoService.asignarCancha(
+      parseInt(id),
+      id_cancha
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Cancha asignada exitosamente',
+      data: partidoActualizado
+    });
+  } catch (error) {
+    console.error('Error al asignar cancha:', error);
+    
+    if (error.message.includes('no encontrado')) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error al asignar cancha',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Actualiza datos de un partido
  */
 export const actualizarPartido = async (req, res) => {

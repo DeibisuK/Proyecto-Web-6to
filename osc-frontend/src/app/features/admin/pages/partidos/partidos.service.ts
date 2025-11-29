@@ -111,6 +111,16 @@ export class PartidosAdminService {
   }
 
   /**
+   * Asigna una cancha a un partido
+   */
+  asignarCancha(idPartido: number, idCancha: number): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.apiUrl}/partidos/${idPartido}/asignar-cancha`,
+      { id_cancha: idCancha }
+    );
+  }
+
+  /**
    * Obtiene lista de usuarios con rol árbitro
    */
   obtenerArbitros(): Observable<ApiResponse<Usuario[]>> {

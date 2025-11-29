@@ -125,8 +125,9 @@
   background: #FFFFFF;
   border-radius: 16px;
   border: 1px solid #E5E7EB;
-  overflow: hidden;
+  overflow: visible; /* Cambiado para permitir dropdown flotante */
   transition: all 0.2s ease;
+  position: relative; /* Para posicionar el dropdown */
 }
 
 .category-card:hover {
@@ -140,10 +141,6 @@
   padding: 20px 24px;
   cursor: pointer;
   transition: background 0.2s ease;
-}
-
-.category-header:hover {
-  background: #F9FAFB;
 }
 
 .category-left {
@@ -183,7 +180,99 @@
   transform: rotate(180deg);
 }
 
-/* Category Content */
+/* Dropdown Menu - Flotante/Superpuesto */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownSlideIn 0.2s ease;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: #F9FAFB;
+}
+
+.item-name {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-export .material-icons {
+  font-size: 16px;
+}
+
+.btn-export.pdf {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.btn-export.pdf:hover {
+  background: #D1FAE5;
+  transform: scale(1.05);
+}
+
+.btn-export.excel {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.btn-export.excel:hover {
+  background: #DBEAFE;
+  transform: scale(1.05);
+}
+
+/* Legacy - Category Content (deprecated) */
 .category-content {
   padding: 0 24px 24px;
   border-top: 1px solid #E5E7EB;
@@ -199,9 +288,130 @@
   padding-top: 16px;
   display: flex;
   flex-direction: column;
+}
+
+/* Report Option Row - Clean horizontal layout */
+.report-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.report-option-row:hover {
+  background: #F9FAFB;
+}
+
+.report-name {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  flex: 1;
+}
+
+.export-buttons {
+  display: flex;
   gap: 8px;
 }
 
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-export .material-icons {
+  font-size: 16px;
+}
+
+.btn-export.pdf {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.btn-export.pdf:hover {
+  background: #D1FAE5;
+  transform: translateY(-1px);
+}
+
+.btn-export.excel {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.btn-export.excel:hover {
+  background: #DBEAFE;
+  transform: translateY(-1px);
+}
+
+/* Legacy deprecated styles */
+.option-dropdown {
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.option-dropdown:last-child {
+  border-bottom: none;
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.option-header:hover {
+  background: #F9FAFB;
+}
+
+.option-label {
+  font-size: 15px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.chevron-option {
+  font-size: 20px;
+  color: #9CA3AF;
+  transition: transform 0.2s ease;
+}
+
+.chevron-option.open {
+  transform: rotate(180deg);
+  color: #25D366;
+}
+
+.option-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 14px 16px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Legacy option-item styles (deprecated) */
 .option-item {
   display: flex;
   align-items: center;
@@ -235,6 +445,106 @@
   transition: all 0.2s ease;
 }
 
+/* Export Dropdown */
+.export-dropdown {
+  position: relative;
+}
+
+.export-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid #E5E7EB;
+  background: #FFFFFF;
+  color: #6B7280;
+  transition: all 0.2s ease;
+}
+
+.export-trigger:hover {
+  border-color: #25D366;
+  color: #25D366;
+  background: #F9FAFB;
+}
+
+.export-trigger .material-icons {
+  font-size: 16px;
+}
+
+.export-trigger .chevron-small {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.export-trigger .chevron-small.open {
+  transform: rotate(180deg);
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.export-option .material-icons {
+  font-size: 18px;
+}
+
+.export-option.pdf {
+  color: #25D366;
+}
+
+.export-option.pdf:hover {
+  background: #ECFDF5;
+}
+
+.export-option.excel {
+  color: #3B82F6;
+}
+
+.export-option.excel:hover {
+  background: #EFF6FF;
+}
+
+/* Legacy styles for backwards compatibility */
 .action-btn {
   display: flex;
   align-items: center;

@@ -151,6 +151,12 @@ class TorneoAdminService {
                     t.creado_por,
                     t.creado_en,
                     t.id_arbitro,
+                    t.id_sede,
+                    t.dias_juego,
+                    t.horario_inicio,
+                    t.horarios_disponibles,
+                    t.partidos_por_dia,
+                    t.fecha_fin_calculada,
                     
                     -- Información del deporte
                     d.id_deporte,
