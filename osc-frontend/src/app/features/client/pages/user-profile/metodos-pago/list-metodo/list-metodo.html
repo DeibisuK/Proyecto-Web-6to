@@ -28,7 +28,7 @@
     <!-- Sección de tarjetas -->
     <div class="cards-section">
       <h3>Tarjetas de crédito y débito ({{ totalCards }})</h3>
-      
+
       <!-- Estado de carga con skeleton -->
       @if (isLoading) {
         <div class="loading-skeleton">
@@ -52,7 +52,7 @@
             <div class="payment-card">
               <div class="card-content">
                 <div class="card-header">
-                  <i [class]="getCardIcon(card.tipo_tarjeta)" 
+                  <i [class]="getCardIcon(card.tipo_tarjeta)"
                      [style.color]="getCardColor(card.tipo_tarjeta)"
                      class="card-type-icon"></i>
                   <span class="card-type">{{ card.tipo_tarjeta }}</span>
@@ -164,7 +164,7 @@
 </div>
 
 <!-- Modal para agregar tarjeta -->
-<app-crear-metodo 
+<app-crear-metodo
   [isModalOpen]="isModalOpen"
   (modalClosed)="closeModal()"
   (cardAdded)="onCardAdded($event)">
