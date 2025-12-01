@@ -188,8 +188,16 @@
         class="dropdown user-dropdown"
       >
         <a class="dropdown-toggle user-toggle" [title]="getUserDisplayName()" (click)="toggleUserMenu(); $event.stopPropagation()">
-          @if(isArbitro$ | async){
-          <div class="user-btn" style="border: 2px solid orange; background-color: orange">
+          @if(isAdmin$ | async){
+          <div class="user-btn admin-avatar">
+            @if (user.photoURL && !imageError) {
+            <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" (error)="onImageError()" />
+            } @else {
+            <span class="material-icons">account_circle</span>
+            }
+          </div>
+          }@else if(isArbitro$ | async){
+          <div class="user-btn arbitro-avatar">
             @if (user.photoURL && !imageError) {
             <img [src]="user.photoURL" alt="User Photo" style="width: 38px; border-radius: 8px" (error)="onImageError()" />
             } @else {

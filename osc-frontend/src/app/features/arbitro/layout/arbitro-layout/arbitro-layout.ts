@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-arbitro-layout',
-  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './arbitro-layout.html',
   styleUrl: './arbitro-layout.css'

@@ -52,8 +52,6 @@ export class SystemNotificationService {
    */
   private loadNotifications(uid: string): void {
     this.getNotifications({ uid, limit: 20 }).subscribe(notifs => {
-      console.log('🔔 Notificaciones cargadas:', notifs.length, notifs);
-
       // Preservar estado local de notificaciones ya marcadas como leídas
       const currentNotifs = this.notifications();
       const localReadIds = new Set(
@@ -70,7 +68,6 @@ export class SystemNotificationService {
 
       // Actualizar contador basado en notificaciones fusionadas
       const unread = mergedNotifs.filter(n => !n.leida).length;
-      console.log('📊 No leídas locales:', unread);
       this.unreadCount.set(unread);
     });
   }  /**
@@ -126,7 +123,6 @@ export class SystemNotificationService {
         const currentNotifs = this.notifications();
         const unreadAfter = currentNotifs.filter(n => !n.leida && n.id_notificacion !== id_notificacion).length;
         this.unreadCount.set(unreadAfter);
-        console.log('📉 Contador actualizado después de marcar:', unreadAfter);
         return notification;
       })
     );

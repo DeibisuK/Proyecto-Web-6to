@@ -163,7 +163,7 @@
 
 <!-- Modal de Cambiar Rol -->
 @if (mostrarModalCambiarRol) {
-<div class="modal-overlay" (click)="cerrarModalCambiarRol()">
+<div class="modal-overlay">
   <div class="modal-cambiar-rol" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>Cambiar Rol de Usuario</h2>
@@ -174,25 +174,45 @@
 
     @if (usuarioSeleccionado) {
     <div class="modal-body">
-      <p class="modal-subtitle">
-        Selecciona el nuevo rol para <strong>{{ usuarioSeleccionado.displayName }}</strong>
-      </p>
+      <div class="user-info-modal">
+        <div class="user-avatar-modal">
+          @if (usuarioSeleccionado.photoURL) {
+          <img [src]="usuarioSeleccionado.photoURL" alt="Avatar" />
+          } @else {
+          <span class="material-icons">account_circle</span>
+          }
+        </div>
+        <div class="user-details-modal">
+          <h3>{{ usuarioSeleccionado.displayName || 'Usuario' }}</h3>
+          <p>{{ usuarioSeleccionado.email }}</p>
+        </div>
+      </div>
 
-      <div class="roles-grid">
+      <div class="roles-list">
         @for (rol of roles; track rol.value) {
-        <label class="rol-option" [class.selected]="nuevoRol === rol.value">
+        <label class="rol-item" [class.selected]="nuevoRol === rol.value">
           <input type="radio" name="rol" [value]="rol.value" [(ngModel)]="nuevoRol" />
-          <div class="rol-card" [style.border-color]="rol.color">
-            <span class="rol-icon material-icons">
+          <div class="rol-content">
+            <span class="rol-icon material-icons" [style.color]="rol.color">
               {{
                 rol.value === 'Admin'
-                  ? 'manage_accounts'
+                  ? 'admin_panel_settings'
                   : rol.value === 'Arbitro'
-                  ? 'sports_soccer'
+                  ? 'sports'
                   : 'person'
               }}
             </span>
-            <span class="rol-name" [style.color]="rol.color">{{ rol.label }}</span>
+            <div class="rol-info">
+              <span class="rol-name">{{ rol.label }}</span>
+              <span class="rol-description">{{
+                rol.value === 'Admin'
+                  ? 'Acceso completo al sistema'
+                  : rol.value === 'Arbitro'
+                  ? 'Gestión de partidos y torneos'
+                  : 'Acceso cliente estándar'
+              }}</span>
+            </div>
+            <span class="rol-check material-icons">check_circle</span>
           </div>
         </label>
         }
@@ -216,7 +236,7 @@
 
 <!-- Modal de Confirmación de Eliminación -->
 @if (mostrarModalEliminar) {
-<div class="modal-overlay" (click)="cerrarModalEliminar()">
+<div class="modal-overlay">
   <div class="modal-eliminar" (click)="$event.stopPropagation()">
     <div class="modal-icon-warning">
       <span class="material-icons">warning</span>

@@ -549,81 +549,125 @@
   padding: 2rem;
 }
 
-.modal-subtitle {
-  text-align: center;
-  color: var(--color-text-muted);
-  margin: 0 0 1.5rem 0;
-  font-size: 0.95rem;
-}
-
-.modal-subtitle strong {
-  color: var(--color-primary);
-  font-weight: 600;
-}
-
-/* Grid de Roles */
-.roles-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.user-info-modal {
+  display: flex;
+  align-items: center;
   gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
 }
 
-.rol-option {
+.user-avatar-modal {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 3px solid var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.user-avatar-modal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar-modal .material-icons {
+  font-size: 2.5rem;
+  color: var(--color-accent);
+}
+
+.user-details-modal h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.user-details-modal p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Lista de Roles */
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rol-item {
   cursor: pointer;
+  display: block;
 }
 
-.rol-option input[type='radio'] {
+.rol-item input[type='radio'] {
   display: none;
 }
 
-.rol-card {
-  padding: 1.5rem;
-  border: 3px solid #e0e0e0;
-  border-radius: 12px;
+.rol-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  transition: all 0.2s ease;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   background: white;
+  transition: all 0.2s ease;
   position: relative;
 }
 
-.rol-option:hover .rol-card {
-  border-color: currentColor;
-  background: rgba(0, 0, 0, 0.02);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  background: #516a8421;
+.rol-item:hover .rol-content {
+  border-color: var(--color-accent);
+  background: #f9fafb;
+  transform: translateX(4px);
 }
 
-.rol-option:active .rol-card {
-  transform: translateY(0);
-}
-
-.rol-option.selected .rol-card {
-  background: #e6f4ec;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  transform: scale(1.02);
+.rol-item.selected .rol-content {
+  border-color: var(--color-accent);
+  background: #ecfdf5;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.15);
 }
 
 .rol-icon {
-  font-size: 2.5rem;
-  transition: transform 0.2s ease;
+  font-size: 2rem;
+  flex-shrink: 0;
 }
 
-.rol-option:hover .rol-icon {
-  transform: scale(1.1);
-}
-
-.rol-option.selected .rol-icon {
-  transform: scale(1.15);
+.rol-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .rol-name {
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-primary);
+}
+
+.rol-description {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.rol-check {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.rol-item.selected .rol-check {
+  opacity: 1;
 }
 
 /* Modal Footer */
