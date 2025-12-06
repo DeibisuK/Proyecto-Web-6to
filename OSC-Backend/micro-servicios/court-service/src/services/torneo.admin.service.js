@@ -477,6 +477,8 @@ class TorneoAdminService {
         try {
             await client.query('BEGIN');
 
+            console.log('[FIXTURE] Generando fixture para torneo:', idTorneo);
+
             // Obtener información del torneo
             const torneoQuery = `
                 SELECT 
@@ -493,14 +495,18 @@ class TorneoAdminService {
             }
 
             const torneo = torneoResult.rows[0];
+            console.log('[FIXTURE] Torneo encontrado:', torneo.nombre);
+            console.log('[FIXTURE] Horarios:', torneo.horarios_disponibles);
+            console.log('[FIXTURE] Días de juego:', torneo.dias_juego);
+            console.log('[FIXTURE] Partidos por día:', torneo.partidos_por_dia);
 
             // Verificar que tenga configuración de horarios
             if (!torneo.horarios_disponibles || torneo.horarios_disponibles.length === 0) {
-                throw new Error('El torneo no tiene horarios configurados');
+                throw new Error('El torneo no tiene horarios configurados. Ve a "Editar Torneo" y configura los horarios.');
             }
 
             if (!torneo.dias_juego || torneo.dias_juego.length === 0) {
-                throw new Error('El torneo no tiene días de juego configurados');
+                throw new Error('El torneo no tiene días de juego configurados. Ve a "Editar Torneo" y configura los días.');
             }
 
             // Obtener equipos inscritos y aprobados
@@ -514,12 +520,17 @@ class TorneoAdminService {
             const equiposResult = await client.query(equiposQuery, [idTorneo]);
             const equipos = equiposResult.rows;
 
+            console.log('[FIXTURE] Equipos inscritos:', equipos.length);
+            console.log('[FIXTURE] Equipos:', equipos.map(e => e.nombre_equipo).join(', '));
+
             if (equipos.length < 2) {
-                throw new Error('Se necesitan al menos 2 equipos inscritos para generar el fixture');
+                throw new Error('Se necesitan al menos 2 equipos inscritos y aprobados para generar el fixture');
             }
 
             // Generar partidos según el tipo de torneo
             let partidos = [];
+            
+            console.log('[FIXTURE] Tipo de torneo:', torneo.tipo_torneo);
             
             if (torneo.tipo_torneo === 'eliminatoria-directa') {
                 partidos = this._generarEliminatoriaDirecta(equipos);
@@ -527,7 +538,11 @@ class TorneoAdminService {
                 partidos = this._generarTodosContraTodos(equipos);
             } else if (torneo.tipo_torneo === 'grupo-eliminatoria') {
                 partidos = this._generarGruposYEliminatoria(equipos);
+            } else {
+                throw new Error(`Tipo de torneo no soportado: ${torneo.tipo_torneo}`);
             }
+
+            console.log('[FIXTURE] Partidos generados (sin fechas):', partidos.length);
 
             // Asignar fechas y horarios a los partidos
             const partidosConFechas = this._asignarFechasYHorarios(
@@ -535,8 +550,13 @@ class TorneoAdminService {
                 torneo.fecha_inicio, 
                 torneo.dias_juego, 
                 torneo.horarios_disponibles,
-                torneo.partidos_por_dia
+                torneo.partidos_por_dia || 3 // Default: 3 partidos por día
             );
+
+            console.log('[FIXTURE] Partidos con fechas asignadas:', partidosConFechas.length);
+            if (partidosConFechas.length > 0) {
+                console.log('[FIXTURE] Primer partido:', partidosConFechas[0]);
+            }
 
             // Insertar partidos en la base de datos
             const insertQuery = `
@@ -560,11 +580,13 @@ class TorneoAdminService {
                     partido.id_equipo_visitante,
                     partido.fecha_partido,
                     partido.hora_inicio,
-                    'programado', // ✅ Cambiado de 'por_programar' a 'programado'
+                    'programado',
                     torneo.id_sede
                 ]);
                 partidosCreados++;
             }
+
+            console.log('[FIXTURE] Partidos insertados en BD:', partidosCreados);
 
             // Actualizar estado del torneo
             await client.query(
@@ -636,6 +658,13 @@ class TorneoAdminService {
     _generarGruposYEliminatoria(equipos) {
         const partidos = [];
         const numEquipos = equipos.length;
+        
+        // Si hay muy pocos equipos (2-3), usar todos contra todos
+        if (numEquipos <= 3) {
+            console.log('[FIXTURE] Pocos equipos para grupos, usando todos contra todos');
+            return this._generarTodosContraTodos(equipos);
+        }
+        
         const equiposPorGrupo = Math.ceil(numEquipos / 2);
         
         // Dividir en 2 grupos

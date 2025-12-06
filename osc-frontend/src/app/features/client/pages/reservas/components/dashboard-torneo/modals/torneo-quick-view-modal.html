@@ -117,34 +117,6 @@
           </div>
         }
       </div>
-
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="verClasificacion(); $event.stopPropagation()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M3 3h7v7H3z"></path>
-            <path d="M14 3h7v7h-7z"></path>
-            <path d="M14 14h7v7h-7z"></path>
-            <path d="M3 14h7v7H3z"></path>
-          </svg>
-          Ver Bracket
-        </button>
-        <button class="btn btn-ghost" (click)="verDetalleCompleto(); $event.stopPropagation()">
-          Ver Detalle Completo
-        </button>
-        @if (puedeInscribirse()) {
-          <button
-            class="btn btn-primary"
-            (click)="onInscribirse(); $event.stopPropagation()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <polyline points="17 11 19 13 23 9"></polyline>
-            </svg>
-            Inscribirse
-          </button>
-        }
-      </div>
     </div>
   </div>
 }

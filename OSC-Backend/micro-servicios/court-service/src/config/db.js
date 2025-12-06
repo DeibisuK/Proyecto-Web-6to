@@ -12,6 +12,9 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  // Configurar zona horaria para evitar conversiones automáticas
+  // Ecuador: UTC-5 (sin horario de verano)
+  options: '-c timezone=America/Guayaquil',
 });
 
 export default pool;

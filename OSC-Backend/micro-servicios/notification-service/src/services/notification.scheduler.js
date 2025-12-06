@@ -220,8 +220,8 @@ cron.schedule('0 * * * *', async () => {
     const partidos = await pool.query(`
       SELECT 
         p.id_partido,
-        t.id_arbitro,
-        u.nombre_completo AS arbitro_nombre,
+        p.id_arbitro,
+        u.name_user AS arbitro_nombre,
         t.nombre AS torneo_nombre,
         p.fecha_partido,
         p.hora_inicio,
@@ -233,17 +233,17 @@ cron.schedule('0 * * * *', async () => {
       JOIN canchas c ON p.id_cancha = c.id_cancha
       JOIN equipos el ON p.id_equipo_local = el.id_equipo
       JOIN equipos ev ON p.id_equipo_visitante = ev.id_equipo
-      LEFT JOIN usuarios u ON t.id_arbitro = u.uid
+      LEFT JOIN usuarios u ON p.id_arbitro = u.id_user
       WHERE p.fecha_partido = CURRENT_DATE
         AND p.hora_inicio BETWEEN CURRENT_TIME + INTERVAL '1 hour' 
                               AND CURRENT_TIME + INTERVAL '3 hours'
         AND p.estado_partido = 'programado'
-        AND t.id_arbitro IS NOT NULL
+        AND p.id_arbitro IS NOT NULL
         AND NOT EXISTS (
           SELECT 1 FROM notificaciones n
-          WHERE n.uid_usuario = t.id_arbitro
+          WHERE n.uid_usuario = p.id_arbitro::text
             AND n.origen = 'partido'
-            AND n.id_referencia = p.id_partido
+            AND n.id_referencia = p.id_partido::text
             AND n.fecha_creacion::date = CURRENT_DATE
         )
     `);
@@ -253,12 +253,12 @@ cron.schedule('0 * * * *', async () => {
         INSERT INTO notificaciones (uid_usuario, asunto, descripcion, tipo, origen, id_referencia, prioridad, url_accion)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [
-        partido.id_arbitro,
+        partido.id_arbitro.toString(),
         `⏰ Partido en 2 horas`,
         `${partido.arbitro_nombre}, recuerda: arbitrarás el partido ${partido.equipo_local} vs ${partido.equipo_visitante} del torneo "${partido.torneo_nombre}" hoy a las ${partido.hora_inicio} en ${partido.nombre_cancha}.`,
         'warning',
         'partido',
-        partido.id_partido,
+        partido.id_partido.toString(),
         'alta',
         '/arbitro/panel'
       ]);

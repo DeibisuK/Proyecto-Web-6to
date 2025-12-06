@@ -141,6 +141,9 @@
         <label for="fecha_cierre_inscripcion" class="form-label">
           <i class="fas fa-calendar-times"></i>
           Cierre de Inscripción
+          <span class="tooltip-icon" data-tooltip="La fecha de cierre debe ser ANTERIOR a la fecha de inicio del torneo">
+            <i class="fas fa-question-circle"></i>
+          </span>
         </label>
         <input
           type="datetime-local"
@@ -148,7 +151,6 @@
           formControlName="fecha_cierre_inscripcion"
           class="form-input"
         />
-        <small class="form-hint">Opcional: Fecha límite para inscripciones</small>
       </div>
 
       <!-- Máximo de Equipos -->

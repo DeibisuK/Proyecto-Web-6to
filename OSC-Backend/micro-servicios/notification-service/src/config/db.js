@@ -9,6 +9,8 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  // Configurar zona horaria para evitar conversiones automáticas
+  options: '-c timezone=America/Guayaquil',
 });
 
 export default pool;

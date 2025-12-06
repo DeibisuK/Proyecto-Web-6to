@@ -26,27 +26,27 @@ export const adminRoutes: Routes = [
   {
     path: 'dashboard',
     component: Dashboard,
-    title: 'Dashboard'
+    title: 'OSC Dashboard'
   },
   {
     path: 'reportes',
     component: Reportes,
-    title: 'Reportes'
+    title: 'OSC Reportes'
   },
   {
     path: 'reservas',
     component: ListReservas,
-    title: 'Reservas'
+    title: 'OSC Reservas'
   },
   {
     path: 'productos',
     component: ProductosComponent,
-    title: 'Productos'
+    title: 'OSC Productos'
   },
   {
     path: 'sedes',
     component: ListSede,
-    title: 'Sedes'
+    title: 'OSC Sedes'
   },
   {
     path: 'crear-sede',
@@ -56,70 +56,72 @@ export const adminRoutes: Routes = [
   {
     path: 'editar-sede/:id',
     component: CrearSede,
-    title: 'Editar Sede'
+    title: 'OSC Editar Sede'
   },
   {
     path: 'canchas',
     component: ListCancha,
-    title: 'Canchas'
+    title: 'OSC Canchas'
   },
   {
     path: 'crear-cancha',
     component: CrearCancha,
-    title: 'Crear Cancha'
+    title: 'OSC Crear Cancha'
   },
   {
     path: 'editar-cancha/:id',
     component: CrearCancha,
-    title: 'Editar Cancha'
+    title: 'OSC Editar Cancha'
   },
   {
     path: 'historial',
     component: Historial,
-    title: 'Historial'
+    title: 'OSC Historial'
   },
   {
     path: 'partidos',
     component: Partidos,
-    title: 'Partidos'
+    title: 'OSC Partidos'
   },
   {
     path: 'pedidos-y-ventas',
     component: ListPedidos,
-    title: 'Pedidos y Ventas'
+    title: 'OSC Pedidos y Ventas'
   },
   {
     path: 'torneos',
     component: ListTorneos,
-    title: 'Torneos'
+    title: 'OSC Torneos'
   },
   {
     path: 'crear-torneo',
     component: CrearTorneo,
-    title: 'Crear Torneo'
+    title: 'OSC Crear Torneo'
   },
   {
     path: 'editar-torneo/:id',
     component: CrearTorneo,
-    title: 'Editar Torneo'
+    title: 'OSC Editar Torneo'
   },
   {
-    path: 'equipos', component: Equipos
+    path: 'equipos',
+    component: Equipos,
+    title: 'OSC Equipos'
   },
   {
     path: 'usuarios',
     component: UsuarioComponent,
-    title: 'Usuarios'
+    title: 'OSC Usuarios'
   },
   {
     path: 'anuncios',
     component: Anuncios,
-    title: 'Anuncios'
+    title: 'OSC Anuncios'
   },
   {
     path: 'arbitro-panel/:idPartido',
     component: ArbitroPanel,
-    title: 'Panel de Árbitro'
+    title: 'OSC Panel de Árbitro'
   },
   {
     path: '**',

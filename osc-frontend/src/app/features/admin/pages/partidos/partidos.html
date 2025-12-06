@@ -1,11 +1,4 @@
 <div class="partidos-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1><i class="fas fa-futbol"></i> Gestión de Partidos</h1>
-      <p class="subtitle">Asigna árbitros y gestiona los partidos de los torneos</p>
-    </div>
-  </div>
 
   <!-- Filtros -->
   <div class="filtros-card">
@@ -13,9 +6,9 @@
       <div class="form-group">
         <label><i class="fas fa-trophy"></i> Torneo</label>
         <select [(ngModel)]="filtroTorneo" (change)="aplicarFiltros()" class="form-control">
-          <option [value]="null">Todos los torneos</option>
+          <option [ngValue]="null">Todos los torneos</option>
           @for (torneo of torneos(); track torneo.id_torneo) {
-            <option [value]="torneo.id_torneo">{{ torneo.nombre }}</option>
+            <option [ngValue]="torneo.id_torneo">{{ torneo.nombre }}</option>
           }
         </select>
       </div>

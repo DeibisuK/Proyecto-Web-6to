@@ -15,6 +15,7 @@ const NO_CACHE_PATTERNS = [
   '/checkout',       // Checkout
   '/s',              // Suscripciones
   '/c/admin/torneos', // Torneos admin
+  '/c/admin/partidos', // Partidos admin
   '/c/client/torneos', // Torneos cliente
   '/m/client/equipos', // Partidos
   '/jugadores',      // Jugadores de equipos

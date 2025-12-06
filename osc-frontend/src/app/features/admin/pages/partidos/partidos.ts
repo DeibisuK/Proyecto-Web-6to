@@ -22,9 +22,9 @@ export class Partidos implements OnInit {
   canchas = signal<Cancha[]>([]);
   cargando = signal(false);
 
-  // Filtros
-  filtroTorneo = signal<number | null>(null);
-  filtroEstado = signal<string>('todos');
+  // Filtros - usando propiedades regulares para ngModel
+  filtroTorneo: number | null = null;
+  filtroEstado: string = 'todos';
 
   // Modal de asignación
   modalAsignacionAbierto = signal(false);
@@ -32,20 +32,8 @@ export class Partidos implements OnInit {
   arbitroSeleccionado = signal<number | null>(null);
   canchaSeleccionada = signal<number | null>(null);
 
-  // Computed
-  partidosFiltrados = computed(() => {
-    let resultado = this.partidos();
-
-    if (this.filtroTorneo() !== null) {
-      resultado = resultado.filter(p => p.id_torneo === this.filtroTorneo());
-    }
-
-    if (this.filtroEstado() !== 'todos') {
-      resultado = resultado.filter(p => p.estado_partido === this.filtroEstado());
-    }
-
-    return resultado;
-  });
+  // Computed - los partidos ya vienen filtrados del backend
+  partidosFiltrados = computed(() => this.partidos());
 
   partidosSinArbitro = computed(() =>
     this.partidosFiltrados().filter(p => !p.id_arbitro && (p.estado_partido === 'programado' || p.estado_partido === 'por_programar'))
@@ -95,16 +83,21 @@ export class Partidos implements OnInit {
     return new Promise((resolve) => {
       const filtros: any = {};
 
-      if (this.filtroTorneo()) {
-        filtros.id_torneo = this.filtroTorneo();
+      if (this.filtroTorneo !== null) {
+        filtros.id_torneo = Number(this.filtroTorneo);
       }
 
-      if (this.filtroEstado() !== 'todos') {
-        filtros.estado = this.filtroEstado();
+      if (this.filtroEstado !== 'todos') {
+        filtros.estado = this.filtroEstado;
       }
+
+      console.log('[PARTIDOS] Filtros aplicados:', filtros);
+      console.log('[PARTIDOS] filtroTorneo:', this.filtroTorneo, 'tipo:', typeof this.filtroTorneo);
+      console.log('[PARTIDOS] filtroEstado:', this.filtroEstado);
 
       this.partidosService.obtenerPartidos(filtros).subscribe({
         next: (response) => {
+          console.log('[PARTIDOS] Respuesta recibida:', response.data?.length, 'partidos');
           this.partidos.set(response.data || []);
           resolve();
         },
@@ -200,7 +193,7 @@ export class Partidos implements OnInit {
             next: () => {
               this.notification.success('Árbitro y cancha asignados exitosamente');
               this.cerrarModal();
-              this.cargarPartidos();
+              this.cargarPartidos().finally(() => this.cargando.set(false));
             },
             error: (error) => {
               console.error('Error al asignar cancha:', error);
@@ -211,7 +204,7 @@ export class Partidos implements OnInit {
         } else {
           this.notification.success('Árbitro asignado exitosamente');
           this.cerrarModal();
-          this.cargarPartidos();
+          this.cargarPartidos().finally(() => this.cargando.set(false));
         }
       },
       error: (error) => {
@@ -242,12 +235,15 @@ export class Partidos implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.cargarPartidos();
+    this.cargando.set(true);
+    this.cargarPartidos().finally(() => {
+      this.cargando.set(false);
+    });
   }
 
   limpiarFiltros(): void {
-    this.filtroTorneo.set(null);
-    this.filtroEstado.set('todos');
+    this.filtroTorneo = null;
+    this.filtroEstado = 'todos';
     this.cargarPartidos();
   }
 

@@ -12,7 +12,6 @@ import { DetalleProducto } from "./pages/shop/components/detalle-producto/detall
 import { CheckoutPage } from "./pages/shop/pages/checkout-page/checkout-page";
 import { MisPedidosPage } from "./pages/shop/pages/mis-pedidos-page/mis-pedidos-page";
 import { DetallePedidoPage } from "./pages/shop/pages/detalle-pedido-page/detalle-pedido-page";
-// import { CarritoComponent } from "./pages/shop/components/carrito/carrito"; // Ya no se usa, el carrito ahora es un componente React en el navbar
 import { PoliticaDePrivacidad } from "./pages/informacion/legal/politica-de-privacidad/politica-de-privacidad";
 import { TerminosYCondiciones } from "./pages/informacion/legal/terminos-y-condiciones/terminos-y-condiciones";
 import { PuntosLealtad } from "./pages/informacion/puntos-lealtad/puntos-lealtad";
@@ -99,7 +98,7 @@ export const clienteRoutes: Routes = [
     ]
   },
   {
-    path: 'puntos-de-lealtad',
+    path: 'cashback-de-lealtad',
     component: PuntosLealtad
   },
   {

@@ -154,13 +154,19 @@ export class CrearTorneo implements OnInit {
       totalPartidos = maxEquipos - 1; // n-1 partidos
     } else if (tipoTorneo === 'todos-contra-todos' || tipoTorneo === 'liga') {
       totalPartidos = (maxEquipos * (maxEquipos - 1)) / 2; // n(n-1)/2
-    } else {
-      // grupo-eliminatoria: estimación
-      totalPartidos = Math.ceil(maxEquipos * 1.5);
+    } else if (tipoTorneo === 'grupo-eliminatoria') {
+      // Fase de grupos (cada grupo juega entre sí) + fase eliminatoria
+      if (maxEquipos <= 3) {
+        // Pocos equipos: todos contra todos
+        totalPartidos = (maxEquipos * (maxEquipos - 1)) / 2;
+      } else {
+        // Grupos + eliminatoria: aproximadamente n partidos
+        totalPartidos = Math.ceil(maxEquipos * 1.2);
+      }
     }
 
-    // Máximo realista: total de partidos (no tiene sentido más)
-    return Math.max(1, totalPartidos);
+    // Mínimo 1, máximo el total de partidos
+    return Math.max(1, Math.min(10, totalPartidos));
   }
 
   actualizarMaxPartidosPorDia(): void {
@@ -246,7 +252,8 @@ export class CrearTorneo implements OnInit {
 
           // Actualizar horario de inicio
           if ((torneo as any).horario_inicio) {
-            this.horarioInicioSeleccionado = (torneo as any).horario_inicio;
+            // Usar formatearHora para asegurar formato correcto sin conversión de zona
+            this.horarioInicioSeleccionado = this.formatearHora((torneo as any).horario_inicio);
           }
 
           // Actualizar cantidad de participantes si es potencia de 2
@@ -305,6 +312,16 @@ export class CrearTorneo implements OnInit {
         this.volver();
       }
     });
+  }
+
+  formatearHora(hora: string): string {
+    if (!hora) return '';
+    // Asegurar formato HH:MM sin conversión de zona horaria
+    if (hora.includes(':')) {
+      const [h, m] = hora.split(':');
+      return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
+    }
+    return hora;
   }
 
   formatearFechaParaInput(fecha: string): string {
@@ -492,9 +509,23 @@ export class CrearTorneo implements OnInit {
     const [hora, minuto] = horarioInicio.split(':').map(Number);
 
     for (let i = 0; i < partidosPorDia; i++) {
-      const horaPartido = hora + (i * duracion);
-      const horaFormateada = String(Math.floor(horaPartido)).padStart(2, '0');
-      const minutoFormateado = String(minuto).padStart(2, '0');
+      // Calcular minutos totales desde el inicio
+      const minutosDesdeInicio = (i * duracion * 60); // Convertir horas a minutos
+      const horasAAgregar = Math.floor(minutosDesdeInicio / 60);
+      const minutosAAgregar = minutosDesdeInicio % 60;
+
+      // Calcular hora y minuto del partido
+      let horaPartido = hora + horasAAgregar;
+      let minutoPartido = minuto + minutosAAgregar;
+
+      // Ajustar si los minutos pasan de 60
+      if (minutoPartido >= 60) {
+        horaPartido += Math.floor(minutoPartido / 60);
+        minutoPartido = minutoPartido % 60;
+      }
+
+      const horaFormateada = String(horaPartido).padStart(2, '0');
+      const minutoFormateado = String(minutoPartido).padStart(2, '0');
       horarios.push(`${horaFormateada}:${minutoFormateado}`);
     }
 

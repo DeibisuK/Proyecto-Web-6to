@@ -36,8 +36,8 @@ export const obtenerPartidos = async (filtros = {}) => {
       FROM partidos_torneo pt
       INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
       INNER JOIN deportes d ON t.id_deporte = d.id_deporte
-      INNER JOIN equipos el ON pt.id_equipo_local = el.id_equipo
-      INNER JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
+      LEFT JOIN equipos el ON pt.id_equipo_local = el.id_equipo
+      LEFT JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
       LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
       LEFT JOIN sedes s ON c.id_sede = s.id_sede
       LEFT JOIN usuarios u ON pt.id_arbitro = u.id_user
@@ -103,8 +103,8 @@ export const obtenerPartidoPorId = async (id) => {
       FROM partidos_torneo pt
       INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
       INNER JOIN deportes d ON t.id_deporte = d.id_deporte
-      INNER JOIN equipos el ON pt.id_equipo_local = el.id_equipo
-      INNER JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
+      LEFT JOIN equipos el ON pt.id_equipo_local = el.id_equipo
+      LEFT JOIN equipos ev ON pt.id_equipo_visitante = ev.id_equipo
       LEFT JOIN canchas c ON pt.id_cancha = c.id_cancha
       LEFT JOIN sedes s ON c.id_sede = s.id_sede
       LEFT JOIN usuarios u ON CAST(t.id_arbitro AS TEXT) = u.uid

@@ -280,12 +280,13 @@ class InscripcionService {
 
                 // Notificar a los administradores
                 await client.query(`
-                    INSERT INTO notificaciones (uid_usuario, titulo, mensaje, tipo, fecha_creacion)
+                    INSERT INTO notificaciones (uid_usuario, asunto, descripcion, tipo, origen, fecha_creacion)
                     SELECT 
                         u.uid,
                         'Torneo Completo - Cupos Llenos',
                         'El torneo ha alcanzado el máximo de equipos inscritos y fue cerrado automáticamente. Ya puedes generar el fixture.',
                         'info',
+                        'sistema',
                         NOW()
                     FROM usuarios u
                     WHERE u.id_rol = 1
