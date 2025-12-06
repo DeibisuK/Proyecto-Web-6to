@@ -119,6 +119,14 @@ class PanelArbitroService {
             `;
             const updateResult = await client.query(updateQuery, [idPartido]);
 
+            // Si el partido tiene una cancha asignada, actualizar su estado a 'reservado'
+            if (partido.id_cancha) {
+                await client.query(
+                    `UPDATE canchas SET estado_cancha = 'reservado' WHERE id_cancha = $1`,
+                    [partido.id_cancha]
+                );
+            }
+
             // Registrar en historial de cambios
             const historialQuery = `
                 INSERT INTO historial_cambios_partido (
@@ -164,8 +172,7 @@ class PanelArbitroService {
             const verificarQuery = `
                 SELECT pt.id_partido, pt.estado_partido 
                 FROM partidos_torneo pt
-                INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
-                WHERE pt.id_partido = $1 AND t.id_arbitro = $2
+                WHERE pt.id_partido = $1 AND pt.id_arbitro = $2
             `;
             const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);
 
@@ -233,8 +240,7 @@ class PanelArbitroService {
             const verificarQuery = `
                 SELECT pt.id_partido, pt.estado_partido 
                 FROM partidos_torneo pt
-                INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
-                WHERE pt.id_partido = $1 AND t.id_arbitro = $2
+                WHERE pt.id_partido = $1 AND pt.id_arbitro = $2
             `;
             const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);
 
@@ -303,7 +309,7 @@ class PanelArbitroService {
                 SELECT pt.id_partido, pt.estado_partido, t.id_deporte
                 FROM partidos_torneo pt
                 INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
-                WHERE pt.id_partido = $1 AND t.id_arbitro = $2
+                WHERE pt.id_partido = $1 AND pt.id_arbitro = $2
             `;
             const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);
 
@@ -367,6 +373,10 @@ class PanelArbitroService {
      * Actualizar marcador del partido
      */
     async _actualizarMarcador(client, idPartido, idEquipo, puntos) {
+        // Convertir a números para evitar problemas de comparación
+        idEquipo = parseInt(idEquipo);
+        puntos = parseInt(puntos);
+        
         // Determinar si es equipo local o visitante
         const partidoQuery = `
             SELECT id_equipo_local, id_equipo_visitante, resultado_local, resultado_visitante
@@ -376,14 +386,22 @@ class PanelArbitroService {
         const partidoResult = await client.query(partidoQuery, [idPartido]);
         const partido = partidoResult.rows[0];
 
+        console.log('[MARCADOR] ID Equipo que anotó:', idEquipo, '(tipo:', typeof idEquipo, ')');
+        console.log('[MARCADOR] ID Equipo local:', partido.id_equipo_local, '(tipo:', typeof partido.id_equipo_local, ')');
+        console.log('[MARCADOR] ID Equipo visitante:', partido.id_equipo_visitante, '(tipo:', typeof partido.id_equipo_visitante, ')');
+        console.log('[MARCADOR] Son iguales local?:', idEquipo === partido.id_equipo_local);
+        console.log('[MARCADOR] Son iguales visitante?:', idEquipo === partido.id_equipo_visitante);
+
         let updateQuery;
         if (idEquipo === partido.id_equipo_local) {
+            console.log('[MARCADOR] Actualizando gol para equipo LOCAL');
             updateQuery = `
                 UPDATE partidos_torneo
                 SET resultado_local = resultado_local + $1
                 WHERE id_partido = $2
             `;
         } else {
+            console.log('[MARCADOR] Actualizando gol para equipo VISITANTE');
             updateQuery = `
                 UPDATE partidos_torneo
                 SET resultado_visitante = resultado_visitante + $1
@@ -404,12 +422,13 @@ class PanelArbitroService {
 
             // Verificar permiso
             const verificarQuery = `
-                SELECT pt.id_partido, pt.estado_partido, pt.fecha_hora_inicio
+                SELECT pt.id_partido, pt.estado_partido, pt.fecha_partido, pt.hora_inicio, pt.id_cancha
                 FROM partidos_torneo pt
-                INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
-                WHERE pt.id_partido = $1 AND t.id_arbitro = $2
+                WHERE pt.id_partido = $1 AND pt.id_arbitro = $2
             `;
-            const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);            if (verificarResult.rows.length === 0) {
+            const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);
+
+            if (verificarResult.rows.length === 0) {
                 throw new Error('No tienes permiso para finalizar este partido');
             }
 
@@ -419,24 +438,17 @@ class PanelArbitroService {
                 throw new Error('Solo se pueden finalizar partidos en curso o pausados');
             }
 
-            // Calcular duración
-            const fechaInicio = new Date(partido.fecha_hora_inicio);
-            const fechaFin = new Date();
-            const duracionMinutos = Math.round((fechaFin - fechaInicio) / 60000);
-
             // Actualizar partido
             const updateQuery = `
                 UPDATE partidos_torneo 
                 SET 
                     estado_partido = 'finalizado',
-                    fecha_hora_fin = NOW(),
-                    duracion_minutos = $1,
-                    nota = $2
-                WHERE id_partido = $3
+                    hora_fin = NOW(),
+                    nota = $1
+                WHERE id_partido = $2
                 RETURNING *
             `;
             const updateResult = await client.query(updateQuery, [
-                duracionMinutos,
                 datosFinalizacion.notas_arbitro || null,
                 idPartido
             ]);
@@ -459,8 +471,16 @@ class PanelArbitroService {
                 'finalizacion',
                 partido.estado_partido,
                 'finalizado',
-                `Partido finalizado. Duración: ${duracionMinutos} minutos`
+                `Partido finalizado`
             ]);
+
+            // Si el partido tiene una cancha asignada, liberar la cancha (volver a 'Disponible')
+            if (partido.id_cancha) {
+                await client.query(
+                    `UPDATE canchas SET estado = 'Disponible' WHERE id_cancha = $1`,
+                    [partido.id_cancha]
+                );
+            }
 
             // TODO: Aquí se podrían actualizar estadísticas de jugadores
             // y tabla de posiciones si es un torneo de liga

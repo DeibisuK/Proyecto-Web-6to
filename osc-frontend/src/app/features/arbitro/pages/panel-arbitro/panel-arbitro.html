@@ -62,9 +62,23 @@
         <button class="btn-volver" (click)="cerrarPartidoActual()">
           <i class="fas fa-arrow-left"></i> Volver
         </button>
-        <span class="badge-estado" [class.en-curso]="partidoActual()!.estado_partido === 'en_curso'">
-          <i class="fas" [class.fa-circle]="partidoActual()!.estado_partido === 'en_curso'" [class.fa-pause]="partidoActual()!.estado_partido === 'pausado'"></i>
-          {{ partidoActual()!.estado_partido === 'en_curso' ? 'EN VIVO' : 'PAUSADO' }}
+        <span class="badge-estado"
+              [class.en-curso]="partidoActual()!.estado_partido === 'en_curso'"
+              [class.pausado]="partidoActual()!.estado_partido === 'pausado'"
+              [class.finalizado]="partidoActual()!.estado_partido === 'finalizado'">
+          <i class="fas"
+             [class.fa-circle]="partidoActual()!.estado_partido === 'en_curso'"
+             [class.fa-pause]="partidoActual()!.estado_partido === 'pausado'"
+             [class.fa-flag-checkered]="partidoActual()!.estado_partido === 'finalizado'"></i>
+          @if (partidoActual()!.estado_partido === 'en_curso') {
+            EN VIVO
+          } @else if (partidoActual()!.estado_partido === 'pausado') {
+            PAUSADO
+          } @else if (partidoActual()!.estado_partido === 'finalizado') {
+            FINALIZADO
+          } @else {
+            {{ partidoActual()!.estado_partido | uppercase }}
+          }
         </span>
       </div>
 
@@ -103,9 +117,11 @@
             <i class="fas fa-play"></i> Reanudar
           </button>
         }
-        <button class="btn-control finalizar" (click)="abrirModalFinalizar()">
-          <i class="fas fa-flag-checkered"></i> Finalizar Partido
-        </button>
+        @if (partidoActual()!.estado_partido === 'en_curso' || partidoActual()!.estado_partido === 'pausado') {
+          <button class="btn-control finalizar" (click)="abrirModalFinalizar()">
+            <i class="fas fa-flag-checkered"></i> Finalizar Partido
+          </button>
+        }
       </div>
 
       <!-- Botones de Registro de Eventos -->
@@ -148,7 +164,7 @@
               <i class="fas" [ngClass]="getIconoEvento(evento.tipo_evento)"></i>
             </div>
             <div class="evento-info">
-              <strong>{{ evento.tipo_evento | uppercase }}</strong>
+              <strong>{{ formatearTipoEvento(evento.tipo_evento) }}</strong>
               <span>{{ evento.nombre_equipo }}</span>
               @if (evento.jugador_nombre) {
                 <span>• {{ evento.jugador_nombre }}</span>
@@ -172,12 +188,11 @@
   <!-- Lista de Partidos Asignados -->
   @if (!partidoActual() && !cargando()) {
     <div class="partidos-lista">
-      <!-- Partidos de Hoy -->
-      @if (partidosHoy().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'programado')) {
+      <!-- Mostrar partidos filtrados -->
+      @if (partidosFiltrados().length > 0) {
         <div class="seccion-partidos">
-          <h2>Hoy</h2>
-          @for (partido of partidosHoy(); track partido.id_partido) {
-            <div class="partido-card">
+          @for (partido of partidosFiltrados(); track partido.id_partido) {
+            <div class="partido-card" [ngClass]="{'finalizado': partido.estado_partido === 'finalizado'}">
               <div class="partido-header">
                 <span class="badge-deporte">
                   <i class="fas fa-futbol"></i> {{ partido.nombre_deporte }}
@@ -191,7 +206,7 @@
                 <div class="equipo-info">
                   <img [src]="partido.equipo_local_logo" alt="Local" class="logo-equipo">
                   <span class="nombre-equipo">{{ partido.equipo_local_nombre }}</span>
-                  @if (partido.estado_partido !== 'programado') {
+                  @if (partido.estado_partido !== 'programado' && partido.estado_partido !== 'por_programar') {
                     <span class="resultado">{{ partido.resultado_local }}</span>
                   }
                 </div>
@@ -199,7 +214,7 @@
                 <div class="equipo-info">
                   <img [src]="partido.equipo_visitante_logo" alt="Visitante" class="logo-equipo">
                   <span class="nombre-equipo">{{ partido.equipo_visitante_nombre }}</span>
-                  @if (partido.estado_partido !== 'programado') {
+                  @if (partido.estado_partido !== 'programado' && partido.estado_partido !== 'por_programar') {
                     <span class="resultado">{{ partido.resultado_visitante }}</span>
                   }
                 </div>
@@ -209,10 +224,11 @@
                 <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
                 <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin asignar' }}</span>
                 <span><i class="fas fa-clock"></i> {{ partido.hora_inicio }}</span>
+                <span><i class="fas fa-calendar"></i> {{ partido.fecha_partido | date:'dd/MM/yyyy' }}</span>
               </div>
 
               <div class="partido-acciones">
-                @if (partido.estado_partido === 'programado') {
+                @if (partido.estado_partido === 'programado' || partido.estado_partido === 'por_programar') {
                   <button class="btn-accion iniciar" (click)="iniciarPartido(partido)">
                     <i class="fas fa-play"></i> Iniciar Partido
                   </button>
@@ -231,86 +247,14 @@
             </div>
           }
         </div>
-      }
-
-      <!-- Próximos Partidos -->
-      @if (partidosProximos().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'programado')) {
-        <div class="seccion-partidos">
-          <h2>Próximos Partidos</h2>
-          @for (partido of partidosProximos(); track partido.id_partido) {
-            <div class="partido-card">
-              <div class="partido-header">
-                <span class="badge-deporte">
-                  <i class="fas fa-futbol"></i> {{ partido.nombre_deporte }}
-                </span>
-                <span class="badge-fecha">
-                  <i class="fas fa-calendar"></i> {{ partido.fecha_partido | date:'dd/MM/yyyy' }}
-                </span>
-              </div>
-
-              <div class="partido-equipos">
-                <div class="equipo-info">
-                  <img [src]="partido.equipo_local_logo" alt="Local" class="logo-equipo">
-                  <span class="nombre-equipo">{{ partido.equipo_local_nombre }}</span>
-                </div>
-                <div class="vs-separator">VS</div>
-                <div class="equipo-info">
-                  <img [src]="partido.equipo_visitante_logo" alt="Visitante" class="logo-equipo">
-                  <span class="nombre-equipo">{{ partido.equipo_visitante_nombre }}</span>
-                </div>
-              </div>
-
-              <div class="partido-info">
-                <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
-                <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin asignar' }}</span>
-                <span><i class="fas fa-clock"></i> {{ partido.hora_inicio }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Partidos Finalizados -->
-      @if (partidosFinalizados().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'finalizado')) {
-        <div class="seccion-partidos">
-          <h2>Partidos Finalizados</h2>
-          @for (partido of partidosFinalizados(); track partido.id_partido) {
-            <div class="partido-card finalizado">
-              <div class="partido-header">
-                <span class="badge-deporte">
-                  <i class="fas fa-futbol"></i> {{ partido.nombre_deporte }}
-                </span>
-                <span class="badge-fecha">
-                  <i class="fas fa-calendar"></i> {{ partido.fecha_partido | date:'dd/MM/yyyy' }}
-                </span>
-              </div>
-
-              <div class="partido-equipos">
-                <div class="equipo-info">
-                  <img [src]="partido.equipo_local_logo" alt="Local" class="logo-equipo">
-                  <span class="nombre-equipo">{{ partido.equipo_local_nombre }}</span>
-                  <span class="resultado">{{ partido.resultado_local }}</span>
-                </div>
-                <div class="vs-separator">-</div>
-                <div class="equipo-info">
-                  <img [src]="partido.equipo_visitante_logo" alt="Visitante" class="logo-equipo">
-                  <span class="nombre-equipo">{{ partido.equipo_visitante_nombre }}</span>
-                  <span class="resultado">{{ partido.resultado_visitante }}</span>
-                </div>
-              </div>
-
-              <div class="partido-info">
-                <span><i class="fas fa-trophy"></i> {{ partido.torneo_nombre }}</span>
-                <span><i class="fas fa-map-marker-alt"></i> {{ partido.nombre_cancha || 'Sin cancha' }}</span>
-              </div>
-
-              <div class="partido-acciones">
-                <button class="btn-accion detalles" (click)="verPartido(partido)">
-                  <i class="fas fa-chart-bar"></i> Ver Detalles
-                </button>
-              </div>
-            </div>
-          }
+      } @else {
+        <!-- Mensaje cuando no hay partidos con el filtro seleccionado -->
+        <div class="sin-partidos">
+          <div class="empty-icon">
+            <i class="fas fa-inbox"></i>
+          </div>
+          <h3>No hay partidos {{ filtroEstado() === 'todos' ? '' : 'en este estado' }}</h3>
+          <p>No se encontraron partidos {{ filtroEstado() === 'en_curso' ? 'en curso' : filtroEstado() === 'finalizado' ? 'finalizados' : filtroEstado() === 'pausado' ? 'pausados' : filtroEstado() === 'programado' ? 'programados' : '' }}</p>
         </div>
       }
     </div>
@@ -319,8 +263,8 @@
 
 <!-- Modal: Registrar Evento -->
 @if (modalEventoAbierto()) {
-  <div class="modal-overlay" (click)="cerrarModalEvento()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-overlay">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>
           Registrar {{ formatearTipoEvento(eventoTemporal.tipo_evento || '') }}
@@ -389,8 +333,8 @@
 
 <!-- Modal: Finalizar Partido -->
 @if (modalFinalizarAbierto()) {
-  <div class="modal-overlay" (click)="cerrarModalFinalizar()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-overlay">
+    <div class="modal-content">
       <div class="modal-header">
         <h3>Finalizar Partido</h3>
         <button class="btn-cerrar" (click)="cerrarModalFinalizar()">

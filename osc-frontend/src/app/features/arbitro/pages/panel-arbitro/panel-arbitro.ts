@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { PanelArbitroService, Partido, EventoPartido } from '../../../../shared/services/panel-arbitro.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
@@ -212,23 +213,52 @@ export class PanelArbitroComponent implements OnInit {
       return;
     }
 
+    console.log('[ARBITRO] Registrando evento:', this.eventoTemporal);
+    console.log('[ARBITRO] Partido actual:', partido);
+    console.log('[ARBITRO] Equipo local ID:', partido.equipo_local_id);
+    console.log('[ARBITRO] Equipo visitante ID:', partido.equipo_visitante_id);
+
     this.panelService.registrarEvento(partido.id_partido, this.eventoTemporal).subscribe({
       next: (response) => {
-        (window as any).Swal.fire({
-          title: 'Evento registrado',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
-        });
-        this.cargarEventos(partido.id_partido);
-        this.cargarPartidos(); // Actualizar marcador
-        this.cerrarModalEvento();
+        console.log('[ARBITRO] Evento registrado exitosamente:', response);
 
-        // Actualizar partido actual con nuevo marcador
-        const index = this.partidosAsignados().findIndex(p => p.id_partido === partido.id_partido);
-        if (index !== -1) {
-          this.partidoActual.set(this.partidosAsignados()[index]);
-        }
+        // Cargar eventos Y partidos en paralelo, esperar a que ambos terminen
+        forkJoin({
+          eventos: this.panelService.obtenerEventos(partido.id_partido),
+          partidos: this.panelService.obtenerMisPartidos({})
+        }).subscribe({
+          next: (resultado) => {
+            console.log('[ARBITRO] Eventos actualizados:', resultado.eventos.data.length);
+            console.log('[ARBITRO] Partidos actualizados:', resultado.partidos.data.length);
+
+            // Actualizar eventos
+            this.eventos.set(resultado.eventos.data);
+
+            // Actualizar partidos y partido actual
+            this.partidosAsignados.set(resultado.partidos.data);
+            const partidoActualizado = resultado.partidos.data.find(p => p.id_partido === partido.id_partido);
+            if (partidoActualizado) {
+              console.log('[ARBITRO] Partido actualizado:', partidoActualizado);
+              console.log('[ARBITRO] Marcador actualizado:', partidoActualizado.resultado_local, '-', partidoActualizado.resultado_visitante);
+              this.partidoActual.set(partidoActualizado);
+            }
+
+            // Cerrar modal después de actualizar todo
+            this.cerrarModalEvento();
+
+            // Mostrar notificación de éxito
+            (window as any).Swal.fire({
+              title: 'Evento registrado',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          },
+          error: (error) => {
+            console.error('[ARBITRO] Error al actualizar:', error);
+            this.cerrarModalEvento();
+          }
+        });
       },
       error: (error) => {
         console.error('Error al registrar evento:', error);
@@ -243,8 +273,10 @@ export class PanelArbitroComponent implements OnInit {
   }
 
   cargarEventos(idPartido: number): void {
+    console.log('[ARBITRO] Cargando eventos del partido:', idPartido);
     this.panelService.obtenerEventos(idPartido).subscribe({
       next: (response) => {
+        console.log('[ARBITRO] Eventos recibidos:', response.data.length, response.data);
         this.eventos.set(response.data);
       },
       error: (error) => {
@@ -275,14 +307,19 @@ export class PanelArbitroComponent implements OnInit {
       if (result.isConfirmed) {
         this.panelService.finalizarPartido(partido.id_partido, { notas_arbitro: this.notasArbitro }).subscribe({
           next: (response) => {
+            // Actualizar el partido actual con el estado finalizado
+            this.partidoActual.set({
+              ...partido,
+              estado_partido: 'finalizado'
+            });
+
             (window as any).Swal.fire({
               title: '¡Finalizado!',
               text: 'Partido finalizado exitosamente',
               icon: 'success',
               confirmButtonColor: '#2ECC71'
             });
-            this.partidoActual.set(null);
-            this.eventos.set([]);
+
             this.cargarPartidos();
             this.cerrarModalFinalizar();
           },

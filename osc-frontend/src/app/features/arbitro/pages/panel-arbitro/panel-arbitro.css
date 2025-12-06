@@ -699,6 +699,16 @@
   border-color: #3498db;
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #95a5a6;
+  opacity: 1;
+}
+
+.form-group select option[value=""] {
+  color: #95a5a6;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

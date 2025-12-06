@@ -319,6 +319,14 @@ export const asignarCancha = async (idPartido, idCancha) => {
       [idCancha, idPartido]
     );
 
+    // Actualizar estado de la cancha a 'Reservado'
+    await client.query(
+      UPDATE canchas 
+       SET estado = 'Reservado'
+       WHERE id_cancha = $1
+      [idCancha]
+    );
+
     // Obtener partido actualizado
     const partidoActualizado = await client.query(
       'SELECT * FROM partidos_torneo WHERE id_partido = $1',

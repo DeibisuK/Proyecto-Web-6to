@@ -243,7 +243,7 @@ cron.schedule('0 * * * *', async () => {
           SELECT 1 FROM notificaciones n
           WHERE n.uid_usuario = p.id_arbitro::text
             AND n.origen = 'partido'
-            AND n.id_referencia = p.id_partido::text
+            AND n.id_referencia::integer = p.id_partido
             AND n.fecha_creacion::date = CURRENT_DATE
         )
     `);
