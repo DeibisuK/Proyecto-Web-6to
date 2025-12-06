@@ -8,20 +8,25 @@
 
 /* Cabecera */
 .header {
-  text-align: center;
+  background: linear-gradient(135deg, var(--color-accent) 0%, #1ea76d 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
   margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
 }
 
-.header h1 {
-  font-size: 2.5rem;
-  color: var(--text-primary);
-  font-weight: 800;
-  margin-bottom: 10px;
+.header-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: white;
 }
 
 .subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* Filtros */
@@ -386,6 +391,7 @@
 .seccion-partidos h2 {
   margin-bottom: 20px;
   color: #2c3e50;
+  font-weight: 700;
   font-size: 1.8rem;
 }
 
@@ -401,6 +407,15 @@
 .partido-card:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   transform: translateY(-2px);
+}
+
+.partido-card.finalizado {
+  opacity: 0.85;
+  border-left: 4px solid #95a5a6;
+}
+
+.partido-card.finalizado:hover {
+  opacity: 1;
 }
 
 .partido-header {

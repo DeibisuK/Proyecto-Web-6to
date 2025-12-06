@@ -91,13 +91,8 @@ export class Partidos implements OnInit {
         filtros.estado = this.filtroEstado;
       }
 
-      console.log('[PARTIDOS] Filtros aplicados:', filtros);
-      console.log('[PARTIDOS] filtroTorneo:', this.filtroTorneo, 'tipo:', typeof this.filtroTorneo);
-      console.log('[PARTIDOS] filtroEstado:', this.filtroEstado);
-
       this.partidosService.obtenerPartidos(filtros).subscribe({
         next: (response) => {
-          console.log('[PARTIDOS] Respuesta recibida:', response.data?.length, 'partidos');
           this.partidos.set(response.data || []);
           resolve();
         },

@@ -40,6 +40,10 @@ export class PanelArbitroComponent implements OnInit {
     return this.partidosAsignados().filter(p => p.fecha_partido > hoy);
   });
 
+  partidosFinalizados = computed(() => {
+    return this.partidosAsignados().filter(p => p.estado_partido === 'finalizado');
+  });
+
   eventosPartido = computed(() => {
     return this.eventos();
   });

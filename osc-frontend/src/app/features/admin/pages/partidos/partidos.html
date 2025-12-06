@@ -88,7 +88,10 @@
   <!-- Lista de partidos SIN árbitro -->
   @if (!cargando() && partidosSinArbitro().length > 0) {
     <div class="seccion">
-      <h2><i class="fas fa-exclamation-circle"></i> Partidos Sin Árbitro Asignado ({{ partidosSinArbitro().length }})</h2>
+      <h2>
+        Partidos Sin Árbitro Asignado
+        <span class="stat-badge warning">{{ partidosSinArbitro().length }}</span>
+      </h2>
       <div class="partidos-grid">
         @for (partido of partidosSinArbitro(); track partido.id_partido) {
           <div class="partido-card sin-arbitro">
@@ -156,7 +159,10 @@
   <!-- Lista de partidos CON árbitro -->
   @if (!cargando() && partidosConArbitro().length > 0) {
     <div class="seccion">
-      <h2><i class="fas fa-check-circle"></i> Partidos Con Árbitro Asignado ({{ partidosConArbitro().length }})</h2>
+      <h2>
+        Partidos Con Árbitro Asignado
+        <span class="stat-badge success">{{ partidosConArbitro().length }}</span>
+      </h2>
       <div class="partidos-grid">
         @for (partido of partidosConArbitro(); track partido.id_partido) {
           <div class="partido-card con-arbitro">
