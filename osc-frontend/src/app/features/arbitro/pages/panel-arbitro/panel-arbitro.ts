@@ -17,6 +17,7 @@ export class PanelArbitroComponent implements OnInit {
   partidoActual = signal<Partido | null>(null);
   eventos = signal<EventoPartido[]>([]);
   cargando = signal(false);
+  jugadoresDisponibles = signal<any[]>([]);
 
   // Modal de evento
   modalEventoAbierto = signal(false);
@@ -32,16 +33,30 @@ export class PanelArbitroComponent implements OnInit {
   // Computados
   partidosHoy = computed(() => {
     const hoy = new Date().toISOString().split('T')[0];
-    return this.partidosAsignados().filter(p => p.fecha_partido === hoy);
+    const partidos = this.partidosAsignados().filter(p => {
+      const fechaPartido = p.fecha_partido.split('T')[0];
+      console.log('[ARBITRO] Comparando:', fechaPartido, 'con', hoy, '=', fechaPartido === hoy);
+      return fechaPartido === hoy;
+    });
+    console.log('[ARBITRO] Hoy es:', hoy);
+    console.log('[ARBITRO] Partidos de hoy:', partidos);
+    return partidos;
   });
 
   partidosProximos = computed(() => {
     const hoy = new Date().toISOString().split('T')[0];
-    return this.partidosAsignados().filter(p => p.fecha_partido > hoy);
+    return this.partidosAsignados().filter(p => p.fecha_partido.split('T')[0] > hoy);
   });
 
   partidosFinalizados = computed(() => {
     return this.partidosAsignados().filter(p => p.estado_partido === 'finalizado');
+  });
+
+  // Partidos filtrados según la pestaña seleccionada
+  partidosFiltrados = computed(() => {
+    const filtro = this.filtroEstado();
+    if (filtro === 'todos') return this.partidosAsignados();
+    return this.partidosAsignados().filter(p => p.estado_partido === filtro);
   });
 
   eventosPartido = computed(() => {
@@ -59,10 +74,13 @@ export class PanelArbitroComponent implements OnInit {
 
   cargarPartidos(): void {
     this.cargando.set(true);
-    const filtros = this.filtroEstado() !== 'todos' ? { estado: this.filtroEstado() } : {};
+    // Siempre cargar todos los partidos, la organización se hace en la vista
+    const filtros = {};
 
     this.panelService.obtenerMisPartidos(filtros).subscribe({
       next: (response) => {
+        console.log('[ARBITRO] Partidos recibidos:', response.data.length);
+        console.log('[ARBITRO] Partidos:', response.data);
         this.partidosAsignados.set(response.data);
         this.cargando.set(false);
       },
@@ -75,20 +93,40 @@ export class PanelArbitroComponent implements OnInit {
   }
 
   iniciarPartido(partido: Partido): void {
-    if (!confirm(`¿Iniciar el partido ${partido.equipo_local_nombre} vs ${partido.equipo_visitante_nombre}?`)) {
-      return;
-    }
-
-    this.panelService.iniciarPartido(partido.id_partido).subscribe({
-      next: (response) => {
-        this.notification.success('Partido iniciado exitosamente');
-        this.partidoActual.set(response.data);
-        this.cargarEventos(partido.id_partido);
-        this.cargarPartidos(); // Refrescar lista
-      },
-      error: (error) => {
-        console.error('Error al iniciar partido:', error);
-        this.notification.error(error.error?.message || 'Error al iniciar partido');
+    // Usar SweetAlert2 para confirmar
+    (window as any).Swal.fire({
+      title: '¿Iniciar partido?',
+      text: `${partido.equipo_local_nombre} vs ${partido.equipo_visitante_nombre}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2ECC71',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: 'Sí, iniciar',
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.panelService.iniciarPartido(partido.id_partido).subscribe({
+          next: (response) => {
+            (window as any).Swal.fire({
+              title: '¡Éxito!',
+              text: 'Partido iniciado exitosamente',
+              icon: 'success',
+              confirmButtonColor: '#2ECC71'
+            });
+            this.partidoActual.set(response.data);
+            this.cargarEventos(partido.id_partido);
+            this.cargarPartidos();
+          },
+          error: (error) => {
+            console.error('Error al iniciar partido:', error);
+            (window as any).Swal.fire({
+              title: 'Error',
+              text: error.error?.message || 'Error al iniciar partido',
+              icon: 'error',
+              confirmButtonColor: '#e74c3c'
+            });
+          }
+        });
       }
     });
   }
@@ -99,13 +137,23 @@ export class PanelArbitroComponent implements OnInit {
 
     this.panelService.pausarPartido(partido.id_partido).subscribe({
       next: (response) => {
-        this.notification.success('Partido pausado');
+        (window as any).Swal.fire({
+          title: 'Partido pausado',
+          icon: 'info',
+          timer: 2000,
+          showConfirmButton: false
+        });
         this.partidoActual.set(response.data);
         this.cargarPartidos();
       },
       error: (error) => {
         console.error('Error al pausar partido:', error);
-        this.notification.error(error.error?.message || 'Error al pausar partido');
+        (window as any).Swal.fire({
+          title: 'Error',
+          text: error.error?.message || 'Error al pausar partido',
+          icon: 'error',
+          confirmButtonColor: '#e74c3c'
+        });
       }
     });
   }
@@ -116,13 +164,23 @@ export class PanelArbitroComponent implements OnInit {
 
     this.panelService.reanudarPartido(partido.id_partido).subscribe({
       next: (response) => {
-        this.notification.success('Partido reanudado');
+        (window as any).Swal.fire({
+          title: 'Partido reanudado',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
         this.partidoActual.set(response.data);
         this.cargarPartidos();
       },
       error: (error) => {
         console.error('Error al reanudar partido:', error);
-        this.notification.error(error.error?.message || 'Error al reanudar partido');
+        (window as any).Swal.fire({
+          title: 'Error',
+          text: error.error?.message || 'Error al reanudar partido',
+          icon: 'error',
+          confirmButtonColor: '#e74c3c'
+        });
       }
     });
   }
@@ -138,19 +196,30 @@ export class PanelArbitroComponent implements OnInit {
       periodo: 'primer_tiempo',
       valor_puntos: this.getValorPuntosPorTipo(tipoEvento)
     };
+    this.jugadoresDisponibles.set([]);
     this.modalEventoAbierto.set(true);
   }
 
   registrarEvento(): void {
     const partido = this.partidoActual();
     if (!partido || !this.eventoTemporal.tipo_evento || !this.eventoTemporal.id_equipo) {
-      this.notification.error('Complete todos los campos requeridos');
+      (window as any).Swal.fire({
+        title: 'Campos requeridos',
+        text: 'Complete todos los campos requeridos',
+        icon: 'warning',
+        confirmButtonColor: '#f39c12'
+      });
       return;
     }
 
     this.panelService.registrarEvento(partido.id_partido, this.eventoTemporal).subscribe({
       next: (response) => {
-        this.notification.success('Evento registrado');
+        (window as any).Swal.fire({
+          title: 'Evento registrado',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
         this.cargarEventos(partido.id_partido);
         this.cargarPartidos(); // Actualizar marcador
         this.cerrarModalEvento();
@@ -163,7 +232,12 @@ export class PanelArbitroComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al registrar evento:', error);
-        this.notification.error(error.error?.message || 'Error al registrar evento');
+        (window as any).Swal.fire({
+          title: 'Error',
+          text: error.error?.message || 'Error al registrar evento',
+          icon: 'error',
+          confirmButtonColor: '#e74c3c'
+        });
       }
     });
   }
@@ -188,21 +262,40 @@ export class PanelArbitroComponent implements OnInit {
     const partido = this.partidoActual();
     if (!partido) return;
 
-    if (!confirm('¿Está seguro de finalizar este partido? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
-    this.panelService.finalizarPartido(partido.id_partido, { notas_arbitro: this.notasArbitro }).subscribe({
-      next: (response) => {
-        this.notification.success('Partido finalizado exitosamente');
-        this.partidoActual.set(null);
-        this.eventos.set([]);
-        this.cargarPartidos();
-        this.cerrarModalFinalizar();
-      },
-      error: (error) => {
-        console.error('Error al finalizar partido:', error);
-        this.notification.error(error.error?.message || 'Error al finalizar partido');
+    (window as any).Swal.fire({
+      title: '¿Finalizar partido?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e74c3c',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.panelService.finalizarPartido(partido.id_partido, { notas_arbitro: this.notasArbitro }).subscribe({
+          next: (response) => {
+            (window as any).Swal.fire({
+              title: '¡Finalizado!',
+              text: 'Partido finalizado exitosamente',
+              icon: 'success',
+              confirmButtonColor: '#2ECC71'
+            });
+            this.partidoActual.set(null);
+            this.eventos.set([]);
+            this.cargarPartidos();
+            this.cerrarModalFinalizar();
+          },
+          error: (error) => {
+            console.error('Error al finalizar partido:', error);
+            (window as any).Swal.fire({
+              title: 'Error',
+              text: error.error?.message || 'Error al finalizar partido',
+              icon: 'error',
+              confirmButtonColor: '#e74c3c'
+            });
+          }
+        });
       }
     });
   }
@@ -220,6 +313,25 @@ export class PanelArbitroComponent implements OnInit {
   cerrarModalEvento(): void {
     this.modalEventoAbierto.set(false);
     this.eventoTemporal = {};
+    this.jugadoresDisponibles.set([]);
+  }
+
+  cargarJugadoresEquipo(): void {
+    const idEquipo = this.eventoTemporal.id_equipo;
+    if (!idEquipo) {
+      this.jugadoresDisponibles.set([]);
+      return;
+    }
+
+    this.panelService.obtenerJugadoresEquipo(idEquipo).subscribe({
+      next: (response) => {
+        this.jugadoresDisponibles.set(response.data || []);
+      },
+      error: (error) => {
+        console.error('Error al cargar jugadores:', error);
+        this.jugadoresDisponibles.set([]);
+      }
+    });
   }
 
   cerrarModalFinalizar(): void {
@@ -269,6 +381,16 @@ export class PanelArbitroComponent implements OnInit {
       'falta': '#95A5A6'
     };
     return colores[tipoEvento] || '#7F8C8D';
+  }
+
+  formatearTipoEvento(tipo: string): string {
+    if (!tipo) return '';
+    // Reemplazar underscores por espacios y capitalizar cada palabra
+    return tipo
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
+      .join(' ');
   }
 
   cambiarFiltro(nuevoFiltro: string): void {

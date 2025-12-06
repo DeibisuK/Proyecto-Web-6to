@@ -107,37 +107,54 @@
 /* Partido En Vivo */
 .partido-en-vivo {
   background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .vivo-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .btn-volver {
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
   background: #ecf0f1;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2c3e50;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-volver:hover {
   background: #bdc3c7;
+  transform: translateX(-4px);
+}
+
+.btn-volver i {
+  font-size: 1.1rem;
 }
 
 .badge-estado {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .badge-estado.en-curso {
@@ -146,92 +163,139 @@
   animation: pulse 2s infinite;
 }
 
+.badge-estado i {
+  animation: blink 1.5s infinite;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 /* Marcador Grande */
 .marcador-grande {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 30px;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  gap: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #27ae60 0%, #1ea76d 100%);
   border-radius: 12px;
   color: white;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
 .marcador-grande .equipo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto;
 }
 
 .logo-grande {
   width: 100px;
   height: 100px;
   object-fit: contain;
-  margin-bottom: 15px;
+  border-radius: 12px;
   background: white;
-  border-radius: 50%;
-  padding: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .marcador-grande h2 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  max-width: 150px;
 }
 
 .marcador-grande .resultado {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  color: white;
+  line-height: 1;
+  min-width: 60px;
+  text-align: center;
 }
 
 .marcador-grande .vs {
-  font-size: 2rem;
-  font-weight: 700;
-  opacity: 0.8;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0 1rem;
 }
 
 /* Info Partido */
 .info-partido {
   display: flex;
-  gap: 20px;
+  gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 15px;
+  padding: 1.5rem;
   background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
 .info-partido span {
-  display: inline-block;
-  padding: 8px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
   background: white;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: #2c3e50;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-partido span i {
+  color: var(--color-accent);
+  font-size: 1rem;
 }
 
 /* Controles del Partido */
 .controles-partido {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .btn-control {
-  padding: 15px 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-control:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.btn-control:active {
+  transform: translateY(0);
+}
+
+.btn-control i {
+  font-size: 1.2rem;
 }
 
 .btn-control.pause {
@@ -582,6 +646,7 @@
 .modal-header h3 {
   color: #2c3e50;
   font-size: 1.5rem;
+  font-weight: 800;
 }
 
 .btn-cerrar {
@@ -711,6 +776,225 @@
 
 .btn-secundario:hover {
   background: #bdc3c7;
+}
+
+/* ===================================
+   EVENTOS RÁPIDOS
+   =================================== */
+.eventos-rapidos {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eventos-rapidos h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eventos-rapidos h3 i {
+  color: var(--color-accent);
+}
+
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.evento-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.evento-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.evento-btn i {
+  font-size: 2rem;
+}
+
+.evento-btn span {
+  font-size: 0.9rem;
+}
+
+.evento-btn.gol {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+
+.evento-btn.gol:hover {
+  background: #27ae60;
+  color: white;
+}
+
+.evento-btn.tarjeta-amarilla {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+
+.evento-btn.tarjeta-amarilla:hover {
+  background: #f39c12;
+  color: white;
+}
+
+.evento-btn.tarjeta-roja {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.evento-btn.tarjeta-roja:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.evento-btn.sustitucion {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.evento-btn.sustitucion:hover {
+  background: #3498db;
+  color: white;
+}
+
+.evento-btn.lesion {
+  border-color: #e67e22;
+  color: #e67e22;
+}
+
+.evento-btn.lesion:hover {
+  background: #e67e22;
+  color: white;
+}
+
+.evento-btn.otro {
+  border-color: #95a5a6;
+  color: #95a5a6;
+}
+
+.evento-btn.otro:hover {
+  background: #95a5a6;
+  color: white;
+}
+
+/* ===================================
+   HISTORIAL DE EVENTOS
+   =================================== */
+.eventos-historial {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eventos-historial h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eventos-historial h3 i {
+  color: var(--color-accent);
+}
+
+.evento-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.evento-item:hover {
+  background: #ecf0f1;
+  transform: translateX(4px);
+}
+
+.evento-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.evento-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.evento-info strong {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.evento-info span {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.evento-tiempo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  min-width: 60px;
+  text-align: center;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-eventos {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #95a5a6;
+}
+
+.no-eventos i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-eventos p {
+  font-size: 1rem;
+  margin: 0;
 }
 
 .btn-danger {

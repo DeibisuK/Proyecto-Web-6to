@@ -11,6 +11,12 @@
     <div class="filtros-bar">
       <button
         class="filtro-btn"
+        [class.active]="filtroEstado() === 'todos'"
+        (click)="cambiarFiltro('todos')">
+        <i class="fas fa-list"></i> Todos
+      </button>
+      <button
+        class="filtro-btn"
         [class.active]="filtroEstado() === 'programado'"
         (click)="cambiarFiltro('programado')">
         <i class="fas fa-calendar"></i> Programados
@@ -26,12 +32,6 @@
         [class.active]="filtroEstado() === 'finalizado'"
         (click)="cambiarFiltro('finalizado')">
         <i class="fas fa-check-circle"></i> Finalizados
-      </button>
-      <button
-        class="filtro-btn"
-        [class.active]="filtroEstado() === 'todos'"
-        (click)="cambiarFiltro('todos')">
-        <i class="fas fa-list"></i> Todos
       </button>
     </div>
   }
@@ -173,9 +173,9 @@
   @if (!partidoActual() && !cargando()) {
     <div class="partidos-lista">
       <!-- Partidos de Hoy -->
-      @if (partidosHoy().length > 0) {
+      @if (partidosHoy().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'programado')) {
         <div class="seccion-partidos">
-          <h2><i class="fas fa-calendar-day"></i> Hoy</h2>
+          <h2>Hoy</h2>
           @for (partido of partidosHoy(); track partido.id_partido) {
             <div class="partido-card">
               <div class="partido-header">
@@ -234,7 +234,7 @@
       }
 
       <!-- Próximos Partidos -->
-      @if (partidosProximos().length > 0) {
+      @if (partidosProximos().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'programado')) {
         <div class="seccion-partidos">
           <h2>Próximos Partidos</h2>
           @for (partido of partidosProximos(); track partido.id_partido) {
@@ -271,7 +271,7 @@
       }
 
       <!-- Partidos Finalizados -->
-      @if (partidosFinalizados().length > 0) {
+      @if (partidosFinalizados().length > 0 && (filtroEstado() === 'todos' || filtroEstado() === 'finalizado')) {
         <div class="seccion-partidos">
           <h2>Partidos Finalizados</h2>
           @for (partido of partidosFinalizados(); track partido.id_partido) {
@@ -323,8 +323,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>
-          <i class="fas" [ngClass]="getIconoEvento(eventoTemporal.tipo_evento || '')"></i>
-          Registrar {{ eventoTemporal.tipo_evento | uppercase }}
+          Registrar {{ formatearTipoEvento(eventoTemporal.tipo_evento || '') }}
         </h3>
         <button class="btn-cerrar" (click)="cerrarModalEvento()">
           <i class="fas fa-times"></i>
@@ -334,7 +333,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label><i class="fas fa-users"></i> Equipo *</label>
-          <select [(ngModel)]="eventoTemporal.id_equipo" required>
+          <select [(ngModel)]="eventoTemporal.id_equipo" required (change)="cargarJugadoresEquipo()">
             <option [value]="undefined">Seleccionar equipo</option>
             <option [value]="partidoActual()!.equipo_local_id">{{ partidoActual()!.equipo_local_nombre }}</option>
             <option [value]="partidoActual()!.equipo_visitante_id">{{ partidoActual()!.equipo_visitante_nombre }}</option>
@@ -343,7 +342,14 @@
 
         <div class="form-group">
           <label><i class="fas fa-user"></i> Jugador (opcional)</label>
-          <input type="number" [(ngModel)]="eventoTemporal.id_jugador" placeholder="ID del jugador">
+          <select [(ngModel)]="eventoTemporal.id_jugador">
+            <option [value]="undefined">Seleccionar jugador</option>
+            @for (jugador of jugadoresDisponibles(); track jugador.id_jugador) {
+              <option [value]="jugador.id_jugador">
+                #{{ jugador.numero_dorsal }} - {{ jugador.nombre_completo }}
+              </option>
+            }
+          </select>
         </div>
 
         <div class="form-row">
@@ -386,7 +392,7 @@
   <div class="modal-overlay" (click)="cerrarModalFinalizar()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3><i class="fas fa-flag-checkered"></i> Finalizar Partido</h3>
+        <h3>Finalizar Partido</h3>
         <button class="btn-cerrar" (click)="cerrarModalFinalizar()">
           <i class="fas fa-times"></i>
         </button>

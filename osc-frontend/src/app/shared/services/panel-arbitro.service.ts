@@ -57,6 +57,7 @@ export interface ApiResponse<T> {
 })
 export class PanelArbitroService {
   private apiUrl = `${environment.apiUrl}/m/arbitro`;
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -106,6 +107,13 @@ export class PanelArbitroService {
    */
   obtenerEventos(idPartido: number): Observable<ApiResponse<EventoPartido[]>> {
     return this.http.get<ApiResponse<EventoPartido[]>>(`${this.apiUrl}/partidos/${idPartido}/eventos`);
+  }
+
+  /**
+   * Obtener jugadores de un equipo
+   */
+  obtenerJugadoresEquipo(idEquipo: number): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/m/admin/equipos/${idEquipo}/jugadores`);
   }
 
   /**

@@ -93,10 +93,9 @@ class PanelArbitroService {
 
             // Verificar que el árbitro esté asignado a este partido
             const verificarQuery = `
-                SELECT pt.id_partido, pt.estado_partido 
+                SELECT pt.id_partido, pt.estado_partido, pt.id_arbitro
                 FROM partidos_torneo pt
-                INNER JOIN torneos t ON pt.id_torneo = t.id_torneo
-                WHERE pt.id_partido = $1 AND t.id_arbitro = $2
+                WHERE pt.id_partido = $1 AND pt.id_arbitro = $2
             `;
             const verificarResult = await client.query(verificarQuery, [idPartido, idArbitro]);
 
@@ -110,12 +109,11 @@ class PanelArbitroService {
                 throw new Error(`El partido no se puede iniciar. Estado actual: ${partido.estado_partido}`);
             }
 
-            // Actualizar estado y timestamp de inicio
+            // Actualizar estado solamente (hora_inicio ya está definida en el partido)
             const updateQuery = `
                 UPDATE partidos_torneo 
                 SET 
-                    estado_partido = 'en_curso',
-                    fecha_hora_inicio = NOW()
+                    estado_partido = 'en_curso'
                 WHERE id_partido = $1
                 RETURNING *
             `;
