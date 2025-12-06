@@ -321,9 +321,9 @@ export const asignarCancha = async (idPartido, idCancha) => {
 
     // Actualizar estado de la cancha a 'Reservado'
     await client.query(
-      UPDATE canchas 
+      `UPDATE canchas 
        SET estado = 'Reservado'
-       WHERE id_cancha = $1
+       WHERE id_cancha = $1`,
       [idCancha]
     );
 

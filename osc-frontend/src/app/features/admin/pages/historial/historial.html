@@ -1,1 +1,244 @@
-<p>historial works!</p>
+<div class="historial-container">
+
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <div class="filtros-grid">
+      <!-- Búsqueda general -->
+      <div class="filtro-item busqueda-principal">
+        <label><i class="fas fa-search"></i> Búsqueda</label>
+        <input
+          type="text"
+          placeholder="Buscar por equipo, torneo, cancha..."
+          [(ngModel)]="busqueda"
+          (ngModelChange)="aplicarFiltros()"
+        />
+      </div>
+
+      <!-- Filtro de torneo -->
+      <div class="filtro-item">
+        <label><i class="fas fa-trophy"></i> Torneo</label>
+        <select [(ngModel)]="filtroTorneo" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los torneos</option>
+          @for (torneo of torneos(); track torneo.nombre) {
+            <option [value]="torneo.nombre">{{ torneo.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Filtro de sede -->
+      <div class="filtro-item">
+        <label><i class="fas fa-map-marker-alt"></i> Sede</label>
+        <select [(ngModel)]="filtroSede" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todas las sedes</option>
+          @for (sede of sedes(); track sede.nombre) {
+            <option [value]="sede.nombre">{{ sede.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Filtro de deporte -->
+      <div class="filtro-item">
+        <label><i class="fas fa-futbol"></i> Deporte</label>
+        <select [(ngModel)]="filtroDeporte" (ngModelChange)="aplicarFiltros()">
+          <option value="">Todos los deportes</option>
+          @for (deporte of deportes(); track deporte.nombre) {
+            <option [value]="deporte.nombre">{{ deporte.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Filtro de estado -->
+      <div class="filtro-item">
+        <label><i class="fas fa-flag"></i> Estado</label>
+        <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+          <option value="todos">Todos los estados</option>
+          <option value="finalizado">Finalizados</option>
+          <option value="en_curso">En Curso</option>
+          <option value="pausado">Pausados</option>
+          <option value="programado">Programados</option>
+          <option value="cancelado">Cancelados</option>
+        </select>
+      </div>
+
+      <!-- Fecha desde -->
+      <div class="filtro-item">
+        <label><i class="fas fa-calendar"></i> Desde</label>
+        <input
+          type="date"
+          [(ngModel)]="fechaDesde"
+          (ngModelChange)="aplicarFiltros()"
+        />
+      </div>
+
+      <!-- Fecha hasta -->
+      <div class="filtro-item">
+        <label><i class="fas fa-calendar-check"></i> Hasta</label>
+        <input
+          type="date"
+          [(ngModel)]="fechaHasta"
+          (ngModelChange)="aplicarFiltros()"
+        />
+      </div>
+
+      <!-- Botón limpiar -->
+      <div class="filtro-item">
+        <label>&nbsp;</label>
+        <button class="btn-limpiar" (click)="limpiarFiltros()">
+          <i class="fas fa-eraser"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contador de resultados -->
+  <div class="resultados-info">
+    <span class="contador">
+      <i class="fas fa-list"></i>
+      Mostrando {{ partidosPaginados.length }} de {{ partidosFiltrados().length }} partidos
+    </span>
+  </div>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando historial...</p>
+    </div>
+  }
+
+  <!-- Tabla de partidos -->
+  @if (!cargando() && partidosFiltrados().length > 0) {
+    <div class="tabla-container">
+      <table class="tabla-historial">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Torneo</th>
+            <th>Partido</th>
+            <th>Resultado</th>
+            <th>Cancha</th>
+            <th>Sede</th>
+            <th>Árbitro</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (partido of partidosPaginados; track partido.id_partido) {
+            <tr>
+              <!-- Fecha y hora -->
+              <td class="fecha-cell">
+                <div class="fecha-info">
+                  <span class="fecha">{{ partido.fecha_partido | date:'dd/MM/yyyy' }}</span>
+                  <span class="hora">{{ partido.hora_inicio }}</span>
+                </div>
+              </td>
+
+              <!-- Torneo -->
+              <td class="torneo-cell">
+                <div class="torneo-info">
+                  <i class="fas fa-trophy"></i>
+                  <div>
+                    <span class="torneo-nombre">{{ partido.torneo_nombre }}</span>
+                    <span class="deporte">{{ partido.nombre_deporte }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Equipos -->
+              <td class="equipos-cell">
+                <div class="partido-info">
+                  <div class="equipo">
+                    <img [src]="partido.logo_equipo_local" [alt]="partido.nombre_equipo_local" class="logo-mini">
+                    <span>{{ partido.nombre_equipo_local }}</span>
+                  </div>
+                  <span class="vs">vs</span>
+                  <div class="equipo">
+                    <img [src]="partido.logo_equipo_visitante" [alt]="partido.nombre_equipo_visitante" class="logo-mini">
+                    <span>{{ partido.nombre_equipo_visitante }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Resultado -->
+              <td class="resultado-cell">
+                @if (partido.estado_partido === 'finalizado') {
+                  <div class="resultado-final">
+                    <span class="marcador">{{ partido.resultado_local }}</span>
+                    <span class="separador">-</span>
+                    <span class="marcador">{{ partido.resultado_visitante }}</span>
+                  </div>
+                } @else {
+                  <span class="sin-resultado">-</span>
+                }
+              </td>
+
+              <!-- Cancha -->
+              <td class="cancha-cell">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ partido.nombre_cancha || 'Sin asignar' }}
+              </td>
+
+              <!-- Sede -->
+              <td class="sede-cell">
+                {{ partido.sede_nombre }}
+              </td>
+
+              <!-- Árbitro -->
+              <td class="arbitro-cell">
+                <i class="fas fa-user-tie"></i>
+                {{ partido.nombre_arbitro || 'Sin asignar' }}
+              </td>
+
+              <!-- Estado -->
+              <td class="estado-cell">
+                <span class="badge-estado" [ngClass]="getEstadoClase(partido.estado_partido)">
+                  {{ getEstadoTexto(partido.estado_partido) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    @if (totalPaginas > 1) {
+      <div class="paginacion">
+        <button
+          class="btn-pagina"
+          [disabled]="paginaActual() === 1"
+          (click)="cambiarPagina(paginaActual() - 1)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        @for (pagina of [].constructor(totalPaginas); track $index; let i = $index) {
+          <button
+            class="btn-pagina"
+            [class.active]="paginaActual() === i + 1"
+            (click)="cambiarPagina(i + 1)">
+            {{ i + 1 }}
+          </button>
+        }
+
+        <button
+          class="btn-pagina"
+          [disabled]="paginaActual() === totalPaginas"
+          (click)="cambiarPagina(paginaActual() + 1)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Sin resultados -->
+  @if (!cargando() && partidosFiltrados().length === 0) {
+    <div class="sin-resultados">
+      <i class="fas fa-inbox"></i>
+      <h3>No se encontraron partidos</h3>
+      <p>Intenta ajustar los filtros de búsqueda</p>
+      <button class="btn-limpiar-inline" (click)="limpiarFiltros()">
+        <i class="fas fa-eraser"></i> Limpiar Filtros
+      </button>
+    </div>
+  }
+</div>
