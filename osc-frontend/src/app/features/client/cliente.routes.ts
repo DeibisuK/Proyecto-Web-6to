@@ -29,6 +29,8 @@ import { Torneo } from "./pages/reservas/components/dashboard-torneo/torneo/torn
 import { Inscripciones } from "./pages/reservas/components/dashboard-torneo/inscripciones/inscripciones";
 import { DetallePartidoComponent } from "./pages/reservas/components/dashboard-torneo/detalle-partido/detalle-partido";
 import { ClasificacionComponent } from "./pages/reservas/components/dashboard-torneo/clasificacion/clasificacion";
+import { BracketTorneoComponent } from "./pages/reservas/components/dashboard-torneo/bracket-torneo/bracket-torneo";
+import { EstadisticasPartidoComponent } from "./pages/reservas/components/dashboard-torneo/estadisticas-partido/estadisticas-partido";
 import { PlanesSuscripcionComponent } from "./pages/subscription/planes-suscripcion.component";
 import { MiSuscripcionComponent } from "./pages/subscription/mi-suscripcion.component";
 import { premiumGuard } from "@app/core/guards/subscription.guard";
@@ -146,7 +148,9 @@ export const clienteRoutes: Routes = [
       { path: 'torneos', component: Torneo },
       { path: 'inscripciones', component: Inscripciones },
       { path: 'partido/:id', component: DetallePartidoComponent },
-      { path: 'clasificacion/:id', component: ClasificacionComponent }
+      { path: 'clasificacion/:id', component: ClasificacionComponent },
+      { path: 'bracket/:id', component: BracketTorneoComponent },
+      { path: 'estadisticas/:id', component: EstadisticasPartidoComponent }
     ],
     canActivate: [premiumGuard]
   },

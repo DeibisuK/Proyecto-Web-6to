@@ -426,3 +426,68 @@
     height: 100px;
   }
 }
+
+/* Resultado Final */
+.resultado-final {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.resultado-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.resultado-titulo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.equipo-ganador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+.equipo-ganador .equipo-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.equipo-ganador .equipo-nombre {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.resultado-final.empate {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+.empate-text {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.empate-text span {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

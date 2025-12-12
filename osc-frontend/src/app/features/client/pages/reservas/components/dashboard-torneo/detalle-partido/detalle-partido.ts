@@ -64,7 +64,7 @@ export class DetallePartidoComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/client/reservas/dashboard-torneo/torneo']);
+    this.router.navigate(['../torneos'], { relativeTo: this.route });
   }
 
   /**

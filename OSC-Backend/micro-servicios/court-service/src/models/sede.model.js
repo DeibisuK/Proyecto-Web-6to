@@ -16,6 +16,7 @@ export const findById = async (id) => {
 
 export const create = async ({
   nombre,
+  nombre_sede,
   ciudad,
   direccion,
   estado = "Activo",
@@ -24,10 +25,12 @@ export const create = async ({
   telefono,
   email,
 }) => {
+  // Aceptar tanto 'nombre' como 'nombre_sede' del frontend
+  const nombreFinal = nombre_sede || nombre;
   const result = await pool.query(
     `INSERT INTO sedes (nombre, ciudad, direccion, estado, latitud, longitud, telefono, email) 
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [nombre, ciudad, direccion, estado, latitud, longitud, telefono, email]
+    [nombreFinal, ciudad, direccion, estado, latitud, longitud, telefono, email]
   );
   return result.rows[0];
 };
@@ -35,6 +38,7 @@ export const create = async ({
 export const update = async (id, datos) => {
   const {
     nombre,
+    nombre_sede,
     ciudad,
     direccion,
     estado,
@@ -43,6 +47,8 @@ export const update = async (id, datos) => {
     telefono,
     email,
   } = datos;
+  // Aceptar tanto 'nombre' como 'nombre_sede' del frontend
+  const nombreFinal = nombre_sede || nombre;
   const result = await pool.query(
     `UPDATE sedes SET 
        nombre = $1,
@@ -54,7 +60,7 @@ export const update = async (id, datos) => {
        telefono = $7,
        email = $8
      WHERE id_sede = $9 RETURNING *`,
-    [nombre, ciudad, direccion, estado, latitud, longitud, telefono, email, id]
+    [nombreFinal, ciudad, direccion, estado, latitud, longitud, telefono, email, id]
   );
   return result.rows[0];
 };

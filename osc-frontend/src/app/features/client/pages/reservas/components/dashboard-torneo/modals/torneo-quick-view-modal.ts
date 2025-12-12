@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Torneo } from '../models/torneo.models';
@@ -11,7 +11,7 @@ import { TorneosService } from '../services/torneos.service';
   templateUrl: './torneo-quick-view-modal.html',
   styleUrls: ['./torneo-quick-view-modal.css', '../shared-styles.css']
 })
-export class TorneoQuickViewModalComponent {
+export class TorneoQuickViewModalComponent implements OnChanges {
   private router = inject(Router);
   private torneosService = inject(TorneosService);
 
@@ -23,12 +23,15 @@ export class TorneoQuickViewModalComponent {
 
   close(): void {
     this.isOpen = false;
+    document.body.style.overflow = 'auto';
     this.cerrar.emit();
   }
 
-  onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      this.close();
+  ngOnChanges(): void {
+    if (this.isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
     }
   }
 

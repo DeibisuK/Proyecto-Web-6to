@@ -1,40 +1,159 @@
 <div class="clasificacion-container">
-  <div *ngIf="isLoading">Cargando...</div>
-
-  <div *ngIf="!isLoading && error">
-    <h3>{{ error }}</h3>
-    <button (click)="goBack()">Volver</button>
+  <!-- Header -->
+  <div class="clasificacion-header" *ngIf="!isLoading && !error">
+    <button class="btn-back" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+    <h1 class="titulo-clasificacion">
+      <i class="fas fa-trophy"></i>
+      {{ torneo?.nombre || 'Clasificación del Torneo' }}
+    </h1>
+    <p class="subtitulo-clasificacion" *ngIf="torneo">
+      {{ torneo.tipo_torneo === 'liga' ? 'Tabla de Posiciones' : 'Clasificación General' }}
+    </p>
   </div>
 
-  <div *ngIf="!isLoading && !error">
-    <h1>{{ torneo?.nombre || 'Clasificación' }}</h1>
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando clasificación...</p>
+  </div>
 
-    <div *ngFor="let grupo of grupos">
-      <h2>{{ grupo }}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Equipo</th>
-            <th>PJ</th>
-            <th>G</th>
-            <th>E</th>
-            <th>P</th>
-            <th>PTS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let eq of getEquiposPorGrupo(grupo); let i = index">
-            <td>{{ i + 1 }}</td>
-            <td>{{ eq.nombre_equipo }}</td>
-            <td>{{ eq.partidos_jugados }}</td>
-            <td>{{ eq.victorias }}</td>
-            <td>{{ eq.empates }}</td>
-            <td>{{ eq.derrotas }}</td>
-            <td>{{ eq.puntos }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- Error State -->
+  <div class="error-state" *ngIf="!isLoading && error">
+    <i class="fas fa-exclamation-circle"></i>
+    <h3>{{ error }}</h3>
+    <button class="btn-primary" (click)="goBack()">Volver a Torneos</button>
+  </div>
+
+  <!-- Clasificación Content -->
+  <div class="clasificacion-content" *ngIf="!isLoading && !error">
+    <!-- Con grupos -->
+    <div *ngIf="tieneGrupos()" class="grupos-container">
+      <div *ngFor="let grupo of grupos" class="grupo-card">
+        <h2 class="grupo-titulo">
+          <i class="fas fa-layer-group"></i>
+          {{ grupo }}
+        </h2>
+        <div class="tabla-responsive">
+          <div class="leyenda-container">
+            <button class="btn-leyenda" (click)="mostrarLeyenda = !mostrarLeyenda">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              ¿Qué significan las columnas?
+            </button>
+            <div class="leyenda-tooltip" *ngIf="mostrarLeyenda">
+              <div class="leyenda-item"><strong>PJ:</strong> Partidos Jugados</div>
+              <div class="leyenda-item"><strong>G:</strong> Ganados</div>
+              <div class="leyenda-item"><strong>E:</strong> Empates</div>
+              <div class="leyenda-item"><strong>P:</strong> Perdidos</div>
+              <div class="leyenda-item"><strong>GF:</strong> Goles a Favor</div>
+              <div class="leyenda-item"><strong>GC:</strong> Goles en Contra</div>
+              <div class="leyenda-item"><strong>DIF:</strong> Diferencia de Goles</div>
+              <div class="leyenda-item"><strong>PTS:</strong> Puntos Totales</div>
+            </div>
+          </div>
+          <table class="tabla-clasificacion">
+            <thead>
+              <tr>
+                <th class="col-pos">#</th>
+                <th class="col-equipo">Equipo</th>
+                <th class="col-stat">PJ</th>
+                <th class="col-stat">G</th>
+                <th class="col-stat">E</th>
+                <th class="col-stat">P</th>
+                <th class="col-stat">GF</th>
+                <th class="col-stat">GC</th>
+                <th class="col-stat">DIF</th>
+                <th class="col-pts">PTS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let eq of getEquiposPorGrupo(grupo); let i = index"
+                  [ngClass]="getPositionClass(i + 1)">
+                <td class="col-pos">
+                  <span [ngClass]="getPositionBadgeClass(i + 1)">{{ i + 1 }}</span>
+                </td>
+                <td class="col-equipo">
+                  <div class="equipo-info">
+                    <img *ngIf="eq.logo_url" [src]="eq.logo_url" [alt]="eq.nombre_equipo" class="equipo-logo">
+                    <span class="equipo-nombre">{{ eq.nombre_equipo }}</span>
+                  </div>
+                </td>
+                <td class="col-stat">{{ eq.partidos_jugados }}</td>
+                <td class="col-stat text-success">{{ eq.victorias }}</td>
+                <td class="col-stat text-warning">{{ eq.empates }}</td>
+                <td class="col-stat text-danger">{{ eq.derrotas }}</td>
+                <td class="col-stat">{{ eq.goles_favor }}</td>
+                <td class="col-stat">{{ eq.goles_contra }}</td>
+                <td class="col-stat" [class.text-success]="eq.diferencia_goles > 0"
+                    [class.text-danger]="eq.diferencia_goles < 0">
+                  {{ eq.diferencia_goles > 0 ? '+' + eq.diferencia_goles : eq.diferencia_goles }}
+                </td>
+                <td class="col-pts"><strong>{{ eq.puntos }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin grupos -->
+    <div *ngIf="!tieneGrupos() && clasificacion.length > 0" class="tabla-general">
+      <div class="tabla-responsive">
+        <table class="tabla-clasificacion">
+          <thead>
+            <tr>
+              <th class="col-pos">#</th>
+              <th class="col-equipo">Equipo</th>
+              <th class="col-stat">PJ</th>
+              <th class="col-stat">G</th>
+              <th class="col-stat">E</th>
+              <th class="col-stat">P</th>
+              <th class="col-stat">GF</th>
+              <th class="col-stat">GC</th>
+              <th class="col-stat">DIF</th>
+              <th class="col-pts">PTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let eq of getEquiposSinGrupo(); let i = index"
+                [ngClass]="getPositionClass(i + 1)">
+              <td class="col-pos">
+                <span [ngClass]="getPositionBadgeClass(i + 1)">{{ i + 1 }}</span>
+              </td>
+              <td class="col-equipo">
+                <div class="equipo-info">
+                  <img *ngIf="eq.logo_url" [src]="eq.logo_url" [alt]="eq.nombre_equipo" class="equipo-logo">
+                  <span class="equipo-nombre">{{ eq.nombre_equipo }}</span>
+                </div>
+              </td>
+              <td class="col-stat">{{ eq.partidos_jugados }}</td>
+              <td class="col-stat text-success">{{ eq.victorias }}</td>
+              <td class="col-stat text-warning">{{ eq.empates }}</td>
+              <td class="col-stat text-danger">{{ eq.derrotas }}</td>
+              <td class="col-stat">{{ eq.goles_favor }}</td>
+              <td class="col-stat">{{ eq.goles_contra }}</td>
+              <td class="col-stat" [class.text-success]="eq.diferencia_goles > 0"
+                  [class.text-danger]="eq.diferencia_goles < 0">
+                {{ eq.diferencia_goles > 0 ? '+' + eq.diferencia_goles : eq.diferencia_goles }}
+              </td>
+              <td class="col-pts"><strong>{{ eq.puntos }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="clasificacion.length === 0" class="empty-state">
+      <i class="fas fa-table"></i>
+      <p>Aún no hay clasificación disponible para este torneo.</p>
+      <p class="empty-subtitle">Los datos se mostrarán cuando se completen partidos.</p>
     </div>
   </div>
 </div>

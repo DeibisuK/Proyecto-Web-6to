@@ -1,0 +1,261 @@
+<div class="estadisticas-page">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Volver a Torneos
+    </button>
+
+    <div class="header-content" *ngIf="partido">
+      <div class="partido-info">
+        <h1>Estadísticas del Partido</h1>
+        <p class="torneo-nombre">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+          </svg>
+          {{ partido.partido.torneo_nombre }}
+        </p>
+      </div>
+      <span class="badge" [class]="'badge-' + partido.partido.estado_partido">
+        {{ partidosService.getTextoEstadoPartido(partido.partido.estado_partido) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas del partido...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <h3>{{ error }}</h3>
+    <button class="btn-primary" (click)="goBack()">Volver a Torneos</button>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="estadisticas-content" *ngIf="!isLoading && !error && partido">
+
+    <!-- Marcador -->
+    <div class="marcador-card">
+      <div class="equipo-marcador">
+        <img *ngIf="equipoLocal?.logo" [src]="equipoLocal!.logo" [alt]="equipoLocal!.nombre" class="equipo-logo-grande">
+        <div *ngIf="!equipoLocal?.logo" class="equipo-logo-placeholder-grande">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          </svg>
+        </div>
+        <h2 class="equipo-nombre">{{ equipoLocal?.nombre }}</h2>
+      </div>
+
+      <div class="marcador-info">
+        <div class="goles">
+          <span class="goles-numero">{{ equipoLocal?.goles }}</span>
+          <span class="goles-separador">-</span>
+          <span class="goles-numero">{{ equipoVisitante?.goles }}</span>
+        </div>
+        <p class="fecha-hora">{{ partidosService.formatearHoraPartido(partido.partido.fecha_hora_inicio) }}</p>
+        <p class="sede-info" *ngIf="partido.partido.nombre_sede">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
+          </svg>
+          {{ partido.partido.nombre_sede }} - {{ partido.partido.nombre_cancha }}
+        </p>
+      </div>
+
+      <div class="equipo-marcador">
+        <img *ngIf="equipoVisitante?.logo" [src]="equipoVisitante!.logo" [alt]="equipoVisitante!.nombre" class="equipo-logo-grande">
+        <div *ngIf="!equipoVisitante?.logo" class="equipo-logo-placeholder-grande">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          </svg>
+        </div>
+        <h2 class="equipo-nombre">{{ equipoVisitante?.nombre }}</h2>
+      </div>
+    </div>
+
+    <!-- MVP del Partido -->
+    <div class="mvp-card" *ngIf="mvp">
+      <div class="mvp-header">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="trophy-icon">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+        </svg>
+        <div class="mvp-text">
+          <span class="mvp-label">MVP del Partido</span>
+          <h3 class="mvp-nombre">{{ mvp.jugador_nombre }}</h3>
+        </div>
+      </div>
+      <div class="mvp-stats">
+        <div class="mvp-stat">
+          <span class="mvp-stat-icono">⚽</span>
+          <span class="mvp-stat-valor">{{ mvp.goles }}</span>
+          <span class="mvp-stat-label">Goles</span>
+        </div>
+        <div class="mvp-stat">
+          <span class="mvp-stat-icono">🎯</span>
+          <span class="mvp-stat-valor">{{ mvp.asistencias }}</span>
+          <span class="mvp-stat-label">Asistencias</span>
+        </div>
+        <div class="mvp-stat destacado">
+          <span class="mvp-stat-icono">⭐</span>
+          <span class="mvp-stat-valor">{{ mvp.puntuacion }}</span>
+          <span class="mvp-stat-label">Puntos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de Estadísticas Comparativas -->
+    <div class="stats-grid">
+
+      <!-- Goleadores -->
+      <div class="stat-section goleadores-section">
+        <h3 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+          Goleadores
+        </h3>
+        <div class="goleadores-grid">
+          <div class="goleadores-equipo">
+            <h4>{{ equipoLocal?.nombre }}</h4>
+            <div class="goleadores-lista">
+              <div class="goleador-item" *ngFor="let goleador of equipoLocal?.goleadores">
+                <span class="goleador-icono">⚽</span>
+                <span class="goleador-nombre">{{ goleador.jugador_nombre }}</span>
+                <span class="goleador-minuto">{{ goleador.minuto }}'</span>
+              </div>
+              <p class="no-goleadores" *ngIf="(equipoLocal?.goleadores?.length ?? 0) === 0">
+                Sin goles
+              </p>
+            </div>
+          </div>
+          <div class="goleadores-divider"></div>
+          <div class="goleadores-equipo">
+            <h4>{{ equipoVisitante?.nombre }}</h4>
+            <div class="goleadores-lista">
+              <div class="goleador-item" *ngFor="let goleador of equipoVisitante?.goleadores">
+                <span class="goleador-icono">⚽</span>
+                <span class="goleador-nombre">{{ goleador.jugador_nombre }}</span>
+                <span class="goleador-minuto">{{ goleador.minuto }}'</span>
+              </div>
+              <p class="no-goleadores" *ngIf="(equipoVisitante?.goleadores?.length ?? 0) === 0">
+                Sin goles
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faltas -->
+      <div class="stat-section faltas-section">
+        <h3 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M2 12h20"></path>
+          </svg>
+          Faltas / Tarjetas
+        </h3>
+        <div class="faltas-comparacion">
+          <div class="faltas-barra">
+            <div class="falta-equipo">
+              <span class="falta-numero">{{ equipoLocal?.faltas }}</span>
+              <span class="falta-label">{{ equipoLocal?.nombre }}</span>
+            </div>
+            <div class="barra-visual">
+              <div class="barra-local" [style.width.%]="equipoLocal?.faltas != null && equipoVisitante?.faltas != null ?
+                (equipoLocal!.faltas / (equipoLocal!.faltas + equipoVisitante!.faltas)) * 100 : 50"></div>
+              <div class="barra-visitante" [style.width.%]="equipoLocal?.faltas != null && equipoVisitante?.faltas != null ?
+                (equipoVisitante!.faltas / (equipoLocal!.faltas + equipoVisitante!.faltas)) * 100 : 50"></div>
+            </div>
+            <div class="falta-equipo">
+              <span class="falta-numero">{{ equipoVisitante?.faltas }}</span>
+              <span class="falta-label">{{ equipoVisitante?.nombre }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Superioridad -->
+      <div class="stat-section superioridad-section">
+        <h3 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 20V10M12 20V4M6 20v-6"></path>
+          </svg>
+          Porcentaje de Superioridad
+        </h3>
+        <div class="superioridad-chart">
+          <div class="superioridad-equipo">
+            <div class="superioridad-circulo local">
+              <svg class="circulo-svg" viewBox="0 0 100 100">
+                <circle class="circulo-bg" cx="50" cy="50" r="40"></circle>
+                <circle class="circulo-progreso" cx="50" cy="50" r="40"
+                  [style.stroke-dasharray]="(equipoLocal?.superioridad || 0) * 2.51 + ' 251'"></circle>
+              </svg>
+              <div class="circulo-texto">
+                <span class="porcentaje">{{ equipoLocal?.superioridad }}%</span>
+              </div>
+            </div>
+            <p class="superioridad-label">{{ equipoLocal?.nombre }}</p>
+          </div>
+
+          <div class="superioridad-equipo">
+            <div class="superioridad-circulo visitante">
+              <svg class="circulo-svg" viewBox="0 0 100 100">
+                <circle class="circulo-bg" cx="50" cy="50" r="40"></circle>
+                <circle class="circulo-progreso" cx="50" cy="50" r="40"
+                  [style.stroke-dasharray]="(equipoVisitante?.superioridad || 0) * 2.51 + ' 251'"></circle>
+              </svg>
+              <div class="circulo-texto">
+                <span class="porcentaje">{{ equipoVisitante?.superioridad }}%</span>
+              </div>
+            </div>
+            <p class="superioridad-label">{{ equipoVisitante?.nombre }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline de Eventos -->
+      <div class="stat-section timeline-section">
+        <h3 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Cronología del Partido
+        </h3>
+        <div class="timeline-container">
+          <div class="timeline-evento" *ngFor="let evento of timeline">
+            <div class="evento-minuto" [style.color]="getColorEvento(evento.tipo_evento)">
+              {{ evento.minuto }}'
+            </div>
+            <div class="evento-icono" [style.background]="getColorEvento(evento.tipo_evento)">
+              {{ getIconoEvento(evento.tipo_evento) }}
+            </div>
+            <div class="evento-detalles">
+              <p class="evento-tipo">{{ evento.tipo_evento.replace('_', ' ') | titlecase }}</p>
+              <p class="evento-equipo">{{ evento.nombre_equipo }}</p>
+              <p class="evento-jugador" *ngIf="evento.jugador_nombre">{{ evento.jugador_nombre }}</p>
+              <p class="evento-descripcion" *ngIf="evento.descripcion">{{ evento.descripcion }}</p>
+            </div>
+          </div>
+          <p class="no-eventos" *ngIf="!timeline || timeline.length === 0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            No se registraron eventos en este partido
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

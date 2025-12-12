@@ -100,12 +100,12 @@ export class ListSede implements OnInit {
 
       this.sedeService.deleteSede(id).subscribe({
         next: () => {
-          this.sedes = this.sedes.filter(s => s.id_sede !== id);
-          this.filtrarSedes();
           this.notificationService.notify({
             message: 'La sede ha sido eliminada correctamente',
             type: 'success'
           });
+          // Recargar sedes para actualización en tiempo real
+          this.cargarSedes();
         },
         error: (err) => {
           this.notificationService.notify({

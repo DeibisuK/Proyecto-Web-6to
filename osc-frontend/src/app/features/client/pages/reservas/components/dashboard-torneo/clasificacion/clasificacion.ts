@@ -21,6 +21,7 @@ export class ClasificacionComponent implements OnInit {
   torneo: Torneo | null = null;
   isLoading: boolean = true;
   error: string | null = null;
+  mostrarLeyenda: boolean = false;
 
   // Grupos únicos para agrupar equipos
   grupos: string[] = [];
@@ -41,26 +42,36 @@ export class ClasificacionComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.torneosService.getClasificacionTorneo(idTorneo).subscribe({
-      next: (clasificacion) => {
-        this.clasificacion = clasificacion;
-        this.extractGrupos();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar clasificación:', error);
-        this.error = 'No se pudo cargar la clasificación del torneo';
-        this.isLoading = false;
-      }
-    });
-
-    // Opcional: Cargar también información del torneo
+    // Primero cargar información del torneo
     this.torneosService.getTorneosPublicos().subscribe({
       next: (torneos) => {
-        this.torneo = torneos.find(t => t.id_torneo === idTorneo) || null;
+        // Convertir id_torneo a número para comparación (backend devuelve strings)
+        this.torneo = torneos.find(t => Number(t.id_torneo) === idTorneo) || null;
+
+        if (!this.torneo) {
+          this.error = 'Torneo no encontrado';
+          this.isLoading = false;
+          return;
+        }
+
+        // Luego cargar clasificación
+        this.torneosService.getClasificacionTorneo(idTorneo).subscribe({
+          next: (clasificacion) => {
+            this.clasificacion = clasificacion;
+            this.extractGrupos();
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error al cargar clasificación:', error);
+            this.error = 'No se pudo cargar la clasificación del torneo';
+            this.isLoading = false;
+          }
+        });
       },
       error: (error) => {
         console.error('Error al cargar torneo:', error);
+        this.error = 'Error al cargar información del torneo';
+        this.isLoading = false;
       }
     });
   }
@@ -88,7 +99,7 @@ export class ClasificacionComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['../../torneo'], { relativeTo: this.route });
+    this.router.navigate(['/dashboard-torneo/torneos']);
   }
 
   getPositionClass(posicion: number): string {

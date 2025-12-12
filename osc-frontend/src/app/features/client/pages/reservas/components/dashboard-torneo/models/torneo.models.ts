@@ -30,6 +30,9 @@ export interface Torneo {
   id_deporte: number;
   equipos_inscritos: number;
   estado_calculado?: 'próximo' | 'en_curso' | 'finalizado';
+  equipo_ganador?: string;
+  equipo_ganador_logo?: string;
+  fue_empate?: boolean;
 }
 
 // Equipo

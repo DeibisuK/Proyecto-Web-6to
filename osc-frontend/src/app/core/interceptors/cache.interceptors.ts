@@ -16,6 +16,8 @@ const NO_CACHE_PATTERNS = [
   '/s',              // Suscripciones
   '/c/admin/torneos', // Torneos admin
   '/c/admin/partidos', // Partidos admin
+  '/c/admin/canchas', // Canchas admin (actualización en tiempo real)
+  '/c/admin/sedes',   // Sedes admin (actualización en tiempo real)
   '/c/client/torneos', // Torneos cliente
   '/m/client/equipos', // Partidos
   '/m/arbitro',      // Panel de árbitro (eventos, partidos en tiempo real)
