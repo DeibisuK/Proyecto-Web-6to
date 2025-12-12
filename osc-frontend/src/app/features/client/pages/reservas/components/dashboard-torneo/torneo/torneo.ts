@@ -248,6 +248,29 @@ export class Torneo implements OnInit {
     this.bracket = [];
   }
 
+  /**
+   * Ver detalles de un partido específico
+   */
+  verDetallePartido(partido: any): void {
+    // Si tiene id_partido real de BD, navegar
+    if (typeof partido.id_partido === 'number' && partido.id_partido > 0) {
+      this.router.navigate(['/client/reservas/dashboard-torneo/partido', partido.id_partido]);
+    } else {
+      // Si no tiene id_partido, mostrar mensaje que aún no está programado
+      alert('Este partido aún no ha sido programado por un administrador.');
+    }
+  }
+
+  /**
+   * Verifica si un partido tiene ambos equipos asignados (puede mostrar detalles)
+   */
+  esPartidoReal(partido: any): boolean {
+    // Mostrar botón si tiene id_partido de BD O si tiene ambos equipos asignados
+    const tieneIdReal = typeof partido.id_partido === 'number' && partido.id_partido > 0;
+    const tieneAmbosEquipos = partido.equipo1 && partido.equipo2;
+    return tieneIdReal || tieneAmbosEquipos;
+  }
+
   generarBracket(torneo: TorneoModel): void {
     // Cargar equipos inscritos reales del backend
     this.torneosService.getEquiposInscritos(torneo.id_torneo).subscribe({

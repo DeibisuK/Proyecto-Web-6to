@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CanchaService } from '@shared/services/index';
 import { SedeService } from '@shared/services/index';
@@ -6,6 +6,7 @@ import { Sedes } from '@shared/models/index';
 import { Cancha } from '@shared/models/index';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-detalle-reservar-cancha',
@@ -13,13 +14,15 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './detalle-reservar-cancha.html',
   styleUrls: ['./detalle-reservar-cancha.css']
 })
-export class DetalleReservarCancha implements OnInit {
+export class DetalleReservarCancha implements OnInit, AfterViewInit {
+
+  @ViewChild('qrCanvas', { static: false }) qrCanvas!: ElementRef<HTMLCanvasElement>;
 
   cancha?: Cancha;
   sede?: Sedes;
 
   fechaSeleccionada: string = '';
-  minDate: string = ''; // 👈 nueva propiedad
+  minDate: string = '';
   duracionSeleccionada: number = 1;
   horariosDisponibles: { hora: string, reservado: boolean }[] = [];
   horarioSeleccionado: any = null;
@@ -55,6 +58,11 @@ export class DetalleReservarCancha implements OnInit {
       { hora: '20:00', reservado: false },
       { hora: '21:00', reservado: false },
     ];
+  }
+
+  ngAfterViewInit(): void {
+    // Genera el QR después de que la vista se inicialice
+    setTimeout(() => this.generarQR(), 100);
   }
 
   /** Carga los datos de la cancha por ID desde la API */
@@ -110,5 +118,31 @@ export class DetalleReservarCancha implements OnInit {
 
     alert(`✅ Reserva confirmada para la cancha "${this.cancha.nombre_cancha}"
 el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
+  }
+
+  /** Genera la URL para el código QR */
+  getReservaQrUrl(): string {
+    const canchaId = this.route.snapshot.paramMap.get('id');
+    return `${window.location.origin}/client/tienda/reservar-cancha/${canchaId}`;
+  }
+
+  /** Genera el código QR en el canvas */
+  async generarQR(): Promise<void> {
+    if (!this.qrCanvas) return;
+
+    try {
+      const url = this.getReservaQrUrl();
+      await QRCode.toCanvas(this.qrCanvas.nativeElement, url, {
+        width: 220,
+        margin: 2,
+        color: {
+          dark: '#2ECC71',
+          light: '#FFFFFF'
+        },
+        errorCorrectionLevel: 'M'
+      });
+    } catch (error) {
+      console.error('Error al generar QR:', error);
+    }
   }
 }

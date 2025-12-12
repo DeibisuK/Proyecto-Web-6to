@@ -234,8 +234,7 @@ class TorneoService {
                 LEFT JOIN equipos ev ON tp.id_equipo_visitante = ev.id_equipo
                 LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
                 LEFT JOIN sedes s ON tp.id_sede = s.id_sede
-                LEFT JOIN arbitros ar ON tp.id_arbitro_principal = ar.id_arbitro
-                LEFT JOIN usuarios u ON ar.id_usuario = u.id_user
+                LEFT JOIN usuarios u ON tp.id_arbitro = u.id_user AND u.id_rol = 3
                 LEFT JOIN fases_torneo f ON tp.id_fase = f.id_fase
                 LEFT JOIN grupos_torneo g ON tp.id_grupo = g.id_grupo
                 WHERE tp.id_torneo = $1

@@ -234,12 +234,12 @@
                   </button>
                 }
                 @if (partido.estado_partido === 'en_curso' || partido.estado_partido === 'pausado') {
-                  <button class="btn-accion ver" (click)="verPartido(partido)">
+                  <button class="btn-accion ver" (click)="seleccionarPartido(partido)">
                     <i class="fas fa-eye"></i> Ver Partido
                   </button>
                 }
                 @if (partido.estado_partido === 'finalizado') {
-                  <button class="btn-accion detalles" (click)="verPartido(partido)">
+                  <button class="btn-accion detalles" (click)="seleccionarPartido(partido)">
                     <i class="fas fa-chart-bar"></i> Ver Detalles
                   </button>
                 }

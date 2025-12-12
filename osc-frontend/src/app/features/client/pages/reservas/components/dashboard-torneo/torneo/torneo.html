@@ -23,9 +23,8 @@
   </div>
 
   <div class="torneos-grid" *ngIf="!isLoading && !error">
-    <div class="torneo-card card card-hover card-interactive"
-         *ngFor="let torneo of torneosFiltrados"
-         (click)="viewTournamentDetail(torneo)">
+    <div class="torneo-card card card-hover"
+         *ngFor="let torneo of torneosFiltrados">
 
       <div class="card-header">
         <img [src]="torneo.deporte_imagen" [alt]="torneo.nombre_deporte" class="deporte-icon">
@@ -118,9 +117,21 @@
           Inscribirse
         </button>
 
-        <button class="btn btn-ghost btn-sm" (click)="viewBracket(torneo, $event)">
+        <!-- Bracket/Clasificación - Solo en torneos EN CURSO o FINALIZADOS -->
+        <button
+          *ngIf="(torneo.estado === 'en_curso' || torneo.estado === 'finalizado') && torneo.tipo_torneo === 'eliminacion_directa'"
+          class="btn btn-ghost btn-sm"
+          (click)="viewBracket(torneo, $event)">
           <i class="fas fa-sitemap"></i>
           Ver Bracket
+        </button>
+
+        <button
+          *ngIf="(torneo.estado === 'en_curso' || torneo.estado === 'finalizado') && torneo.tipo_torneo !== 'eliminacion_directa'"
+          class="btn btn-ghost btn-sm"
+          (click)="viewClassification(torneo, $event)">
+          <i class="fas fa-list-ol"></i>
+          Ver Estadísticas
         </button>
       </div>
     </div>
@@ -216,6 +227,27 @@
                   <ng-template #tbdTemplate2>
                     <span class="equipo-placeholder">TBD</span>
                   </ng-template>
+                </div>
+
+                <!-- Botón Ver Detalles -->
+                <div class="partido-actions" *ngIf="esPartidoReal(partido)">
+                  <button class="btn-ver-partido" (click)="verDetallePartido(partido)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Ver detalles
+                  </button>
+                </div>
+                <div class="partido-placeholder" *ngIf="!esPartidoReal(partido)">
+                  <span class="partido-pendiente-text">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Partido aún no programado
+                  </span>
                 </div>
               </div>
             </div>

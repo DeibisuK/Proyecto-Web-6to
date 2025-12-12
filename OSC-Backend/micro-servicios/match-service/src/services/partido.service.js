@@ -132,8 +132,7 @@ export const getDetalleCompleto = async (id) => {
             LEFT JOIN equipos ev ON tp.id_equipo_visitante = ev.id_equipo
             LEFT JOIN canchas c ON tp.id_cancha = c.id_cancha
             LEFT JOIN sedes s ON c.id_sede = s.id_sede
-            LEFT JOIN arbitros ar ON tp.id_arbitro = ar.id_arbitro
-            LEFT JOIN usuarios u ON ar.id_usuario = u.id_user
+            LEFT JOIN usuarios u ON tp.id_arbitro = u.id_user AND u.id_rol = 3
             WHERE tp.id_partido = $1
         `;
         const partidoResult = await client.query(partidoQuery, [id]);

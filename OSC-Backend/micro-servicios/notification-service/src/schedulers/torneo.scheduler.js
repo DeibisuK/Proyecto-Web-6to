@@ -181,7 +181,8 @@ async function notificarInicioTorneo(client, idTorneo, nombreTorneo) {
             SELECT DISTINCT u.uid as uid_usuario
             FROM inscripciones_torneo it
             INNER JOIN equipos e ON it.id_equipo = e.id_equipo
-            INNER JOIN usuarios u ON e.id_capitan = u.id_user
+            INNER JOIN jugadores j ON j.id_equipo = e.id_equipo AND j.es_capitan = true
+            INNER JOIN usuarios u ON j.id_usuario = u.id_user
             WHERE it.id_torneo = $1
             AND it.aprobado = true
             AND it.estado = 'inscrito'
@@ -224,7 +225,8 @@ async function notificarFinTorneo(client, idTorneo, nombreTorneo) {
             SELECT DISTINCT u.uid as uid_usuario
             FROM inscripciones_torneo it
             INNER JOIN equipos e ON it.id_equipo = e.id_equipo
-            INNER JOIN usuarios u ON e.id_capitan = u.id_user
+            INNER JOIN jugadores j ON j.id_equipo = e.id_equipo AND j.es_capitan = true
+            INNER JOIN usuarios u ON j.id_usuario = u.id_user
             WHERE it.id_torneo = $1
             AND it.aprobado = true
         `, [idTorneo]);

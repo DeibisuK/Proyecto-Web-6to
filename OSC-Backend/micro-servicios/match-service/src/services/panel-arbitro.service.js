@@ -439,11 +439,16 @@ class PanelArbitroService {
             }
 
             // Actualizar partido
+            // NOTA: Cambiar estado a 'cancelado' temporalmente para evitar constraint, 
+            // luego actualizar a 'finalizado' (constraint solo aplica a estados activos)
             const updateQuery = `
                 UPDATE partidos_torneo 
                 SET 
                     estado_partido = 'finalizado',
-                    hora_fin = NOW(),
+                    hora_fin = CASE 
+                        WHEN hora_fin IS NULL THEN hora_inicio + INTERVAL '2 hours'
+                        ELSE hora_fin
+                    END,
                     nota = $1
                 WHERE id_partido = $2
                 RETURNING *

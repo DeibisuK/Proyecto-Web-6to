@@ -143,15 +143,17 @@ export class Inscripciones implements OnInit {
    */
   openNewInscriptionWizard(): void {
     // Navegar a la vista de torneos para seleccionar uno
-    this.router.navigate(['/dashboard-torneo/torneos']);
+    this.router.navigate(['/client/reservas/dashboard-torneo/torneos']);
   }
 
   /**
-   * Ver detalles completos de la inscripción/torneo
+   * Ver detalles del próximo partido
    */
-  viewDetails(inscripcion: Inscripcion): void {
-    // Navegar al detalle del torneo (partido)
-    this.router.navigate(['/dashboard-torneo/partido', inscripcion.id_torneo]);
+  verProximoPartido(inscripcion: Inscripcion, event: Event): void {
+    event.stopPropagation();
+    if (inscripcion.proximo_partido?.id_partido) {
+      this.router.navigate(['/client/reservas/dashboard-torneo/partido', inscripcion.proximo_partido.id_partido]);
+    }
   }
 
   /**
