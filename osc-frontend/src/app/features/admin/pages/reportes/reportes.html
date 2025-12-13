@@ -7,6 +7,7 @@
         <span class="material-icons filter-icon">filter_list</span>
         <label class="filter-label">Mes:</label>
         <select class="filter-select" [(ngModel)]="selectedMonth">
+          <option [value]="-1">Todos</option>
           @for (month of months; track $index) {
             <option [value]="$index">{{ month }}</option>
           }
@@ -24,7 +25,7 @@
 
       <div class="filter-summary">
         <span class="material-icons">calendar_today</span>
-        <span class="summary-text">{{ months[selectedMonth] }} {{ selectedYear }}</span>
+        <span class="summary-text">{{ selectedMonth === -1 ? 'Todos los meses' : months[selectedMonth] }} {{ selectedYear }}</span>
       </div>
 
       <button class="clear-filters-btn" (click)="clearFilters()">
@@ -66,14 +67,14 @@
                 <div class="item-actions">
                   <button
                     class="btn-export pdf"
-                    (click)="handleExport('PDF', option.label)"
+                    (click)="handleExport(category.id, option.id, 'pdf', option.label)"
                   >
                     <span class="material-icons">description</span>
                     PDF
                   </button>
                   <button
                     class="btn-export excel"
-                    (click)="handleExport('Excel', option.label)"
+                    (click)="handleExport(category.id, option.id, 'excel', option.label)"
                   >
                     <span class="material-icons">table_chart</span>
                     Excel
@@ -90,43 +91,40 @@
       <!-- Recent Reports -->
       <div class="recent-reports">
         <div class="section-header">
+          <span class="material-icons">history</span>
           <h3 class="section-title">Reportes Recientes</h3>
         </div>
-        <div class="report-list">
-          @for (report of recentReports; track report.name) {
-            <div class="report-item">
-              <div class="report-left">
-                <div class="report-icon" [ngClass]="report.type">
-                  @if (report.type === 'pdf') {
-                    <span class="material-icons">description</span>
-                  } @else {
-                    <span class="material-icons">table_chart</span>
-                  }
+        @if (recentReports.length === 0) {
+          <div class="no-reports">
+            <span class="material-icons">folder_open</span>
+            <p>No hay reportes recientes</p>
+            <span class="hint">Los reportes descargados aparecerán aquí</span>
+          </div>
+        } @else {
+          <div class="report-list">
+            @for (report of recentReports; track report.name + report.date) {
+              <div class="report-item">
+                <div class="report-left">
+                  <div class="report-icon" [ngClass]="report.type">
+                    @if (report.type === 'pdf') {
+                      <span class="material-icons">description</span>
+                    } @else {
+                      <span class="material-icons">table_chart</span>
+                    }
+                  </div>
+                  <div class="report-info">
+                    <h4>{{ report.name }}</h4>
+                    <p class="report-meta">{{ getTimeSinceDownload(report.date) }}</p>
+                  </div>
                 </div>
-                <div class="report-info">
-                  <h4>{{ report.name }}</h4>
-                  <p>{{ report.date }} • {{ report.size }}</p>
-                </div>
+                <span class="report-badge" [ngClass]="report.type">
+                  {{ report.type === 'pdf' ? 'PDF' : 'EXCEL' }}
+                </span>
               </div>
-              <button class="download-btn">
-                <span class="material-icons">download</span>
-              </button>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
     </div>
   </div>
-
-  <!-- Toast Notification -->
-  @if (toast) {
-    <div class="toast">
-      <div class="toast-icon">
-        <span class="material-icons">check</span>
-      </div>
-      <span class="toast-text">
-        Generando {{ toast.type }}: {{ toast.label }}
-      </span>
-    </div>
-  }
 </div>

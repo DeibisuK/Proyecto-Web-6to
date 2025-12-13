@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { NotificationService } from '@core/services/notification.service';
+import { ReportsService } from '../../../../shared/services/reports.service';
 
 interface ReportOption {
   id: string;
@@ -17,65 +20,53 @@ interface ReportCategory {
 interface RecentReport {
   name: string;
   type: 'pdf' | 'excel';
-  date: string;
-  size: string;
-}
-
-interface Toast {
-  type: string;
-  label: string;
+  date: Date;
+  category: string;
+  option: string;
 }
 
 @Component({
   selector: 'app-reportes',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './reportes.html',
   styleUrl: './reportes.css',
 })
 export class Reportes implements OnInit {
+  private notificationService = inject(NotificationService);
+  private reportsService = inject(ReportsService);
+
   showFilters = false;
-  selectedMonth = new Date().getMonth();
-  selectedYear = 2024;
+  selectedMonth = -1; // -1 representa 'Todos los meses'
+  selectedYear = 2025;
   expandedCategory: string | null = null;  // Inicialmente ninguno expandido
-  toast: Toast | null = null;
 
   months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   years = [2023, 2024, 2025];
+
+  recentReports: RecentReport[] = [];
 
   reportCategories: ReportCategory[] = [
     {
       id: 'canchas',
       title: 'Canchas',
-      iconName: 'track_changes',
+      iconName: 'sports_soccer',
       options: [
-        { id: 'mas-usada', label: 'Cancha más utilizada' },
-        { id: 'mejor-puntuada', label: 'Mejor puntuada' },
-        { id: 'ingresos-cancha', label: 'Ingresos por cancha' },
-        { id: 'ocupacion', label: 'Tasa de ocupación' },
-        { id: 'horarios-pico', label: 'Horarios pico' }
+        { id: 'listar-canchas', label: 'Listar Canchas' },
+        { id: 'mas-utilizadas', label: 'Canchas Más Utilizadas' },
+        { id: 'mejor-puntuadas', label: 'Canchas Mejor Puntuadas' },
+        { id: 'ingresos-cancha', label: 'Ingresos por Cancha' },
+        { id: 'tasa-ocupacion', label: 'Tasa de Ocupación' }
       ]
     },
     {
-      id: 'reservas',
-      title: 'Reservas',
-      iconName: 'calendar_today',
+      id: 'arbitros',
+      title: 'Árbitros',
+      iconName: 'sports',
       options: [
-        { id: 'total-reservas', label: 'Total de reservas' },
-        { id: 'cancelaciones', label: 'Cancelaciones' },
-        { id: 'reservas-deporte', label: 'Reservas por deporte' },
-        { id: 'reservas-dia', label: 'Reservas por día' },
-        { id: 'duracion-promedio', label: 'Duración promedio' }
-      ]
-    },
-    {
-      id: 'usuarios',
-      title: 'Usuarios',
-      iconName: 'group',
-      options: [
-        { id: 'nuevos-usuarios', label: 'Nuevos usuarios' },
-        { id: 'usuarios-frecuentes', label: 'Usuarios frecuentes' },
-        { id: 'retencion', label: 'Tasa de retención' },
-        { id: 'usuarios-deporte', label: 'Usuarios por deporte' }
+        { id: 'listar-arbitros', label: 'Listar Árbitros' },
+        { id: 'mas-partidos', label: 'Árbitros con Más Partidos' },
+        { id: 'arbitros-deporte', label: 'Árbitros por Deporte' },
+        { id: 'disponibilidad', label: 'Disponibilidad de Árbitros' }
       ]
     },
     {
@@ -83,22 +74,101 @@ export class Reportes implements OnInit {
       title: 'Ingresos',
       iconName: 'attach_money',
       options: [
-        { id: 'ingresos-totales', label: 'Ingresos totales' },
-        { id: 'ingresos-deporte', label: 'Ingresos por deporte' },
-        { id: 'ticket-promedio', label: 'Ticket promedio' },
-        { id: 'proyeccion', label: 'Proyección mensual' }
+        { id: 'listar-ingresos', label: 'Listar Ingresos' },
+        { id: 'ingresos-totales', label: 'Ingresos Totales' },
+        { id: 'ingresos-categoria', label: 'Ingresos por Categoría' },
+        { id: 'ingresos-deporte', label: 'Ingresos por Deporte' },
+        { id: 'proyeccion', label: 'Proyección de Ingresos' }
+      ]
+    },
+    {
+      id: 'productos',
+      title: 'Productos',
+      iconName: 'inventory_2',
+      options: [
+        { id: 'listar-productos', label: 'Listar Productos' },
+        { id: 'mas-vendidos', label: 'Productos Más Vendidos' },
+        { id: 'bajo-stock', label: 'Productos con Bajo Stock' },
+        { id: 'productos-categoria', label: 'Productos por Categoría' },
+        { id: 'rentabilidad', label: 'Rentabilidad de Productos' }
+      ]
+    },
+    {
+      id: 'equipos',
+      title: 'Equipos',
+      iconName: 'groups',
+      options: [
+        { id: 'listar-equipos', label: 'Listar Equipos' },
+        { id: 'mas-activos', label: 'Equipos Más Activos' },
+        { id: 'equipos-deporte', label: 'Equipos por Deporte' },
+        { id: 'equipos-torneos', label: 'Equipos en Torneos' }
+      ]
+    },
+    {
+      id: 'partidos',
+      title: 'Partidos',
+      iconName: 'event',
+      options: [
+        { id: 'listar-partidos', label: 'Listar Partidos' },
+        { id: 'partidos-estado', label: 'Partidos por Estado' },
+        { id: 'partidos-deporte', label: 'Partidos por Deporte' },
+        { id: 'partidos-torneo', label: 'Partidos de Torneo' },
+        { id: 'estadisticas', label: 'Estadísticas de Partidos' }
+      ]
+    },
+    {
+      id: 'reservas',
+      title: 'Reservas',
+      iconName: 'calendar_today',
+      options: [
+        { id: 'listar-reservas', label: 'Listar Reservas' },
+        { id: 'reservas-estado', label: 'Reservas por Estado' },
+        { id: 'cancelaciones', label: 'Cancelaciones' },
+        { id: 'reservas-deporte', label: 'Reservas por Deporte' },
+        { id: 'reservas-dia', label: 'Reservas por Día de Semana' },
+        { id: 'duracion-promedio', label: 'Duración Promedio' }
+      ]
+    },
+    {
+      id: 'sedes',
+      title: 'Sedes',
+      iconName: 'location_on',
+      options: [
+        { id: 'listar-sedes', label: 'Listar Sedes' },
+        { id: 'mas-utilizadas', label: 'Sedes Más Utilizadas' },
+        { id: 'sedes-ciudad', label: 'Sedes por Ciudad' },
+        { id: 'ingresos-sede', label: 'Ingresos por Sede' }
+      ]
+    },
+    {
+      id: 'torneos',
+      title: 'Torneos',
+      iconName: 'emoji_events',
+      options: [
+        { id: 'listar-torneos', label: 'Listar Torneos' },
+        { id: 'torneos-activos', label: 'Torneos Activos' },
+        { id: 'torneos-deporte', label: 'Torneos por Deporte' },
+        { id: 'equipos-torneo', label: 'Equipos por Torneo' },
+        { id: 'estadisticas', label: 'Estadísticas de Torneos' }
+      ]
+    },
+    {
+      id: 'usuarios',
+      title: 'Usuarios',
+      iconName: 'group',
+      options: [
+        { id: 'listar-usuarios', label: 'Listar Usuarios' },
+        { id: 'nuevos-usuarios', label: 'Nuevos Usuarios' },
+        { id: 'usuarios-frecuentes', label: 'Usuarios Frecuentes' },
+        { id: 'tasa-retencion', label: 'Tasa de Retención' },
+        { id: 'usuarios-deporte', label: 'Usuarios por Deporte' },
+        { id: 'usuarios-inactivos', label: 'Usuarios Inactivos' }
       ]
     }
   ];
 
-  recentReports: RecentReport[] = [
-    { name: 'Reporte Mensual - Octubre 2024', type: 'pdf', date: '01 Nov 2024', size: '2.4 MB' },
-    { name: 'Análisis de Ocupación Q3', type: 'excel', date: '28 Oct 2024', size: '1.8 MB' },
-    { name: 'Ingresos por Deporte - Sept', type: 'pdf', date: '15 Oct 2024', size: '1.2 MB' }
-  ];
-
   ngOnInit() {
-    // Inicialización si es necesaria
+    this.loadRecentReports();
   }
 
   toggleFilters() {
@@ -106,12 +176,42 @@ export class Reportes implements OnInit {
   }
 
   clearFilters() {
-    this.selectedMonth = new Date().getMonth();
-    this.selectedYear = 2024;
+    this.selectedMonth = -1; // Todos los meses
+    this.selectedYear = 2025;
   }
 
   get hasActiveFilters(): boolean {
-    return this.selectedMonth !== new Date().getMonth() || this.selectedYear !== 2024;
+    return this.selectedMonth !== -1 || this.selectedYear !== new Date().getFullYear();
+  }
+
+  loadRecentReports() {
+    const stored = localStorage.getItem('recentReports');
+    if (stored) {
+      this.recentReports = JSON.parse(stored);
+      // Mantener solo los últimos 5 reportes
+      this.recentReports = this.recentReports.slice(0, 5);
+    }
+  }
+
+  saveRecentReport(report: RecentReport) {
+    this.recentReports.unshift(report);
+    // Mantener solo los últimos 5
+    this.recentReports = this.recentReports.slice(0, 5);
+    localStorage.setItem('recentReports', JSON.stringify(this.recentReports));
+  }
+
+  getTimeSinceDownload(date: Date): string {
+    const now = new Date();
+    const downloadDate = new Date(date);
+    const diffMs = now.getTime() - downloadDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Hace un momento';
+    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
   }
 
   toggleCategory(categoryId: string) {
@@ -124,15 +224,61 @@ export class Reportes implements OnInit {
     return isExpanded;
   }
 
-  showToast(type: string, label: string) {
-    this.toast = { type, label };
-    setTimeout(() => {
-      this.toast = null;
-    }, 3000);
-  }
+  handleExport(categoryId: string, optionId: string, type: string, label: string) {
+    // Preparar filtros: si selectedMonth es -1 (Todos), no enviar el mes
+    const filters: any = {
+      year: this.selectedYear
+    };
 
-  handleExport(type: string, label: string) {
-    this.showToast(type, label);
-    console.log(`Generando ${type}: ${label}`);
+    // Solo agregar el mes si no es "Todos" (-1)
+    if (this.selectedMonth !== -1) {
+      filters.month = this.selectedMonth + 1; // +1 porque los meses en JS son 0-11 y en SQL son 1-12
+    }
+
+    const periodo = this.selectedMonth === -1
+      ? `año ${this.selectedYear}`
+      : `${this.months[this.selectedMonth]} ${this.selectedYear}`;
+
+    const formatLabel = type === 'pdf' ? 'PDF' : 'Excel';
+    const loadingKey = `report-${Date.now()}`;
+    this.notificationService.loading(`Generando reporte ${formatLabel}: ${label} (${periodo})`, loadingKey);
+
+    // Llamar al backend
+    this.reportsService.generateReport({
+      category: categoryId,
+      option: optionId,
+      filters,
+      format: type.toLowerCase() as 'pdf' | 'excel'
+    }).subscribe({
+      next: (blob) => {
+        // Descargar el archivo
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const extension = type.toLowerCase() === 'pdf' ? 'pdf' : 'xlsx';
+        const filename = `Reporte_${label.replace(/\s+/g, '_')}_${periodo.replace(/\s+/g, '_')}.${extension}`;
+        link.download = filename;
+        link.click();
+        window.URL.revokeObjectURL(url);
+
+        // Guardar en reportes recientes
+        this.saveRecentReport({
+          name: filename,
+          type: type.toLowerCase() as 'pdf' | 'excel',
+          date: new Date(),
+          category: categoryId,
+          option: optionId
+        });
+
+        this.notificationService.success(`Reporte ${formatLabel} generado exitosamente`);
+      },
+      error: (error) => {
+        console.error('Error generando reporte:', error);
+        // El toast de loading se cerrará automáticamente al mostrar el error
+        setTimeout(() => {
+          this.notificationService.error('Error al generar el reporte. Por favor intente nuevamente.');
+        }, 100);
+      }
+    });
   }
 }

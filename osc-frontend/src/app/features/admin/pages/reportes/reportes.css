@@ -253,22 +253,22 @@
 }
 
 .btn-export.pdf {
-  background: #ECFDF5;
-  color: #059669;
+  background: #FEE2E2;
+  color: #DC2626;
 }
 
 .btn-export.pdf:hover {
-  background: #D1FAE5;
+  background: #FECACA;
   transform: scale(1.05);
 }
 
 .btn-export.excel {
-  background: #EFF6FF;
-  color: #2563EB;
+  background: #D1FAE5;
+  color: #059669;
 }
 
 .btn-export.excel:hover {
-  background: #DBEAFE;
+  background: #A7F3D0;
   transform: scale(1.05);
 }
 
@@ -334,22 +334,22 @@
 }
 
 .btn-export.pdf {
-  background: #ECFDF5;
-  color: #059669;
+  background: #FEE2E2;
+  color: #DC2626;
 }
 
 .btn-export.pdf:hover {
-  background: #D1FAE5;
+  background: #FECACA;
   transform: translateY(-1px);
 }
 
 .btn-export.excel {
-  background: #EFF6FF;
-  color: #2563EB;
+  background: #D1FAE5;
+  color: #059669;
 }
 
 .btn-export.excel:hover {
-  background: #DBEAFE;
+  background: #A7F3D0;
   transform: translateY(-1px);
 }
 
@@ -529,19 +529,21 @@
 }
 
 .export-option.pdf {
-  color: #25D366;
+  color: #DC2626;
+  background: #FEE2E2;
 }
 
 .export-option.pdf:hover {
-  background: #ECFDF5;
+  background: #FECACA;
 }
 
 .export-option.excel {
-  color: #3B82F6;
+  color: #059669;
+  background: #D1FAE5;
 }
 
 .export-option.excel:hover {
-  background: #EFF6FF;
+  background: #A7F3D0;
 }
 
 /* Legacy styles for backwards compatibility */
@@ -563,21 +565,21 @@
 }
 
 .action-btn.pdf {
-  background: #ECFDF5;
-  color: #25D366;
+  background: #FEE2E2;
+  color: #DC2626;
 }
 
 .action-btn.pdf:hover {
-  background: #D1FAE5;
+  background: #FECACA;
 }
 
 .action-btn.excel {
-  background: #EFF6FF;
-  color: #3B82F6;
+  background: #D1FAE5;
+  color: #059669;
 }
 
 .action-btn.excel:hover {
-  background: #DBEAFE;
+  background: #A7F3D0;
 }
 
 /* Recent Reports */
@@ -586,19 +588,54 @@
   border-radius: 16px;
   padding: 24px;
   border: 1px solid #E5E7EB;
+  margin-top: 24px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 20px;
+}
+
+.section-header .material-icons {
+  font-size: 24px;
+  color: #25D366;
 }
 
 .section-title {
   font-size: 18px;
   font-weight: 700;
   color: #1F2937;
+  margin: 0;
+}
+
+.no-reports {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #9CA3AF;
+}
+
+.no-reports .material-icons {
+  font-size: 64px;
+  color: #E5E7EB;
+  margin-bottom: 16px;
+}
+
+.no-reports p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6B7280;
+  margin: 0 0 8px 0;
+}
+
+.no-reports .hint {
+  font-size: 14px;
+  color: #9CA3AF;
 }
 
 .report-list {
@@ -651,20 +688,44 @@
 
 .report-icon.excel {
   background: #ECFDF5;
-  color: #10B981;
+  color: #059669;
 }
 
 .report-info h4 {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: #1F2937;
-  margin-bottom: 4px;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
 }
 
-.report-info p {
-  font-size: 14px;
+.report-info .report-meta {
+  font-size: 13px;
   color: #9CA3AF;
   font-weight: 500;
+  margin: 0;
+}
+
+.report-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.report-badge.pdf {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.report-badge.excel {
+  background: #D1FAE5;
+  color: #059669;
 }
 
 .download-btn {
@@ -690,48 +751,7 @@
   color: #6B7280;
 }
 
-/* Toast Notification */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #1F2937;
-  color: white;
-  padding: 16px 24px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.3s ease;
-  z-index: 1000;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.toast-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #25D366;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toast-icon .material-icons {
-  font-size: 16px;
-  color: white;
-}
-
-.toast-text {
-  font-size: 15px;
-  font-weight: 600;
-}
-
+/* Responsive Design */
 @media (max-width: 900px) {
   .filters-bar {
     flex-direction: column;

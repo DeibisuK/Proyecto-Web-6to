@@ -1,0 +1,26 @@
+{
+  "name": "report-service",
+  "version": "1.0.0",
+  "description": "Reports generation microservice with PDF and Excel support",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": ["reports", "pdf", "excel", "microservice"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "exceljs": "^4.4.0",
+    "express": "^5.1.0",
+    "pdfkit": "^0.15.0",
+    "pdfkit-table": "^0.1.99",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
