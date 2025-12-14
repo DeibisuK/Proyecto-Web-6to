@@ -7,12 +7,13 @@ import { Cancha, Sede, TipoSuperficie, EstadoCancha } from '@shared/models/index
 import { SedeService } from '@shared/services/index';
 import { NotificationService } from '@core/services/notification.service';
 import { CanchaService } from '@shared/services/index';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-crear-cancha',
   imports: [CommonModule, FormsModule],
   templateUrl: './crear-cancha.html',
-  styleUrl: './crear-cancha.css'
+  styleUrl: './crear-cancha.css',
 })
 export class CrearCancha implements OnInit {
   canchaData: Cancha = {
@@ -23,7 +24,7 @@ export class CrearCancha implements OnInit {
     ancho: 30,
     tarifa: 25,
     tipo_superficie: 'Cemento',
-    estado: 'Disponible'
+    estado: 'Disponible',
   };
 
   isEditMode = false;
@@ -37,7 +38,7 @@ export class CrearCancha implements OnInit {
     { id: 2, nombre: 'Básquetbol' },
     { id: 3, nombre: 'Voleibol' },
     { id: 4, nombre: 'Tenis' },
-    { id: 5, nombre: 'Pádel' }
+    { id: 5, nombre: 'Pádel' },
   ];
 
   sedes: Sede[] = [];
@@ -47,15 +48,10 @@ export class CrearCancha implements OnInit {
     'Césped Natural',
     'Césped Sintético',
     'Parquet',
-    'Arcilla'
+    'Arcilla',
   ];
 
-  estadosCancha: EstadoCancha[] = [
-    'Disponible',
-    'Mantenimiento',
-    'Reservado',
-    'Fuera de Servicio'
-  ];
+  estadosCancha: EstadoCancha[] = ['Disponible', 'Mantenimiento', 'Reservado', 'Fuera de Servicio'];
 
   // Signals para dropdowns personalizados
   dropdownDeporteAbierto = signal<boolean>(false);
@@ -91,16 +87,16 @@ export class CrearCancha implements OnInit {
     this.sedeService.getSedes().subscribe({
       next: (data) => {
         this.sedes = data
-          .filter(sede => sede.id_sede !== undefined)
-          .map(sede => ({
+          .filter((sede) => sede.id_sede !== undefined)
+          .map((sede) => ({
             id_sede: sede.id_sede!,
             nombre_sede: sede.nombre_sede,
-            direccion: sede.direccion || ''
+            direccion: sede.direccion || '',
           }));
       },
       error: (error) => {
         this.notificationService.error('Error al cargar las sedes');
-      }
+      },
     });
   }
 
@@ -115,7 +111,7 @@ export class CrearCancha implements OnInit {
       error: (error) => {
         this.notificationService.error('Error al cargar la cancha');
         this.router.navigate(['/admin/canchas']);
-      }
+      },
     });
   }
 
@@ -139,7 +135,11 @@ export class CrearCancha implements OnInit {
     const formData = new FormData();
     formData.append('imagen', this.imagenFile!);
 
-    this.http.post<{ success: boolean, url: string }>('http://localhost:3000/i/admin/upload-cancha', formData)
+    this.http
+      .post<{ success: boolean; url: string }>(
+        `${environment.apiUrl}/i/admin/upload-cancha`,
+        formData
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -153,7 +153,7 @@ export class CrearCancha implements OnInit {
         error: (error) => {
           this.notificationService.error('Error al subir la imagen');
           this.isLoading = false;
-        }
+        },
       });
   }
 
@@ -174,7 +174,7 @@ export class CrearCancha implements OnInit {
       error: (error) => {
         this.notificationService.error(error.error?.message || 'Error al guardar la cancha');
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -243,13 +243,13 @@ export class CrearCancha implements OnInit {
   }
 
   obtenerNombreDeporte(id: number): string {
-    return this.deportes.find(d => d.id === id)?.nombre || '';
+    return this.deportes.find((d) => d.id === id)?.nombre || '';
   }
 
   // ===== Métodos para dropdowns personalizados =====
 
   toggleDropdownDeporte() {
-    this.dropdownDeporteAbierto.update(estado => !estado);
+    this.dropdownDeporteAbierto.update((estado) => !estado);
     if (this.dropdownDeporteAbierto()) {
       this.dropdownSedeAbierto.set(false);
       this.dropdownSuperficieAbierto.set(false);
@@ -258,7 +258,7 @@ export class CrearCancha implements OnInit {
   }
 
   toggleDropdownSede() {
-    this.dropdownSedeAbierto.update(estado => !estado);
+    this.dropdownSedeAbierto.update((estado) => !estado);
     if (this.dropdownSedeAbierto()) {
       this.dropdownDeporteAbierto.set(false);
       this.dropdownSuperficieAbierto.set(false);
@@ -267,7 +267,7 @@ export class CrearCancha implements OnInit {
   }
 
   toggleDropdownSuperficie() {
-    this.dropdownSuperficieAbierto.update(estado => !estado);
+    this.dropdownSuperficieAbierto.update((estado) => !estado);
     if (this.dropdownSuperficieAbierto()) {
       this.dropdownDeporteAbierto.set(false);
       this.dropdownSedeAbierto.set(false);
@@ -276,7 +276,7 @@ export class CrearCancha implements OnInit {
   }
 
   toggleDropdownEstado() {
-    this.dropdownEstadoAbierto.update(estado => !estado);
+    this.dropdownEstadoAbierto.update((estado) => !estado);
     if (this.dropdownEstadoAbierto()) {
       this.dropdownDeporteAbierto.set(false);
       this.dropdownSedeAbierto.set(false);
@@ -305,12 +305,12 @@ export class CrearCancha implements OnInit {
   }
 
   getNombreDeporte(): string {
-    const deporte = this.deportes.find(d => d.id === this.canchaData.id_deporte);
+    const deporte = this.deportes.find((d) => d.id === this.canchaData.id_deporte);
     return deporte ? deporte.nombre : 'Selecciona un deporte';
   }
 
   getNombreSede(): string {
-    const sede = this.sedes.find(s => s.id_sede === this.canchaData.id_sede);
+    const sede = this.sedes.find((s) => s.id_sede === this.canchaData.id_sede);
     return sede ? sede.nombre_sede : 'Seleccione una sede...';
   }
 
