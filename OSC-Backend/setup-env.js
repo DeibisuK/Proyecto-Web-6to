@@ -28,7 +28,9 @@ const colors = {
 console.log(
   `${colors.blue}🚀 Configuración de Variables de Entorno - osc backend${colors.reset}`
 );
-console.log(`${colors.yellow}📝 Nuevo formato: .env raíz + .env específicos por servicio${colors.reset}`);
+console.log(
+  `${colors.yellow}📝 Nuevo formato: .env raíz + .env específicos por servicio${colors.reset}`
+);
 console.log("=".repeat(60));
 console.log("");
 
@@ -87,6 +89,20 @@ const services = [
     folder: "subscription-service",
     name: "Subscription Service",
     port: 3007,
+    portVar: "PORT",
+    hasDB: true,
+  },
+  {
+    folder: "notification-service",
+    name: "Notification Service",
+    port: 3008,
+    portVar: "PORT",
+    hasDB: true,
+  },
+  {
+    folder: "report-service",
+    name: "Report Service",
+    port: 3009,
     portVar: "PORT",
     hasDB: true,
   },
@@ -176,13 +192,15 @@ DB_NAME=${config.DB_NAME}
 
   // Escribir archivo .env raíz
   fs.writeFileSync(rootEnvPath, envContent);
-  console.log(`${colors.green}✓ .env raíz creado con variables comunes${colors.reset}`);
+  console.log(
+    `${colors.green}✓ .env raíz creado con variables comunes${colors.reset}`
+  );
 
   return true;
 }
 
 function createEnvFile(service) {
-  const servicePath = path.join(__dirname, 'micro-servicios', service.folder);
+  const servicePath = path.join(__dirname, "micro-servicios", service.folder);
   const examplePath = path.join(servicePath, ".env.example");
   const envPath = path.join(servicePath, ".env");
 
@@ -217,13 +235,22 @@ function createEnvFile(service) {
   // Reemplazar claves de Cloudinary si se proporcionaron y es cloudinary-service
   if (service.folder === "cloudinary-service") {
     if (extra.CLOUDINARY_CLOUD_NAME) {
-      envContent = envContent.replace(/CLOUDINARY_CLOUD_NAME=.*/, `CLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}`);
+      envContent = envContent.replace(
+        /CLOUDINARY_CLOUD_NAME=.*/,
+        `CLOUDINARY_CLOUD_NAME=${extra.CLOUDINARY_CLOUD_NAME}`
+      );
     }
     if (extra.CLOUDINARY_API_KEY) {
-      envContent = envContent.replace(/CLOUDINARY_API_KEY=.*/, `CLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}`);
+      envContent = envContent.replace(
+        /CLOUDINARY_API_KEY=.*/,
+        `CLOUDINARY_API_KEY=${extra.CLOUDINARY_API_KEY}`
+      );
     }
     if (extra.CLOUDINARY_API_SECRET) {
-      envContent = envContent.replace(/CLOUDINARY_API_SECRET=.*/, `CLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}`);
+      envContent = envContent.replace(
+        /CLOUDINARY_API_SECRET=.*/,
+        `CLOUDINARY_API_SECRET=${extra.CLOUDINARY_API_SECRET}`
+      );
     }
   }
 
@@ -367,7 +394,11 @@ async function setup() {
 
     // Crear .env para cada servicio
     for (const service of services) {
-      const servicePath = path.join(__dirname, 'micro-servicios', service.folder);
+      const servicePath = path.join(
+        __dirname,
+        "micro-servicios",
+        service.folder
+      );
 
       if (fs.existsSync(servicePath)) {
         createEnvFile(service);
@@ -392,14 +423,20 @@ async function setup() {
     );
     console.log(`   DB_NAME: ${config.DB_NAME}`);
     if (extra.GOOGLE_APPLICATION_CREDENTIALS) {
-      console.log(`   GOOGLE_APPLICATION_CREDENTIALS: ${extra.GOOGLE_APPLICATION_CREDENTIALS}`);
+      console.log(
+        `   GOOGLE_APPLICATION_CREDENTIALS: ${extra.GOOGLE_APPLICATION_CREDENTIALS}`
+      );
     }
     console.log("");
 
     console.log(`${colors.blue}📌 Archivos .env creados:${colors.reset}`);
     console.log(`   ✓ .env (raíz - variables comunes)`);
     for (const service of services) {
-      const servicePath = path.join(__dirname, 'micro-servicios', service.folder);
+      const servicePath = path.join(
+        __dirname,
+        "micro-servicios",
+        service.folder
+      );
       if (fs.existsSync(servicePath)) {
         console.log(`   ✓ ${service.folder}/.env`);
       }
