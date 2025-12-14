@@ -2,7 +2,7 @@
 
 .detalle-cancha-container {
     max-width: 1400px;
-    margin: 3rem auto 2rem;
+    margin: 4rem auto 2rem;
     padding: 2rem;
 }
 
@@ -11,7 +11,7 @@
 .breadcrumb {
     display: flex;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-size: 0.95rem;
     color: #7F8C8D;
 }
@@ -999,14 +999,19 @@
     margin-bottom: 0.5rem;
 }
 
-.btn-editar-comentario {
+.comentario-acciones {
     position: absolute;
     top: 0;
     right: 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-accion-comentario {
     background: transparent;
     border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    padding: 0.5rem;
+    border-radius: 6px;
+    padding: 0.35rem;
     cursor: pointer;
     color: #7F8C8D;
     transition: all 0.3s ease;
@@ -1015,15 +1020,20 @@
     justify-content: center;
 }
 
-.btn-editar-comentario:hover {
+.btn-accion-comentario .material-icons {
+    font-size: 1rem;
+}
+
+.btn-editar:hover {
     background: #2ECC71;
     border-color: #2ECC71;
     color: white;
-    transform: scale(1.1);
 }
 
-.btn-editar-comentario .material-icons {
-    font-size: 1.2rem;
+.btn-eliminar:hover {
+    background: #E74C3C;
+    border-color: #E74C3C;
+    color: white;
 }
 
 .usuario-info .rating-stars {
@@ -1454,4 +1464,136 @@
 
 .btn-enviar .material-icons {
     font-size: 1.2rem;
+}
+
+/* Skeleton Loading */
+.detalle-skeleton {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.skeleton-breadcrumb {
+    height: 24px;
+    width: 250px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.skeleton-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-header-left {
+    flex: 1;
+}
+
+.skeleton-title {
+    height: 36px;
+    width: 300px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-meta {
+    height: 24px;
+    width: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+}
+
+.skeleton-price {
+    height: 60px;
+    width: 150px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+}
+
+.skeleton-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.skeleton-image {
+    height: 400px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 16px;
+}
+
+.skeleton-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-card-header {
+    height: 28px;
+    width: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.skeleton-line {
+    height: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-line:nth-child(2) {
+    width: 90%;
+}
+
+.skeleton-line:nth-child(3) {
+    width: 75%;
+}
+
+.skeleton-line:last-child {
+    width: 85%;
+    margin-bottom: 0;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .skeleton-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .skeleton-image {
+        height: 300px;
+    }
 }

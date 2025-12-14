@@ -58,6 +58,9 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
   modoEdicion: boolean = false;
   ratingEditandoId?: number;
 
+  // Loading state
+  cargando: boolean = true;
+
   // Exponer Math para el template
   Math = Math;
 
@@ -101,6 +104,7 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
   /** Carga los datos de la cancha por ID desde la API */
   cargarCancha(id: number): void {
+    this.cargando = true;
     this.canchaService.getCanchaById(id).subscribe({
       next: (data) => {
         this.cancha = data;
@@ -109,8 +113,10 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
         if (data.id_sede) {
           this.cargarSede(data.id_sede);
         }
+        this.cargando = false;
       },
       error: (err) => {
+        this.cargando = false;
       }
     });
   }
@@ -212,11 +218,11 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
   /** Simula la confirmación de reserva */
   confirmarReserva(): void {
     if (!this.cancha || !this.horarioSeleccionado || !this.fechaSeleccionada) {
-      alert('⚠ Por favor selecciona fecha y horario antes de confirmar.');
+      alert('Por favor selecciona fecha y horario antes de confirmar.');
       return;
     }
 
-    alert(`✅ Reserva confirmada para la cancha "${this.cancha.nombre_cancha}"
+    alert(`Reserva confirmada para la cancha "${this.cancha.nombre_cancha}"
 el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
   }
 
@@ -249,7 +255,7 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
   abrirModalRating(): void {
     const user = this.authService.currentUser;
     if (!user) {
-      this.notificationService.error('⚠️ Debes iniciar sesión para dejar una reseña');
+      this.notificationService.error('Debes iniciar sesión para dejar una reseña');
       return;
     }
     this.modoEdicion = false;
@@ -298,6 +304,7 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
   /** Obtiene el texto descriptivo del rating promedio */
   obtenerTextoRating(): string {
     const promedio = this.promedioEstrellas;
+    if (promedio === 0 || this.totalRatings === 0) return 'Sin reseñas';
     if (promedio >= 4.5) return 'Excelente';
     if (promedio >= 3.5) return 'Muy bueno';
     if (promedio >= 2.5) return 'Bueno';
@@ -309,12 +316,12 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
   enviarRating(): void {
     const user = this.authService.currentUser;
     if (!user || !this.cancha?.id_cancha) {
-      this.notificationService.error('⚠️ Error: No se pudo obtener la información del usuario o la cancha');
+      this.notificationService.error('Error: No se pudo obtener la información del usuario o la cancha');
       return;
     }
 
     if (this.nuevaCalificacion === 0) {
-      this.notificationService.error('⚠️ Por favor selecciona una calificación');
+      this.notificationService.error('Por favor selecciona una calificación');
       return;
     }
 
@@ -327,7 +334,7 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
         comentario: this.nuevoComentario.trim() || undefined
       }).subscribe({
         next: (rating) => {
-          this.notificationService.success('✅ Reseña actualizada correctamente');
+          this.notificationService.success('Reseña actualizada correctamente');
           this.cerrarModalRating();
           // Actualizar en tiempo real
           this.actualizarRatingEnLista(rating);
@@ -338,7 +345,7 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
           this.enviandoRating = false;
         },
         error: (err) => {
-          this.notificationService.error('❌ Error al actualizar tu reseña. Intenta de nuevo.');
+          this.notificationService.error('Error al actualizar tu reseña. Intenta de nuevo.');
           this.enviandoRating = false;
         }
       });
@@ -420,6 +427,45 @@ el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
   puedeEditarComentario(rating: Rating): boolean {
     const user = this.authService.currentUser;
     return user !== null && rating.firebase_uid === user.uid;
+  }
+
+  /** Eliminar comentario con confirmación */
+  eliminarComentario(rating: Rating): void {
+    const user = this.authService.currentUser;
+    if (!user || rating.firebase_uid !== user.uid) {
+      this.notificationService.error('No tienes permiso para eliminar esta reseña');
+      return;
+    }
+
+    // @ts-ignore - SweetAlert2 está disponible globalmente
+    Swal.fire({
+      title: '¿Eliminar reseña?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#E74C3C',
+      cancelButtonColor: '#95A5A6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result: any) => {
+      if (result.isConfirmed && rating.id_rating) {
+        this.ratingService.deleteRating(rating.id_rating).subscribe({
+          next: () => {
+            this.notificationService.success('Reseña eliminada correctamente');
+            // Eliminar de la lista en tiempo real
+            this.comentarios = this.comentarios.filter(c => c.id_rating !== rating.id_rating);
+            this.totalRatings--;
+            // Recalcular estadísticas
+            this.recalcularEstadisticasLocal();
+          },
+          error: (err) => {
+            console.error('❌ Error al eliminar rating:', err);
+            this.notificationService.error('Error al eliminar tu reseña. Intenta de nuevo.');
+          }
+        });
+      }
+    });
   }
 
   /** Recalcula todas las estadísticas localmente para actualización en tiempo real */

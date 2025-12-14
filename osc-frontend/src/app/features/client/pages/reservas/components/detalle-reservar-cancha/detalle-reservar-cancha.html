@@ -1,5 +1,30 @@
 <div class="detalle-cancha-container">
 
+  @if (cargando) {
+    <!-- Skeleton Loading -->
+    <div class="detalle-skeleton">
+      <div class="skeleton-breadcrumb"></div>
+
+      <div class="skeleton-header">
+        <div class="skeleton-header-left">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-meta"></div>
+        </div>
+        <div class="skeleton-price"></div>
+      </div>
+
+      <div class="skeleton-content-grid">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-card">
+          <div class="skeleton-card-header"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
+    </div>
+  } @else {
+
   <!-- Breadcrumb -->
   <nav class="breadcrumb">
     <a routerLink="/reservar-cancha">
@@ -303,9 +328,14 @@
                 <small>{{ comentario.fecha }}</small>
               </div>
               @if (puedeEditarComentario(comentario)) {
-                <button class="btn-editar-comentario" (click)="abrirModalEdicion(comentario)" title="Editar mi reseña">
-                  <span class="material-icons">edit</span>
-                </button>
+                <div class="comentario-acciones">
+                  <button class="btn-accion-comentario btn-editar" (click)="abrirModalEdicion(comentario)" title="Editar mi reseña">
+                    <span class="material-icons">edit</span>
+                  </button>
+                  <button class="btn-accion-comentario btn-eliminar" (click)="eliminarComentario(comentario)" title="Eliminar mi reseña">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
               }
             </div>
             <div class="comentario-content">
@@ -315,10 +345,12 @@
         }
       </div>
 
-      <button class="btn-ver-mas-comentarios">
-        <span class="material-icons">expand_more</span>
-        Ver más opiniones
-      </button>
+      @if (comentarios.length > 4) {
+        <button class="btn-ver-mas-comentarios">
+          <span class="material-icons">expand_more</span>
+          Ver más opiniones
+        </button>
+      }
     } @else {
       <div class="sin-comentarios">
         <div class="sin-comentarios-icon">
@@ -334,10 +366,8 @@
     }
   </div>
 
-</div>
-
-<!-- Modal para dejar reseña -->
-@if (mostrarModalRating) {
+  <!-- Modal para dejar reseña -->
+  @if (mostrarModalRating) {
   <div class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -406,4 +436,7 @@
       </div>
     </div>
   </div>
-}
+  }
+
+  }
+</div>
