@@ -1,0 +1,114 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <div class="icon-container">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <div>
+          <h2>Verificación de Seguridad</h2>
+          <p class="subtitle">Hemos enviado un código a {{ usuario.email }}</p>
+        </div>
+      </div>
+      <button class="btn-close" (click)="cancelarVerificacion()" [disabled]="verificando">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Temporizador -->
+      <div class="timer-container" [class.warning]="tiempoRestante <= 30" [class.expired]="expiro">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ tiempoFormateado }}</span>
+      </div>
+
+      <!-- Inputs de código -->
+      <div class="codigo-container">
+        @for (digit of codigo; track $index) {
+          <input
+            [id]="'codigo-' + $index"
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            [value]="digit"
+            (input)="onInput($index, $event)"
+            (keydown)="onKeyDown($index, $event)"
+            [disabled]="verificando || expiro"
+            class="codigo-input"
+            [class.filled]="digit !== ''"
+            autocomplete="off"
+          />
+        }
+      </div>
+
+      <!-- Estado de expiración -->
+      @if (expiro) {
+        <div class="alert alert-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>El código ha expirado. Solicita uno nuevo.</span>
+        </div>
+      }
+
+      <!-- Checkbox mantener sesión -->
+      <div class="checkbox-container">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="mantenerSesion"
+            [disabled]="verificando"
+          />
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">
+            <strong>Mantener sesión iniciada</strong>
+            <small>No solicitar código en este dispositivo</small>
+          </span>
+        </label>
+      </div>
+
+      <!-- Botones -->
+      <div class="buttons-container">
+        <button
+          class="btn btn-primary"
+          (click)="verificarCodigo()"
+          [disabled]="verificando || expiro || codigo.join('').length !== 6"
+        >
+          @if (verificando) {
+            <span class="spinner"></span>
+            <span>Verificando...</span>
+          } @else {
+            <span>Verificar Código</span>
+          }
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          (click)="reenviarCodigo()"
+          [disabled]="verificando || (!expiro && tiempoRestante > 150)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Reenviar Código</span>
+        </button>
+      </div>
+
+      <!-- Ayuda -->
+      <div class="help-text">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>No recibiste el código? Revisa tu carpeta de spam o solicita uno nuevo.</span>
+      </div>
+    </div>
+  </div>
+</div>

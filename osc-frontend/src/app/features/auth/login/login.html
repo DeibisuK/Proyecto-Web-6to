@@ -84,3 +84,12 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de verificación 2FA -->
+@if (mostrar2FA && usuarioTemporal) {
+  <app-two-factor-verify
+    [usuario]="usuarioTemporal"
+    (verificacionExitosa)="on2FAVerificado($event)"
+    (cancelar)="on2FACancelado()"
+  />
+}

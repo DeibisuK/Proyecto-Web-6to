@@ -5,6 +5,7 @@ import rolRoutes from './api/rol.routes.js';
 import contactoRoutes from './api/contacto.routes.js';
 import metodoPagoRoutes from './api/metodo_pago.routes.js';
 import adminRoutes from './api/admin.routes.js';
+import twoFactorRoutes from './api/two-factor.routes.js';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use('/users', userRoutes);
 app.use('/roles', rolRoutes);
 app.use('/metodos-pago', metodoPagoRoutes);
 app.use('/admin', adminRoutes);
+app.use('/two-factor', twoFactorRoutes);
 app.use('/', contactoRoutes);
 
 export default app;

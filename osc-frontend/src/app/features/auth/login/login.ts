@@ -4,17 +4,19 @@ import { CommonModule } from '@angular/common';
 import { FacebookAuthProvider, GoogleAuthProvider } from '@angular/fire/auth';
 import { NotificationService } from '@core/services/notification.service';
 import { AuthService } from '@core/services/auth.service';
+import { TwoFactorService } from '@core/services/two-factor.service';
+import { TwoFactorVerify } from '../two-factor-verify/two-factor-verify';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TwoFactorVerify],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
 export class Login {
   private authService = inject(AuthService);
-
+  private twoFactorService = inject(TwoFactorService);
   private notificationService = inject(NotificationService);
 
   @Output() cerrarModal = new EventEmitter<void>();
@@ -33,6 +35,10 @@ export class Login {
   nombre = '';
   email = '';
   passwordRegistro = '';
+
+  // Estado 2FA
+  mostrar2FA = false;
+  usuarioTemporal: any = null;
 
   // -------------------- Modal --------------------
   abrirModal() {
@@ -136,12 +142,48 @@ export class Login {
       return;
     }
     try {
-      await this.authService.loginWithEmail(this.usuario, this.password);
-      this.cerrar();
-      this.notificationService.notify({
-        message: 'Inicio de sesión correcto',
-        type: 'success',
-      });
+      // Paso 1: Autenticar con Firebase
+      const credential = await this.authService.loginWithEmail(this.usuario, this.password);
+      const user = credential.user;
+
+      // Paso 2: Solicitar código 2FA
+      const resultado2FA = await this.twoFactorService.generarCodigo(
+        user.uid,
+        user.email || this.usuario,
+        user.displayName || 'Usuario'
+      );
+
+      if (!resultado2FA.success) {
+        // Error al generar código
+        await this.authService.logout();
+        this.notificationService.notify({
+          message: 'Error al enviar código de verificación',
+          type: 'error',
+        });
+        return;
+      }
+
+      if (!resultado2FA.requiere2FA) {
+        // Dispositivo confiable - login completo
+        this.cerrar();
+        this.notificationService.notify({
+          message: 'Inicio de sesión correcto',
+          type: 'success',
+        });
+        return;
+      }
+
+      // Paso 3: Mostrar modal de verificación 2FA
+      // IMPORTANTE: Cerrar sesión de Firebase temporalmente hasta que verifique el código
+      await this.authService.logout();
+
+      this.usuarioTemporal = {
+        uid: user.uid,
+        email: user.email || this.usuario,
+        nombre: user.displayName || 'Usuario'
+      };
+      this.mostrar2FA = true;
+
     } catch (error: any) {
       const { message } = this.authService.formatAuthError(error);
       this.notificationService.notify({
@@ -149,5 +191,34 @@ export class Login {
         type: 'error',
       });
     }
+  }
+
+  async on2FAVerificado(event: { tokenDispositivo?: string }) {
+    // Re-autenticar con Firebase después de verificar el código
+    if (this.usuarioTemporal) {
+      try {
+        await this.authService.loginWithEmail(this.usuario, this.password);
+      } catch (error) {
+        console.error('Error al re-autenticar:', error);
+      }
+    }
+
+    this.mostrar2FA = false;
+    this.usuarioTemporal = null;
+    this.cerrar();
+    this.notificationService.notify({
+      message: 'Inicio de sesión exitoso',
+      type: 'success',
+    });
+  }
+
+  on2FACancelado() {
+    this.mostrar2FA = false;
+    this.usuarioTemporal = null;
+    // No hace falta cerrar sesión porque ya la cerramos antes de mostrar el modal
+    this.notificationService.notify({
+      message: 'Verificación cancelada',
+      type: 'error',
+    });
   }
 }
