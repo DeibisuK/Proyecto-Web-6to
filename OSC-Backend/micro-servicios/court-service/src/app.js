@@ -9,6 +9,7 @@ import reservaAdmin from "./api/admin/reserva.admin.routes.js";
 import sedeAdmin from "./api/admin/sede.admin.routes.js";
 import torneoAdmin from "./api/admin/torneo.admin.routes.js";
 import partidoAdmin from "./api/admin/partido.admin.routes.js";
+import ratingRoutes from "./api/rating.routes.js";
 import authenticate from "../../../middleware/authenticate.js";
 import authorizeRole from "../../../middleware/authorizeRole.js";
 
@@ -23,6 +24,8 @@ app.use("/client", canchaCliente);
 app.use("/client", authenticate(), torneoCliente);
 app.use("/client", authenticate(), authorizeRole(2), reservaCliente);
 
+// RATINGS ROUTES (públicas para lectura, autenticadas para escritura)
+app.use("/ratings", ratingRoutes);
 
 //ADMIN ROUTES
 app.use("/admin", authenticate(), authorizeRole(1), canchaAdmin);

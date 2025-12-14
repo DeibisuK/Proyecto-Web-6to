@@ -113,11 +113,18 @@
       <div class="cancha-content">
         <div class="cancha-header">
           <h3>{{ cancha.nombre_cancha }}</h3>
-          <div class="cancha-rating">
-            <i class="fas fa-star"></i>
-            <span>4.5</span>
-            <span class="reviews-count">(24)</span>
-          </div>
+          @if (cancha.total_ratings && cancha.total_ratings > 0) {
+            <div class="cancha-rating">
+              <i class="fas fa-star"></i>
+              <span>{{ cancha.promedio_estrellas || 0 | number: '1.1-1' }}</span>
+              <span class="reviews-count">({{ cancha.total_ratings }})</span>
+            </div>
+          } @else {
+            <div class="cancha-rating">
+              <i class="fas fa-star" style="opacity: 0.3;"></i>
+              <span style="opacity: 0.5;">Sin reseñas</span>
+            </div>
+          }
         </div>
 
         <div class="cancha-details">

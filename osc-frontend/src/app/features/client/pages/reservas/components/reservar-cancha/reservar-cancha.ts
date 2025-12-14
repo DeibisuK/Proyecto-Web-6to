@@ -5,6 +5,7 @@ import { Cancha } from '@shared/models/index';
 import { Deporte } from '@shared/models/index';
 import { DeporteService } from '@shared/services/index';
 import { CanchaService } from '@shared/services/index';
+import { RatingService } from '@shared/services/rating.service';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
@@ -51,7 +52,11 @@ export class ReservarCancha implements OnInit {
     return resultado;
   });
 
-  constructor(private canchaService: CanchaService, private deporteService: DeporteService) {}
+  constructor(
+    private canchaService: CanchaService,
+    private deporteService: DeporteService,
+    private ratingService: RatingService
+  ) {}
 
   ngOnInit(): void {
     this.setMinDate();
@@ -67,6 +72,13 @@ export class ReservarCancha implements OnInit {
         console.log('Canchas cargadas:', this.canchas());
         this.errorMessage = '';
         this.isLoading.set(false);
+
+        // Cargar ratings para cada cancha
+        data.forEach(cancha => {
+          if (cancha.id_cancha) {
+            this.cargarRatingsCancha(cancha.id_cancha);
+          }
+        });
       },
       error: (err) => {
         console.error('Error al cargar las canchas:', err);
@@ -74,6 +86,28 @@ export class ReservarCancha implements OnInit {
         this.canchas.set([]);
         this.isLoading.set(false);
       },
+    });
+  }
+
+  cargarRatingsCancha(idCancha: number): void {
+    this.ratingService.getEstadisticasCancha(idCancha).subscribe({
+      next: (stats) => {
+        // Actualizar la cancha con los datos de rating
+        const canchasActuales = this.canchas();
+        const canchaIndex = canchasActuales.findIndex(c => c.id_cancha === idCancha);
+        if (canchaIndex !== -1) {
+          canchasActuales[canchaIndex] = {
+            ...canchasActuales[canchaIndex],
+            promedio_estrellas: stats.promedio_estrellas,
+            total_ratings: stats.total_ratings
+          };
+          this.canchas.set([...canchasActuales]);
+        }
+      },
+      error: (err) => {
+        // Si no hay ratings, simplemente no mostramos nada
+        console.log(`No hay ratings para cancha ${idCancha}`);
+      }
     });
   }
 

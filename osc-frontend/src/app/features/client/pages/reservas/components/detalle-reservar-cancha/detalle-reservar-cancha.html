@@ -17,12 +17,12 @@
       <div class="cancha-meta">
         <div class="rating-display">
           <i class="fas fa-star"></i>
-          <span class="rating-value">4.8</span>
-          <span class="reviews-count">(127 opiniones)</span>
+          <span class="rating-value">{{ promedioEstrellas || 0 | number: '1.1-1' }}</span>
+          <span class="reviews-count">({{ totalRatings || 0 }} opiniones)</span>
         </div>
         <div class="sede-info">
           <span class="material-icons">location_on</span>
-          <span>{{ sede?.nombre_sede || 'Sin sede asignada' }}</span>
+          <span>{{ sede?.nombre_sede }}</span>
         </div>
       </div>
     </div>
@@ -235,146 +235,175 @@
     <div class="comentarios-header">
       <span class="material-icons">rate_review</span>
       <h2>Opiniones de Nuestros Clientes</h2>
-      <span class="total-reviews">(127 opiniones)</span>
+      <span class="total-reviews">({{ totalRatings || 0 }} opiniones)</span>
     </div>
 
     <div class="comentarios-resumen">
       <div class="rating-promedio">
-        <div class="rating-numero">4.8</div>
+        <div class="rating-numero">{{ promedioEstrellas || 0 | number: '1.1-1' }}</div>
         <div class="rating-estrellas">
-          <i class="fas fa-star filled"></i>
-          <i class="fas fa-star filled"></i>
-          <i class="fas fa-star filled"></i>
-          <i class="fas fa-star filled"></i>
-          <i class="fas fa-star"></i>
+          @for (star of [1,2,3,4,5]; track star) {
+            <i class="fas fa-star" [class.filled]="star <= Math.floor(promedioEstrellas)"></i>
+          }
         </div>
-        <p class="rating-text">Excelente</p>
+        <p class="rating-text">{{ obtenerTextoRating() }}</p>
       </div>
       <div class="rating-distribucion">
         <div class="distribucion-row">
           <span class="estrellas-label">5 <i class="fas fa-star"></i></span>
           <div class="barra-progreso">
-            <div class="barra-fill" style="width: 75%"></div>
+            <div class="barra-fill" [style.width.%]="calcularPorcentaje(5)"></div>
           </div>
-          <span class="porcentaje">75%</span>
+          <span class="porcentaje">{{ calcularPorcentaje(5) }}%</span>
         </div>
         <div class="distribucion-row">
           <span class="estrellas-label">4 <i class="fas fa-star"></i></span>
           <div class="barra-progreso">
-            <div class="barra-fill" style="width: 18%"></div>
+            <div class="barra-fill" [style.width.%]="calcularPorcentaje(4)"></div>
           </div>
-          <span class="porcentaje">18%</span>
+          <span class="porcentaje">{{ calcularPorcentaje(4) }}%</span>
         </div>
         <div class="distribucion-row">
           <span class="estrellas-label">3 <i class="fas fa-star"></i></span>
           <div class="barra-progreso">
-            <div class="barra-fill" style="width: 5%"></div>
+            <div class="barra-fill" [style.width.%]="calcularPorcentaje(3)"></div>
           </div>
-          <span class="porcentaje">5%</span>
+          <span class="porcentaje">{{ calcularPorcentaje(3) }}%</span>
         </div>
         <div class="distribucion-row">
           <span class="estrellas-label">2 <i class="fas fa-star"></i></span>
           <div class="barra-progreso">
-            <div class="barra-fill" style="width: 1%"></div>
+            <div class="barra-fill" [style.width.%]="calcularPorcentaje(2)"></div>
           </div>
-          <span class="porcentaje">1%</span>
+          <span class="porcentaje">{{ calcularPorcentaje(2) }}%</span>
         </div>
         <div class="distribucion-row">
           <span class="estrellas-label">1 <i class="fas fa-star"></i></span>
           <div class="barra-progreso">
-            <div class="barra-fill" style="width: 1%"></div>
+            <div class="barra-fill" [style.width.%]="calcularPorcentaje(1)"></div>
           </div>
-          <span class="porcentaje">1%</span>
+          <span class="porcentaje">{{ calcularPorcentaje(1) }}%</span>
         </div>
       </div>
     </div>
 
-    <div class="comentarios-grid">
-      <div class="comentario-card">
-        <div class="comentario-header">
-          <div class="usuario-avatar">JM</div>
-          <div class="usuario-info">
-            <strong>Juan Martínez</strong>
-            <div class="rating-stars">
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
+    @if (comentarios.length > 0) {
+      <div class="comentarios-grid">
+        @for (comentario of comentarios; track comentario.id_rating) {
+          <div class="comentario-card">
+            <div class="comentario-header">
+              <div class="usuario-avatar">{{ comentario.iniciales }}</div>
+              <div class="usuario-info">
+                <strong>{{ comentario.nombre }}</strong>
+                <div class="rating-stars">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <i class="fas fa-star" [class.filled]="star <= comentario.estrellas"></i>
+                  }
+                </div>
+                <small>{{ comentario.fecha }}</small>
+              </div>
+              @if (puedeEditarComentario(comentario)) {
+                <button class="btn-editar-comentario" (click)="abrirModalEdicion(comentario)" title="Editar mi reseña">
+                  <span class="material-icons">edit</span>
+                </button>
+              }
             </div>
-            <small>Hace 2 días</small>
+            <div class="comentario-content">
+              <p>{{ comentario.comentario }}</p>
+            </div>
           </div>
-        </div>
-        <div class="comentario-content">
-          <p>¡Excelente cancha! Muy bien mantenida, el césped está en perfectas condiciones. El personal es muy amable y los vestuarios están impecables. Totalmente recomendado.</p>
-        </div>
+        }
       </div>
 
-      <div class="comentario-card">
-        <div class="comentario-header">
-          <div class="usuario-avatar">MG</div>
-          <div class="usuario-info">
-            <strong>María González</strong>
-            <div class="rating-stars">
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <small>Hace 1 semana</small>
-          </div>
+      <button class="btn-ver-mas-comentarios">
+        <span class="material-icons">expand_more</span>
+        Ver más opiniones
+      </button>
+    } @else {
+      <div class="sin-comentarios">
+        <div class="sin-comentarios-icon">
+          <span class="material-icons">chat_bubble_outline</span>
         </div>
-        <div class="comentario-content">
-          <p>Muy buena experiencia. La cancha es amplia y cómoda. Solo le faltaría un poco más de iluminación para partidos nocturnos, pero en general está muy bien.</p>
-        </div>
+        <h3>Aún no hay reseñas para esta cancha</h3>
+        <p>Sé el primero en compartir tu experiencia y ayudar a otros usuarios a conocer este espacio deportivo.</p>
+        <button class="btn-primer-comentario" (click)="abrirModalRating()">
+          <span class="material-icons">rate_review</span>
+          Dejar mi opinión
+        </button>
       </div>
-
-      <div class="comentario-card">
-        <div class="comentario-header">
-          <div class="usuario-avatar">CR</div>
-          <div class="usuario-info">
-            <strong>Carlos Rodríguez</strong>
-            <div class="rating-stars">
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-            </div>
-            <small>Hace 2 semanas</small>
-          </div>
-        </div>
-        <div class="comentario-content">
-          <p>Perfecta para torneos. Las dimensiones son ideales, la superficie está muy bien cuidada y el sistema de reservas es muy fácil de usar.</p>
-        </div>
-      </div>
-
-      <div class="comentario-card">
-        <div class="comentario-header">
-          <div class="usuario-avatar">LP</div>
-          <div class="usuario-info">
-            <strong>Laura Pérez</strong>
-            <div class="rating-stars">
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star filled"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <small>Hace 3 semanas</small>
-          </div>
-        </div>
-        <div class="comentario-content">
-          <p>Buena cancha, el precio es razonable. El parqueo es cómodo y los vestuarios están limpios. Definitivamente volvería a reservar.</p>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn-ver-mas-comentarios">
-      <span class="material-icons">expand_more</span>
-      Ver más opiniones
-    </button>
+    }
   </div>
 
 </div>
+
+<!-- Modal para dejar reseña -->
+@if (mostrarModalRating) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>
+          @if (!modoEdicion) {
+            <span class="material-icons">rate_review</span>
+          }
+          {{ modoEdicion ? 'Editar reseña' : 'Deja tu reseña' }}
+        </h2>
+        <button class="btn-close-modal" (click)="cerrarModalRating()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="cancha-info-modal">
+          <h3>{{ cancha?.nombre_cancha }}</h3>
+        </div>
+
+        <div class="rating-selector">
+          <label>Tu calificación *</label>
+          <div class="estrellas-selector">
+            @for (star of [1,2,3,4,5]; track star) {
+              <i
+                class="fas fa-star"
+                [class.filled]="star <= nuevaCalificacion"
+                (click)="seleccionarEstrellas(star)"
+                style="cursor: pointer; font-size: 2rem; margin: 0 0.3rem;">
+              </i>
+            }
+          </div>
+          @if (nuevaCalificacion > 0) {
+            <p class="rating-text-modal">
+              {{ nuevaCalificacion === 5 ? 'Excelente' :
+                 nuevaCalificacion === 4 ? 'Muy bueno' :
+                 nuevaCalificacion === 3 ? 'Bueno' :
+                 nuevaCalificacion === 2 ? 'Regular' : 'Malo' }}
+            </p>
+          }
+        </div>
+
+        <div class="comentario-input">
+          <label>Tu comentario (opcional)</label>
+          <textarea
+            [(ngModel)]="nuevoComentario"
+            placeholder="Comparte tu experiencia con esta cancha..."
+            rows="4"
+            maxlength="500">
+          </textarea>
+          <small>{{ nuevoComentario.length }}/500 caracteres</small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" (click)="cerrarModalRating()" [disabled]="enviandoRating">
+          Cancelar
+        </button>
+        <button class="btn-enviar" (click)="enviarRating()" [disabled]="enviandoRating || nuevaCalificacion === 0">
+          @if (enviandoRating) {
+            <span>{{ modoEdicion ? 'Actualizando...' : 'Enviando...' }}</span>
+          } @else {
+            <span class="material-icons">{{ modoEdicion ? 'save' : 'send' }}</span>
+            <span>{{ modoEdicion ? 'Guardar cambios' : 'Enviar reseña' }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

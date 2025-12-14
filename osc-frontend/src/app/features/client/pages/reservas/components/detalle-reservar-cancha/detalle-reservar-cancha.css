@@ -964,20 +964,13 @@
     border: 1px solid #E8ECF0;
     border-radius: 12px;
     padding: 1.75rem;
-    transition: all 0.3s ease;
-}
-
-.comentario-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: #2ECC71;
-    background: white;
 }
 
 .comentario-header {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    position: relative;
 }
 
 .usuario-avatar {
@@ -1004,6 +997,33 @@
     font-size: 1.05rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+}
+
+.btn-editar-comentario {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #7F8C8D;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-editar-comentario:hover {
+    background: #2ECC71;
+    border-color: #2ECC71;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-editar-comentario .material-icons {
+    font-size: 1.2rem;
 }
 
 .usuario-info .rating-stars {
@@ -1063,6 +1083,65 @@
 
 .btn-ver-mas-comentarios .material-icons {
     font-size: 1.4rem;
+}
+
+/* Sin Comentarios */
+.sin-comentarios {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E8F8F0 100%);
+    border-radius: 16px;
+    border: 2px dashed #D0D7DE;
+}
+
+.sin-comentarios-icon {
+    margin-bottom: 1.5rem;
+}
+
+.sin-comentarios-icon .material-icons {
+    font-size: 5rem;
+    color: #BDC3C7;
+}
+
+.sin-comentarios h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0 0 1rem 0;
+}
+
+.sin-comentarios p {
+    font-size: 1rem;
+    color: #7F8C8D;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+
+.btn-primer-comentario {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.btn-primer-comentario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+}
+
+.btn-primer-comentario .material-icons {
+    font-size: 1.3rem;
 }
 
 /* ==================== RESPONSIVE ==================== */
@@ -1137,4 +1216,242 @@
     .comentarios-section {
         padding: 1.5rem;
     }
+}
+
+/* ==================== MODAL DE RESEÑA ==================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #ECF0F1;
+}
+
+.modal-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    color: #2C3E50;
+    margin: 0;
+    font-weight: 700;
+}
+
+.modal-header .material-icons {
+    color: #2ECC71;
+    font-size: 1.75rem;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #95A5A6;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-modal:hover {
+    background: #ECF0F1;
+    color: #E74C3C;
+}
+
+.btn-close-modal .material-icons {
+    font-size: 1.5rem;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.cancha-info-modal {
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.cancha-info-modal h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.rating-selector {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.rating-selector label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2C3E50;
+    margin-bottom: 1rem;
+}
+
+.estrellas-selector {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.estrellas-selector .fa-star {
+    color: #E0E0E0;
+    transition: all 0.2s ease;
+}
+
+.estrellas-selector .fa-star:hover,
+.estrellas-selector .fa-star.filled {
+    color: #F39C12;
+    transform: scale(1.2);
+}
+
+.rating-text-modal {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2ECC71;
+    margin: 0;
+}
+
+.comentario-input {
+    margin-bottom: 1.5rem;
+}
+
+.comentario-input label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2C3E50;
+    margin-bottom: 0.75rem;
+}
+
+.comentario-input textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #ECF0F1;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.comentario-input textarea:focus {
+    outline: none;
+    border-color: #2ECC71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.comentario-input small {
+    display: block;
+    text-align: right;
+    color: #95A5A6;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 2px solid #ECF0F1;
+}
+
+.btn-cancelar,
+.btn-enviar {
+    padding: 0.875rem 1.75rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-cancelar {
+    background: #ECF0F1;
+    color: #7F8C8D;
+}
+
+.btn-cancelar:hover:not(:disabled) {
+    background: #BDC3C7;
+    color: #2C3E50;
+}
+
+.btn-enviar {
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: white;
+}
+
+.btn-enviar:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+}
+
+.btn-enviar:disabled,
+.btn-cancelar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-enviar .material-icons {
+    font-size: 1.2rem;
 }

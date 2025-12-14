@@ -18,4 +18,4 @@ export * from './product.model';
 export * from './reservation.model';
 export * from './producto';
 export * from './cart.model';
-export * from './filtros-producto';
+export * from './filtros-producto';export * from './rating.model';

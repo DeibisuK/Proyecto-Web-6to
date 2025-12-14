@@ -8,7 +8,7 @@ export const findAll = async () => {
 };
 
 export const findById = async (id) => {
-  const result = await pool.query("SELECT * FROM sedes WHERE id_sede = $1", [
+  const result = await pool.query("SELECT *, nombre AS nombre_sede FROM sedes WHERE id_sede = $1", [
     id,
   ]);
   return result.rows[0];

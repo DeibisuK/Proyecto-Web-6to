@@ -9,6 +9,9 @@ export interface Cancha {
   tipo_superficie: string;
   estado: string;
   imagen_url?: string;
+  // Rating info (opcional, cargado separadamente)
+  promedio_estrellas?: number;
+  total_ratings?: number;
 }
 
 export interface Sede {

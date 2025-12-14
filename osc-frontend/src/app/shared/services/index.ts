@@ -15,4 +15,4 @@ export * from './scroll.service';
 export * from './sede.service';
 export * from './user-api.service';
 export * from './carrito.service';
-export * from './producto.service';
+export * from './producto.service';export * from './rating.service';
