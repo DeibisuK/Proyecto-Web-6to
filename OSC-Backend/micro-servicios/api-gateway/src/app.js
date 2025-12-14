@@ -4,7 +4,7 @@ import proxy from "express-http-proxy";
 
 const app = express();
 const corsOptions = {
-  origin: "https://osc.dkun.dev", // Permitir solo a tu frontend
+  origin: ["https://osc.dkun.dev", "http://localhost:4200"], // Permitir solo a tu frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"], // Headers permitidos
 };
