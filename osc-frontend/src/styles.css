@@ -168,3 +168,136 @@ body.modal-open {
   border-color: #e0e0e0;
   box-shadow: 0 0 6px rgba(37, 211, 102, 0.4);
 }
+
+/* ========================================
+   ESTILOS GLOBALES PARA SELECT
+   ======================================== */
+
+select {
+  /* Apariencia base */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Estilos visuales */
+  background-color: #FFFFFF;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+
+  /* Tipografía */
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary);
+
+  /* Espaciado y dimensiones */
+  padding: 10px 36px 10px 12px;
+  min-height: 42px;
+
+  /* Bordes y sombras */
+  border: 1.5px solid #E2E8F0;
+  border-radius: var(--radius-lg);
+  outline: none;
+
+  /* Efectos */
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease-in-out;
+
+  /* Cursor */
+  cursor: pointer;
+}
+
+/* Hover state */
+select:hover {
+  border-color: #25D366;
+  background-color: #F8FAFC;
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.08);
+}
+
+/* Focus state */
+select:focus {
+  border-color: #25D366;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.15);
+  outline: none;
+}
+
+/* Disabled state */
+select:disabled {
+  background-color: #F1F5F9;
+  color: #94A3B8;
+  border-color: #E2E8F0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Invalid state */
+select:invalid {
+  border-color: var(--error);
+  background-color: var(--error-light);
+}
+
+/* Dark mode support (optional - si lo implementas en el futuro) */
+@media (prefers-color-scheme: dark) {
+  select {
+    background-color: #1E293B;
+    color: #F1F5F9;
+    border-color: #334155;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  }
+
+  select:hover {
+    background-color: #2D3748;
+    border-color: #25D366;
+  }
+
+  select:focus {
+    background-color: #1E293B;
+    border-color: #25D366;
+  }
+}
+
+/* Select con variantes especiales (pueden ser usados con clases) */
+select.select-sm {
+  min-height: 36px;
+  padding: 8px 32px 8px 10px;
+  font-size: 13px;
+}
+
+select.select-lg {
+  min-height: 48px;
+  padding: 12px 40px 12px 14px;
+  font-size: 15px;
+}
+
+select.select-error {
+  border-color: var(--error);
+  background-color: var(--error-light);
+}
+
+select.select-success {
+  border-color: var(--success);
+  background-color: var(--success-light);
+}
+
+/* Opciones dentro del select */
+select option {
+  padding: 10px;
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+}
+
+select option:hover,
+select option:checked {
+  background-color: rgba(37, 211, 102, 0.1);
+  color: var(--text-primary);
+}
+
+/* Firefox specific fixes */
+@-moz-document url-prefix() {
+  select {
+    padding-right: 32px;
+  }
+}

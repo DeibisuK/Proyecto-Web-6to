@@ -30,16 +30,16 @@ export async function generatePDF(options) {
 
       // ============ ENCABEZADO MODERNO ============
       // Banda superior con color primario
-      doc.rect(0, 0, 612, 90)
+      doc.rect(0, 0, 612, 100)
          .fill('#25D366');
       
       // Logo y nombre de la empresa
-      doc.fontSize(26)
+      doc.fontSize(28)
          .fillColor('#FFFFFF')
          .font('Helvetica-Bold')
-         .text('Oro Sports Club', 40, 30);
+         .text('Oro Sports Club', 40, 35);
 
-      // Información de generación (derecha)
+      // Información de generación (derecha) con rectángulos redondeados
       const fechaGeneracion = new Date().toLocaleString('es-MX', {
         year: 'numeric',
         month: 'long',
@@ -48,34 +48,58 @@ export async function generatePDF(options) {
         minute: '2-digit'
       });
       
-      doc.fontSize(9)
+      // Rectángulo redondeado para fecha
+      doc.roundedRect(380, 28, 190, 28, 6)
          .fillColor('#FFFFFF')
+         .fillOpacity(0.95)
+         .fill();
+      
+      doc.fillOpacity(1);
+      doc.fontSize(7)
+         .fillColor('#6B7280')
          .font('Helvetica')
-         .text('Fecha de generación:', 400, 30, { align: 'left' })
-         .font('Helvetica-Bold')
-         .text(fechaGeneracion, 400, 43, { align: 'left' });
+         .text('FECHA DE GENERACIÓN', 388, 32);
       
       doc.fontSize(9)
-         .font('Helvetica')
-         .text('Generado por:', 400, 59, { align: 'left' })
+         .fillColor('#1F2937')
          .font('Helvetica-Bold')
-         .text(usuario, 400, 72, { align: 'left' });
+         .text(fechaGeneracion, 388, 43, { width: 174 });
+      
+      // Rectángulo redondeado para usuario
+      doc.roundedRect(380, 62, 190, 28, 6)
+         .fillColor('#FFFFFF')
+         .fillOpacity(0.95)
+         .fill();
+      
+      doc.fillOpacity(1);
+      doc.fontSize(7)
+         .fillColor('#6B7280')
+         .font('Helvetica')
+         .text('GENERADO POR', 388, 66);
+      
+      doc.fontSize(9)
+         .fillColor('#1F2937')
+         .font('Helvetica-Bold')
+         .text(usuario || 'Sistema', 388, 77, { 
+           width: 174,
+           ellipsis: true 
+         });
 
       // ============ TÍTULO DEL REPORTE ============
       doc.fontSize(18)
          .fillColor('#1F2937')
          .font('Helvetica-Bold')
-         .text(title, 40, 110);
+         .text(title, 40, 120);
       
       // Subtítulo con filtros
       doc.fontSize(11)
          .fillColor('#6B7280')
          .font('Helvetica')
-         .text(subtitle, 40, 135);
+         .text(subtitle, 40, 145);
 
       // Línea separadora elegante
-      doc.moveTo(40, 160)
-         .lineTo(572, 160)
+      doc.moveTo(40, 170)
+         .lineTo(572, 170)
          .strokeColor('#25D366')
          .lineWidth(2)
          .stroke();
@@ -85,7 +109,7 @@ export async function generatePDF(options) {
         const columns = data.columns || Object.keys(data.rows[0]);
         const tableWidth = 532;
         const tableX = 40;
-        let tableY = 180;
+        let tableY = 190;
         const rowHeight = 22;
         
         // Calcular anchos de columna dinámicamente (mínimo 60px)
@@ -172,14 +196,14 @@ export async function generatePDF(options) {
         }
       } else {
         // Mensaje cuando no hay datos
-        doc.rect(40, 180, 532, 60)
+        doc.rect(40, 190, 532, 60)
            .fillColor('#F3F4F6')
            .fill();
         
         doc.fontSize(11)
            .fillColor('#6B7280')
            .font('Helvetica')
-           .text('No hay datos disponibles para el periodo seleccionado', 60, 200);
+           .text('No hay datos disponibles para el periodo seleccionado', 60, 210);
       }
 
       // ============ RESUMEN (si existe) ============

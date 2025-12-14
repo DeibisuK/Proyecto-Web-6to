@@ -651,7 +651,6 @@
   padding: 16px;
   border-radius: 12px;
   transition: background 0.2s ease;
-  cursor: pointer;
 }
 
 .report-item:hover {

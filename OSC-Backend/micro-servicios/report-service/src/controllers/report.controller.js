@@ -10,6 +10,23 @@ import * as torneosService from '../services/torneos.report.service.js';
 import * as usuariosService from '../services/usuarios.report.service.js';
 import { generatePDF } from '../utils/pdf.generator.js';
 import { generateExcel } from '../utils/excel.generator.js';
+import pool from '../config/db.js';
+
+/**
+ * Obtiene el nombre del usuario desde la base de datos
+ */
+async function getUserName(uid) {
+  try {
+    const result = await pool.query(
+      'SELECT name_user FROM usuarios WHERE uid = $1',
+      [uid]
+    );
+    return result.rows[0]?.name_user || null;
+  } catch (error) {
+    console.error('Error obteniendo nombre de usuario:', error);
+    return null;
+  }
+}
 
 /**
  * Main controller for report generation
@@ -92,7 +109,10 @@ export const generateReport = async (req, res) => {
     // Generar archivo según formato
     const monthName = filters?.month ? getMonthName(filters.month) : 'Todos los meses';
     const year = filters?.year || new Date().getFullYear();
-    const usuario = req.user?.name_user || req.user?.email || 'Administrador';
+    
+    // Obtener nombre real del usuario desde la BD
+    const userName = req.user?.uid ? await getUserName(req.user.uid) : null;
+    const usuario = userName || req.user?.email || 'Administrador';
     
     if (format.toLowerCase() === 'pdf') {
       const pdfBuffer = await generatePDF({
