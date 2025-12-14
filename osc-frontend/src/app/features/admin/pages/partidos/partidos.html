@@ -1,35 +1,105 @@
 <div class="partidos-container">
 
   <!-- Filtros -->
-  <div class="filtros-card">
-    <div class="filtros-grid">
-      <div class="form-group">
-        <label><i class="fas fa-trophy"></i> Torneo</label>
-        <select [(ngModel)]="filtroTorneo" (change)="aplicarFiltros()" class="form-control">
-          <option [ngValue]="null">Todos los torneos</option>
-          @for (torneo of torneos(); track torneo.id_torneo) {
-            <option [ngValue]="torneo.id_torneo">{{ torneo.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label><i class="fas fa-filter"></i> Estado</label>
-        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="form-control">
-          <option value="todos">Todos</option>
-          <option value="programado">Programados</option>
-          <option value="en_curso">En Curso</option>
-          <option value="finalizado">Finalizados</option>
-          <option value="cancelado">Cancelados</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="align-self: flex-end;">
-        <button (click)="limpiarFiltros()" class="btn btn-secondary">
-          <i class="fas fa-redo"></i> Limpiar Filtros
-        </button>
-      </div>
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input
+        type="text"
+        placeholder="Buscar partidos..."
+        [(ngModel)]="filtroBusqueda"
+        (input)="aplicarFiltros()"
+      />
     </div>
+
+    <div class="filtro-torneo" [class.activo]="dropdownTorneoAbierto()">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownTorneoAbierto()" (click)="toggleDropdownTorneo()">
+        <span class="dropdown-current">
+          <i class="fas fa-trophy"></i>
+          <span>{{ torneoSeleccionado() }}</span>
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownTorneoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTorneo === null" (click)="seleccionarTorneo(null)">
+            <i class="fas fa-trophy"></i>
+            <span class="opcion-label">Todos los torneos</span>
+            @if (filtroTorneo === null) {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          @for (torneo of torneos(); track torneo.id_torneo) {
+            <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTorneo === torneo.id_torneo" (click)="seleccionarTorneo(torneo.id_torneo ?? null)">
+              <i class="fas fa-trophy"></i>
+              <span class="opcion-label">{{ torneo.nombre }}</span>
+              @if (filtroTorneo === torneo.id_torneo) {
+                <i class="fas fa-check check-icon"></i>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="filtro-estado" [class.activo]="dropdownEstadoAbierto()">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownEstadoAbierto()" (click)="toggleDropdownEstado()">
+        <span class="dropdown-current">
+          <i class="fas fa-filter"></i>
+          <span>{{ estadoSeleccionado() }}</span>
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownEstadoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'todos'" (click)="seleccionarEstado('todos')">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos</span>
+            @if (filtroEstado === 'todos') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'programado'" (click)="seleccionarEstado('programado')">
+            <i class="fas fa-calendar"></i>
+            <span class="opcion-label">Programados</span>
+            @if (filtroEstado === 'programado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'en_curso'" (click)="seleccionarEstado('en_curso')">
+            <i class="fas fa-play-circle"></i>
+            <span class="opcion-label">En Curso</span>
+            @if (filtroEstado === 'en_curso') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'finalizado'" (click)="seleccionarEstado('finalizado')">
+            <i class="fas fa-flag-checkered"></i>
+            <span class="opcion-label">Finalizados</span>
+            @if (filtroEstado === 'finalizado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'cancelado'" (click)="seleccionarEstado('cancelado')">
+            <i class="fas fa-ban"></i>
+            <span class="opcion-label">Cancelados</span>
+            @if (filtroEstado === 'cancelado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">sports_soccer</span>
+      {{ partidosFiltrados().length }} Partido{{ partidosFiltrados().length !== 1 ? 's' : '' }}
+    </div>
+
+    <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-redo"></i>
+      Limpiar
+    </button>
   </div>
 
   <!-- Loading -->

@@ -35,6 +35,11 @@ export class MetodoPagoService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}?firebase_uid=${firebase_uid}`);
   }
 
+  // Obtener cashback del usuario desde la tabla usuarios
+  getCashback(firebase_uid: string): Observable<{ cashback: number }> {
+    return this.http.get<{ cashback: number }>(`http://localhost:3001/users/${firebase_uid}/cashback`);
+  }
+
   // ========== UTILIDADES DEL FRONTEND ==========
 
   /**

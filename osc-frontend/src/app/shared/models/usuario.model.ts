@@ -5,6 +5,7 @@ export interface Usuario {
   apellido: string;
   email: string;
   foto_perfil?: string;
+  cashback?: number;
   rol: RolUsuario;
   fecha_registro: string;
   estado: EstadoUsuario;

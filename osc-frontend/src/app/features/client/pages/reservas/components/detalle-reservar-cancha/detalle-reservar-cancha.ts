@@ -24,6 +24,14 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
   fechaSeleccionada: string = '';
   minDate: string = '';
   duracionSeleccionada: number = 1;
+  duracionTexto: string = '1 Hora';
+  dropdownDuracionAbierto: boolean = false;
+  opcionesDuracion = [
+    { valor: 1, texto: '1 Hora' },
+    { valor: 1.5, texto: '1.5 Horas' },
+    { valor: 2, texto: '2 Horas' },
+    { valor: 3, texto: '3 Horas' }
+  ];
   horariosDisponibles: { hora: string, reservado: boolean }[] = [];
   horarioSeleccionado: any = null;
   totalPagar: number = 0;
@@ -107,6 +115,19 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
     if (this.cancha) {
       this.totalPagar = this.cancha.tarifa * this.duracionSeleccionada;
     }
+  }
+
+  /** Toggle dropdown de duración */
+  toggleDropdownDuracion(): void {
+    this.dropdownDuracionAbierto = !this.dropdownDuracionAbierto;
+  }
+
+  /** Seleccionar duración del dropdown */
+  seleccionarDuracion(opcion: { valor: number, texto: string }): void {
+    this.duracionSeleccionada = opcion.valor;
+    this.duracionTexto = opcion.texto;
+    this.dropdownDuracionAbierto = false;
+    this.calcularTotal();
   }
 
   /** Simula la confirmación de reserva */

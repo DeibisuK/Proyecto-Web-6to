@@ -1,93 +1,111 @@
 <div class="historial-container">
 
   <!-- Filtros -->
-  <div class="filtros-container">
-    <div class="filtros-grid">
-      <!-- Búsqueda general -->
-      <div class="filtro-item busqueda-principal">
-        <label><i class="fas fa-search"></i> Búsqueda</label>
-        <input
-          type="text"
-          placeholder="Buscar por equipo, torneo, cancha..."
-          [(ngModel)]="busqueda"
-          (ngModelChange)="aplicarFiltros()"
-        />
-      </div>
-
-      <!-- Filtro de torneo -->
-      <div class="filtro-item">
-        <label><i class="fas fa-trophy"></i> Torneo</label>
-        <select [(ngModel)]="filtroTorneo" (ngModelChange)="aplicarFiltros()">
-          <option value="">Todos los torneos</option>
-          @for (torneo of torneos(); track torneo.nombre) {
-            <option [value]="torneo.nombre">{{ torneo.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Filtro de sede -->
-      <div class="filtro-item">
-        <label><i class="fas fa-map-marker-alt"></i> Sede</label>
-        <select [(ngModel)]="filtroSede" (ngModelChange)="aplicarFiltros()">
-          <option value="">Todas las sedes</option>
-          @for (sede of sedes(); track sede.nombre) {
-            <option [value]="sede.nombre">{{ sede.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Filtro de deporte -->
-      <div class="filtro-item">
-        <label><i class="fas fa-futbol"></i> Deporte</label>
-        <select [(ngModel)]="filtroDeporte" (ngModelChange)="aplicarFiltros()">
-          <option value="">Todos los deportes</option>
-          @for (deporte of deportes(); track deporte.nombre) {
-            <option [value]="deporte.nombre">{{ deporte.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <!-- Filtro de estado -->
-      <div class="filtro-item">
-        <label><i class="fas fa-flag"></i> Estado</label>
-        <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
-          <option value="todos">Todos los estados</option>
-          <option value="finalizado">Finalizados</option>
-          <option value="en_curso">En Curso</option>
-          <option value="pausado">Pausados</option>
-          <option value="programado">Programados</option>
-          <option value="cancelado">Cancelados</option>
-        </select>
-      </div>
-
-      <!-- Fecha desde -->
-      <div class="filtro-item">
-        <label><i class="fas fa-calendar"></i> Desde</label>
-        <input
-          type="date"
-          [(ngModel)]="fechaDesde"
-          (ngModelChange)="aplicarFiltros()"
-        />
-      </div>
-
-      <!-- Fecha hasta -->
-      <div class="filtro-item">
-        <label><i class="fas fa-calendar-check"></i> Hasta</label>
-        <input
-          type="date"
-          [(ngModel)]="fechaHasta"
-          (ngModelChange)="aplicarFiltros()"
-        />
-      </div>
-
-      <!-- Botón limpiar -->
-      <div class="filtro-item">
-        <label>&nbsp;</label>
-        <button class="btn-limpiar" (click)="limpiarFiltros()">
-          <i class="fas fa-eraser"></i> Limpiar Filtros
-        </button>
-      </div>
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input
+        type="text"
+        placeholder="Buscar por equipo, torneo, cancha..."
+        [(ngModel)]="busqueda"
+        (ngModelChange)="aplicarFiltros()"
+      />
     </div>
+
+    <div class="filtro-estado" [class.activo]="dropdownEstadoAbierto()">
+      <button
+        type="button"
+        class="btn-dropdown-filtro"
+        (click)="toggleDropdownEstado()"
+        [class.activo]="dropdownEstadoAbierto()">
+        <span class="dropdown-current">
+          <i class="fas fa-flag"></i>
+          {{ estadoSeleccionado() }}
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+
+      @if (dropdownEstadoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'todos'"
+            (click)="seleccionarEstado('todos')">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos los estados</span>
+            @if (filtroEstado() === 'todos') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'finalizado'"
+            (click)="seleccionarEstado('finalizado')">
+            <i class="fas fa-check-circle"></i>
+            <span class="opcion-label">Finalizados</span>
+            @if (filtroEstado() === 'finalizado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'en_curso'"
+            (click)="seleccionarEstado('en_curso')">
+            <i class="fas fa-play-circle"></i>
+            <span class="opcion-label">En Curso</span>
+            @if (filtroEstado() === 'en_curso') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'pausado'"
+            (click)="seleccionarEstado('pausado')">
+            <i class="fas fa-pause-circle"></i>
+            <span class="opcion-label">Pausados</span>
+            @if (filtroEstado() === 'pausado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'programado'"
+            (click)="seleccionarEstado('programado')">
+            <i class="fas fa-clock"></i>
+            <span class="opcion-label">Programados</span>
+            @if (filtroEstado() === 'programado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button
+            type="button"
+            class="dropdown-item-filtro"
+            [class.seleccionado]="filtroEstado() === 'cancelado'"
+            (click)="seleccionarEstado('cancelado')">
+            <i class="fas fa-times-circle"></i>
+            <span class="opcion-label">Cancelados</span>
+            @if (filtroEstado() === 'cancelado') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">list</span>
+      <span>{{ partidosFiltrados().length }} partidos</span>
+    </div>
+
+    <button class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-eraser"></i>
+      Limpiar Filtros
+    </button>
   </div>
 
   <!-- Contador de resultados -->

@@ -25,6 +25,10 @@ export class Historial implements OnInit {
   fechaDesde = signal('');
   fechaHasta = signal('');
 
+  // Dropdown states
+  dropdownEstadoAbierto = signal(false);
+  estadoSeleccionado = signal('Todos los estados');
+
   // Paginación
   paginaActual = signal(1);
   elementosPorPagina = 15;
@@ -142,8 +146,28 @@ export class Historial implements OnInit {
     this.filtroSede.set('');
     this.filtroDeporte.set('');
     this.filtroEstado.set('todos');
+    this.estadoSeleccionado.set('Todos los estados');
     this.fechaDesde.set('');
     this.fechaHasta.set('');
+    this.aplicarFiltros();
+  }
+
+  toggleDropdownEstado(): void {
+    this.dropdownEstadoAbierto.set(!this.dropdownEstadoAbierto());
+  }
+
+  seleccionarEstado(estado: string): void {
+    this.filtroEstado.set(estado);
+    const etiquetas: {[key: string]: string} = {
+      'todos': 'Todos los estados',
+      'finalizado': 'Finalizados',
+      'en_curso': 'En Curso',
+      'pausado': 'Pausados',
+      'programado': 'Programados',
+      'cancelado': 'Cancelados'
+    };
+    this.estadoSeleccionado.set(etiquetas[estado] || estado);
+    this.dropdownEstadoAbierto.set(false);
     this.aplicarFiltros();
   }
 

@@ -1,118 +1,161 @@
 <div class="canchas-container">
+  <!-- Header -->
   <div class="canchas-header-section">
-    <h1>¡Reserva tu Cancha Ahora!</h1>
-    <p>
-      Explora nuestras canchas disponibles. Selecciona la que mejor se adapte a tu deporte y horario
-      para asegurar tu cupo.
-    </p>
+    <h1>Reserva tu Cancha</h1>
+    <p>Selecciona la cancha perfecta para tu deporte y horario</p>
+  </div>
 
-    <div class="canchas-filters">
-      <div class="form-group filter-group">
-        <label for="deporte">Deporte</label>
-        <select id="deporte" [(ngModel)]="selectedDeporte">
-  <option value="">Seleccionar Deporte...</option>
-  <option *ngFor="let deporte of deportes" [value]="deporte.id_deporte">
-    {{ deporte.nombre_deporte }}
-  </option>
-</select>
-      </div>
-
-      <div class="form-group filter-group">
-        <label for="fecha">Fecha</label>
-        <input type="date" id="fecha" [min]="minDate" />
-      </div>
-
-      <button class="btn-buscar-canchas" (click)="buscarPorDeporte()">
-       <span class="material-icons">search</span> Buscar Disponibilidad
-    </button>
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input
+        type="text"
+        placeholder="Buscar canchas..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
     </div>
-  </div>
 
-  <div *ngIf="canchas.length === 0 && !errorMessage">
-    <p>Cargando canchas...</p>
-  </div>
-
-  <div *ngIf="errorMessage" class="error-message">
-    <p>⚠️ {{ errorMessage }}</p>
-  </div>
-
-  <div class="canchas-grid">
-    <div class="cancha-card animated-card" *ngFor="let cancha of canchas">
-      <div class="cancha-imagen">
-        <img
-          [src]="cancha.imagen_url || 'URL_IMAGEN_DEFAULT'"
-          [alt]=" cancha.nombre_cancha"
-        />
-      </div>
-
-      <div class="cancha-header">
-        <span class="material-icons icon-deporte">sports_soccer</span>
-        <h2 class="cancha-name">{{ cancha.nombre_cancha }}</h2>
-      </div>
-
-      <div class="cancha-details">
-        <div class="detail-item">
-          <span class="material-icons">attach_money</span>
-          <p>
-            Tarifa/Hora: <span class="detail-value">${{ cancha.tarifa | number : '1.2-2' }}</span>
-          </p>
-        </div>
-        <div class="detail-item">
-          <span class="material-icons">open_with</span>
-          <p>
-            Dimensiones: <span class="detail-value">{{ cancha.largo }}m x {{ cancha.ancho }}m</span>
-          </p>
-        </div>
-        <div class="detail-item">
-          <span class="material-icons">category</span>
-          <p>
-            Superficie: <span class="detail-value">{{ cancha.tipo_superficie }}</span>
-          </p>
-        </div>
-      </div>
-
-      <div
-        class="cancha-estado"
-        [ngClass]="{
-          'estado-disponible': cancha.estado === 'Disponible',
-          'estado-reservado': cancha.estado === 'Reservado',
-          'estado-mantenimiento': cancha.estado === 'Mantenimiento',
-          'estado-fuera-servicio': cancha.estado === 'Fuera de Servicio'
-        }"
-      >
-        <span class="material-icons">
-          {{
-            cancha.estado === 'Disponible'
-              ? 'check_circle'
-              : cancha.estado === 'Reservado'
-              ? 'schedule'
-              : cancha.estado === 'Mantenimiento'
-              ? 'settings'
-              : 'cancel'
-          }}
+    <div class="filtro-deporte" [class.activo]="dropdownDeporteAbierto()">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownDeporteAbierto()" (click)="toggleDropdownDeporte()">
+        <span class="dropdown-current">
+          <i class="fas fa-futbol"></i>
+          <span>{{ deporteSeleccionado() }}</span>
         </span>
-        <span>{{ cancha.estado }}</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownDeporteAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="selectedDeporte() === ''" (click)="seleccionarDeporte('')">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos los deportes</span>
+            @if (selectedDeporte() === '') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          @for (deporte of deportes; track deporte.id_deporte) {
+            <button type="button" class="dropdown-item-filtro" [class.seleccionado]="selectedDeporte() === deporte.id_deporte.toString()" (click)="seleccionarDeporte(deporte.id_deporte.toString())">
+              <i class="fas fa-futbol"></i>
+              <span class="opcion-label">{{ deporte.nombre_deporte }}</span>
+              @if (selectedDeporte() === deporte.id_deporte.toString()) {
+                <i class="fas fa-check check-icon"></i>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="filtro-fecha">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownFechaAbierto()" (click)="toggleDropdownFecha()">
+        <span class="dropdown-current">
+          <i class="fas fa-calendar"></i>
+          <span>{{ fechaSeleccionada() }}</span>
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownFechaAbierto()) {
+        <div class="dropdown-menu-filtro date-picker-dropdown">
+          <input type="date" [min]="minDate" [ngModel]="selectedFecha()" (ngModelChange)="selectedFecha.set($event)" (change)="seleccionarFecha()" class="date-input-custom" />
+        </div>
+      }
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">sports</span>
+      {{ canchasFiltradas().length }} Cancha{{ canchasFiltradas().length !== 1 ? 's' : '' }}
+    </div>
+
+    <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-redo"></i>
+      Limpiar
+    </button>
+  </div>
+
+  <!-- Loading y Mensajes -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner"></span>
+      <p>Cargando canchas disponibles...</p>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="error-message-card">
+      <span class="material-icons">error_outline</span>
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
+
+  <!-- Grid de Canchas -->
+  <div class="canchas-grid">
+    @for (cancha of canchasFiltradas(); track cancha.id_cancha) {
+    <div class="cancha-card">
+      <!-- Imagen -->
+      <div class="cancha-imagen">
+        @if (cancha.imagen_url) {
+          <img [src]="cancha.imagen_url" [alt]="cancha.nombre_cancha" />
+        } @else {
+          <div class="imagen-placeholder">
+            <span class="material-icons">sports_soccer</span>
+          </div>
+        }
+        <div class="cancha-estado-badge" [attr.data-estado]="cancha.estado">
+          <span class="material-icons">
+            {{ cancha.estado === 'Disponible' ? 'check_circle' : cancha.estado === 'Reservado' ? 'schedule' : 'block' }}
+          </span>
+          {{ cancha.estado }}
+        </div>
       </div>
 
-      <button 
-  class="btn-reservar" 
-  [disabled]="cancha.estado !== 'Disponible'"
-  [routerLink]="['/tienda/reservar-cancha', cancha.id_cancha]">
-  {{
-    cancha.estado === 'Disponible'
-      ? 'Reservar'
-      : cancha.estado === 'Reservado'
-      ? 'Ya Reservada'
-      : cancha.estado === 'Mantenimiento'
-      ? 'En Mantenimiento'
-      : 'No Disponible'
-  }}
-</button>
+      <!-- Contenido -->
+      <div class="cancha-content">
+        <div class="cancha-header">
+          <h3>{{ cancha.nombre_cancha }}</h3>
+          <div class="cancha-rating">
+            <i class="fas fa-star"></i>
+            <span>4.5</span>
+            <span class="reviews-count">(24)</span>
+          </div>
+        </div>
 
-    </div>
+        <div class="cancha-details">
+          <div class="detail-row">
+            <span class="material-icons">attach_money</span>
+            <span class="detail-label">Tarifa/Hora:</span>
+            <span class="detail-value">${{ cancha.tarifa | number : '1.2-2' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="material-icons">straighten</span>
+            <span class="detail-label">Dimensiones:</span>
+            <span class="detail-value">{{ cancha.largo }}m x {{ cancha.ancho }}m</span>
+          </div>
+          <div class="detail-row">
+            <span class="material-icons">grass</span>
+            <span class="detail-label">Superficie:</span>
+            <span class="detail-value">{{ cancha.tipo_superficie }}</span>
+          </div>
+        </div>
 
-    <div *ngIf="canchas.length === 0 && !errorMessage">
-      <p>No se encontraron canchas disponibles en este momento.</p>
+        <button
+          class="btn-reservar"
+          [disabled]="cancha.estado !== 'Disponible'"
+          [routerLink]="['/tienda/reservar-cancha', cancha.id_cancha]">
+          <span class="material-icons">event_available</span>
+          {{ cancha.estado === 'Disponible' ? 'Reservar Ahora' : cancha.estado }}
+        </button>
+      </div>
     </div>
+    }
+
+    @if (canchasFiltradas().length === 0 && !isLoading()) {
+      <div class="empty-state">
+        <span class="material-icons">sports</span>
+        <h3>No se encontraron canchas</h3>
+        <p>Intenta ajustar los filtros de búsqueda</p>
+      </div>
+    }
   </div>
+
 </div>

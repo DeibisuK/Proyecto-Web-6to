@@ -87,4 +87,19 @@ export class UserController {
       res.status(500).json({ error: "Failed to update user role" });
     }
   }
+
+  static async getCashback(req, res) {
+    try {
+      const { uid } = req.params;
+      const cashback = await service.getCashbackByUid(uid);
+      
+      if (cashback !== null) {
+        res.status(200).json({ cashback });
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cashback" });
+    }
+  }
 }

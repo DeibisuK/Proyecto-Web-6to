@@ -65,27 +65,58 @@
 
       <!-- Tipo de Mensaje -->
       <div class="form-group">
-        <label for="tipo" class="form-label">
+        <label class="form-label">
           <span class="material-icons">category</span>
           Tipo de Mensaje
         </label>
-        <select class="form-select" id="tipo" formControlName="tipo">
-          <option value="info">
-            Información - Para noticias generales y actualizaciones
-          </option>
-          <option value="success">
-            Éxito - Para anunciar logros y buenas noticias
-          </option>
-          <option value="warning">
-            Advertencia - Para avisos importantes
-          </option>
-          <option value="error">
-            Error/Urgente - Para problemas críticos o urgentes
-          </option>
-          <option value="promotion">
-            Promoción - Para ofertas y descuentos
-          </option>
-        </select>
+        <div class="filtro-tipo-form" [class.activo]="dropdownTipoFormAbierto()">
+          <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownTipoFormAbierto()" (click)="toggleDropdownTipoForm()">
+            <span class="dropdown-current">
+              <i [class]="getTipoIconClass(anuncioForm.get('tipo')?.value)"></i>
+              <span>{{ getTipoLabelForm(anuncioForm.get('tipo')?.value) }}</span>
+            </span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          @if (dropdownTipoFormAbierto()) {
+            <div class="dropdown-menu-filtro">
+              <button type="button" class="dropdown-item-filtro" [class.seleccionado]="anuncioForm.get('tipo')?.value === 'info'" (click)="seleccionarTipoForm('info')">
+                <i class="fas fa-info-circle"></i>
+                <span class="opcion-label">Información - Para noticias generales</span>
+                @if (anuncioForm.get('tipo')?.value === 'info') {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+              <button type="button" class="dropdown-item-filtro" [class.seleccionado]="anuncioForm.get('tipo')?.value === 'success'" (click)="seleccionarTipoForm('success')">
+                <i class="fas fa-check-circle"></i>
+                <span class="opcion-label">Éxito - Para anunciar logros</span>
+                @if (anuncioForm.get('tipo')?.value === 'success') {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+              <button type="button" class="dropdown-item-filtro" [class.seleccionado]="anuncioForm.get('tipo')?.value === 'warning'" (click)="seleccionarTipoForm('warning')">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="opcion-label">Advertencia - Para avisos importantes</span>
+                @if (anuncioForm.get('tipo')?.value === 'warning') {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+              <button type="button" class="dropdown-item-filtro" [class.seleccionado]="anuncioForm.get('tipo')?.value === 'error'" (click)="seleccionarTipoForm('error')">
+                <i class="fas fa-times-circle"></i>
+                <span class="opcion-label">Error/Urgente - Para problemas críticos</span>
+                @if (anuncioForm.get('tipo')?.value === 'error') {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+              <button type="button" class="dropdown-item-filtro" [class.seleccionado]="anuncioForm.get('tipo')?.value === 'promotion'" (click)="seleccionarTipoForm('promotion')">
+                <i class="fas fa-tag"></i>
+                <span class="opcion-label">Promoción - Para ofertas y descuentos</span>
+                @if (anuncioForm.get('tipo')?.value === 'promotion') {
+                  <i class="fas fa-check check-icon"></i>
+                }
+              </button>
+            </div>
+          }
+        </div>
         <div class="tipo-preview">
           <div class="preview-badge" [attr.data-tipo]="anuncioForm.get('tipo')?.value">
             <span class="material-icons">
@@ -123,6 +154,120 @@
     </form>
   </div>
 
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input
+        type="text"
+        placeholder="Buscar anuncios..."
+        [(ngModel)]="filtroBusqueda"
+        (input)="aplicarFiltros()"
+      />
+    </div>
+
+    <div class="filtro-tipo" [class.activo]="dropdownTipoAbierto()">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownTipoAbierto()" (click)="toggleDropdownTipo()">
+        <span class="dropdown-current">
+          <i class="fas fa-filter"></i>
+          <span>{{ tipoSeleccionado() }}</span>
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownTipoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'todos'" (click)="seleccionarTipo('todos')">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos los tipos</span>
+            @if (filtroTipo === 'todos') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'info'" (click)="seleccionarTipo('info')">
+            <i class="fas fa-info-circle"></i>
+            <span class="opcion-label">Información</span>
+            @if (filtroTipo === 'info') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'success'" (click)="seleccionarTipo('success')">
+            <i class="fas fa-check-circle"></i>
+            <span class="opcion-label">Éxito</span>
+            @if (filtroTipo === 'success') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'warning'" (click)="seleccionarTipo('warning')">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="opcion-label">Advertencia</span>
+            @if (filtroTipo === 'warning') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'error'" (click)="seleccionarTipo('error')">
+            <i class="fas fa-times-circle"></i>
+            <span class="opcion-label">Error/Urgente</span>
+            @if (filtroTipo === 'error') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroTipo === 'promotion'" (click)="seleccionarTipo('promotion')">
+            <i class="fas fa-tag"></i>
+            <span class="opcion-label">Promoción</span>
+            @if (filtroTipo === 'promotion') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="filtro-estado" [class.activo]="dropdownEstadoAbierto()">
+      <button type="button" class="btn-dropdown-filtro" [class.activo]="dropdownEstadoAbierto()" (click)="toggleDropdownEstado()">
+        <span class="dropdown-current">
+          <i class="fas fa-toggle-on"></i>
+          <span>{{ estadoSeleccionado() }}</span>
+        </span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      @if (dropdownEstadoAbierto()) {
+        <div class="dropdown-menu-filtro">
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'todos'" (click)="seleccionarEstado('todos')">
+            <i class="fas fa-th"></i>
+            <span class="opcion-label">Todos</span>
+            @if (filtroEstado === 'todos') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'activo'" (click)="seleccionarEstado('activo')">
+            <i class="fas fa-check-circle"></i>
+            <span class="opcion-label">Activos</span>
+            @if (filtroEstado === 'activo') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+          <button type="button" class="dropdown-item-filtro" [class.seleccionado]="filtroEstado === 'inactivo'" (click)="seleccionarEstado('inactivo')">
+            <i class="fas fa-times-circle"></i>
+            <span class="opcion-label">Inactivos</span>
+            @if (filtroEstado === 'inactivo') {
+              <i class="fas fa-check check-icon"></i>
+            }
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="stat-badge">
+      <span class="material-icons">campaign</span>
+      {{ anunciosFiltrados().length }} Anuncio{{ anunciosFiltrados().length !== 1 ? 's' : '' }}
+    </div>
+
+    <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-redo"></i>
+      Limpiar
+    </button>
+  </div>
+
   <!-- Lista de anuncios -->
   <div class="anuncios-list-card">
     <div class="card-header">
@@ -130,7 +275,7 @@
         <span class="material-icons">list</span>
         Anuncios Registrados
       </h2>
-      <span class="count-badge">{{ anuncios.length }}</span>
+      <span class="count-badge">{{ anunciosFiltrados().length }}</span>
     </div>
 
     @if (isLoading) {
@@ -138,9 +283,9 @@
         <span class="spinner"></span>
         <p>Cargando anuncios...</p>
       </div>
-    } @else if (anuncios.length > 0) {
+    } @else if (anunciosFiltrados().length > 0) {
       <div class="anuncios-list">
-        @for (anuncio of anuncios; track anuncio.id_anuncio) {
+        @for (anuncio of anunciosFiltrados(); track anuncio.id_anuncio) {
           <div class="anuncio-item" [attr.data-tipo]="anuncio.tipo">
             <div class="anuncio-icon" [attr.data-tipo]="anuncio.tipo">
               <span class="material-icons">

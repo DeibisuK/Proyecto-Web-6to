@@ -25,6 +25,13 @@ export class Partidos implements OnInit {
   // Filtros - usando propiedades regulares para ngModel
   filtroTorneo: number | null = null;
   filtroEstado: string = 'todos';
+  filtroBusqueda: string = '';
+
+  // Dropdowns
+  dropdownTorneoAbierto = signal(false);
+  dropdownEstadoAbierto = signal(false);
+  torneoSeleccionado = signal('Todos los torneos');
+  estadoSeleccionado = signal('Todos');
 
   // Modal de asignación
   modalAsignacionAbierto = signal(false);
@@ -239,7 +246,48 @@ export class Partidos implements OnInit {
   limpiarFiltros(): void {
     this.filtroTorneo = null;
     this.filtroEstado = 'todos';
+    this.filtroBusqueda = '';
+    this.torneoSeleccionado.set('Todos los torneos');
+    this.estadoSeleccionado.set('Todos');
+    this.dropdownTorneoAbierto.set(false);
+    this.dropdownEstadoAbierto.set(false);
     this.cargarPartidos();
+  }
+
+  toggleDropdownTorneo(): void {
+    this.dropdownTorneoAbierto.update(val => !val);
+    this.dropdownEstadoAbierto.set(false);
+  }
+
+  toggleDropdownEstado(): void {
+    this.dropdownEstadoAbierto.update(val => !val);
+    this.dropdownTorneoAbierto.set(false);
+  }
+
+  seleccionarTorneo(torneoId: number | null): void {
+    this.filtroTorneo = torneoId;
+    if (torneoId === null) {
+      this.torneoSeleccionado.set('Todos los torneos');
+    } else {
+      const torneo = this.torneos().find(t => t.id_torneo === torneoId);
+      this.torneoSeleccionado.set(torneo?.nombre || 'Todos los torneos');
+    }
+    this.dropdownTorneoAbierto.set(false);
+    this.aplicarFiltros();
+  }
+
+  seleccionarEstado(estado: string): void {
+    this.filtroEstado = estado;
+    const labels: { [key: string]: string } = {
+      'todos': 'Todos',
+      'programado': 'Programados',
+      'en_curso': 'En Curso',
+      'finalizado': 'Finalizados',
+      'cancelado': 'Cancelados'
+    };
+    this.estadoSeleccionado.set(labels[estado] || 'Todos');
+    this.dropdownEstadoAbierto.set(false);
+    this.aplicarFiltros();
   }
 
   getEstadoBadgeClass(estado: string): string {

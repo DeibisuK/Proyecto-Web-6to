@@ -20,11 +20,32 @@ export class ListMetodo implements OnInit {
 
   cards: MetodoPago[] = [];
   totalCards: number = 0;
+  cashbackDisponible: number = 0;
   isModalOpen: boolean = false;
   isLoading: boolean = false;
 
   ngOnInit() {
     this.loadCards();
+    this.loadCashback();
+  }
+
+  loadCashback() {
+    const currentUser = this.authService.currentUser;
+
+    if (!currentUser) {
+      return;
+    }
+
+    // Cargar cashback desde el endpoint del backend
+    this.metodoPagoService.getCashback(currentUser.uid).subscribe({
+      next: (response: any) => {
+        this.cashbackDisponible = response.cashback || 0;
+      },
+      error: (error) => {
+        console.error('Error al cargar cashback:', error);
+        this.cashbackDisponible = 0;
+      }
+    });
   }
 
   loadCards() {

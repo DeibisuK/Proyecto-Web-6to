@@ -1,137 +1,380 @@
 <div class="detalle-cancha-container">
 
+  <!-- Breadcrumb -->
   <nav class="breadcrumb">
-    <a routerLink="/reservar-cancha">Canchas</a>
+    <a routerLink="/reservar-cancha">
+      <span class="material-icons">arrow_back</span>
+      Volver a Canchas
+    </a>
     <span class="breadcrumb-separator">/</span>
     <span class="current">{{ cancha?.nombre_cancha }}</span>
   </nav>
 
-  <div class="cancha-content">
+  <!-- Header de la Cancha -->
+  <div class="cancha-header-main">
+    <div class="header-left">
+      <h1 class="cancha-titulo">{{ cancha?.nombre_cancha }}</h1>
+      <div class="cancha-meta">
+        <div class="rating-display">
+          <i class="fas fa-star"></i>
+          <span class="rating-value">4.8</span>
+          <span class="reviews-count">(127 opiniones)</span>
+        </div>
+        <div class="sede-info">
+          <span class="material-icons">location_on</span>
+          <span>{{ sede?.nombre_sede || 'Sin sede asignada' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="precio-destacado">
+        <span class="precio-label">Desde</span>
+        <span class="precio-valor">${{ cancha?.tarifa | number : '1.2-2' }}</span>
+        <span class="precio-unidad">/hora</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- Layout Principal: Imagen + Info -->
+  <div class="main-content-grid">
+
+    <!-- Columna Izquierda: Imagen -->
     <div class="imagen-section">
       <div class="imagen-principal">
         <img
           [src]="cancha?.imagen_url || 'https://via.placeholder.com/640x320?text=Sin+Imagen'"
           [alt]="cancha?.nombre_cancha">
         <div class="badges">
-          <span class="badge tipo-cancha">{{ cancha?.tipo_superficie }}</span>
-          <span class="badge rating">⭐ 4.8</span>
+          <span class="badge tipo-cancha">
+            <span class="material-icons">grass</span>
+            {{ cancha?.tipo_superficie }}
+          </span>
+          <span class="badge estado" [attr.data-estado]="cancha?.estado">
+            <span class="material-icons">check_circle</span>
+            {{ cancha?.estado }}
+          </span>
         </div>
+      </div>
+
+      <!-- Características de la Cancha -->
+      <div class="caracteristicas-card">
+        <h3><span class="material-icons">info</span> Características</h3>
+        <ul class="caracteristicas-lista">
+          <li>
+            <span class="material-icons">aspect_ratio</span>
+            <div class="carac-info">
+              <span class="carac-label">Dimensiones</span>
+              <span class="carac-value">{{ cancha?.largo }}m x {{ cancha?.ancho }}m</span>
+            </div>
+          </li>
+          <li>
+            <span class="material-icons">sports_tennis</span>
+            <div class="carac-info">
+              <span class="carac-label">Superficie</span>
+              <span class="carac-value">{{ cancha?.tipo_superficie }}</span>
+            </div>
+          </li>
+          <li>
+            <span class="material-icons">group</span>
+            <div class="carac-info">
+              <span class="carac-label">Capacidad</span>
+              <span class="carac-value">10-22 jugadores</span>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <div class="info-reserva-section">
+    <!-- Columna Derecha: Reserva -->
 
-      <div class="cancha-header">
-        <h1 class="cancha-titulo">{{ cancha?.nombre_cancha }}</h1>
-        <div class="sede-info">
-          <span class="material-icons">location_on</span>
-          <span class="sede-nombre">Sede: {{ sede?.nombre_sede || 'Sin sede asignada' }}</span>
+    <div class="reserva-section-main">
+      <div class="reserva-card">
+        <div class="reserva-header">
+          <span class="material-icons">event</span>
+          <h2>Reserva tu Horario</h2>
         </div>
-      </div>
-
-      <div class="descripcion-caracteristicas-section">
-        <h3>Características Clave:</h3>
-        <ul class="caracteristicas-lista">
-          <li><span class="material-icons">aspect_ratio</span> Dimensiones: {{ cancha?.largo }}m x {{ cancha?.ancho }}m</li>
-          <li><span class="material-icons">sports_tennis</span> Superficie: {{ cancha?.tipo_superficie }}</li>
-          <li><span class="material-icons">group</span> Estado Actual: {{ cancha?.estado }}</li>
-        </ul>
-      </div>
-
-      <div class="tarifa-section">
-        <div class="tarifa-info">
-          <span class="tarifa-label">Tarifa Estándar por Hora:</span>
-          <div class="tarifas">
-            <span class="tarifa-actual">${{ cancha?.tarifa | number : '1.2-2' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="reserva-section">
-        <h2> Selecciona Fecha y Horario</h2>
         <div class="filtros-reserva-grid">
           <div class="form-group">
-            <label for="fecha-reserva">Fecha</label>
+            <label for="fecha-reserva">
+              <span class="material-icons">calendar_today</span>
+              Selecciona la Fecha
+            </label>
             <input
+              id="fecha-reserva"
               type="date"
               [(ngModel)]="fechaSeleccionada"
               [min]="minDate"
-              class="input-fecha"
+              (change)="calcularTotal()"
+              class="input-styled"
             />
           </div>
           <div class="form-group">
-            <label for="duracion-reserva">Duración (Horas)</label>
-            <select id="duracion-reserva" [(ngModel)]="duracionSeleccionada">
-              <option value="1">1 Hora</option>
-              <option value="1.5">1.5 Horas</option>
-              <option value="2">2 Horas</option>
-            </select>
+            <label for="duracion-reserva">
+              <span class="material-icons">schedule</span>
+              Duración
+            </label>
+            <div class="filtro-duracion" [class.activo]="dropdownDuracionAbierto">
+              <button type="button" class="btn-dropdown-duracion" [class.activo]="dropdownDuracionAbierto" (click)="toggleDropdownDuracion()">
+                <span class="dropdown-current">
+                  <i class="fas fa-clock"></i>
+                  <span>{{ duracionTexto }}</span>
+                </span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              @if (dropdownDuracionAbierto) {
+                <div class="dropdown-menu-duracion">
+                  @for (opcion of opcionesDuracion; track opcion.valor) {
+                    <button type="button" class="dropdown-item-duracion" [class.seleccionado]="duracionSeleccionada === opcion.valor" (click)="seleccionarDuracion(opcion)">
+                      <i class="fas fa-clock"></i>
+                      <span class="opcion-label">{{ opcion.texto }}</span>
+                      @if (duracionSeleccionada === opcion.valor) {
+                        <i class="fas fa-check check-icon"></i>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
           </div>
         </div>
 
         <div class="horarios-disponibles-section">
-          <h3>Horarios Disponibles:</h3>
+          <h3>
+            <span class="material-icons">access_time</span>
+            Horarios Disponibles
+          </h3>
           <div class="horarios-grid">
             <button *ngFor="let h of horariosDisponibles"
                     class="horario-btn"
-                    [ngClass]="{ 'disabled': h.reservado, 'selected': h === horarioSeleccionado }"
+                    [class.disabled]="h.reservado"
+                    [class.selected]="h === horarioSeleccionado"
+                    [disabled]="h.reservado"
                     (click)="seleccionarHorario(h)">
+              <span class="material-icons">{{ h.reservado ? 'block' : 'check_circle' }}</span>
               {{ h.hora }}
             </button>
           </div>
-          <p class="horario-info">Horarios en rojo están reservados. Los seleccionados son en verde claro.</p>
+          <div class="horario-leyenda">
+            <div class="leyenda-item">
+              <div class="dot disponible"></div>
+              <span>Disponible</span>
+            </div>
+            <div class="leyenda-item">
+              <div class="dot reservado"></div>
+              <span>Reservado</span>
+            </div>
+            <div class="leyenda-item">
+              <div class="dot seleccionado"></div>
+              <span>Seleccionado</span>
+            </div>
+          </div>
         </div>
 
         <div class="resumen-reserva">
-          <div class="total-a-pagar">
-            <span>Total estimado:</span>
-            <span class="precio-final">${{ totalPagar | number : '1.2-2' }}</span>
+          <div class="resumen-detalle">
+            <div class="resumen-row">
+              <span class="resumen-label">Tarifa por hora:</span>
+              <span class="resumen-value">${{ cancha?.tarifa | number : '1.2-2' }}</span>
+            </div>
+            <div class="resumen-row">
+              <span class="resumen-label">Duración:</span>
+              <span class="resumen-value">{{ duracionSeleccionada }} {{ duracionSeleccionada === 1 ? 'hora' : 'horas' }}</span>
+            </div>
+            <div class="resumen-row total">
+              <span class="resumen-label">Total a pagar:</span>
+              <span class="precio-final">${{ totalPagar | number : '1.2-2' }}</span>
+            </div>
           </div>
           <button class="btn-confirmar-reserva"
-                  [disabled]="!horarioSeleccionado"
+                  [disabled]="!horarioSeleccionado || !fechaSeleccionada"
                   (click)="confirmarReserva()">
-            <span class="material-icons">event_available</span> Confirmar Reserva
+            <span class="material-icons">event_available</span>
+            Confirmar Reserva
           </button>
-        </div>
-      </div>
-
-      <div class="secciones-expandibles">
-        <div class="seccion-expandible">
-          <button class="seccion-header">
-            <h3>Política de Cancelación</h3>
-            <span class="material-icons">keyboard_arrow_down</span>
-          </button>
-          <div class="seccion-contenido abierta">
-            <p>Cancelaciones permitidas hasta 3 horas antes sin cargo. Después de 3 horas, se aplicará un cargo del 50% de la tarifa.</p>
-          </div>
-        </div>
-        <div class="seccion-expandible">
-          <button class="seccion-header">
-            <h3>Servicios Adicionales (Vestuarios, Parqueo)</h3>
-            <span class="material-icons">keyboard_arrow_down</span>
-          </button>
-          <div class="seccion-contenido">
-            <ul class="servicios-lista">
-              <li>Vestuarios climatizados con duchas.</li>
-              <li>Parqueo subterráneo gratuito por 2 horas.</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Sección QR Code -->
-    <div class="qr-section">
-      <div class="qr-header">
-        <i class="material-icons">qr_code_2</i>
-        <h3>Comparte esta cancha</h3>
+  <!-- Información Adicional y QR Code -->
+  <div class="info-adicional-grid">
+    <div class="info-card">
+      <div class="info-card-header">
+        <span class="material-icons">policy</span>
+        <h3>Política de Cancelación</h3>
       </div>
-      <p class="qr-description">Escanea el código para acceder directamente a esta reserva</p>
+      <p>Cancelaciones permitidas hasta <strong>3 horas antes</strong> sin cargo. Después de ese tiempo, se aplicará un cargo del 50% de la tarifa.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <span class="material-icons">local_parking</span>
+        <h3>Servicios Incluidos</h3>
+      </div>
+      <ul class="servicios-lista">
+        <li><span class="material-icons">checkroom</span> Vestuarios climatizados</li>
+        <li><span class="material-icons">shower</span> Duchas con agua caliente</li>
+        <li><span class="material-icons">local_parking</span> Parqueo gratuito</li>
+      </ul>
+    </div>
+
+    <div class="qr-card">
+      <div class="qr-header">
+        <span class="material-icons">qr_code_2</span>
+        <h3>Comparte</h3>
+      </div>
+      <p>Escanea el código QR</p>
       <div class="qr-container">
         <canvas #qrCanvas></canvas>
       </div>
     </div>
-
   </div>
+
+  <!-- Sección de Comentarios -->
+  <div class="comentarios-section">
+    <div class="comentarios-header">
+      <span class="material-icons">rate_review</span>
+      <h2>Opiniones de Nuestros Clientes</h2>
+      <span class="total-reviews">(127 opiniones)</span>
+    </div>
+
+    <div class="comentarios-resumen">
+      <div class="rating-promedio">
+        <div class="rating-numero">4.8</div>
+        <div class="rating-estrellas">
+          <i class="fas fa-star filled"></i>
+          <i class="fas fa-star filled"></i>
+          <i class="fas fa-star filled"></i>
+          <i class="fas fa-star filled"></i>
+          <i class="fas fa-star"></i>
+        </div>
+        <p class="rating-text">Excelente</p>
+      </div>
+      <div class="rating-distribucion">
+        <div class="distribucion-row">
+          <span class="estrellas-label">5 <i class="fas fa-star"></i></span>
+          <div class="barra-progreso">
+            <div class="barra-fill" style="width: 75%"></div>
+          </div>
+          <span class="porcentaje">75%</span>
+        </div>
+        <div class="distribucion-row">
+          <span class="estrellas-label">4 <i class="fas fa-star"></i></span>
+          <div class="barra-progreso">
+            <div class="barra-fill" style="width: 18%"></div>
+          </div>
+          <span class="porcentaje">18%</span>
+        </div>
+        <div class="distribucion-row">
+          <span class="estrellas-label">3 <i class="fas fa-star"></i></span>
+          <div class="barra-progreso">
+            <div class="barra-fill" style="width: 5%"></div>
+          </div>
+          <span class="porcentaje">5%</span>
+        </div>
+        <div class="distribucion-row">
+          <span class="estrellas-label">2 <i class="fas fa-star"></i></span>
+          <div class="barra-progreso">
+            <div class="barra-fill" style="width: 1%"></div>
+          </div>
+          <span class="porcentaje">1%</span>
+        </div>
+        <div class="distribucion-row">
+          <span class="estrellas-label">1 <i class="fas fa-star"></i></span>
+          <div class="barra-progreso">
+            <div class="barra-fill" style="width: 1%"></div>
+          </div>
+          <span class="porcentaje">1%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comentarios-grid">
+      <div class="comentario-card">
+        <div class="comentario-header">
+          <div class="usuario-avatar">JM</div>
+          <div class="usuario-info">
+            <strong>Juan Martínez</strong>
+            <div class="rating-stars">
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+            </div>
+            <small>Hace 2 días</small>
+          </div>
+        </div>
+        <div class="comentario-content">
+          <p>¡Excelente cancha! Muy bien mantenida, el césped está en perfectas condiciones. El personal es muy amable y los vestuarios están impecables. Totalmente recomendado.</p>
+        </div>
+      </div>
+
+      <div class="comentario-card">
+        <div class="comentario-header">
+          <div class="usuario-avatar">MG</div>
+          <div class="usuario-info">
+            <strong>María González</strong>
+            <div class="rating-stars">
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <small>Hace 1 semana</small>
+          </div>
+        </div>
+        <div class="comentario-content">
+          <p>Muy buena experiencia. La cancha es amplia y cómoda. Solo le faltaría un poco más de iluminación para partidos nocturnos, pero en general está muy bien.</p>
+        </div>
+      </div>
+
+      <div class="comentario-card">
+        <div class="comentario-header">
+          <div class="usuario-avatar">CR</div>
+          <div class="usuario-info">
+            <strong>Carlos Rodríguez</strong>
+            <div class="rating-stars">
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+            </div>
+            <small>Hace 2 semanas</small>
+          </div>
+        </div>
+        <div class="comentario-content">
+          <p>Perfecta para torneos. Las dimensiones son ideales, la superficie está muy bien cuidada y el sistema de reservas es muy fácil de usar.</p>
+        </div>
+      </div>
+
+      <div class="comentario-card">
+        <div class="comentario-header">
+          <div class="usuario-avatar">LP</div>
+          <div class="usuario-info">
+            <strong>Laura Pérez</strong>
+            <div class="rating-stars">
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star filled"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <small>Hace 3 semanas</small>
+          </div>
+        </div>
+        <div class="comentario-content">
+          <p>Buena cancha, el precio es razonable. El parqueo es cómodo y los vestuarios están limpios. Definitivamente volvería a reservar.</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-ver-mas-comentarios">
+      <span class="material-icons">expand_more</span>
+      Ver más opiniones
+    </button>
+  </div>
+
 </div>

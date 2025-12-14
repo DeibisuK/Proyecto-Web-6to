@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Cancha } from '@shared/models/index';
@@ -16,12 +16,41 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 })
 export class ReservarCancha implements OnInit {
   minDate: string = '';
-  canchas: Cancha[] = [];
   deportes: Deporte[] | null = [];
-  selectedDeporte: string = '';
   errorMessage: string = '';
 
-  // Inyección de servicios
+  // Signals
+  canchas = signal<Cancha[]>([]);
+  searchTerm = signal('');
+  selectedDeporte = signal('');
+  selectedFecha = signal('');
+  isLoading = signal(false);
+  dropdownDeporteAbierto = signal(false);
+  dropdownFechaAbierto = signal(false);
+  deporteSeleccionado = signal('Todos los deportes');
+  fechaSeleccionada = signal('Cualquier fecha');
+
+  // Computed para canchas filtradas
+  canchasFiltradas = computed(() => {
+    let resultado = this.canchas();
+
+    // Filtrar por búsqueda
+    if (this.searchTerm().trim()) {
+      const busqueda = this.searchTerm().toLowerCase();
+      resultado = resultado.filter(c =>
+        c.nombre_cancha.toLowerCase().includes(busqueda) ||
+        c.tipo_superficie.toLowerCase().includes(busqueda)
+      );
+    }
+
+    // Filtrar por deporte
+    if (this.selectedDeporte()) {
+      resultado = resultado.filter(c => c.id_deporte?.toString() === this.selectedDeporte());
+    }
+
+    return resultado;
+  });
+
   constructor(private canchaService: CanchaService, private deporteService: DeporteService) {}
 
   ngOnInit(): void {
@@ -30,29 +59,24 @@ export class ReservarCancha implements OnInit {
     this.cargarDeportes();
   }
 
-  /**
-   * Obtiene la lista de canchas utilizando el servicio.
-   */
   cargarCanchas(): void {
+    this.isLoading.set(true);
     this.canchaService.getCanchas().subscribe({
       next: (data) => {
-        // Asignamos los datos recibidos a la propiedad canchas
-        this.canchas = data;
-        console.log('Canchas cargadas:', this.canchas);
-        this.errorMessage = ''; // Limpiar cualquier error anterior
+        this.canchas.set(data);
+        console.log('Canchas cargadas:', this.canchas());
+        this.errorMessage = '';
+        this.isLoading.set(false);
       },
       error: (err) => {
-        // Manejo de errores
         console.error('Error al cargar las canchas:', err);
         this.errorMessage = 'No se pudieron cargar las canchas. Intenta más tarde.';
-        this.canchas = []; // Asegurar que la lista esté vacía en caso de error
+        this.canchas.set([]);
+        this.isLoading.set(false);
       },
     });
   }
 
-  /**
-   * Obtiene la lista de deportes utilizando el servicio.
-   */
   cargarDeportes(): void {
     this.deporteService.getDeportes().subscribe({
       next: (data) => {
@@ -65,22 +89,50 @@ export class ReservarCancha implements OnInit {
     });
   }
 
-  buscarPorDeporte(): void {
-    if (!this.selectedDeporte) {
-      this.cargarCanchas(); // si no se selecciona deporte, mostrar todas
-      return;
-    }
+  toggleDropdownDeporte(): void {
+    this.dropdownDeporteAbierto.update(val => !val);
+    this.dropdownFechaAbierto.set(false);
+  }
 
-    this.canchaService.getCanchasByDeporte(this.selectedDeporte).subscribe({
-      next: (data) => {
-        this.canchas = data;
-        this.errorMessage = data.length === 0 ? 'No se encontraron canchas para este deporte.' : '';
-      },
-      error: (err) => {
-        console.error('Error al buscar por deporte:', err);
-        this.errorMessage = 'Error al buscar las canchas.';
-      },
-    });
+  toggleDropdownFecha(): void {
+    this.dropdownFechaAbierto.update(val => !val);
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  seleccionarDeporte(deporteId: string): void {
+    this.selectedDeporte.set(deporteId);
+    if (deporteId === '') {
+      this.deporteSeleccionado.set('Todos los deportes');
+    } else {
+      const deporte = this.deportes?.find(d => d.id_deporte?.toString() === deporteId);
+      this.deporteSeleccionado.set(deporte?.nombre_deporte || 'Todos los deportes');
+    }
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  seleccionarFecha(): void {
+    const fechaValue = this.selectedFecha();
+    if (fechaValue) {
+      const fecha = new Date(fechaValue);
+      this.fechaSeleccionada.set(fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }));
+    } else {
+      this.fechaSeleccionada.set('Cualquier fecha');
+    }
+    this.dropdownFechaAbierto.set(false);
+  }
+
+  aplicarFiltros(): void {
+    // El computed se actualiza automáticamente
+  }
+
+  limpiarFiltros(): void {
+    this.searchTerm.set('');
+    this.selectedDeporte.set('');
+    this.selectedFecha.set('');
+    this.deporteSeleccionado.set('Todos los deportes');
+    this.fechaSeleccionada.set('Cualquier fecha');
+    this.dropdownDeporteAbierto.set(false);
+    this.dropdownFechaAbierto.set(false);
   }
   /**
    * Establece la fecha mínima permitida para la selección (la fecha de hoy).

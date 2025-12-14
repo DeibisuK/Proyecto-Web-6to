@@ -23,3 +23,6 @@ export const remove = async (id) => {
 export const updateRole = async (uid, id_rol) => {
     return await model.updateRole(uid, id_rol);
 };
+export const getCashbackByUid = async (uid) => {
+    return await model.getCashback(uid);
+};

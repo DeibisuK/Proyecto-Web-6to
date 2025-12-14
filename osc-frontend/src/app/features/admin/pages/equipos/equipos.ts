@@ -24,6 +24,7 @@ export class Equipos implements OnInit {
 
   searchTerm = '';
   filtroDeporte: number | null = null;
+  deporteActivo: number | null = null;
 
   // Paginación
   currentPage = 1;
@@ -72,6 +73,7 @@ export class Equipos implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.configurarCierreDropdown();
     this.deporteService.getDeportes().subscribe({
       next: (deportes) => {
         this.deporte = deportes;
@@ -228,11 +230,22 @@ export class Equipos implements OnInit {
   seleccionarDeporte(deporte: Deporte | null): void {
     if (deporte) {
       this.filtroDeporte = deporte.id_deporte;
+      this.deporteActivo = deporte.id_deporte;
       this.deporteSeleccionado.set(deporte.nombre_deporte);
     } else {
       this.filtroDeporte = null;
+      this.deporteActivo = null;
       this.deporteSeleccionado.set('Todos los deportes');
     }
+    this.dropdownDeporteAbierto.set(false);
+    this.filtrarEquipos();
+  }
+
+  limpiarFiltros(): void {
+    this.searchTerm = '';
+    this.filtroDeporte = null;
+    this.deporteActivo = null;
+    this.deporteSeleccionado.set('Todos los deportes');
     this.dropdownDeporteAbierto.set(false);
     this.filtrarEquipos();
   }
@@ -240,7 +253,7 @@ export class Equipos implements OnInit {
   configurarCierreDropdown(): void {
     document.addEventListener('click', (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.dropdown-deporte')) {
+      if (!target.closest('.filtro-deporte')) {
         this.dropdownDeporteAbierto.set(false);
       }
     });

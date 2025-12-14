@@ -21,17 +21,14 @@ export class ListTorneos implements OnInit {
   deportes: Deporte[] = [];
   cargando: boolean = true;
 
-  // Señales para dropdowns
-  dropdownDeporteAbierto = signal<boolean>(false);
-  dropdownEstadoAbierto = signal<boolean>(false);
-  dropdownOrdenarAbierto = signal<boolean>(false);
-
   // Control del dropdown de estado en cada card
   dropdownEstadoTorneoId: number | null = null;
 
-  deporteSeleccionado = signal<string>('Todos los deportes');
-  estadoSeleccionado = signal<string>('Todos los estados');
-  ordenarSeleccionado = signal<string>('Más recientes');
+  // Dropdowns de filtros
+  dropdownDeporteAbierto = signal(false);
+  dropdownEstadoAbierto = signal(false);
+  deporteSeleccionado = signal('Todos los deportes');
+  estadoSeleccionado = signal('Todos los estados');
 
   // Filtros
   filtros: FiltrosTorneo = {
@@ -137,9 +134,46 @@ export class ListTorneos implements OnInit {
     this.filtros = {
       page: 1,
       limit: 10,
-      ordenar: 'recientes'
+      ordenar: 'recientes',
+      busqueda: '',
+      deporte: undefined,
+      estado: undefined
     };
+    this.deporteSeleccionado.set('Todos los deportes');
+    this.estadoSeleccionado.set('Todos los estados');
+    this.dropdownDeporteAbierto.set(false);
+    this.dropdownEstadoAbierto.set(false);
     this.cargarTorneos();
+  }
+
+  toggleDropdownDeporte(): void {
+    this.dropdownDeporteAbierto.update(val => !val);
+    this.dropdownEstadoAbierto.set(false);
+  }
+
+  toggleDropdownEstado(): void {
+    this.dropdownEstadoAbierto.update(val => !val);
+    this.dropdownDeporteAbierto.set(false);
+  }
+
+  seleccionarDeporte(deporteId: number | undefined): void {
+    this.filtros.deporte = deporteId;
+    if (deporteId === undefined) {
+      this.deporteSeleccionado.set('Todos los deportes');
+    } else {
+      const deporte = this.deportes.find(d => d.id_deporte === deporteId);
+      this.deporteSeleccionado.set(deporte?.nombre_deporte || 'Todos los deportes');
+    }
+    this.dropdownDeporteAbierto.set(false);
+    this.aplicarFiltros();
+  }
+
+  seleccionarEstado(estado: string | undefined): void {
+    this.filtros.estado = estado;
+    const estadoObj = this.estadosPosibles.find(e => (e.value || undefined) === (estado || undefined));
+    this.estadoSeleccionado.set(estadoObj?.label || 'Todos los estados');
+    this.dropdownEstadoAbierto.set(false);
+    this.aplicarFiltros();
   }
 
   crearTorneo(): void {
@@ -268,67 +302,10 @@ export class ListTorneos implements OnInit {
     return paginas;
   }
 
-  // Métodos para dropdowns
-  toggleDropdownDeporte(): void {
-    this.dropdownDeporteAbierto.set(!this.dropdownDeporteAbierto());
-    if (this.dropdownDeporteAbierto()) {
-      this.dropdownEstadoAbierto.set(false);
-      this.dropdownOrdenarAbierto.set(false);
-    }
-  }
-
-  seleccionarDeporte(deporte: Deporte | null): void {
-    if (deporte) {
-      this.filtros.deporte = deporte.id_deporte;
-      this.deporteSeleccionado.set(deporte.nombre_deporte);
-    } else {
-      this.filtros.deporte = undefined;
-      this.deporteSeleccionado.set('Todos los deportes');
-    }
-    this.dropdownDeporteAbierto.set(false);
-    this.aplicarFiltros();
-  }
-
-  toggleDropdownEstado(): void {
-    this.dropdownEstadoAbierto.set(!this.dropdownEstadoAbierto());
-    if (this.dropdownEstadoAbierto()) {
-      this.dropdownDeporteAbierto.set(false);
-      this.dropdownOrdenarAbierto.set(false);
-    }
-  }
-
-  seleccionarEstado(estado: { value: string; label: string }): void {
-    this.filtros.estado = estado.value || undefined;
-    this.estadoSeleccionado.set(estado.label);
-    this.dropdownEstadoAbierto.set(false);
-    this.aplicarFiltros();
-  }
-
-  toggleDropdownOrdenar(): void {
-    this.dropdownOrdenarAbierto.set(!this.dropdownOrdenarAbierto());
-    if (this.dropdownOrdenarAbierto()) {
-      this.dropdownDeporteAbierto.set(false);
-      this.dropdownEstadoAbierto.set(false);
-    }
-  }
-
-  seleccionarOrden(opcion: { value: string; label: string }): void {
-    this.filtros.ordenar = opcion.value;
-    this.ordenarSeleccionado.set(opcion.label);
-    this.dropdownOrdenarAbierto.set(false);
-    this.aplicarFiltros();
-  }
-
   configurarCierreDropdowns(): void {
     document.addEventListener('click', (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.dropdown-deporte') &&
-          !target.closest('.dropdown-estado') &&
-          !target.closest('.dropdown-ordenar') &&
-          !target.closest('.btn-dropdown')) {
-        this.dropdownDeporteAbierto.set(false);
-        this.dropdownEstadoAbierto.set(false);
-        this.dropdownOrdenarAbierto.set(false);
+      if (!target.closest('.btn-dropdown')) {
         this.dropdownEstadoTorneoId = null;
       }
     });

@@ -111,3 +111,18 @@ export const updateRole = async (uid, id_rol) => {
     throw err;
   }
 };
+export const getCashback = async (uid) => {
+  try {
+    const res = await db.query(
+      "SELECT cashback FROM usuarios WHERE uid = $1",
+      [uid]
+    );
+    if (res.rows.length === 0) {
+      return null;
+    }
+    return parseFloat(res.rows[0].cashback) || 0;
+  } catch (err) {
+    console.error('Error al obtener cashback:', err);
+    throw err;
+  }
+};
