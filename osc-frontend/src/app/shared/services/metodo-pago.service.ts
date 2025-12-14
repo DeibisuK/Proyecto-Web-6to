@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MetodoPago, MetodoPagoRequest, MetodoPagoResponse } from '@shared/models/index';
+import { environment } from '@env/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MetodoPagoService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3001/metodos-pago'; // URL del user-service
+  private apiUrl = `${environment.apiUrl}/u/metodos-pago`;
 
   // Obtener todos los métodos de pago de un usuario
   getMetodosPagoByUser(firebase_uid: string): Observable<MetodoPago[]> {
@@ -32,12 +33,16 @@ export class MetodoPagoService {
 
   // Eliminar un método de pago
   deleteMetodoPago(id: number, firebase_uid: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}?firebase_uid=${firebase_uid}`);
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/${id}?firebase_uid=${firebase_uid}`
+    );
   }
 
   // Obtener cashback del usuario desde la tabla usuarios
   getCashback(firebase_uid: string): Observable<{ cashback: number }> {
-    return this.http.get<{ cashback: number }>(`http://localhost:3001/users/${firebase_uid}/cashback`);
+    return this.http.get<{ cashback: number }>(
+      `${environment.apiUrl}/u/users/${firebase_uid}/cashback`
+    );
   }
 
   // ========== UTILIDADES DEL FRONTEND ==========
@@ -52,11 +57,25 @@ export class MetodoPagoService {
 
     if (numero.startsWith('4')) {
       return 'Visa';
-    } else if (numero.startsWith('5') || (numero.startsWith('2') && parseInt(primerosCuatro) >= 2221 && parseInt(primerosCuatro) <= 2720)) {
+    } else if (
+      numero.startsWith('5') ||
+      (numero.startsWith('2') &&
+        parseInt(primerosCuatro) >= 2221 &&
+        parseInt(primerosCuatro) <= 2720)
+    ) {
       return 'Mastercard';
     } else if (numero.startsWith('34') || numero.startsWith('37')) {
       return 'American Express';
-    } else if (numero.startsWith('6011') || numero.startsWith('644') || numero.startsWith('645') || numero.startsWith('646') || numero.startsWith('647') || numero.startsWith('648') || numero.startsWith('649') || numero.startsWith('65')) {
+    } else if (
+      numero.startsWith('6011') ||
+      numero.startsWith('644') ||
+      numero.startsWith('645') ||
+      numero.startsWith('646') ||
+      numero.startsWith('647') ||
+      numero.startsWith('648') ||
+      numero.startsWith('649') ||
+      numero.startsWith('65')
+    ) {
       return 'Discover';
     } else if (numero.startsWith('30') || numero.startsWith('36') || numero.startsWith('38')) {
       return 'Diners Club';
