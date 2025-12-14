@@ -212,6 +212,14 @@ export class DetallePedidoPage implements OnInit, OnDestroy {
   }
 
   /**
+   * Calcula el cashback recibido (5% del total)
+   */
+  get cashbackRecibido(): number {
+    const info = this.pedidoInfo;
+    return info ? info.total * 0.05 : 0;
+  }
+
+  /**
    * Obtiene el índice del estado actual en el timeline
    */
   getEstadoIndex(estado: OrderStatus): number {

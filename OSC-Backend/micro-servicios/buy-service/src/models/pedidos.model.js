@@ -6,10 +6,18 @@ export const findAll = async () => {
 };
 
 export const findById = async (id) => {
-  const query = `
+  console.log('🗄️ [MODEL findById] id:', id, 'tipo:', typeof id);
+  
+  // Obtener un cliente del pool y ejecutar DISCARD ALL antes de la query
+  const client = await pool.connect();
+  try {
+    // Descartar prepared statements cacheados
+    await client.query('DISCARD ALL');
+    
+    const query = `
         SELECT 
             p.id_pedido,
-            p.id_usuario,
+            p.id_usuario::TEXT as id_usuario,
             p.uuid_factura,
             p.total,
             p.estado_pedido,
@@ -17,8 +25,11 @@ export const findById = async (id) => {
         FROM pedidos p
         WHERE p.id_pedido = $1
     `;
-  const result = await pool.query(query, [id]);
-  return result.rows[0];
+    const result = await client.query(query, [id]);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
 };
 
 export const findByUserId = async (id_usuario) => {
@@ -84,9 +95,22 @@ export const create = async (pedido) => {
 };
 
 export const updateStatus = async (id, estado_pedido) => {
-  const result = await pool.query(
-    "UPDATE pedidos SET estado_pedido = $1 WHERE id_pedido = $2 RETURNING *",
-    [estado_pedido, id]
-  );
-  return result.rows[0];
+  console.log('🗄️ [MODEL updateStatus] id:', id, 'tipo:', typeof id);
+  console.log('🗄️ [MODEL updateStatus] estado_pedido:', estado_pedido);
+  
+  // Obtener un cliente del pool y ejecutar DISCARD ALL antes de la query
+  const client = await pool.connect();
+  try {
+    // Descartar prepared statements cacheados
+    await client.query('DISCARD ALL');
+    
+    // Cast explícito de id_usuario a TEXT en el RETURNING
+    const result = await client.query(
+      "UPDATE pedidos SET estado_pedido = $1 WHERE id_pedido = $2 RETURNING id_pedido, id_usuario::TEXT as id_usuario, total, estado_pedido, fecha_pedido, uuid_factura",
+      [estado_pedido, id]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
 };

@@ -48,10 +48,15 @@ export const getOrder = async (req, res) => {
 
 export const updateOrderStatus = async (req, res) => {
     try {
+        console.log('📡 [UPDATE STATUS] req.params:', req.params);
+        console.log('📡 [UPDATE STATUS] id_pedido:', req.params.id_pedido, 'tipo:', typeof req.params.id_pedido);
+        console.log('📡 [UPDATE STATUS] req.body:', req.body);
+        
         const { estado_pedido } = req.body;
         const order = await pedidosService.updateOrderStatus(req.params.id_pedido, estado_pedido);
         res.json(order);
     } catch (error) {
+        console.error('❌ [UPDATE STATUS] Error:', error.message);
         res.status(500).json({ message: error.message });
     }
 };

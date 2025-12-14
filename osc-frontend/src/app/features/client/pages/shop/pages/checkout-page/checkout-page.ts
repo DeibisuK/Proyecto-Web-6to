@@ -47,6 +47,11 @@ export class CheckoutPage implements OnInit {
   isLoading = signal<boolean>(false);
   isProcessing = signal<boolean>(false);
 
+  // Cashback
+  cashbackDisponible = signal<number>(0);
+  usarCashback = signal<boolean>(false);
+  cashbackAplicado = signal<number>(0);
+
   ngOnInit(): void {
     this.cargarDatosCheckout();
   }
@@ -72,13 +77,13 @@ export class CheckoutPage implements OnInit {
       next: (total) => this.total.set(total),
     });
 
-    // Cargar métodos de pago del usuario
+    // Cargar métodos de pago y cashback del usuario
     const uid = this.authService.currentUser?.uid;
     if (uid) {
+      // Cargar métodos de pago
       this.metodoPagoService.getMetodosPagoByUser(uid).subscribe({
         next: (metodos) => {
           this.metodosPago.set(metodos);
-          this.isLoading.set(false);
 
           // Si solo hay un método, seleccionarlo automáticamente
           if (metodos.length === 1) {
@@ -86,8 +91,18 @@ export class CheckoutPage implements OnInit {
           }
         },
         error: (error) => {
-          this.isLoading.set(false);
           this.notificationService.error('Error al cargar métodos de pago');
+        },
+      });
+
+      // Cargar cashback disponible
+      this.metodoPagoService.getCashback(uid).subscribe({
+        next: (response) => {
+          this.cashbackDisponible.set(response.cashback || 0);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
         },
       });
     } else {
@@ -109,6 +124,34 @@ export class CheckoutPage implements OnInit {
    */
   get iva(): number {
     return this.total() - this.subtotal;
+  }
+
+  /**
+   * Calcula el cashback que recibirá (5% del total)
+   */
+  get cashbackARecibir(): number {
+    return this.totalFinal * 0.05;
+  }
+
+  /**
+   * Calcula el total final después de aplicar cashback
+   */
+  get totalFinal(): number {
+    return Math.max(0, this.total() - this.cashbackAplicado());
+  }
+
+  /**
+   * Toggle para usar cashback
+   */
+  toggleUsarCashback(): void {
+    this.usarCashback.set(!this.usarCashback());
+    if (this.usarCashback()) {
+      // Aplicar el cashback disponible hasta el máximo del total
+      const cashbackAAplicar = Math.min(this.cashbackDisponible(), this.total());
+      this.cashbackAplicado.set(cashbackAAplicar);
+    } else {
+      this.cashbackAplicado.set(0);
+    }
   }
 
   /**

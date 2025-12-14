@@ -1,6 +1,6 @@
 .detalle-pedido-container {
   min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #ffffff;
   padding: 2rem 0;
 }
 
@@ -23,7 +23,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #3498db;
+  border-left-color: #2ECC71;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -138,10 +138,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: rgba(52, 152, 219, 0.1);
-  border: 1px solid #3498db;
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid #2ECC71;
   border-radius: 25px;
-  color: #2980b9;
+  color: #27AE60;
   font-size: 0.85rem;
   font-weight: 600;
   margin-top: 1rem;
@@ -198,9 +198,9 @@
 }
 
 .progress-step.completed .step-circle {
-  background: #1FAD53;
-  border-color: #1FAD53;
-  box-shadow: 0 0 20px rgba(39, 174, 96, 0.3);
+  background: #2ECC71;
+  border-color: #2ECC71;
+  box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
 }
 
 .progress-step.completed .step-circle .material-icons {
@@ -208,10 +208,10 @@
 }
 
 .progress-step.active .step-circle {
-  background: #3498db;
-  border-color: #3498db;
+  background: #2ECC71;
+  border-color: #2ECC71;
   animation: pulse 2s infinite;
-  box-shadow: 0 0 30px rgba(52, 152, 219, 0.5);
+  box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
 }
 
 .progress-step.active .step-circle .material-icons {
@@ -222,11 +222,11 @@
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 30px rgba(52, 152, 219, 0.5);
+    box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 0 0 40px rgba(52, 152, 219, 0.8);
+    box-shadow: 0 0 40px rgba(46, 204, 113, 0.8);
   }
 }
 
@@ -249,11 +249,11 @@
 }
 
 .progress-step.completed .step-label {
-  color: #1FAD53;
+  color: #2ECC71;
 }
 
 .progress-step.active .step-label {
-  color: #3498db;
+  color: #2ECC71;
   font-size: 1.1rem;
 }
 
@@ -269,8 +269,8 @@
 }
 
 .step-line.completed {
-  background: linear-gradient(90deg, #1FAD53 0%, #25D366 100%);
-  box-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
+  background: linear-gradient(90deg, #2ECC71 0%, #27AE60 100%);
+  box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
 }
 
 .estado-mensaje {
@@ -384,7 +384,7 @@
 
 .section-title .material-icons {
   font-size: 1.5rem;
-  color: #3498db;
+  color: #2ECC71;
 }
 
 /* Productos */
@@ -405,7 +405,7 @@
 }
 
 .producto-item:hover {
-  border-color: #3498db;
+  border-color: #2ECC71;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -639,4 +639,56 @@
   .progress-container {
     padding: 1.5rem;
   }
+}
+
+/* Cashback Earned Section */
+.cashback-earned-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed #d1d5db;
+}
+
+.cashback-earned-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.cashback-earned-badge .material-icons {
+  font-size: 3rem;
+  opacity: 0.9;
+}
+
+.cashback-earned-info {
+  flex: 1;
+}
+
+.cashback-earned-info strong {
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.cashback-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0.25rem 0;
+}
+
+.cashback-note {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.cashback-description {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 0.5rem;
 }

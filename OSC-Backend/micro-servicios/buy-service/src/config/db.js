@@ -14,6 +14,15 @@ const pool = new Pool({
   },
   // Configurar zona horaria para evitar conversiones automáticas
   options: '-c timezone=America/Guayaquil',
+  // Forzar reconexión después de cambios de esquema
+  max: 10, // Máximo de conexiones en el pool
+  idleTimeoutMillis: 30000, // Cerrar conexiones inactivas después de 30s
+  connectionTimeoutMillis: 2000, // Timeout de conexión
+});
+
+// Manejar errores del pool
+pool.on('error', (err) => {
+  console.error('❌ Error inesperado en el pool de PostgreSQL:', err);
 });
 
 export default pool;

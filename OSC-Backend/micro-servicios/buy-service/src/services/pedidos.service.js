@@ -112,6 +112,9 @@ export const getOrderById = async (id) => {
 };
 
 export const updateOrderStatus = async (id, estado_pedido) => {
+    console.log('🔍 [SERVICE updateOrderStatus] id:', id, 'tipo:', typeof id);
+    console.log('🔍 [SERVICE updateOrderStatus] estado_pedido:', estado_pedido);
+    
     // Si se está cancelando el pedido, devolver el stock
     if (estado_pedido === 'Cancelado') {
         const pedido = await model.findById(id);
