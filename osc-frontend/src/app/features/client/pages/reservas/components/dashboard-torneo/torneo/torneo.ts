@@ -242,4 +242,14 @@ export class Torneo implements OnInit {
   isLive(estado: string): boolean {
     return estado === 'en_curso';
   }
+
+  // Helper para convertir URLs de imagen a formato WebP
+  toWebP(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  // Helper para convertir URLs de imagen a formato AVIF
+  toAVIF(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
 }

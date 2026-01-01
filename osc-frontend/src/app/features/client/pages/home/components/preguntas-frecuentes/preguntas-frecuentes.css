@@ -3,7 +3,7 @@
   max-width: 880px;
   margin: 0 auto;
   padding: 120px 60px;
-  background: #F9FAFB;
+  background: #e7fff2;
 }
 
 .faq-container h2 {
@@ -13,6 +13,7 @@
   font-size: 44px;
   font-weight: 800;
   letter-spacing: -0.02em;
+  background: #e7fff2;
 }
 
 .faq-list {

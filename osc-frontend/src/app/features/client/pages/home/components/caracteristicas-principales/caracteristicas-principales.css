@@ -1,7 +1,7 @@
 .main-features-section {
   padding: 120px 60px;
   text-align: center;
-  background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+  background: #e7fff2;
 }
 
 .main-features-section h2 {
@@ -80,7 +80,6 @@
 
 .feature-card:hover .feature-icon {
   background: linear-gradient(135deg, #25D366 0%, #1FAD53 100%);
-  transform: scale(1.1) rotate(-5deg);
   box-shadow: 0 12px 24px rgba(37, 211, 102, 0.3);
 }
 

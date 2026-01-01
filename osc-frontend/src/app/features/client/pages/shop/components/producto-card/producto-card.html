@@ -1,11 +1,16 @@
 <div class="producto-card" (click)="verDetalle()">
   <div class="producto-imagen">
     <!-- Usa 'imagen' que es lo que devuelve el backend -->
-    <img
-      appLazyLoad
-      [src]="producto().imagen || '/assets/placeholder.png'"
-      [alt]="producto().nombre"
-      (error)="onImageError($event)">
+    <picture>
+      <source [srcset]="toAVIF(producto().imagen)" type="image/avif">
+      <source [srcset]="toWebP(producto().imagen)" type="image/webp">
+      <img
+        appLazyLoad
+        [src]="producto().imagen || '/assets/placeholder.png'"
+        [alt]="producto().nombre"
+        loading="lazy"
+        (error)="onImageError($event)">
+    </picture>
 
     <!-- Badge de descuento -->
     @if (tieneDescuento()) {

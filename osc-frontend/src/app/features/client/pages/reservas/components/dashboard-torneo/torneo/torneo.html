@@ -27,7 +27,11 @@
          *ngFor="let torneo of torneosFiltrados">
 
       <div class="card-header">
-        <img [src]="torneo.deporte_imagen" [alt]="torneo.nombre_deporte" class="deporte-icon">
+        <picture>
+          <source [srcset]="toAVIF(torneo.deporte_imagen)" type="image/avif">
+          <source [srcset]="toWebP(torneo.deporte_imagen)" type="image/webp">
+          <img [src]="torneo.deporte_imagen" [alt]="torneo.nombre_deporte" class="deporte-icon" loading="lazy">
+        </picture>
         <div class="header-info">
           <h3>{{ torneo.nombre }}</h3>
           <p>{{ torneo.nombre_deporte }}</p>

@@ -61,7 +61,11 @@
       <div class="logo-section-right">
         <div class="logo-preview" [class.has-image]="logoPreview || equipoData.logo_url">
           @if (logoPreview || equipoData.logo_url) {
-          <img [src]="logoPreview || equipoData.logo_url" alt="Logo del equipo" />
+          <picture>
+            <source [srcset]="toAVIF(logoPreview || equipoData.logo_url)" type="image/avif">
+            <source [srcset]="toWebP(logoPreview || equipoData.logo_url)" type="image/webp">
+            <img [src]="logoPreview || equipoData.logo_url" alt="Logo del equipo" />
+          </picture>
           } @if (!logoPreview && !equipoData.logo_url) {
           <div class="logo-placeholder">
             <span class="material-icons">add_photo_alternate</span>

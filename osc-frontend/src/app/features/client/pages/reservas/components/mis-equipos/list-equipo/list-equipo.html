@@ -38,10 +38,15 @@
           <div class="equipo-card-body">
             <div class="equipo-logo">
               @if (equipo.logo_url) {
-                <img
-                  [src]="equipo.logo_url"
-                  [alt]="equipo.nombre_equipo"
-                />
+                <picture>
+                  <source [srcset]="toAVIF(equipo.logo_url)" type="image/avif">
+                  <source [srcset]="toWebP(equipo.logo_url)" type="image/webp">
+                  <img
+                    [src]="equipo.logo_url"
+                    [alt]="equipo.nombre_equipo"
+                    loading="lazy"
+                  />
+                </picture>
               } @else {
                 <div class="logo-fallback">
                   <span class="material-icons">shield</span>
@@ -254,7 +259,11 @@
 
           <div class="equipo-info-header">
             @if (equipoParaAsignar?.logo_url) {
-              <img class="equipo-mini-logo" [src]="equipoParaAsignar!.logo_url" [alt]="equipoParaAsignar!.nombre_equipo" />
+              <picture>
+                <source [srcset]="toAVIF(equipoParaAsignar?.logo_url)" type="image/avif">
+                <source [srcset]="toWebP(equipoParaAsignar?.logo_url)" type="image/webp">
+                <img class="equipo-mini-logo" [src]="equipoParaAsignar!.logo_url" [alt]="equipoParaAsignar!.nombre_equipo" loading="lazy" />
+              </picture>
             } @else {
               <div class="equipo-mini-logo-placeholder">
                 <span class="material-icons">shield</span>

@@ -46,4 +46,14 @@ export class DeporteSelector implements OnInit {
   seleccionarDeporte(id: number) {
     this.deporteActivo.set(id); // Actualiza el model bidireccional
   }
+
+  // Helper para convertir URLs de imagen a formato WebP
+  toWebP(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  // Helper para convertir URLs de imagen a formato AVIF
+  toAVIF(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
 }

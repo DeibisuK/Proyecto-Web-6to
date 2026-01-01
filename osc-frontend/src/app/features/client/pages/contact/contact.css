@@ -353,17 +353,8 @@
 }
 
 .char-count {
-  color: #2ECC71;
-  font-weight: 600;
+  color: #7F8C8D;
   margin-right: 0.25rem;
-}
-
-.char-counter.warning .char-count {
-  color: #F39C12;
-}
-
-.char-counter.danger .char-count {
-  color: #E74C3C;
 }
 
 .btn-submit {

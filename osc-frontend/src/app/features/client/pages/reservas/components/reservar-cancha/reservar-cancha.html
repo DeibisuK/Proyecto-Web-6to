@@ -95,7 +95,11 @@
       <!-- Imagen -->
       <div class="cancha-imagen">
         @if (cancha.imagen_url) {
-          <img [src]="cancha.imagen_url" [alt]="cancha.nombre_cancha" />
+          <picture>
+            <source [srcset]="toAVIF(cancha.imagen_url)" type="image/avif">
+            <source [srcset]="toWebP(cancha.imagen_url)" type="image/webp">
+            <img [src]="cancha.imagen_url" [alt]="cancha.nombre_cancha" loading="lazy" />
+          </picture>
         } @else {
           <div class="imagen-placeholder">
             <span class="material-icons">sports_soccer</span>

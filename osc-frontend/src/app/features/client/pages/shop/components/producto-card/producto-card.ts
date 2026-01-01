@@ -79,4 +79,20 @@ export class ProductoCard {
       img.src = 'assets/placeholder.png';
     }
   }
+
+  /**
+   * Convierte URL de imagen a formato WebP
+   */
+  toWebP(url: string | null): string {
+    if (!url) return 'assets/placeholder.png';
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  /**
+   * Convierte URL de imagen a formato AVIF
+   */
+  toAVIF(url: string | null): string {
+    if (!url) return 'assets/placeholder.png';
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
 }

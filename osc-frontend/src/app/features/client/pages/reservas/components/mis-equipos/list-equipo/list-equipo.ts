@@ -398,4 +398,16 @@ export class ListEquipo implements OnInit {
       );
     }
   }
+
+  // Helper para convertir URLs de imagen a formato WebP
+  toWebP(url: string | undefined): string {
+    if (!url) return '';
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  // Helper para convertir URLs de imagen a formato AVIF
+  toAVIF(url: string | undefined): string {
+    if (!url) return '';
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
 }

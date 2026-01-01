@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import proxy from "express-http-proxy";
+import compression from "compression";
 
 const app = express();
 const corsOptions = {
@@ -8,6 +9,20 @@ const corsOptions = {
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"], // Headers permitidos
 };
+
+// Middleware de compresión Brotli/Gzip (debe ir ANTES de las rutas)
+app.use(compression({
+  level: 6, // Nivel de compresión (0-9, 6 es balance entre velocidad/compresión)
+  threshold: 1024, // Solo comprimir si es > 1KB
+  filter: (req, res) => {
+    // No comprimir si el cliente no acepta compresión
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Usar el filtro por defecto de compression
+    return compression.filter(req, res);
+  }
+}));
 
 // Aplicar el middleware
 app.use(cors(corsOptions));

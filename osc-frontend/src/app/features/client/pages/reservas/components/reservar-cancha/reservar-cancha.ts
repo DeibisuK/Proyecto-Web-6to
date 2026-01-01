@@ -178,4 +178,18 @@ export class ReservarCancha implements OnInit {
     const day = String(today.getDate()).padStart(2, '0');
     this.minDate = `${year}-${month}-${day}`;
   }
+
+  /**
+   * Convierte URL de imagen a formato WebP
+   */
+  toWebP(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  /**
+   * Convierte URL de imagen a formato AVIF
+   */
+  toAVIF(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
 }

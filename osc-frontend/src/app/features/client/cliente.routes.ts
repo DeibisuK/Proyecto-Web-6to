@@ -4,9 +4,6 @@ import { Home } from "./pages/home/pages/home-page/home-page";
 import { MisionVision } from "./pages/informacion/nosotros/mision-vision/mision-vision";
 import { Equipo } from "./pages/informacion/nosotros/equipo/equipo";
 import { Historia } from "./pages/informacion/nosotros/historia/historia";
-import { CanchaFutbolCompletoComponent } from "./pages/articulos/cancha-futbol-completo/cancha-futbol-completo";
-import { EstudioDeportivoCompletoComponent } from "./pages/articulos/estudio-deportivo-completo/estudio-deportivo-completo";
-import { PadelBeneficiosCompletoComponent } from "./pages/articulos/padel-beneficios-completo/padel-beneficios-completo";
 import { TiendaPage } from "./pages/shop/pages/tienda-page/tienda-page";
 import { DetalleProducto } from "./pages/shop/components/detalle-producto/detalle-producto";
 import { CheckoutPage } from "./pages/shop/pages/checkout-page/checkout-page";
@@ -53,18 +50,6 @@ export const clienteRoutes: Routes = [
   {
     path: 'contacto',
     component: Contact
-  },
-  {
-    path: 'articulos/cancha-futbol',
-    component: CanchaFutbolCompletoComponent
-  },
-  {
-    path: 'articulos/estudio-deportivo',
-    component: EstudioDeportivoCompletoComponent
-  },
-  {
-    path: 'articulos/padel-beneficios',
-    component: PadelBeneficiosCompletoComponent
   },
   {
     path: 'mision-y-vision',

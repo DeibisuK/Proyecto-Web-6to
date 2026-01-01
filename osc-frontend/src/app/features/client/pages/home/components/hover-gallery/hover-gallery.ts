@@ -23,9 +23,28 @@ export class HoverGalleryComponent {
       description: 'Modernas pistas con iluminación LED y superficie profesional'
     },
     {
+      // Usando imagen directa sin conversión (servidor externo)
       src: 'https://termasvillaelisa.com/wp-content/uploads/2022/03/tenis-1.jpg',
       title: 'Canchas de Tenis',
       description: 'Superficie de arcilla y césped para torneos profesionales'
     }
   ];
+
+  // Helper para convertir URLs de imagen a formato WebP
+  toWebP(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  }
+
+  // Helper para convertir URLs de imagen a formato AVIF
+  toAVIF(url: string): string {
+    return url.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+  }
+
+  // Verificar si la URL soporta formatos modernos (solo si es de tu servidor o Cloudinary)
+  supportsModernFormats(url: string): boolean {
+    // Solo intentar WebP/AVIF si es Cloudinary o tu dominio
+    return url.includes('cloudinary.com') ||
+           url.includes('res.cloudinary.com') ||
+           url.includes('tu-dominio.com'); // Reemplaza con tu dominio
+  }
 }

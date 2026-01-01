@@ -16,7 +16,11 @@
         [class.activo]="deporteActivo() === 0"
         (click)="seleccionarDeporte(0)"
       >
-        <img src="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.jpg" alt="Todos los deportes" />
+        <picture>
+          <source srcset="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.avif" type="image/avif">
+          <source srcset="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.webp" type="image/webp">
+          <img src="https://www.unila.edu.mx/wp-content/uploads/2025/09/los-5-deportes-mas-populares-del-mundo.jpg" alt="Todos los deportes" loading="lazy" />
+        </picture>
         <span class="deporte-nombre">Todos</span>
       </div>
 
@@ -26,7 +30,11 @@
         [class.activo]="deporteActivo() === deporte.id_deporte"
         (click)="seleccionarDeporte(deporte.id_deporte)"
       >
-        <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" />
+        <picture>
+          <source [srcset]="toAVIF(deporte.url_imagen)" type="image/avif">
+          <source [srcset]="toWebP(deporte.url_imagen)" type="image/webp">
+          <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" loading="lazy" />
+        </picture>
         <span class="deporte-nombre">{{ deporte.nombre_deporte }}</span>
       </div>
       }

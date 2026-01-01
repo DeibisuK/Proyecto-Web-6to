@@ -46,7 +46,13 @@
         (mouseenter)="hoveredIndex = i"
         (mouseleave)="hoveredIndex = -1">
 
-        <img [src]="image.src" [alt]="image.title" class="pillar-image">
+        <picture>
+          @if (supportsModernFormats(image.src)) {
+            <source [srcset]="toAVIF(image.src)" type="image/avif">
+            <source [srcset]="toWebP(image.src)" type="image/webp">
+          }
+          <img [src]="image.src" [alt]="image.title" class="pillar-image" loading="lazy">
+        </picture>
 
         <div class="pillar-overlay">
           <div class="pillar-content">
