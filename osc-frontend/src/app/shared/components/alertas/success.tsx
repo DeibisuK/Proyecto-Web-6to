@@ -44,6 +44,9 @@ const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'defaul
         case 'loading':
           toast.loading(message);
           break;
+        case 'dismiss':
+          toast.dismiss();
+          break;
         default:
           toast(message);
       }

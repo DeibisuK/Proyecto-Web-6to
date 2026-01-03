@@ -43,11 +43,11 @@
       <div class="chart-card">
         <div class="chart-header">
           <h3 class="chart-title">Reservas por Mes</h3>
-          <span class="chart-badge">2025</span>
+          <span class="chart-badge">2026</span>
         </div>
         <div class="bar-chart">
           @for (value of monthlyData; track $index) {
-            <div class="bar-item">
+            <div class="bar-item" [title]="value + ' reservas en ' + months[$index]">
               <div
                 class="bar"
                 [ngClass]="isCurrentMonth($index) ? 'active' : 'inactive'"
@@ -111,7 +111,6 @@
       <div class="reservations-card">
         <div class="reservations-header">
           <h3 class="chart-title">Últimas Reservas</h3>
-        <button class="view-all-btn">Ver todas →</button>
       </div>
       <div class="reservation-list">
         @for (res of reservations; track res.user) {

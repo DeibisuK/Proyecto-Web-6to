@@ -174,12 +174,16 @@ export class MisReservasComponent implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
 
+        // Dismiss loading toast
+        this.notificationService.dismiss();
         setTimeout(() => {
           this.notificationService.success('Factura descargada exitosamente');
         }, 100);
       },
       error: (error) => {
         console.error('Error al generar factura:', error);
+        // Dismiss loading toast
+        this.notificationService.dismiss();
         setTimeout(() => {
           this.notificationService.error('Error al generar la factura');
         }, 100);

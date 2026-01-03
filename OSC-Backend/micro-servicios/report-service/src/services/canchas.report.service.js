@@ -225,7 +225,7 @@ async function tasaOcupacion(year, month) {
     LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
       ${dateFilter.whereClause}
       AND r.estado_pago != 'Cancelado'
-    WHERE c.estado = 'Activo'
+    WHERE c.estado = 'Disponible'
     GROUP BY c.id_cancha, c.nombre_cancha, s.nombre
     ORDER BY (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / ${horasDisponibles}) * 100 DESC
   `;

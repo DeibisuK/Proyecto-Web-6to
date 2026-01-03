@@ -132,17 +132,18 @@ export const getEstadisticasDashboard = async () => {
     const satisfaccion = parseFloat(ratingsRes.rows[0].promedio_satisfaccion || 0);
     const totalRatings = parseInt(ratingsRes.rows[0].total_ratings || 0);
 
-    // 4. Reservas de hoy
+    // 4. Reservas creadas hoy
     const reservasHoyRes = await db.query(`
-      SELECT COUNT(*) as total, 
-             COUNT(CASE WHEN estado_pago IN ('pendiente', 'completado', 'pagado') THEN 1 END) as activas
+      SELECT 
+        COUNT(*) as total_del_dia, 
+        COUNT(CASE WHEN estado_pago IN ('pendiente', 'pagado') THEN 1 END) as reservas_activas
       FROM reservas
-      WHERE fecha_reserva::date = CURRENT_DATE
+      WHERE DATE(fecha_registro) = CURRENT_DATE
     `);
-    console.log('📊 Total reservas hoy:', reservasHoyRes.rows[0]);
+    console.log('📊 Reservas creadas hoy:', reservasHoyRes.rows[0]);
     
-    const reservasHoy = parseInt(reservasHoyRes.rows[0].activas || 0);
-    console.log('📊 Reservas hoy (activas):', reservasHoy);
+    const reservasHoy = parseInt(reservasHoyRes.rows[0].reservas_activas || 0);
+    console.log('📊 Reservas activas (hoy):', reservasHoy);
 
     // 5. Top 5 canchas mejor valoradas
     // Primero verificamos si hay canchas disponibles
@@ -182,17 +183,30 @@ export const getEstadisticasDashboard = async () => {
     console.log('📊 Top Canchas:', topCanchas.length, 'encontradas');
     console.log('📊 Canchas:', JSON.stringify(topCanchas, null, 2));
 
-    // 6. Reservas por mes del año actual (2025)
-    const añoActual = 2025; // Año fijo para asegurar datos correctos
+    // 6. Reservas por mes del año actual (2026)
     const reservasPorMesRes = await db.query(`
       SELECT 
         EXTRACT(MONTH FROM fecha_reserva) as mes,
+        CASE EXTRACT(MONTH FROM fecha_reserva)
+          WHEN 1 THEN 'Enero'
+          WHEN 2 THEN 'Febrero'
+          WHEN 3 THEN 'Marzo'
+          WHEN 4 THEN 'Abril'
+          WHEN 5 THEN 'Mayo'
+          WHEN 6 THEN 'Junio'
+          WHEN 7 THEN 'Julio'
+          WHEN 8 THEN 'Agosto'
+          WHEN 9 THEN 'Septiembre'
+          WHEN 10 THEN 'Octubre'
+          WHEN 11 THEN 'Noviembre'
+          WHEN 12 THEN 'Diciembre'
+        END as nombre_mes,
         COUNT(*) as total_reservas
       FROM reservas
-      WHERE EXTRACT(YEAR FROM fecha_reserva) = $1
+      WHERE EXTRACT(YEAR FROM fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
       GROUP BY EXTRACT(MONTH FROM fecha_reserva)
       ORDER BY mes
-    `, [añoActual]);
+    `);
 
     // Crear array de 12 meses con 0 como default
     const reservasPorMes = Array(12).fill(0);
@@ -201,17 +215,18 @@ export const getEstadisticasDashboard = async () => {
       reservasPorMes[mesIndex] = parseInt(row.total_reservas);
     });
 
-    // 7. Distribución por deporte (basado en tipo_superficie de canchas reservadas)
+    // 7. Distribución por deporte (usando tabla deportes)
     const deportesRes = await db.query(`
       SELECT 
-        c.tipo_superficie as deporte,
+        d.nombre_deporte as deporte,
         COUNT(r.id_reserva) as total_reservas
       FROM reservas r
       INNER JOIN canchas c ON r.id_cancha = c.id_cancha
-      WHERE EXTRACT(YEAR FROM r.fecha_reserva) = $1
-      GROUP BY c.tipo_superficie
+      INNER JOIN deportes d ON c.id_deporte = d.id_deporte
+      WHERE EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+      GROUP BY d.nombre_deporte
       ORDER BY total_reservas DESC
-    `, [añoActual]);
+    `);
 
     const totalReservasDeporte = deportesRes.rows.reduce((sum, row) => sum + parseInt(row.total_reservas), 0);
     const porDeporte = deportesRes.rows.map(row => ({

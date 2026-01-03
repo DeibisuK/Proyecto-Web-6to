@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
-export type NotificationType = 'success' | 'error' | 'default' | 'loading';
+export type NotificationType = 'success' | 'error' | 'default' | 'loading' | 'dismiss';
 
 export interface NotificationPayload {
   message: string;
@@ -27,6 +27,10 @@ export class NotificationService {
 
   loading(message: string, key?: string | number) {
     this.notify({ message, type: 'loading', key });
+  }
+
+  dismiss() {
+    this.notify({ message: '', type: 'dismiss' });
   }
 
   onNotify(): Observable<NotificationPayload> {

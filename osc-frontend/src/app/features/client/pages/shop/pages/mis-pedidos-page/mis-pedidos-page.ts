@@ -233,12 +233,16 @@ export class MisPedidosPage implements OnInit, OnDestroy {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
+        // Dismiss loading toast
+        this.notificationService.dismiss();
         setTimeout(() => {
           this.notificationService.success('Factura descargada correctamente');
         }, 100);
       },
       error: (error) => {
         console.error('Error al descargar factura:', error);
+        // Dismiss loading toast
+        this.notificationService.dismiss();
         setTimeout(() => {
           this.notificationService.error('Error al generar la factura');
         }, 100);
