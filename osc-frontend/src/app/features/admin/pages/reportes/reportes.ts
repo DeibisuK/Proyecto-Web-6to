@@ -125,8 +125,7 @@ export class Reportes implements OnInit {
         { id: 'reservas-estado', label: 'Reservas por Estado' },
         { id: 'cancelaciones', label: 'Cancelaciones' },
         { id: 'reservas-deporte', label: 'Reservas por Deporte' },
-        { id: 'reservas-dia', label: 'Reservas por Día de Semana' },
-        { id: 'duracion-promedio', label: 'Duración Promedio' }
+        { id: 'reservas-dia', label: 'Reservas por Día de Semana' }
       ]
     },
     {
