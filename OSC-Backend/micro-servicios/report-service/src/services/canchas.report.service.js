@@ -79,8 +79,6 @@ async function listarCanchas() {
  * Opción 2: Canchas Más Utilizadas
  */
 async function canchasMasUtilizadas(year, month) {
-  const dateFilter = buildDateFilters(year, month);
-  
   const query = `
     SELECT 
       c.nombre_cancha AS "Cancha",
@@ -97,15 +95,15 @@ async function canchasMasUtilizadas(year, month) {
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
     LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-      ${dateFilter.whereClause}
-      AND r.estado_pago != 'Cancelado'
+      AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+      AND r.estado_pago != 'cancelado'
     GROUP BY c.id_cancha, c.nombre_cancha, s.nombre, d.nombre_deporte
     HAVING COUNT(r.id_reserva) > 0
     ORDER BY COUNT(r.id_reserva) DESC
     LIMIT 20
   `;
   
-  const result = await pool.query(query, dateFilter.params);
+  const result = await pool.query(query);
   
   return {
     columns: ["Cancha", "Sede", "Deporte", "Total Reservas", "Horas Reservadas", "Tasa Ocupación (%)", "Ingresos"],
@@ -123,32 +121,36 @@ async function canchasMasUtilizadas(year, month) {
  * Opción 3: Canchas Mejor Puntuadas
  */
 async function canchasMejorPuntuadas(year, month) {
-  // Query simplificada sin filtro de fecha en LEFT JOIN
   const query = `
     SELECT 
       c.nombre_cancha AS "Cancha",
       s.nombre AS "Sede",
       d.nombre_deporte AS "Deporte",
       c.estado AS "Estado",
-      COUNT(r.id_reserva) AS "Total Reservas",
+      COUNT(DISTINCT r.id_rating) AS "Total Ratings",
+      ROUND(AVG(r.estrellas), 2) AS "Promedio Estrellas",
+      COUNT(DISTINCT res.id_reserva) AS "Total Reservas",
       COALESCE(c.tarifa, 0) AS "Tarifa"
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
-    LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
+    LEFT JOIN ratings_canchas r ON c.id_cancha = r.id_cancha 
+      AND r.estado = 'activo'
+    LEFT JOIN reservas res ON c.id_cancha = res.id_cancha
     GROUP BY c.id_cancha, c.nombre_cancha, s.nombre, d.nombre_deporte, c.estado, c.tarifa
-    ORDER BY COUNT(r.id_reserva) DESC
+    HAVING COUNT(DISTINCT r.id_rating) > 0
+    ORDER BY AVG(r.estrellas) DESC, COUNT(DISTINCT r.id_rating) DESC
     LIMIT 20
   `;
   
   const result = await pool.query(query);
   
   return {
-    columns: ["Cancha", "Sede", "Deporte", "Estado", "Total Reservas", "Tarifa"],
+    columns: ["Cancha", "Sede", "Deporte", "Estado", "Total Ratings", "Promedio Estrellas", "Total Reservas", "Tarifa"],
     rows: result.rows.length > 0 ? result.rows : [],
     summary: {
       'Total de Canchas': result.rows.length,
-      'Canchas con Reservas': result.rows.filter(r => parseInt(r['Total Reservas']) > 0).length
+      'Promedio General': result.rows.length > 0 ? `${(result.rows.reduce((sum, r) => sum + parseFloat(r['Promedio Estrellas'] || 0), 0) / result.rows.length).toFixed(2)} ⭐` : 'N/A'
     }
   };
 }
@@ -157,13 +159,6 @@ async function canchasMejorPuntuadas(year, month) {
  * Opción 4: Ingresos por Cancha
  */
 async function ingresosPorCancha(year, month) {
-  const dateFilter = buildDateFilters(year, month);
-  
-  // Construir subquery con los mismos parámetros
-  const subqueryWhere = month !== undefined && month !== null 
-    ? 'AND EXTRACT(YEAR FROM fecha_reserva) = $1 AND EXTRACT(MONTH FROM fecha_reserva) = $2'
-    : 'AND EXTRACT(YEAR FROM fecha_reserva) = $1';
-  
   const query = `
     SELECT 
       c.nombre_cancha AS "Cancha",
@@ -174,21 +169,21 @@ async function ingresosPorCancha(year, month) {
       ROUND(
         (COALESCE(SUM(r.monto_total), 0) * 100.0) / 
         NULLIF((SELECT SUM(monto_total) FROM reservas 
-                WHERE estado_pago = 'Pagado' 
-                ${subqueryWhere}), 0),
+                WHERE estado_pago = 'pagado' 
+                AND EXTRACT(YEAR FROM fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)), 0),
         2
       ) AS "% del Total"
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-      ${dateFilter.whereClause}
-      AND r.estado_pago = 'Pagado'
+      AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+      AND r.estado_pago = 'pagado'
     GROUP BY c.id_cancha, c.nombre_cancha, s.nombre
     HAVING SUM(r.monto_total) > 0
     ORDER BY SUM(r.monto_total) DESC NULLS LAST
   `;
   
-  const result = await pool.query(query, dateFilter.params);
+  const result = await pool.query(query);
   
   return {
     columns: ["Cancha", "Sede", "Total Reservas", "Ingresos Totales", "Ingreso Promedio", "% del Total"],
@@ -205,32 +200,27 @@ async function ingresosPorCancha(year, month) {
  * Opción 5: Tasa de Ocupación
  */
 async function tasaOcupacion(year, month) {
-  const dateFilter = buildDateFilters(year, month);
-  
-  // Calcular horas disponibles: si es un mes específico = 30*12, si es todo el año = 30*12*12
-  const horasDisponibles = month !== undefined && month !== null ? (30 * 12) : (30 * 12 * 12);
-  
   const query = `
     SELECT 
       c.nombre_cancha AS "Cancha",
       s.nombre AS "Sede",
-      ${horasDisponibles} AS "Horas Disponibles",
+      4320 AS "Horas Disponibles Año",
       COALESCE(ROUND(SUM(r.duracion_minutos) / 60.0, 2), 0) AS "Horas Reservadas",
       ROUND(
-        (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / ${horasDisponibles}) * 100,
+        (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 4320) * 100,
         2
       ) AS "Tasa Ocupación (%)"
     FROM canchas c
     LEFT JOIN sedes s ON c.id_sede = s.id_sede
     LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-      ${dateFilter.whereClause}
-      AND r.estado_pago != 'Cancelado'
+      AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+      AND r.estado_pago != 'cancelado'
     WHERE c.estado = 'Disponible'
     GROUP BY c.id_cancha, c.nombre_cancha, s.nombre
-    ORDER BY (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / ${horasDisponibles}) * 100 DESC
+    ORDER BY (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 4320) * 100 DESC
   `;
   
-  const result = await pool.query(query, dateFilter.params);
+  const result = await pool.query(query);
   
   return {
     columns: ["Cancha", "Sede", "Horas Disponibles", "Horas Reservadas", "Tasa Ocupación (%)"],

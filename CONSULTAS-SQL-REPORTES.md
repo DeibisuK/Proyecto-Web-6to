@@ -75,9 +75,8 @@ FROM canchas c
 LEFT JOIN sedes s ON c.id_sede = s.id_sede
 LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
 LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-  AND EXTRACT(YEAR FROM r.fecha_reserva) = $1
-  AND EXTRACT(MONTH FROM r.fecha_reserva) = $2  -- Opcional
-  AND r.estado_pago != 'Cancelado'
+  AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+  AND r.estado_pago != 'cancelado'
 GROUP BY c.id_cancha, c.nombre_cancha, s.nombre, d.nombre_deporte
 HAVING COUNT(r.id_reserva) > 0
 ORDER BY COUNT(r.id_reserva) DESC
@@ -97,7 +96,7 @@ LIMIT 20
 
 ### 📊 Opción 3: Canchas Mejor Puntuadas
 
-**Descripción:** Canchas ordenadas por número total de reservas
+**Descripción:** Canchas ordenadas por promedio de estrellas y cantidad de ratings
 
 **Consulta SQL:**
 ```sql
@@ -106,18 +105,23 @@ SELECT
   s.nombre AS "Sede",
   d.nombre_deporte AS "Deporte",
   c.estado AS "Estado",
-  COUNT(r.id_reserva) AS "Total Reservas",
+  COUNT(DISTINCT r.id_rating) AS "Total Ratings",
+  ROUND(AVG(r.estrellas), 2) AS "Promedio Estrellas",
+  COUNT(DISTINCT res.id_reserva) AS "Total Reservas",
   COALESCE(c.tarifa, 0) AS "Tarifa"
 FROM canchas c
 LEFT JOIN sedes s ON c.id_sede = s.id_sede
 LEFT JOIN deportes d ON c.id_deporte = d.id_deporte
-LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
+LEFT JOIN ratings_canchas r ON c.id_cancha = r.id_cancha 
+  AND r.estado = 'activo'
+LEFT JOIN reservas res ON c.id_cancha = res.id_cancha
 GROUP BY c.id_cancha, c.nombre_cancha, s.nombre, d.nombre_deporte, c.estado, c.tarifa
-ORDER BY COUNT(r.id_reserva) DESC
+HAVING COUNT(DISTINCT r.id_rating) > 0
+ORDER BY AVG(r.estrellas) DESC, COUNT(DISTINCT r.id_rating) DESC
 LIMIT 20
 ```
 
-**Nota:** Esta consulta no filtra por fecha y muestra todas las reservas históricas.
+**Nota:** Usa la tabla `ratings_canchas` con estado activo para obtener las mejores puntuaciones.
 
 ---
 
@@ -136,17 +140,15 @@ SELECT
   ROUND(
     (COALESCE(SUM(r.monto_total), 0) * 100.0) / 
     NULLIF((SELECT SUM(monto_total) FROM reservas 
-            WHERE estado_pago = 'Pagado' 
-            AND EXTRACT(YEAR FROM fecha_reserva) = $1
-            AND EXTRACT(MONTH FROM fecha_reserva) = $2), 0),  -- Opcional
+            WHERE estado_pago = 'pagado' 
+            AND EXTRACT(YEAR FROM fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)), 0),
     2
   ) AS "% del Total"
 FROM canchas c
 LEFT JOIN sedes s ON c.id_sede = s.id_sede
 LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-  AND EXTRACT(YEAR FROM r.fecha_reserva) = $1
-  AND EXTRACT(MONTH FROM r.fecha_reserva) = $2  -- Opcional
-  AND r.estado_pago = 'Pagado'
+  AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+  AND r.estado_pago = 'pagado'
 GROUP BY c.id_cancha, c.nombre_cancha, s.nombre
 HAVING SUM(r.monto_total) > 0
 ORDER BY SUM(r.monto_total) DESC NULLS LAST
@@ -163,24 +165,23 @@ ORDER BY SUM(r.monto_total) DESC NULLS LAST
 SELECT 
   c.nombre_cancha AS "Cancha",
   s.nombre AS "Sede",
-  360 AS "Horas Disponibles",  -- 30 días * 12 horas (mes), o 4320 para año
+  4320 AS "Horas Disponibles Año",
   COALESCE(ROUND(SUM(r.duracion_minutos) / 60.0, 2), 0) AS "Horas Reservadas",
   ROUND(
-    (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 360) * 100,
+    (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 4320) * 100,
     2
   ) AS "Tasa Ocupación (%)"
 FROM canchas c
 LEFT JOIN sedes s ON c.id_sede = s.id_sede
 LEFT JOIN reservas r ON c.id_cancha = r.id_cancha
-  AND EXTRACT(YEAR FROM r.fecha_reserva) = $1
-  AND EXTRACT(MONTH FROM r.fecha_reserva) = $2  -- Opcional
-  AND r.estado_pago != 'Cancelado'
+  AND EXTRACT(YEAR FROM r.fecha_reserva) = EXTRACT(YEAR FROM CURRENT_DATE)
+  AND r.estado_pago != 'cancelado'
 WHERE c.estado = 'Disponible'
 GROUP BY c.id_cancha, c.nombre_cancha, s.nombre
-ORDER BY (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 360) * 100 DESC
+ORDER BY (COALESCE(SUM(r.duracion_minutos), 0) / 60.0 / 4320) * 100 DESC
 ```
 
-**Nota:** Las horas disponibles se calculan dinámicamente (360 para un mes, 4320 para un año).
+**Nota:** Usa 4320 horas disponibles por año (360 días * 12 horas) y filtra por año actual.
 
 ---
 
@@ -283,7 +284,9 @@ FROM ingresos_reservas ir, ingresos_productos ip
 ```
 
 ---
-
+Listar Ingresos ()
+Ingresos Totales (Suma total de ingresos por categoría)
+Ingresos por Categoría (Comparación de ingresos entre reservas y productos)
 ### 📊 Opción 3: Ingresos por Categoría
 
 **Descripción:** Comparación de ingresos entre reservas y productos

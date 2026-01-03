@@ -153,9 +153,6 @@
                 </td>
                 <td>
                   {{ getTipoPagoTexto(reserva.tipo_pago) }}
-                  @if (reserva.numero_tarjeta_oculto) {
-                    <br><small>{{ reserva.numero_tarjeta_oculto }}</small>
-                  }
                 </td>
                 <td>
                   @if (reserva.estado_pago === 'pendiente') {
