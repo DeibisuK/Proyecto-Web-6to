@@ -112,8 +112,7 @@ export class Reportes implements OnInit {
         { id: 'listar-partidos', label: 'Listar Partidos' },
         { id: 'partidos-estado', label: 'Partidos por Estado' },
         { id: 'partidos-deporte', label: 'Partidos por Deporte' },
-        { id: 'partidos-torneo', label: 'Partidos de Torneo' },
-        { id: 'estadisticas', label: 'Estadísticas de Partidos' }
+        { id: 'partidos-torneo', label: 'Partidos de Torneo' }
       ]
     },
     {
