@@ -113,13 +113,18 @@
         <div class="pedido-footer">
           <button class="btn-ver-detalle" (click)="verDetalle(pedido.id_pedido)">
             <span class="material-icons">visibility</span>
-            Ver Detalle
+            <span class="btn-text">Ver Detalle</span>
+          </button>
+
+          <button class="btn-descargar-factura" (click)="descargarFactura(pedido, $event)">
+            <span class="material-icons">receipt</span>
+            <span class="btn-text">Factura</span>
           </button>
 
           @if (pedido.estado_pedido === 'Pendiente') {
           <button class="btn-cancelar" (click)="cancelarPedido(pedido, $event)">
             <span class="material-icons">cancel</span>
-            Cancelar
+            <span class="btn-text">Cancelar</span>
           </button>
           }
         </div>

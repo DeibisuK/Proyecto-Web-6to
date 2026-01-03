@@ -1,0 +1,197 @@
+<div class="detalle-reserva-container">
+  <div class="detalle-reserva-wrapper">
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando reserva...</p>
+    </div>
+    }
+
+    <!-- Contenido -->
+    @if (!isLoading() && reserva()) {
+    <!-- Header -->
+    <div class="page-header">
+      <button class="back-btn" (click)="volver()">
+        <span class="material-icons">arrow_back</span>
+        Volver a Mis Reservas
+      </button>
+      <div class="header-content">
+        <div class="title-section">
+          <h1 class="page-title">
+            Reserva #{{ reserva()!.id_reserva }}
+          </h1>
+          <div class="reserva-estado" [ngClass]="getEstadoClass(reserva()!.estado_pago)">
+            <span class="material-icons">
+              {{ reserva()!.estado_pago === 'pagado' ? 'check_circle' :
+                 reserva()!.estado_pago === 'pendiente' ? 'schedule' :
+                 reserva()!.estado_pago === 'cancelado' ? 'cancel' : 'info' }}
+            </span>
+            <span>{{ reserva()!.estado_pago }}</span>
+          </div>
+        </div>
+        <p class="reserva-fecha">{{ formatFecha(reserva()!.fecha_reserva) }}</p>
+      </div>
+    </div>
+
+    <!-- Grid de Información -->
+    <div class="info-grid">
+      <!-- Información de la Cancha -->
+      <div class="section-card">
+        <h2 class="section-title">
+          <span class="material-icons">sports_soccer</span>
+          Información de la Cancha
+        </h2>
+
+        <div class="info-content">
+          <div class="info-item">
+            <span class="material-icons">label</span>
+            <div class="info-details">
+              <strong>Cancha</strong>
+              <p>{{ reserva()!.nombre_cancha }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">category</span>
+            <div class="info-details">
+              <strong>Tipo</strong>
+              <p>{{ reserva()!.tipo_deporte }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">location_on</span>
+            <div class="info-details">
+              <strong>Sede</strong>
+              <p>{{ reserva()!.nombre_sede }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de la Reserva -->
+      <div class="section-card">
+        <h2 class="section-title">
+          <span class="material-icons">event</span>
+          Detalles de la Reserva
+        </h2>
+
+        <div class="info-content">
+          <div class="info-item">
+            <span class="material-icons">calendar_today</span>
+            <div class="info-details">
+              <strong>Fecha</strong>
+              <p>{{ formatFecha(reserva()!.fecha_reserva) }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">schedule</span>
+            <div class="info-details">
+              <strong>Horario</strong>
+              <p>{{ reserva()!.hora_inicio }} - {{ calcularHoraFin(reserva()!.hora_inicio, reserva()!.duracion_minutos) }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">timer</span>
+            <div class="info-details">
+              <strong>Duración</strong>
+              <p>{{ reserva()!.duracion_minutos }} minutos</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">attach_money</span>
+            <div class="info-details">
+              <strong>Precio Total</strong>
+              <p class="precio-total">${{ formatPrice(reserva()!.monto_total) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Pago -->
+      <div class="section-card">
+        <h2 class="section-title">
+          <span class="material-icons">payment</span>
+          Información de Pago
+        </h2>
+
+        <div class="info-content">
+          <div class="info-item">
+            <span class="material-icons">credit_card</span>
+            <div class="info-details">
+              <strong>Método de Pago</strong>
+              <p>{{ getTipoPagoTexto(reserva()!.tipo_pago) }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="material-icons">
+              {{ reserva()!.estado_pago === 'pagado' ? 'check_circle' :
+                 reserva()!.estado_pago === 'pendiente' ? 'schedule' :
+                 reserva()!.estado_pago === 'cancelado' ? 'cancel' : 'info' }}
+            </span>
+            <div class="info-details">
+              <strong>Estado de Pago</strong>
+              <p [ngClass]="getEstadoClass(reserva()!.estado_pago)">
+                {{ reserva()!.estado_pago }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total destacado -->
+        <div class="total-box">
+          <span>Total Pagado:</span>
+          <strong>${{ formatPrice(reserva()!.monto_total) }}</strong>
+        </div>
+      </div>
+
+      <!-- Código QR -->
+      @if (qrCodeUrl()) {
+      <div class="section-card qr-section">
+        <h2 class="section-title">
+          <span class="material-icons">qr_code_2</span>
+          Código QR de la Reserva
+        </h2>
+
+        <div class="qr-content">
+          <img [src]="qrCodeUrl()!" alt="QR Code" class="qr-image" />
+          <p class="qr-description">
+            Presenta este código QR al momento de tu reserva
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Acciones -->
+    <div class="acciones-container">
+      <button class="btn-volver" (click)="volver()">
+        <span class="material-icons">arrow_back</span>
+        Volver
+      </button>
+
+      <button class="btn-descargar-factura" (click)="descargarFactura()">
+        <span class="material-icons">receipt</span>
+        Descargar Factura
+      </button>
+    </div>
+
+    } @else if (!isLoading() && !reserva()) {
+    <!-- Error State -->
+    <div class="error-container">
+      <span class="material-icons">error_outline</span>
+      <h2>Reserva no encontrada</h2>
+      <p>No se pudo cargar la información de la reserva</p>
+      <button class="btn-volver" (click)="volver()">
+        <span class="material-icons">arrow_back</span>
+        Volver a Mis Reservas
+      </button>
+    </div>
+    }
+  </div>
+</div>

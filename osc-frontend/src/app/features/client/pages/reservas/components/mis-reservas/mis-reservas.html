@@ -1,0 +1,136 @@
+<div class="mis-reservas-container">
+  <div class="mis-reservas-wrapper">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">
+          Mis Reservas
+        </h1>
+        <p class="page-subtitle">Historial de reservas de canchas deportivas</p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-container">
+      <h3 class="filtros-title">Filtrar por estado:</h3>
+      <div class="filtros-buttons">
+        @for (estado of estados; track estado) {
+        <button
+          class="filtro-btn"
+          [class.active]="filtroEstado() === estado"
+          (click)="cambiarFiltro(estado)"
+        >
+          @if (estado !== 'Todos') {
+          <span class="material-icons">{{ getEstadoIcon(estado) }}</span>
+          }
+          {{ estado === 'Todos' ? 'Todos' : estado.charAt(0).toUpperCase() + estado.slice(1) }}
+          ({{ contarReservasPorEstado(estado) }})
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando reservas...</p>
+    </div>
+    }
+
+    <!-- Empty State -->
+    @if (!isLoading()) {
+      @if (reservasFiltradas.length === 0) {
+      <div class="empty-state">
+        <span class="material-icons">sports_soccer</span>
+        <h3>No hay reservas actualmente</h3>
+        <p>
+          @if (filtroEstado() !== 'Todos') {
+            No tienes reservas con estado: {{ filtroEstado() }}
+          } @else {
+            Cuando reserves una cancha, aparecerá aquí para que puedas hacer seguimiento
+          }
+        </p>
+        <a href="/reservar-cancha" class="btn-ir-reservar">
+          <span class="material-icons">add_circle</span>
+          Reservar Cancha
+        </a>
+      </div>
+      } @else {
+      <div class="reservas-grid">
+        @for (reserva of reservasFiltradas; track reserva.id_reserva) {
+        <div class="reserva-card" (click)="verDetalle(reserva.id_reserva!)">
+          <!-- Header de la Reserva -->
+          <div class="reserva-header">
+            <div class="reserva-info">
+              <h3 class="reserva-cancha">{{ reserva.nombre_cancha || 'Cancha #' + reserva.id_cancha }}</h3>
+              <p class="reserva-sede">{{ reserva.nombre_sede || 'Sede' }}</p>
+            </div>
+            <div class="reserva-estado" [ngClass]="getEstadoClass(reserva.estado_pago)">
+              <span class="material-icons">{{ getEstadoIcon(reserva.estado_pago) }}</span>
+              <span>{{ reserva.estado_pago.charAt(0).toUpperCase() + reserva.estado_pago.slice(1) }}</span>
+            </div>
+          </div>
+
+          <!-- Detalles de la Reserva -->
+          <div class="reserva-body">
+            <div class="reserva-detalles">
+              <!-- Fecha -->
+              <div class="detalle-item">
+                <span class="material-icons">calendar_today</span>
+                <div class="detalle-info">
+                  <span class="detalle-label">Fecha</span>
+                  <span class="detalle-valor">{{ formatFecha(reserva.fecha_reserva) }}</span>
+                </div>
+              </div>
+
+              <!-- Horario -->
+              <div class="detalle-item">
+                <span class="material-icons">schedule</span>
+                <div class="detalle-info">
+                  <span class="detalle-label">Horario</span>
+                  <span class="detalle-valor">
+                    {{ reserva.hora_inicio }} - {{ calcularHoraFin(reserva.hora_inicio, reserva.duracion_minutos) }}
+                    ({{ reserva.duracion_minutos }} min)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Tipo de pago -->
+              @if (reserva.tipo_pago) {
+              <div class="detalle-item">
+                <span class="material-icons">payment</span>
+                <div class="detalle-info">
+                  <span class="detalle-label">Método de pago</span>
+                  <span class="detalle-valor">{{ getTipoPagoTexto(reserva.tipo_pago) }}</span>
+                </div>
+              </div>
+              }
+            </div>
+
+            <!-- Total -->
+            <div class="reserva-total">
+              <span>Total:</span>
+              <strong>${{ formatPrice(reserva.monto_total) }}</strong>
+            </div>
+          </div>
+
+          <!-- Footer con botones -->
+          <div class="reserva-footer">
+            <button class="btn-ver-detalle" (click)="verDetalle(reserva.id_reserva!)">
+              <span class="material-icons">visibility</span>
+              <span class="btn-text">Ver Detalles</span>
+            </button>
+
+            <button class="btn-descargar-factura" (click)="descargarFactura(reserva, $event)">
+              <span class="material-icons">receipt</span>
+              <span class="btn-text">Factura</span>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    }
+  </div>
+</div>

@@ -32,6 +32,8 @@ import { PlanesSuscripcionComponent } from "./pages/subscription/planes-suscripc
 import { MiSuscripcionComponent } from "./pages/subscription/mi-suscripcion.component";
 import { premiumGuard } from "@app/core/guards/subscription.guard";
 import { BandejaNotificaciones } from "@app/shared/components/notificaciones/bandeja-notificaciones/bandeja-notificaciones";
+import { MisReservasComponent } from "./pages/reservas/components/mis-reservas/mis-reservas";
+import { DetalleReservaPage } from "./pages/reservas/pages/detalle-reserva-page/detalle-reserva-page";
 
 export const clienteRoutes: Routes = [
   {
@@ -124,6 +126,13 @@ export const clienteRoutes: Routes = [
   {
     path: 'reservar-cancha',
     component: ReservarCancha
+  },
+  {
+    path: 'mis-reservas',
+    children: [
+      { path: '', component: MisReservasComponent },
+      { path: ':id', component: DetalleReservaPage }
+    ]
   },
   {
     path: 'dashboard-torneo',

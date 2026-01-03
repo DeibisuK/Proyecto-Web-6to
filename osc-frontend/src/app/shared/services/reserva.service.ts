@@ -62,7 +62,8 @@ export class ReservaService {
    * Obtiene todas las reservas con información completa (JOIN con canchas, usuarios, métodos de pago)
    */
   getAllReservasComplete(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.adminUrl}/complete`);
+    const timestamp = new Date().getTime();
+    return this.http.get<Reserva[]>(`${this.adminUrl}/complete?_t=${timestamp}`);
   }
 
   /**

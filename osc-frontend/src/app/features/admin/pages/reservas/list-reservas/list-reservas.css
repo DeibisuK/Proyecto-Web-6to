@@ -319,19 +319,71 @@
 }
 
 .btn-sm {
-  padding: 0.4rem 0.6rem;
-  border: none;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid transparent;
   border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-right: 0.25rem;
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-sm:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
+/* Botones Outline */
+.btn-outline-success {
+  background: transparent;
+  color: #27AE60;
+  border: 2px solid #27AE60;
+}
+
+.btn-outline-success:hover {
+  background: #27AE60;
+  color: white;
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: #E74C3C;
+  border: 2px solid #E74C3C;
+}
+
+.btn-outline-danger:hover {
+  background: #E74C3C;
+  color: white;
+}
+
+.btn-outline-warning {
+  background: transparent;
+  color: #F39C12;
+  border: 2px solid #F39C12;
+}
+
+.btn-outline-warning:hover {
+  background: #F39C12;
+  color: white;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: #6C757D;
+  border: 2px solid #6C757D;
+}
+
+.btn-outline-secondary:hover {
+  background: #6C757D;
+  color: white;
+}
+
+/* Mantener estilos legacy para compatibilidad */
 .btn-success {
   background: transparent;
   color: #27AE60;
@@ -346,10 +398,12 @@
 .btn-danger {
   background: #E74C3C;
   color: white;
+  border: 2px solid #E74C3C;
 }
 
 .btn-danger:hover {
   background: #C0392B;
+  border-color: #C0392B;
 }
 
 .btn-warning {

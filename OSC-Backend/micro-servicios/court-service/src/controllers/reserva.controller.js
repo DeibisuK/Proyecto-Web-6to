@@ -2,8 +2,16 @@ import * as service from '../services/reserva.service.js';
 
 export const getAllReservas = async (req, res) => {
     try {
-        const reservas = await service.getAll();
-        res.json(reservas);
+        // Si el usuario está autenticado y viene del cliente, devolver con JOIN
+        const uid = req.user?.uid;
+        
+        if (uid) {
+            const reservas = await service.getByUserIdComplete(uid);
+            res.json(reservas);
+        } else {
+            const reservas = await service.getAll();
+            res.json(reservas);
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

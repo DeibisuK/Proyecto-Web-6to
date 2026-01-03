@@ -4,5 +4,5 @@ import app from './app.js';
 const PORT = process.env.PORT || 3004;
 
 app.listen(PORT, () => {
-  // Court service started
+  console.log(`🏟️  Court service running on port ${PORT}`);
 });

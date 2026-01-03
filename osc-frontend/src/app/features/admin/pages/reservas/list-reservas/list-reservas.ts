@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { ReservaService, Reserva } from '@shared/services/reserva.service';
 import { NotificationService } from '@core/services/notification.service';
 
+declare const Swal: any;
+
 @Component({
   selector: 'app-list-reservas',
   standalone: true,
@@ -54,7 +56,6 @@ export class ListReservas implements OnInit {
         this.cargando.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar reservas:', err);
         this.notificationService.error('Error al cargar las reservas');
         this.cargando.set(false);
       }
@@ -144,46 +145,83 @@ export class ListReservas implements OnInit {
    * Actualiza el estado de pago de una reserva
    */
   actualizarEstado(reserva: Reserva, nuevoEstado: string): void {
-    if (confirm(`¿Confirmar cambio de estado a "${nuevoEstado}"?`)) {
-      this.reservaService.updateReserva(reserva.id_reserva!, { estado_pago: nuevoEstado as any }).subscribe({
-        next: () => {
-          this.notificationService.success('Estado actualizado correctamente');
-          this.cargarReservas();
-        },
-        error: (err) => {
-          console.error('Error al actualizar estado:', err);
-          this.notificationService.error('Error al actualizar el estado');
-        }
-      });
-    }
+    Swal.fire({
+      title: '¿Cambiar estado?',
+      text: `¿Confirmar cambio de estado a "${nuevoEstado}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#25D366',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cambiar',
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.reservaService.updateReserva(reserva.id_reserva!, { estado_pago: nuevoEstado as any }).subscribe({
+          next: () => {
+            Swal.fire({
+              title: '¡Actualizado!',
+              text: 'Estado actualizado correctamente',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.cargarReservas();
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al actualizar el estado',
+              icon: 'error'
+            });
+          }
+        });
+      }
+    });
   }
 
   /**
    * Abre modal de confirmación de eliminación
    */
   confirmarEliminar(reserva: Reserva): void {
-    this.reservaAEliminar = reserva;
-    this.mostrarModalEliminar = true;
+    Swal.fire({
+      title: '¿Eliminar reserva?',
+      html: `¿Estás seguro de eliminar la reserva #${reserva.id_reserva}?<br><small>Esta acción no se puede deshacer</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        this.eliminarReserva(reserva);
+      }
+    });
   }
 
   /**
    * Elimina una reserva
    */
-  eliminarReserva(): void {
-    if (this.reservaAEliminar) {
-      this.reservaService.deleteReserva(this.reservaAEliminar.id_reserva!).subscribe({
-        next: () => {
-          this.notificationService.success('Reserva eliminada correctamente');
-          this.mostrarModalEliminar = false;
-          this.reservaAEliminar = undefined;
-          this.cargarReservas();
-        },
-        error: (err) => {
-          console.error('Error al eliminar reserva:', err);
-          this.notificationService.error('Error al eliminar la reserva');
-        }
-      });
-    }
+  eliminarReserva(reserva: Reserva): void {
+    this.reservaService.deleteReserva(reserva.id_reserva!).subscribe({
+      next: () => {
+        Swal.fire({
+          title: '¡Eliminada!',
+          text: 'Reserva eliminada correctamente',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        this.cargarReservas();
+      },
+      error: (err) => {
+        Swal.fire({
+          title: 'Error',
+          text: 'Error al eliminar la reserva',
+          icon: 'error'
+        });
+      }
+    });
   }
 
   /**

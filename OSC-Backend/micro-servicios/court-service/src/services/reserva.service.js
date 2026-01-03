@@ -17,6 +17,10 @@ export const getByUserId = async (id_usuario) => {
     return await model.findByUserId(id_usuario);
 };
 
+export const getByUserIdComplete = async (id_usuario) => {
+    return await model.findByUserIdComplete(id_usuario);
+};
+
 export const getByCanchaId = async (id_cancha) => {
     return await model.findByCanchaId(id_cancha);
 };

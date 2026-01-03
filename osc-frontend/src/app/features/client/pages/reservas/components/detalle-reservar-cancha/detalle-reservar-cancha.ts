@@ -65,6 +65,9 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
   // Loading state
   cargando: boolean = true;
 
+  // ID de la última reserva creada (para QR permanente)
+  ultimaReservaId: number | null = null;
+
   // Exponer Math para el template
   Math = Math;
 
@@ -94,8 +97,7 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Genera el QR después de que la vista se inicialice
-    setTimeout(() => this.generarQR(), 100);
+    // El QR se generará después de crear una reserva exitosamente
   }
 
   /** Carga los datos de la cancha por ID desde la API */
@@ -372,8 +374,20 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
     this.reservaService.createReservaCliente(reserva).subscribe({
       next: (response) => {
+        // Guardar ID de la reserva creada
+        this.ultimaReservaId = response.id_reserva || null;
+
+        // Regenerar QR con URL permanente
+        if (this.ultimaReservaId) {
+          setTimeout(() => this.generarQR(), 100);
+        }
+
         this.notificationService.success(`Reserva creada exitosamente para ${this.cancha!.nombre_cancha}`);
-        this.router.navigate(['/client/tienda/mis-reservas']);
+
+        // Navegar después de un pequeño delay para que se vea el QR
+        setTimeout(() => {
+          this.router.navigate(['/mis-reservas']);
+        }, 2000);
       },
       error: (error) => {
         console.error('Error al crear reserva:', error);
@@ -384,8 +398,13 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
   /** Genera la URL para el código QR */
   getReservaQrUrl(): string {
+    if (this.ultimaReservaId) {
+      // URL permanente a la reserva específica
+      return `${window.location.origin}/mis-reservas/${this.ultimaReservaId}`;
+    }
+    // Fallback: URL de la cancha
     const canchaId = this.route.snapshot.paramMap.get('id');
-    return `${window.location.origin}/client/tienda/reservar-cancha/${canchaId}`;
+    return `${window.location.origin}/reservar-cancha/${canchaId}`;
   }
 
   /** Genera el código QR en el canvas */

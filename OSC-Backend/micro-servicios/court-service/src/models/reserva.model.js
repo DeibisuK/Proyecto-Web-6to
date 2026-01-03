@@ -15,6 +15,32 @@ export const findByUserId = async (id_usuario) => {
     return result.rows;
 };
 
+export const findByUserIdComplete = async (id_usuario) => {
+    const result = await pool.query(`
+        SELECT 
+            r.*,
+            c.nombre_cancha,
+            c.tarifa AS tarifa_cancha,
+            c.id_sede,
+            u.name_user AS nombre_usuario,
+            u.email_user AS email_usuario,
+            s.nombre AS nombre_sede,
+            s.direccion AS direccion_sede,
+            mp.banco,
+            mp.tipo_tarjeta,
+            CONCAT(REPEAT('*', GREATEST(LENGTH(mp.numero_tarjeta)-3, 0)), RIGHT(mp.numero_tarjeta, 3)) AS numero_tarjeta_oculto,
+            (r.hora_inicio + (r.duracion_minutos || ' minutes')::INTERVAL)::TIME AS hora_fin
+        FROM reservas r
+        INNER JOIN canchas c ON r.id_cancha = c.id_cancha
+        LEFT JOIN usuarios u ON r.id_usuario = u.uid
+        LEFT JOIN sedes s ON c.id_sede = s.id_sede
+        LEFT JOIN metodos_pago mp ON r.id_metodo_pago = mp.id_metodo_pago
+        WHERE r.id_usuario = $1
+        ORDER BY r.fecha_reserva DESC, r.hora_inicio DESC
+    `, [id_usuario]);
+    return result.rows;
+};
+
 export const findByCanchaId = async (id_cancha) => {
     const result = await pool.query('SELECT * FROM reservas WHERE id_cancha = $1', [id_cancha]);
     return result.rows;
@@ -78,7 +104,7 @@ export const findAllComplete = async () => {
             s.direccion AS direccion_sede,
             mp.banco,
             mp.tipo_tarjeta,
-            CONCAT('****', RIGHT(mp.numero_tarjeta, 4)) AS numero_tarjeta_oculto,
+            CONCAT(REPEAT('*', GREATEST(LENGTH(mp.numero_tarjeta)-3, 0)), RIGHT(mp.numero_tarjeta, 3)) AS numero_tarjeta_oculto,
             (r.hora_inicio + (r.duracion_minutos || ' minutes')::INTERVAL) AS hora_fin
         FROM reservas r
         INNER JOIN canchas c ON r.id_cancha = c.id_cancha

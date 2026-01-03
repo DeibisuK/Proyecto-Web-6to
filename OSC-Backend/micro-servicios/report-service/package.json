@@ -8,7 +8,12 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
-  "keywords": ["reports", "pdf", "excel", "microservice"],
+  "keywords": [
+    "reports",
+    "pdf",
+    "excel",
+    "microservice"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -18,7 +23,8 @@
     "express": "^5.1.0",
     "pdfkit": "^0.15.0",
     "pdfkit-table": "^0.1.99",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

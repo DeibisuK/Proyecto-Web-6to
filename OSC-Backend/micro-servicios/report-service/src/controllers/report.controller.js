@@ -11,6 +11,7 @@ import * as usuariosService from '../services/usuarios.report.service.js';
 import { generatePDF } from '../utils/pdf.generator.js';
 import { generateExcel } from '../utils/excel.generator.js';
 import pool from '../config/db.js';
+import QRCode from 'qrcode';
 
 /**
  * Obtiene el nombre del usuario desde la base de datos
@@ -271,3 +272,216 @@ function getMonthName(month) {
   ];
   return months[month - 1] || 'Mes Desconocido';
 }
+
+/**
+ * Genera la factura en PDF de un pedido
+ */
+export const generarFacturaPedido = async (req, res) => {
+  try {
+    const { id_pedido, qr_url } = req.body;
+    const uid = req.user?.uid;
+
+    if (!id_pedido) {
+      return res.status(400).json({ message: 'ID de pedido requerido' });
+    }
+
+    // Obtener datos del pedido con JOIN completo
+    const pedidoQuery = await pool.query(`
+      SELECT 
+        p.id_pedido,
+        p.uuid_factura as factura,
+        p.total,
+        p.estado_pedido,
+        p.fecha_pedido,
+        u.name_user,
+        u.email_user as email,
+        mp.banco,
+        mp.tipo_tarjeta,
+        CONCAT(REPEAT('*', GREATEST(LENGTH(mp.numero_tarjeta)-3, 0)), RIGHT(mp.numero_tarjeta, 3)) AS numero_tarjeta_oculto,
+        json_agg(
+          json_build_object(
+            'nombre_producto', pr.nombre,
+            'cantidad', dp.cantidad,
+            'precio_unitario', dp.precio_venta,
+            'subtotal', dp.cantidad * dp.precio_venta
+          )
+        ) as items
+      FROM pedidos p
+      INNER JOIN usuarios u ON p.id_usuario = u.uid
+      LEFT JOIN detalle_pedidos dp ON p.id_pedido = dp.id_pedido
+      LEFT JOIN variantes_productos vp ON dp.id_variante = vp.id_variante
+      LEFT JOIN productos pr ON vp.id_producto = pr.id_producto
+      LEFT JOIN metodos_pago mp ON mp.firebase_uid = (SELECT firebase_uid FROM usuarios WHERE uid = p.id_usuario)
+      WHERE p.id_pedido = $1 AND p.id_usuario = $2
+      GROUP BY p.id_pedido, p.uuid_factura, p.total, p.estado_pedido, p.fecha_pedido, 
+               u.name_user, u.email_user, mp.banco, mp.tipo_tarjeta, mp.numero_tarjeta
+    `, [id_pedido, uid]);
+
+    if (pedidoQuery.rows.length === 0) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    const pedido = pedidoQuery.rows[0];
+
+    // Generar código QR
+    let qrDataURL = null;
+    if (qr_url) {
+      qrDataURL = await QRCode.toDataURL(qr_url, {
+        width: 150,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+    }
+
+    // Preparar datos para el PDF
+    const pdfData = {
+      title: `Factura Pedido #${pedido.factura || pedido.id_pedido}`,
+      headers: ['Producto', 'Cantidad', 'Precio Unit.', 'Subtotal'],
+      rows: pedido.items.map(item => [
+        item.nombre_producto,
+        item.cantidad,
+        `$${parseFloat(item.precio_unitario).toFixed(2)}`,
+        `$${parseFloat(item.subtotal).toFixed(2)}`
+      ]),
+      totals: [
+        { label: 'Total', value: `$${parseFloat(pedido.total).toFixed(2)}` }
+      ],
+      metadata: {
+        'Cliente': pedido.name_user,
+        'Email': pedido.email,
+        'Fecha': new Date(pedido.fecha_pedido).toLocaleDateString('es-ES'),
+        'Estado': pedido.estado_pedido
+      },
+      qrCode: qrDataURL,
+      qrText: 'Escanea para ver tu pedido',
+      footer: 'Gracias por su compra - Oro Sports Club'
+    };
+
+    // Generar PDF
+    const pdfBuffer = await generatePDF(pdfData);
+
+    // Enviar respuesta
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Factura-${pedido.factura || pedido.id_pedido}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Error generando factura:', error);
+    res.status(500).json({ message: 'Error al generar la factura', error: error.message });
+  }
+};
+
+/**
+ * Genera la factura en PDF para una reserva
+ */
+export const generarFacturaReserva = async (req, res) => {
+  try {
+    const { id_reserva, qr_url } = req.body;
+
+    if (!id_reserva) {
+      return res.status(400).json({ message: 'Se requiere el id_reserva' });
+    }
+
+    // Consulta para obtener los datos de la reserva
+    const reservaQuery = await pool.query(`
+      SELECT 
+        r.id_reserva,
+        r.fecha_reserva,
+        r.hora_inicio,
+        r.duracion_minutos,
+        r.monto_total,
+        r.estado_pago,
+        r.tipo_pago,
+        u.name_user,
+        u.email_user as email,
+        c.nombre_cancha,
+        s.nombre AS nombre_sede,
+        s.direccion AS direccion_sede
+      FROM reservas r
+      INNER JOIN usuarios u ON r.id_usuario = u.uid
+      INNER JOIN canchas c ON r.id_cancha = c.id_cancha
+      INNER JOIN sedes s ON c.id_sede = s.id_sede
+      WHERE r.id_reserva = $1
+    `, [id_reserva]);
+
+    if (reservaQuery.rows.length === 0) {
+      return res.status(404).json({ message: 'Reserva no encontrada' });
+    }
+
+    const reserva = reservaQuery.rows[0];
+
+    // Generar código de factura: RE + AAAAMMDD + ID con padding
+    const fecha = new Date(reserva.fecha_reserva);
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    const idPadded = String(reserva.id_reserva).padStart(3, '0');
+    const codigoFactura = `RE${year}${month}${day}${idPadded}`;
+
+    // Calcular hora de fin
+    const horaInicio = reserva.hora_inicio;
+    const [horas, minutos] = horaInicio.split(':').map(Number);
+    const fechaHora = new Date();
+    fechaHora.setHours(horas, minutos, 0);
+    fechaHora.setMinutes(fechaHora.getMinutes() + reserva.duracion_minutos);
+    const horaFin = fechaHora.toTimeString().substring(0, 5);
+
+    // Generar código QR
+    let qrDataURL = null;
+    if (qr_url) {
+      qrDataURL = await QRCode.toDataURL(qr_url, {
+        width: 150,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+    }
+
+    // Preparar datos para el PDF
+    const pdfData = {
+      title: `Factura Reserva ${codigoFactura}`,
+      headers: ['Concepto', 'Detalles', 'Duración', 'Precio'],
+      rows: [
+        [
+          'Cancha',
+          `${reserva.nombre_cancha}\n${reserva.nombre_sede}`,
+          `${reserva.duracion_minutos} min`,
+          `$${parseFloat(reserva.monto_total).toFixed(2)}`
+        ]
+      ],
+      totals: [
+        { label: 'Total', value: `$${parseFloat(reserva.monto_total).toFixed(2)}` }
+      ],
+      metadata: {
+        'Cliente': reserva.name_user,
+        'Email': reserva.email,
+        'Fecha': new Date(reserva.fecha_reserva).toLocaleDateString('es-ES'),
+        'Horario': `${horaInicio} - ${horaFin}`,
+        'Sede': reserva.nombre_sede,
+        'Dirección': reserva.direccion_sede,
+        'Método de Pago': reserva.tipo_pago || 'N/A',
+        'Estado': reserva.estado_pago
+      },
+      qrCode: qrDataURL,
+      qrText: 'Escanea para ver tu reserva',
+      footer: 'Gracias por su reserva - Oro Sports Club'
+    };
+
+    // Generar PDF
+    const pdfBuffer = await generatePDF(pdfData);
+
+    // Enviar respuesta
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Factura-${codigoFactura}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Error generando factura de reserva:', error);
+    res.status(500).json({ message: 'Error al generar la factura', error: error.message });
+  }
+};

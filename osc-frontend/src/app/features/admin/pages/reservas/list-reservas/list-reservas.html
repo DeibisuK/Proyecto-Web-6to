@@ -160,14 +160,14 @@
                 <td>
                   @if (reserva.estado_pago === 'pendiente') {
                     <button
-                      class="btn-sm btn-success"
+                      class="btn-sm btn-outline-success"
                       title="Marcar como pagado"
                       (click)="actualizarEstado(reserva, 'pagado')"
                     >
                       <i class="fas fa-check"></i>
                     </button>
                     <button
-                      class="btn-sm btn-danger"
+                      class="btn-sm btn-outline-danger"
                       title="Cancelar"
                       (click)="actualizarEstado(reserva, 'cancelado')"
                     >
@@ -176,7 +176,7 @@
                   }
                   @if (reserva.estado_pago === 'pagado') {
                     <button
-                      class="btn-sm btn-warning"
+                      class="btn-sm btn-outline-warning"
                       title="Reembolsar"
                       (click)="actualizarEstado(reserva, 'reembolsado')"
                     >
@@ -184,7 +184,7 @@
                     </button>
                   }
                   <button
-                    class="btn-sm btn-danger"
+                    class="btn-sm btn-outline-danger"
                     title="Eliminar"
                     (click)="confirmarEliminar(reserva)"
                   >
@@ -216,18 +216,4 @@
     }
   </div>
 </div>
-
-<!-- Modal de eliminación -->
-@if (mostrarModalEliminar && reservaAEliminar) {
-  <div class="modal-overlay" (click)="cancelarEliminar()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3>Confirmar Eliminación</h3>
-      <p>¿Eliminar reserva de {{ reservaAEliminar.nombre_cancha }} el {{ reservaAEliminar.fecha_reserva }}?</p>
-      <div class="modal-buttons">
-        <button class="btn btn-secondary" (click)="cancelarEliminar()">Cancelar</button>
-        <button class="btn btn-danger" (click)="eliminarReserva()">Eliminar</button>
-      </div>
-    </div>
-  </div>
-}
 

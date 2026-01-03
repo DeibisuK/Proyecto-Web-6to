@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { OrderService } from '@shared/services/index';
+import { ReportsService } from '@shared/services/reports.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Order, OrderStatus } from '@shared/models/index';
 import { interval, Subscription } from 'rxjs';
@@ -16,6 +17,7 @@ import { switchMap } from 'rxjs/operators';
 })
 export class MisPedidosPage implements OnInit, OnDestroy {
   private orderService = inject(OrderService);
+  private reportsService = inject(ReportsService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
 
@@ -207,5 +209,40 @@ export class MisPedidosPage implements OnInit, OnDestroy {
       return this.pedidos().length;
     }
     return this.pedidos().filter(p => p.estado_pedido === estado).length;
+  }
+
+  /**
+   * Descarga la factura en PDF del pedido
+   */
+  descargarFactura(pedido: Order, event: Event): void {
+    event.stopPropagation(); // Evita que se active el click del card
+
+    this.notificationService.loading('Generando factura...');
+
+    const qrUrl = `${window.location.origin}/mis-pedidos/${pedido.id_pedido}`;
+
+    this.reportsService.generarFacturaPedido(pedido.id_pedido, qrUrl).subscribe({
+      next: (blob) => {
+        // Crear un link temporal para descargar el PDF
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Factura-Pedido-${pedido.factura || pedido.id_pedido}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+          this.notificationService.success('Factura descargada correctamente');
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Error al descargar factura:', error);
+        setTimeout(() => {
+          this.notificationService.error('Error al generar la factura');
+        }, 100);
+      }
+    });
   }
 }

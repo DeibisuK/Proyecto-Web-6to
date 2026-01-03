@@ -134,13 +134,23 @@ export const getEstadisticasDashboard = async () => {
 
     // 4. Reservas de hoy
     const reservasHoyRes = await db.query(`
-      SELECT COUNT(*) as total
+      SELECT COUNT(*) as total, 
+             COUNT(CASE WHEN estado_pago IN ('pendiente', 'completado', 'pagado') THEN 1 END) as activas
       FROM reservas
-      WHERE DATE(fecha_reserva) = CURRENT_DATE
+      WHERE fecha_reserva::date = CURRENT_DATE
     `);
-    const reservasHoy = parseInt(reservasHoyRes.rows[0].total || 0);
+    console.log('📊 Total reservas hoy:', reservasHoyRes.rows[0]);
+    
+    const reservasHoy = parseInt(reservasHoyRes.rows[0].activas || 0);
+    console.log('📊 Reservas hoy (activas):', reservasHoy);
 
     // 5. Top 5 canchas mejor valoradas
+    // Primero verificamos si hay canchas disponibles
+    const canchasDisponibles = await db.query(`
+      SELECT COUNT(*) as total FROM canchas WHERE estado = 'Disponible'
+    `);
+    console.log('📊 Canchas disponibles:', canchasDisponibles.rows[0].total);
+
     const topCanchasRes = await db.query(`
       SELECT 
         c.id_cancha,
@@ -151,11 +161,14 @@ export const getEstadisticasDashboard = async () => {
         COUNT(r.id_rating) as total_ratings
       FROM canchas c
       LEFT JOIN ratings_canchas r ON c.id_cancha = r.id_cancha AND r.estado = 'activo'
-      WHERE c.estado = 'disponible'
+      WHERE c.estado = 'Disponible'
       GROUP BY c.id_cancha, c.nombre_cancha, c.tipo_superficie, c.imagen_url
       ORDER BY rating_promedio DESC, total_ratings DESC
       LIMIT 5
     `);
+
+    console.log('📊 Rows devueltas por query:', topCanchasRes.rows.length);
+    console.log('📊 Primera fila:', JSON.stringify(topCanchasRes.rows[0], null, 2));
 
     const topCanchas = topCanchasRes.rows.map(row => ({
       id_cancha: row.id_cancha,

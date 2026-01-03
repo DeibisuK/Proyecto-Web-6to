@@ -68,14 +68,24 @@ export class ReservarCancha implements OnInit {
     this.isLoading.set(true);
     this.canchaService.getCanchas().subscribe({
       next: (data) => {
+        if (data.length === 0) {
+          this.canchas.set([]);
+          this.isLoading.set(false);
+          return;
+        }
+
         // Filtrar solo canchas que tienen horarios disponibles
         const canchasConHorarios: Cancha[] = [];
+        let canchasProcesadas = 0;
+        const totalCanchas = data.length;
 
-        data.forEach(async cancha => {
+        data.forEach(cancha => {
           if (cancha.id_cancha) {
             // Verificar si tiene horarios disponibles
             this.canchaService.getHorariosDisponibles(cancha.id_cancha).subscribe({
               next: (horarios) => {
+                canchasProcesadas++;
+
                 if (horarios && horarios.length > 0) {
                   canchasConHorarios.push(cancha);
                   this.canchas.set([...canchasConHorarios]);
@@ -83,16 +93,31 @@ export class ReservarCancha implements OnInit {
                   // Cargar ratings
                   this.cargarRatingsCancha(cancha.id_cancha!);
                 }
+
+                // Solo desactivar loading cuando todas las canchas se hayan procesado
+                if (canchasProcesadas === totalCanchas) {
+                  this.isLoading.set(false);
+                }
               },
               error: () => {
+                canchasProcesadas++;
                 // Cancha sin horarios, no la mostramos
+
+                // Solo desactivar loading cuando todas las canchas se hayan procesado
+                if (canchasProcesadas === totalCanchas) {
+                  this.isLoading.set(false);
+                }
               }
             });
+          } else {
+            canchasProcesadas++;
+            if (canchasProcesadas === totalCanchas) {
+              this.isLoading.set(false);
+            }
           }
         });
 
         this.errorMessage = '';
-        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar las canchas:', err);

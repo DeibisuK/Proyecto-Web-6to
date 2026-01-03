@@ -8,12 +8,32 @@ import PDFDocument from 'pdfkit';
  * @param {Object} options.data - Datos del reporte (rows, columns, summary)
  * @param {Object} options.filters - Filtros aplicados
  * @param {string} options.usuario - Usuario que genera el reporte
+ * @param {Array} options.headers - Encabezados de la tabla (para facturas)
+ * @param {Array} options.rows - Filas de datos (para facturas)
+ * @param {Array} options.totals - Totales (para facturas)
+ * @param {Object} options.metadata - Metadatos adicionales (para facturas)
+ * @param {string} options.qrCode - Código QR en base64 (para facturas)
+ * @param {string} options.qrText - Texto descriptivo del QR code
+ * @param {string} options.footer - Pie de página
  * @returns {Promise<Buffer>} Buffer del PDF generado
  */
 export async function generatePDF(options) {
   return new Promise((resolve, reject) => {
     try {
-      const { title, subtitle, data, filters = {}, usuario = 'Sistema' } = options;
+      const { 
+        title, 
+        subtitle, 
+        data, 
+        filters = {}, 
+        usuario = 'Sistema',
+        headers,
+        rows,
+        totals,
+        metadata,
+        qrCode,
+        qrText = 'Escanea este código',
+        footer
+      } = options;
       
       // Crear documento PDF
       const doc = new PDFDocument({ 
@@ -104,8 +124,124 @@ export async function generatePDF(options) {
          .lineWidth(2)
          .stroke();
 
-      // ============ TABLA DE DATOS ============
-      if (data && data.rows && data.rows.length > 0) {
+      // ============ METADATOS (para facturas) ============
+      if (metadata) {
+        let metaY = 190;
+        const metaEntries = Object.entries(metadata);
+        
+        metaEntries.forEach(([key, value]) => {
+          doc.fontSize(9)
+             .fillColor('#6B7280')
+             .font('Helvetica')
+             .text(`${key}:`, 40, metaY, { width: 100 });
+          
+          doc.fontSize(9)
+             .fillColor('#1F2937')
+             .font('Helvetica-Bold')
+             .text(String(value), 145, metaY, { width: 420 });
+          
+          metaY += 20;
+        });
+
+        // Ajustar posición para la tabla
+        doc.moveDown();
+      }
+
+      // ============ TABLA DE DATOS (FORMATO SIMPLIFICADO PARA FACTURAS) ============
+      if (headers && rows && rows.length > 0) {
+        const tableWidth = 532;
+        const tableX = 40;
+        let tableY = metadata ? doc.y + 20 : 190;
+        const rowHeight = 25;
+        const columnWidth = tableWidth / headers.length;
+
+        // Dibujar encabezados
+        doc.rect(tableX, tableY, tableWidth, rowHeight)
+           .fillColor('#25D366')
+           .fill();
+
+        doc.font('Helvetica-Bold')
+           .fontSize(9)
+           .fillColor('#FFFFFF');
+
+        headers.forEach((header, i) => {
+          const x = tableX + (i * columnWidth);
+          doc.text(header, x + 5, tableY + 8, {
+            width: columnWidth - 10,
+            align: i === 0 ? 'left' : 'center'
+          });
+        });
+
+        tableY += rowHeight;
+
+        // Dibujar filas de datos
+        rows.forEach((row, rowIndex) => {
+          // Fondo alternado
+          if (rowIndex % 2 === 0) {
+            doc.rect(tableX, tableY, tableWidth, rowHeight)
+               .fillColor('#F9FAFB')
+               .fill();
+          }
+
+          doc.font('Helvetica')
+             .fontSize(8)
+             .fillColor('#1F2937');
+
+          row.forEach((cell, i) => {
+            const x = tableX + (i * columnWidth);
+            doc.text(String(cell), x + 5, tableY + 8, {
+              width: columnWidth - 10,
+              align: i === 0 ? 'left' : 'center'
+            });
+          });
+
+          tableY += rowHeight;
+        });
+
+        // Totales
+        if (totals && totals.length > 0) {
+          tableY += 10;
+          
+          totals.forEach(total => {
+            doc.rect(tableX, tableY, tableWidth, rowHeight)
+               .fillColor('#ECFDF5')
+               .fill();
+            
+            doc.fontSize(11)
+               .fillColor('#059669')
+               .font('Helvetica-Bold')
+               .text(total.label, tableX + 10, tableY + 8, { width: 400 })
+               .text(total.value, tableX + 410, tableY + 8, { width: 112, align: 'right' });
+            
+            tableY += rowHeight;
+          });
+        }
+
+        // QR Code
+        if (qrCode) {
+          tableY += 20;
+          doc.image(qrCode, tableX + tableWidth - 130, tableY, { width: 120, height: 120 });
+          
+          doc.fontSize(8)
+             .fillColor('#6B7280')
+             .font('Helvetica')
+             .text(qrText, tableX + tableWidth - 130, tableY + 125, { 
+               width: 120, 
+               align: 'center' 
+             });
+        }
+
+        // Footer
+        if (footer) {
+          const footerY = 720;
+          doc.fontSize(10)
+             .fillColor('#6B7280')
+             .font('Helvetica-Oblique')
+             .text(footer, 40, footerY, { width: 532, align: 'center' });
+        }
+      }
+      // ============ TABLA DE DATOS (FORMATO ORIGINAL PARA REPORTES) ============
+      else if (data && data.rows && data.rows.length > 0) {
         const columns = data.columns || Object.keys(data.rows[0]);
         const tableWidth = 532;
         const tableX = 40;
