@@ -10,9 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/client', buyRoutes);
+// Rutas de cliente y admin
+app.use('/', buyRoutes);
 app.use('/client', inscripcionRoutes);
+
 app.get('/', (req, res) => {
     res.send('Buy Service is running');
 });
+
 export default app;

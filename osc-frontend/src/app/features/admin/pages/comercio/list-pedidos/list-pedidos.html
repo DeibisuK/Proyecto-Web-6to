@@ -77,7 +77,7 @@
           <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
         </svg>
         Ventas
-        <span class="tab-badge green">{{ sales.length }}</span>
+        <span class="tab-badge green">{{ completedOrders }}</span>
       </button>
     </div>
 
@@ -96,20 +96,12 @@
 
       <div class="filter-group">
         <select class="filter-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
-          <option value="">Todos</option>
-          <option value="pending">Pendientes</option>
-          <option value="processing">En proceso</option>
-          <option value="shipped">Enviado</option>
-          <option value="delivered">Entregado</option>
-          <option value="cancelled">Cancelado</option>
-        </select>
-
-        <select class="filter-select" [(ngModel)]="sportFilter" (change)="applyFilters()">
-          <option value="">Todos los deportes</option>
-          <option value="futbol">Fútbol</option>
-          <option value="basket">Basketball</option>
-          <option value="padel">Pádel</option>
-          <option value="tenis">Tenis</option>
+          <option value="">Todos los estados</option>
+          <option value="Pendiente">Pendientes</option>
+          <option value="Procesando">En proceso</option>
+          <option value="Enviado">Enviado</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Cancelado">Cancelado</option>
         </select>
 
         <select class="filter-select" [(ngModel)]="dateFilter" (change)="applyFilters()">
@@ -147,8 +139,7 @@
               </th>
               <th>ID Pedido</th>
               <th>Cliente</th>
-              <th>Tipo</th>
-              <th>Deporte</th>
+              <th>Items</th>
               <th>Fecha</th>
               <th>Total</th>
               <th>Estado</th>
@@ -156,42 +147,39 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let order of filteredOrders" class="table-row">
+            <tr *ngFor="let order of paginatedOrders" class="table-row">
               <td class="checkbox-col">
                 <input type="checkbox" [(ngModel)]="order.selected">
               </td>
               <td>
-                <span class="order-id">#{{ order.id }}</span>
+                <span class="order-id">#{{ order.id_pedido }}</span>
               </td>
               <td>
                 <div class="customer-cell">
-                  <div class="customer-avatar">{{ order.customerInitials }}</div>
+                  <div class="customer-avatar">{{ getCustomerInitials(order.nombre_usuario) }}</div>
                   <div class="customer-info">
-                    <span class="customer-name">{{ order.customerName }}</span>
-                    <span class="customer-email">{{ order.customerEmail }}</span>
+                    <span class="customer-name">{{ order.nombre_usuario || 'Usuario' }}</span>
+                    <span class="customer-email">{{ order.email_usuario || 'N/A' }}</span>
                   </div>
                 </div>
               </td>
               <td>
-                <span class="type-badge" [ngClass]="order.type">
-                  {{ order.type === 'reservation' ? 'Reserva' : 'Producto' }}
+                <span class="type-badge product">
+                  {{ order.total_items }} producto(s)
                 </span>
               </td>
               <td>
-                <span class="sport-tag">{{ order.sport }}</span>
-              </td>
-              <td>
                 <div class="date-cell">
-                  <span class="date">{{ order.date | date:'dd MMM yyyy' }}</span>
-                  <span class="time">{{ order.time }}</span>
+                  <span class="date">{{ order.fecha_pedido | date:'dd MMM yyyy' }}</span>
+                  <span class="time">{{ order.fecha_pedido | date:'HH:mm' }}</span>
                 </div>
               </td>
               <td>
                 <span class="amount">${{ order.total | number:'1.2-2' }}</span>
               </td>
               <td>
-                <span class="status-badge" [ngClass]="order.status">
-                  {{ getStatusLabel(order.status) }}
+                <span class="status-badge" [ngClass]="getStatusClass(order.estado_pedido)">
+                  {{ getStatusLabel(order.estado_pedido) }}
                 </span>
               </td>
               <td>
@@ -202,13 +190,8 @@
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
                   </button>
-                  <button class="action-btn edit" title="Editar" (click)="editOrder(order)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                  </button>
-                  <button class="action-btn delete" title="Cancelar" (click)="cancelOrder(order)">
+                  <button class="action-btn delete" title="Cancelar" (click)="cancelOrder(order)"
+                          [disabled]="order.estado_pedido === 'Cancelado'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                     </svg>
@@ -223,7 +206,7 @@
       <!-- Pagination -->
       <div class="pagination">
         <div class="pagination-info">
-          Mostrando {{ startIndex + 1 }} - {{ endIndex }} de {{ totalOrders }} pedidos
+          Mostrando {{ startIndex }} - {{ endIndex }} de {{ filteredOrders.length }} pedidos
         </div>
         <div class="pagination-controls">
           <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">
@@ -254,20 +237,20 @@
           <h4>Resumen de Ventas</h4>
           <div class="summary-grid">
             <div class="summary-item">
-              <span class="summary-label">Total Bruto</span>
-              <span class="summary-value">${{ grossTotal | number:'1.2-2' }}</span>
+              <span class="summary-label">Total Pedidos</span>
+              <span class="summary-value">{{ totalOrders }}</span>
             </div>
             <div class="summary-item">
-              <span class="summary-label">Descuentos</span>
-              <span class="summary-value negative">-${{ discounts | number:'1.2-2' }}</span>
+              <span class="summary-label">Pedidos Hoy</span>
+              <span class="summary-value">{{ todayOrders }}</span>
             </div>
             <div class="summary-item">
-              <span class="summary-label">Impuestos</span>
-              <span class="summary-value">${{ taxes | number:'1.2-2' }}</span>
+              <span class="summary-label">Ventas Hoy</span>
+              <span class="summary-value">${{ todaySales | number:'1.2-2' }}</span>
             </div>
             <div class="summary-item highlight">
-              <span class="summary-label">Total Neto</span>
-              <span class="summary-value">${{ netTotal | number:'1.2-2' }}</span>
+              <span class="summary-label">Ventas del Mes</span>
+              <span class="summary-value">${{ monthlySales | number:'1.2-2' }}</span>
             </div>
           </div>
         </div>
@@ -277,49 +260,52 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID Venta</th>
-              <th>Pedido Relacionado</th>
+              <th>ID Pedido</th>
+              <th>UUID Factura</th>
               <th>Cliente</th>
-              <th>Método de Pago</th>
+              <th>Items</th>
               <th>Fecha</th>
-              <th>Subtotal</th>
-              <th>Impuestos</th>
               <th>Total</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let sale of filteredSales" class="table-row">
-              <td><span class="order-id">#{{ sale.id }}</span></td>
-              <td><a class="link" (click)="viewOrder(sale.orderId)">#{{ sale.orderId }}</a></td>
+            <tr *ngFor="let order of paginatedOrders" class="table-row">
+              <td><span class="order-id">#{{ order.id_pedido }}</span></td>
+              <td><span class="order-id">{{ order.uuid_factura }}</span></td>
               <td>
                 <div class="customer-cell">
-                  <div class="customer-avatar">{{ sale.customerInitials }}</div>
-                  <span class="customer-name">{{ sale.customerName }}</span>
+                  <div class="customer-avatar">{{ getCustomerInitials(order.nombre_usuario) }}</div>
+                  <div class="customer-info">
+                    <span class="customer-name">{{ order.nombre_usuario || 'Usuario' }}</span>
+                    <span class="customer-email">{{ order.email_usuario || 'N/A' }}</span>
+                  </div>
                 </div>
               </td>
               <td>
-                <div class="payment-method">
-                  <span class="payment-icon" [ngClass]="sale.paymentMethod"></span>
-                  {{ getPaymentLabel(sale.paymentMethod) }}
+                <span class="type-badge product">
+                  {{ order.total_items }} producto(s)
+                </span>
+              </td>
+              <td>
+                <div class="date-cell">
+                  <span class="date">{{ order.fecha_pedido | date:'dd MMM yyyy' }}</span>
+                  <span class="time">{{ order.fecha_pedido | date:'HH:mm' }}</span>
                 </div>
               </td>
-              <td>{{ sale.date | date:'dd MMM yyyy, HH:mm' }}</td>
-              <td>${{ sale.subtotal | number:'1.2-2' }}</td>
-              <td>${{ sale.taxes | number:'1.2-2' }}</td>
-              <td><span class="amount">${{ sale.total | number:'1.2-2' }}</span></td>
+              <td><span class="amount">${{ order.total | number:'1.2-2' }}</span></td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(order.estado_pedido)">
+                  {{ getStatusLabel(order.estado_pedido) }}
+                </span>
+              </td>
               <td>
                 <div class="actions-cell">
-                  <button class="action-btn view" title="Ver factura" (click)="viewInvoice(sale)">
+                  <button class="action-btn view" title="Ver detalle" (click)="viewOrder(order)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-                    </svg>
-                  </button>
-                  <button class="action-btn print" title="Imprimir" (click)="printInvoice(sale)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                      <rect x="6" y="14" width="12" height="8"/>
                     </svg>
                   </button>
                 </div>
@@ -337,15 +323,68 @@
 <div class="modal-overlay" *ngIf="showOrderModal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Detalle del Pedido #{{ selectedOrder?.id }}</h2>
+      <h2>Detalle del Pedido #{{ selectedOrder?.id_pedido }}</h2>
       <button class="close-btn" (click)="closeModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
       </button>
     </div>
-    <div class="modal-body">
-      <!-- Modal content here -->
+    <div class="modal-body" *ngIf="selectedOrder">
+      <div class="order-info-grid">
+        <div class="info-section">
+          <h3>Información del Cliente</h3>
+          <p><strong>Nombre:</strong> {{ selectedOrder.nombre_usuario }}</p>
+          <p><strong>Email:</strong> {{ selectedOrder.email_usuario }}</p>
+          <p><strong>UUID Factura:</strong> {{ selectedOrder.uuid_factura }}</p>
+        </div>
+
+        <div class="info-section">
+          <h3>Información del Pedido</h3>
+          <p><strong>Fecha:</strong> {{ selectedOrder.fecha_pedido | date:'dd MMM yyyy, HH:mm' }}</p>
+          <p><strong>Estado:</strong>
+            <span class="status-badge" [ngClass]="getStatusClass(selectedOrder.estado_pedido)">
+              {{ getStatusLabel(selectedOrder.estado_pedido) }}
+            </span>
+          </p>
+          <p><strong>Total:</strong> ${{ selectedOrder.total | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <div class="items-section">
+        <h3>Productos</h3>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>SKU</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedOrder.items">
+              <td>
+                <div class="item-cell">
+                  <img *ngIf="item.imagen_producto" [src]="item.imagen_producto" alt="{{ item.nombre_producto }}" class="item-image">
+                  <span>{{ item.nombre_producto }}</span>
+                </div>
+              </td>
+              <td>{{ item.sku }}</td>
+              <td>{{ item.cantidad }}</td>
+              <td>${{ item.precio_unitario | number:'1.2-2' }}</td>
+              <td>${{ item.subtotal | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="text-right"><strong>Total:</strong></td>
+              <td><strong>${{ selectedOrder.total | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   </div>
 </div>

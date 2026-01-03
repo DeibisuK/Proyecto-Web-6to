@@ -1,6 +1,7 @@
 import * as pedidosService from '../services/pedidos.service.js';
 import * as carritoService from '../services/carrito.service.js';
 import * as itemsCarritoService from '../services/items_carrito.service.js';
+import * as pedidosModel from '../models/pedidos.model.js';
 
 export const createOrderFromCart = async (req, res) => {
     try {
@@ -57,6 +58,28 @@ export const updateOrderStatus = async (req, res) => {
         res.json(order);
     } catch (error) {
         console.error('❌ [UPDATE STATUS] Error:', error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ADMIN: Obtener todos los pedidos con detalles
+export const getAllPedidos = async (req, res) => {
+    try {
+        const pedidos = await pedidosModel.findAllWithDetails();
+        res.json(pedidos);
+    } catch (error) {
+        console.error('❌ [GET ALL PEDIDOS] Error:', error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ADMIN: Obtener estadísticas de ventas
+export const getVentasStats = async (req, res) => {
+    try {
+        const stats = await pedidosModel.getVentasStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('❌ [GET VENTAS STATS] Error:', error.message);
         res.status(500).json({ message: error.message });
     }
 };

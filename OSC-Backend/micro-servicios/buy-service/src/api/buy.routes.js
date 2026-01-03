@@ -10,7 +10,9 @@ import {
     createOrderFromCart,
     getOrders,
     getOrder,
-    updateOrderStatus
+    updateOrderStatus,
+    getAllPedidos,
+    getVentasStats
 } from '../controllers/pedidos.controller.js';
 
 const router = Router();
@@ -22,10 +24,14 @@ router.put('/cart/items/:id_item', updateItemInCart);
 router.delete('/cart/items/:id_item', removeItemFromCart);
 router.delete('/cart/:uid', clearCart);
 
-// Rutas de pedidos
+// Rutas de pedidos (cliente)
 router.post('/orders/user/:uid', createOrderFromCart);
 router.get('/orders/user/:uid', getOrders);
 router.get('/orders/:id_pedido', getOrder);
 router.put('/orders/:id_pedido/status', updateOrderStatus);
+
+// Rutas de pedidos (admin)
+router.get('/admin/pedidos', getAllPedidos);
+router.get('/admin/ventas/stats', getVentasStats);
 
 export default router;
