@@ -105,3 +105,20 @@ export const getHorariosDisponibles = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getHorariosConReservas = async (req, res) => {
+  try {
+    const idCancha = req.params.id;
+    const fecha = req.query.fecha; // Formato: YYYY-MM-DD
+    
+    if (!fecha) {
+      return res.status(400).json({ message: 'La fecha es requerida' });
+    }
+    
+    const horarios = await service.getHorariosConReservas(idCancha, fecha);
+    res.status(200).json(horarios);
+  } catch (error) {
+    console.error('❌ Error al obtener horarios con reservas:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

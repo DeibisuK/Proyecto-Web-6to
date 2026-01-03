@@ -173,6 +173,7 @@
                       [class.disabled]="h.reservado"
                       [class.selected]="h === horarioSeleccionado"
                       [disabled]="h.reservado"
+                      [style.pointer-events]="h.reservado ? 'none' : 'auto'"
                       (click)="seleccionarHorario(h)">
                 <span class="material-icons">{{ h.reservado ? 'block' : 'check_circle' }}</span>
                 {{ h.hora_inicio }} - {{ h.hora_fin }}

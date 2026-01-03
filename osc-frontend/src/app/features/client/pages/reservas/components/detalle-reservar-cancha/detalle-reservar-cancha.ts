@@ -164,7 +164,14 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
         // Si hay días disponibles, seleccionar el primero
         if (this.diasDisponibles.length > 0) {
-          this.seleccionarDia(this.diasDisponibles[0]);
+          // Calcular la fecha del primer día disponible
+          const primerDia = this.diasDisponibles[0];
+          this.diaSeleccionado = primerDia.valor;
+          this.diaTexto = primerDia.texto;
+          this.fechaSeleccionada = this.calcularProximaFechaPorDia(primerDia.valor);
+
+          // Cargar horarios con estado de reserva
+          this.cargarHorariosConReservas(idCancha, this.fechaSeleccionada);
         }
       },
       error: (err) => {
@@ -190,16 +197,42 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
     // Calcular la fecha automáticamente basada en el día seleccionado
     this.fechaSeleccionada = this.calcularProximaFechaPorDia(opcion.valor);
 
-    // Filtrar horarios del día seleccionado
-    this.horariosDelDia = this.todosLosHorarios
-      .filter(h => h.dia_semana === this.diaSeleccionado)
-      .map(h => ({
-        hora_inicio: h.hora_inicio.substring(0, 5),
-        hora_fin: h.hora_fin.substring(0, 5),
-        reservado: false // TODO: verificar con reservas existentes
-      }));
+    // Cargar horarios con estado de reserva para la fecha específica
+    if (this.cancha?.id_cancha) {
+      this.cargarHorariosConReservas(this.cancha.id_cancha, this.fechaSeleccionada);
+    }
 
     this.calcularTotal();
+  }
+
+  /** Cargar horarios con estado de reserva para una fecha específica */
+  cargarHorariosConReservas(idCancha: number, fecha: string): void {
+    console.log('🔍 Frontend: Solicitando horarios para', { idCancha, fecha });
+
+    this.canchaService.getHorariosConReservas(idCancha, fecha).subscribe({
+      next: (horarios) => {
+        console.log('📊 Frontend: Horarios recibidos:', horarios.length);
+        console.log('🔴 Frontend: Horarios reservados:', horarios.filter(h => h.reservado).length);
+        console.log('📋 Frontend: Detalle horarios:', horarios);
+
+        this.horariosDelDia = horarios.map(h => ({
+          hora_inicio: h.hora_inicio.substring(0, 5),
+          hora_fin: h.hora_fin.substring(0, 5),
+          reservado: h.reservado
+        }));
+      },
+      error: (err) => {
+        console.error('Error al cargar horarios con reservas:', err);
+        // Fallback: usar horarios sin verificar reservas
+        this.horariosDelDia = this.todosLosHorarios
+          .filter(h => h.dia_semana === this.diaSeleccionado)
+          .map(h => ({
+            hora_inicio: h.hora_inicio.substring(0, 5),
+            hora_fin: h.hora_fin.substring(0, 5),
+            reservado: false
+          }));
+      }
+    });
   }
 
   /** Calcula la próxima fecha que corresponde al día de la semana seleccionado */

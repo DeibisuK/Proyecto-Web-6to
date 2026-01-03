@@ -126,3 +126,7 @@ export const guardarHorariosDisponibles = async (idCancha, configuracion) => {
 export const getHorariosDisponibles = async (idCancha) => {
   return await model.getHorariosDisponibles(idCancha);
 };
+
+export const getHorariosConReservas = async (idCancha, fecha) => {
+  return await model.getHorariosConReservas(idCancha, fecha);
+};

@@ -26,6 +26,7 @@ const NO_CACHE_PATTERNS = [
   '/inscripciones',  // Inscripciones
   '/anuncios',       // Anuncios globales (deben ser frescos)
   '/notificaciones', // Notificaciones (deben ser frescas)
+  '/horarios-con-reservas', // Horarios con estado de reserva (depende de fecha)
 ];
 
 export const CacheInterceptors: HttpInterceptorFn = (req, next) => {

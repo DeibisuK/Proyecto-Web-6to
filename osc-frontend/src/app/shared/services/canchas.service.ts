@@ -67,4 +67,11 @@ export class CanchaService {
   getHorariosDisponibles(idCancha: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.canchasClientUrl}/${idCancha}/horarios-disponibles`);
   }
+
+  // Obtener horarios con estado de reserva para una fecha específica
+  getHorariosConReservas(idCancha: number, fecha: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.canchasClientUrl}/${idCancha}/horarios-con-reservas`, {
+      params: { fecha }
+    });
+  }
 }

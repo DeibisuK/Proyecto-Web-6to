@@ -200,3 +200,42 @@ export const getHorariosDisponibles = async (idCancha) => {
   );
   return result.rows;
 };
+
+export const getHorariosConReservas = async (idCancha, fecha) => {
+  console.log('🔍 Consultando horarios con reservas:', { idCancha, fecha });
+  
+  const result = await pool.query(
+    `SELECT 
+      hd.id_horario,
+      hd.id_cancha,
+      hd.dia_semana,
+      horario->>'hora_inicio' as hora_inicio,
+      CASE 
+        WHEN horario->>'hora_fin' = '24:00' THEN '00:00'
+        ELSE horario->>'hora_fin'
+      END as hora_fin,
+      hd.activo,
+      CASE 
+        WHEN r.id_reserva IS NOT NULL THEN true
+        ELSE false
+      END as reservado,
+      r.id_reserva as debug_id_reserva
+    FROM horarios_disponibles hd
+    CROSS JOIN jsonb_array_elements(hd.horarios) as horario
+    LEFT JOIN reservas r ON 
+      r.id_cancha = hd.id_cancha 
+      AND r.fecha_reserva = $2::date
+      AND TO_CHAR(r.hora_inicio, 'HH24:MI') = horario->>'hora_inicio'
+      AND r.estado_pago IN ('pendiente', 'pagado', 'completado')
+    WHERE hd.id_cancha = $1 
+      AND hd.activo = true
+      AND EXTRACT(DOW FROM $2::date) = hd.dia_semana
+    ORDER BY hora_inicio`,
+    [idCancha, fecha]
+  );
+  
+  console.log('📊 Horarios encontrados:', result.rows.length);
+  console.log('🔴 Horarios reservados:', result.rows.filter(h => h.reservado).length);
+  
+  return result.rows;
+};

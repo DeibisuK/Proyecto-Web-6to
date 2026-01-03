@@ -75,64 +75,16 @@
                 <strong>${{ total().toFixed(2) }}</strong>
               </div>
 
-              <!-- Cashback Aplicado -->
-              @if (usarCashback() && cashbackAplicado() > 0) {
-                <div class="price-row discount-row">
-                  <span class="discount-label">
-                    <span class="material-icons">local_offer</span>
-                    Cashback aplicado:
-                  </span>
-                  <span class="discount-value">-${{ cashbackAplicado().toFixed(2) }}</span>
-                </div>
-              }
-
               <div class="price-row total-row">
                 <strong>Total a Pagar:</strong>
                 <strong class="total-amount">${{ totalFinal.toFixed(2) }}</strong>
-              </div>
-
-              <!-- Cashback a Recibir -->
-              <div class="cashback-earn-info">
-                <div class="earn-badge">
-                  <span class="material-icons">card_giftcard</span>
-                  <div class="earn-text">
-                    <strong>¡Gana cashback con esta compra!</strong>
-                    <p>Recibirás <strong>${{ cashbackARecibir.toFixed(2) }}</strong> (5% del total)</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Columna Derecha: Método de Pago y Cashback -->
+        <!-- Columna Derecha: Método de Pago -->
         <div class="payment-section">
-          <!-- Cashback Disponible -->
-          @if (cashbackDisponible() > 0) {
-            <div class="section-card cashback-card">
-              <div class="cashback-header">
-                <span class="material-icons">account_balance_wallet</span>
-                <h3>Cashback Disponible</h3>
-              </div>
-              <div class="cashback-amount">
-                ${{ cashbackDisponible().toFixed(2) }}
-              </div>
-              <p class="cashback-description">Usa tu cashback para reducir el total de tu compra</p>
-
-              <div class="cashback-toggle">
-                <label class="toggle-label">
-                  <input
-                    type="checkbox"
-                    [checked]="usarCashback()"
-                    (change)="toggleUsarCashback()"
-                  />
-                  <span class="toggle-slider"></span>
-                  <span class="toggle-text">Usar cashback en esta compra</span>
-                </label>
-              </div>
-            </div>
-          }
-
           <div class="section-card">
             <h2 class="section-title">
               <span class="material-icons">credit_card</span>

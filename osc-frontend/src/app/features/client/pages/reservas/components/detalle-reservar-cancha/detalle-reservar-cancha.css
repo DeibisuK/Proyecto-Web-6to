@@ -615,15 +615,15 @@
 }
 
 .horario-btn.disabled {
-    background: #FCE4EC;
-    border-color: #E74C3C;
-    color: #C0392B;
+    background: #E74C3C;
+    border-color: #C0392B;
+    color: #FFFFFF;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.9;
 }
 
 .horario-btn.disabled .material-icons {
-    color: #E74C3C;
+    color: #FFFFFF;
 }
 
 .horario-leyenda {
@@ -651,7 +651,7 @@
 }
 
 .dot.disponible {
-    background: #2ECC71;
+    background: #E0E0E0;
 }
 
 .dot.reservado {
