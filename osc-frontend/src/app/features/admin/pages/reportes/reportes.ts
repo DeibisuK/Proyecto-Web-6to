@@ -134,9 +134,9 @@ export class Reportes implements OnInit {
       iconName: 'location_on',
       options: [
         { id: 'listar-sedes', label: 'Listar Sedes' },
-        { id: 'mas-utilizadas', label: 'Sedes Más Utilizadas' },
-        { id: 'sedes-ciudad', label: 'Sedes por Ciudad' },
-        { id: 'ingresos-sede', label: 'Ingresos por Sede' }
+        { id: 'sedes-mas-utilizadas', label: 'Sedes Más Utilizadas' },
+        { id: 'sedes-por-ciudad', label: 'Sedes por Ciudad' },
+        { id: 'ingresos-por-sede', label: 'Ingresos por Sede' }
       ]
     },
     {
@@ -159,9 +159,7 @@ export class Reportes implements OnInit {
         { id: 'listar-usuarios', label: 'Listar Usuarios' },
         { id: 'nuevos-usuarios', label: 'Nuevos Usuarios' },
         { id: 'usuarios-frecuentes', label: 'Usuarios Frecuentes' },
-        { id: 'tasa-retencion', label: 'Tasa de Retención' },
         { id: 'usuarios-deporte', label: 'Usuarios por Deporte' },
-        { id: 'usuarios-inactivos', label: 'Usuarios Inactivos' }
       ]
     }
   ];
