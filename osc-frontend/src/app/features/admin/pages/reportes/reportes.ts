@@ -159,7 +159,7 @@ export class Reportes implements OnInit {
         { id: 'listar-usuarios', label: 'Listar Usuarios' },
         { id: 'nuevos-usuarios', label: 'Nuevos Usuarios' },
         { id: 'usuarios-frecuentes', label: 'Usuarios Frecuentes' },
-        { id: 'usuarios-deporte', label: 'Usuarios por Deporte' },
+        { id: 'usuarios-por-deporte', label: 'Usuarios por Deporte' },
       ]
     }
   ];
