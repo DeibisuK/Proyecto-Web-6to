@@ -147,8 +147,7 @@ export class Reportes implements OnInit {
         { id: 'listar-torneos', label: 'Listar Torneos' },
         { id: 'torneos-activos', label: 'Torneos Activos' },
         { id: 'torneos-deporte', label: 'Torneos por Deporte' },
-        { id: 'equipos-torneo', label: 'Equipos por Torneo' },
-        { id: 'estadisticas', label: 'Estadísticas de Torneos' }
+        { id: 'equipos-torneo', label: 'Equipos por Torneo' }
       ]
     },
     {
