@@ -17,18 +17,18 @@ import {
 
 const router = Router();
 
-// Rutas del carrito
-router.get('/cart/:uid', getCart);
-router.post('/cart/:uid/items', addItemToCart);
-router.put('/cart/items/:id_item', updateItemInCart);
-router.delete('/cart/items/:id_item', removeItemFromCart);
-router.delete('/cart/:uid', clearCart);
+// Rutas del carrito (cliente)
+router.get('/client/cart/:uid', getCart);
+router.post('/client/cart/:uid/items', addItemToCart);
+router.put('/client/cart/items/:id_item', updateItemInCart);
+router.delete('/client/cart/items/:id_item', removeItemFromCart);
+router.delete('/client/cart/:uid', clearCart);
 
 // Rutas de pedidos (cliente)
-router.post('/orders/user/:uid', createOrderFromCart);
-router.get('/orders/user/:uid', getOrders);
-router.get('/orders/:id_pedido', getOrder);
-router.put('/orders/:id_pedido/status', updateOrderStatus);
+router.post('/client/orders/user/:uid', createOrderFromCart);
+router.get('/client/orders/user/:uid', getOrders);
+router.get('/client/orders/:id_pedido', getOrder);
+router.put('/client/orders/:id_pedido/status', updateOrderStatus);
 
 // Rutas de pedidos (admin)
 router.get('/admin/pedidos', getAllPedidos);

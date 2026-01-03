@@ -2,6 +2,9 @@ import * as pedidosService from '../services/pedidos.service.js';
 import * as carritoService from '../services/carrito.service.js';
 import * as itemsCarritoService from '../services/items_carrito.service.js';
 import * as pedidosModel from '../models/pedidos.model.js';
+import axios from 'axios';
+
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3008';
 
 export const createOrderFromCart = async (req, res) => {
     try {
@@ -10,6 +13,19 @@ export const createOrderFromCart = async (req, res) => {
         
         // Usar el nuevo método que valida stock y limpia el carrito
         const pedido = await pedidosService.createOrderFromCart(id_usuario, cart.id_carrito);
+
+        // Enviar notificación de compra
+        try {
+            await axios.post(`${NOTIFICATION_SERVICE_URL}/api/notificaciones/compra`, {
+                uid_usuario: id_usuario,
+                pedidoId: pedido.id_pedido,
+                total: pedido.total
+            });
+            console.log('✅ Notificación de compra enviada');
+        } catch (notifError) {
+            console.error('⚠️ Error al enviar notificación:', notifError.message);
+            // No fallar la orden si falla la notificación
+        }
 
         res.status(201).json({
             message: 'Pedido creado exitosamente',

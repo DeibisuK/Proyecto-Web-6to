@@ -30,11 +30,7 @@
         [class.activo]="deporteActivo() === deporte.id_deporte"
         (click)="seleccionarDeporte(deporte.id_deporte)"
       >
-        <picture>
-          <source [srcset]="toAVIF(deporte.url_imagen)" type="image/avif">
-          <source [srcset]="toWebP(deporte.url_imagen)" type="image/webp">
-          <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" loading="lazy" />
-        </picture>
+        <img [src]="deporte.url_imagen" [alt]="deporte.nombre_deporte" loading="lazy" />
         <span class="deporte-nombre">{{ deporte.nombre_deporte }}</span>
       </div>
       }

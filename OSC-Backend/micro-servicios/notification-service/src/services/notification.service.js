@@ -201,4 +201,46 @@ export class NotificationService {
       return { success: false, error: error.message };
     }
   }
+
+  // ============================================
+  // NOTIFICACIONES DE EVENTOS (Compras/Reservas)
+  // ============================================
+
+  // Crear notificación de nueva compra
+  async notifyNewPurchase(uid_usuario, pedidoId, total) {
+    try {
+      const notification = {
+        uid_usuario,
+        tipo: 'pedido',
+        asunto: '¡Pedido Confirmado!',
+        descripcion: `Tu pedido #${pedidoId} por $${total.toFixed(2)} ha sido confirmado. Te notificaremos cuando esté en camino.`,
+        url: `/mis-pedidos`,
+        prioridad: 'alta'
+      };
+      
+      return await this.createNotification(notification);
+    } catch (error) {
+      console.error('❌ Error al notificar compra:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Crear notificación de nueva reserva
+  async notifyNewReservation(uid_usuario, reservaId, cancha, fecha) {
+    try {
+      const notification = {
+        uid_usuario,
+        tipo: 'reserva',
+        asunto: '¡Reserva Confirmada!',
+        descripcion: `Tu reserva #${reservaId} en ${cancha} para el ${fecha} ha sido confirmada. ¡Nos vemos pronto!`,
+        url: `/mis-reservas`,
+        prioridad: 'alta'
+      };
+      
+      return await this.createNotification(notification);
+    } catch (error) {
+      console.error('❌ Error al notificar reserva:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }

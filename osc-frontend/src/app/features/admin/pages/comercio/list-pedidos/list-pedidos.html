@@ -12,7 +12,6 @@
       <div class="stat-content">
         <span class="stat-label">Pedidos Hoy</span>
         <span class="stat-value">{{ todayOrders }}</span>
-        <span class="stat-change positive">+18% vs ayer</span>
       </div>
     </div>
 
@@ -25,7 +24,6 @@
       <div class="stat-content">
         <span class="stat-label">Ventas del Mes</span>
         <span class="stat-value">${{ monthlySales | number }}</span>
-        <span class="stat-change positive">+24% vs anterior</span>
       </div>
     </div>
 
@@ -38,7 +36,6 @@
       <div class="stat-content">
         <span class="stat-label">Pendientes</span>
         <span class="stat-value">{{ pendingOrders }}</span>
-        <span class="stat-change neutral">Requieren atención</span>
       </div>
     </div>
 
@@ -51,7 +48,6 @@
       <div class="stat-content">
         <span class="stat-label">Completados</span>
         <span class="stat-value">{{ completedOrders }}</span>
-        <span class="stat-change positive">98% tasa éxito</span>
       </div>
     </div>
   </div>
@@ -110,21 +106,6 @@
           <option value="month">Este mes</option>
           <option value="custom">Personalizado</option>
         </select>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-outline" (click)="exportData()">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-          </svg>
-          Exportar
-        </button>
-        <button class="btn btn-primary" (click)="openNewOrderModal()">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          Nuevo Pedido
-        </button>
       </div>
     </div>
 

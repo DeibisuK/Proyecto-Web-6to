@@ -341,4 +341,56 @@ export default class NotificationController {
       res.status(500).json({ success: false, error: error.message });
     }
   }
+
+  // POST /api/notificaciones/compra - Notificar nueva compra
+  async notifyPurchase(req, res) {
+    try {
+      const { uid_usuario, pedidoId, total } = req.body;
+      
+      if (!uid_usuario || !pedidoId || total === undefined) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'uid_usuario, pedidoId y total son requeridos' 
+        });
+      }
+      
+      const result = await service.notifyNewPurchase(uid_usuario, pedidoId, total);
+      
+      if (!result.success) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(201).json(result.data);
+      
+    } catch (error) {
+      console.error('❌ Error en notifyPurchase:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  // POST /api/notificaciones/reserva - Notificar nueva reserva
+  async notifyReservation(req, res) {
+    try {
+      const { uid_usuario, reservaId, cancha, fecha } = req.body;
+      
+      if (!uid_usuario || !reservaId || !cancha || !fecha) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'uid_usuario, reservaId, cancha y fecha son requeridos' 
+        });
+      }
+      
+      const result = await service.notifyNewReservation(uid_usuario, reservaId, cancha, fecha);
+      
+      if (!result.success) {
+        return res.status(500).json(result);
+      }
+      
+      res.status(201).json(result.data);
+      
+    } catch (error) {
+      console.error('❌ Error en notifyReservation:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
 }

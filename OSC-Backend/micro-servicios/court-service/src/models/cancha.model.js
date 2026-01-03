@@ -202,8 +202,6 @@ export const getHorariosDisponibles = async (idCancha) => {
 };
 
 export const getHorariosConReservas = async (idCancha, fecha) => {
-  console.log('🔍 Consultando horarios con reservas:', { idCancha, fecha });
-  
   const result = await pool.query(
     `SELECT 
       hd.id_horario,
@@ -233,9 +231,6 @@ export const getHorariosConReservas = async (idCancha, fecha) => {
     ORDER BY hora_inicio`,
     [idCancha, fecha]
   );
-  
-  console.log('📊 Horarios encontrados:', result.rows.length);
-  console.log('🔴 Horarios reservados:', result.rows.filter(h => h.reservado).length);
   
   return result.rows;
 };

@@ -9,16 +9,16 @@
       </h1>
       <p class="hero-description">
         Reserva canchas de fútbol, basketball, pádel y tenis en las mejores instalaciones.
-        Compra equipamiento deportivo y vive la mejor experiencia.
+        Descubre nuestra tienda con equipamiento deportivo de calidad y vive la mejor experiencia.
       </p>
       <div class="hero-buttons">
         <button routerLink="/reservar-cancha" class="btn btn-primary">
           <span class="material-icons">event_available</span>
           Reservar Ahora
         </button>
-        <button class="btn btn-outline">
-          <span class="material-icons">visibility</span>
-          Ver Canchas
+        <button routerLink="/tienda" class="btn btn-outline">
+          <span class="material-icons">shopping_bag</span>
+          Ver Tienda
         </button>
       </div>
       <div class="hero-stats">
@@ -31,7 +31,7 @@
           <span class="stat-label">Usuarios activos</span>
         </div>
         <div class="stat-item">
-          <span class="stat-value">4.5</span>
+          <span class="stat-value">4.3</span>
           <span class="stat-label">Valoración</span>
         </div>
       </div>
@@ -39,8 +39,8 @@
 
     <!-- Galería hover a la derecha -->
     <div class="hero-gallery">
+      @for (image of images; track image.src; let i = $index) {
       <div
-        *ngFor="let image of images; let i = index"
         class="gallery-pillar"
         [class.active]="hoveredIndex === i"
         (mouseenter)="hoveredIndex = i"
@@ -61,6 +61,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
 </section>

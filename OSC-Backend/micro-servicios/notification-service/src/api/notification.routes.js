@@ -48,4 +48,10 @@ router.delete('/:id', (req, res) => controller.deleteNotification(req, res));
 // DELETE /api/notificaciones/leidas - Eliminar todas las leídas
 router.delete('/leidas', (req, res) => controller.deleteAllRead(req, res));
 
+// POST /api/notificaciones/compra - Notificar nueva compra
+router.post('/compra', (req, res) => controller.notifyPurchase(req, res));
+
+// POST /api/notificaciones/reserva - Notificar nueva reserva
+router.post('/reserva', (req, res) => controller.notifyReservation(req, res));
+
 export default router;
