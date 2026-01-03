@@ -75,3 +75,33 @@ export const deleteCancha = async (req, res) => {
   }
 };
 
+export const guardarHorariosDisponibles = async (req, res) => {
+  try {
+    const idCancha = req.params.id;
+    const configuracion = req.body;
+    
+    console.log('📥 Recibiendo configuración de horarios para cancha:', idCancha);
+    console.log('📋 Configuración:', configuracion);
+    
+    const resultado = await service.guardarHorariosDisponibles(idCancha, configuracion);
+    
+    res.status(200).json({ 
+      message: 'Horarios disponibles guardados correctamente',
+      data: resultado 
+    });
+  } catch (error) {
+    console.error('❌ Error al guardar horarios disponibles:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getHorariosDisponibles = async (req, res) => {
+  try {
+    const idCancha = req.params.id;
+    const horarios = await service.getHorariosDisponibles(idCancha);
+    res.status(200).json(horarios);
+  } catch (error) {
+    console.error('❌ Error al obtener horarios disponibles:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

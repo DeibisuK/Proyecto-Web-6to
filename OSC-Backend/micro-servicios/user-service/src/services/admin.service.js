@@ -203,3 +203,16 @@ export const getUsersByRole = async (idRol) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene estadísticas generales para el dashboard del admin
+ * @returns {Promise<Object>} Estadísticas del sistema
+ */
+export const getEstadisticasDashboard = async () => {
+  try {
+    const estadisticas = await adminModel.getEstadisticasDashboard();
+    return estadisticas;
+  } catch (error) {
+    throw error;
+  }
+};

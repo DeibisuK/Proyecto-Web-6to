@@ -118,41 +118,39 @@
           <span class="material-icons">event</span>
           <h2>Reserva tu Horario</h2>
         </div>
+
+        <!-- Mostrar fecha calculada automáticamente -->
+        @if (fechaSeleccionada) {
+          <div class="fecha-calculada-banner">
+            <span class="material-icons">event</span>
+            <div class="fecha-info">
+              <span class="fecha-label">Fecha de reserva:</span>
+              <span class="fecha-valor">{{ obtenerTextoFecha() }}</span>
+            </div>
+          </div>
+        }
+
         <div class="filtros-reserva-grid">
           <div class="form-group">
-            <label for="fecha-reserva">
-              <span class="material-icons">calendar_today</span>
-              Selecciona la Fecha
+            <label for="dia-reserva">
+              <span class="material-icons">today</span>
+              Día de la Semana
             </label>
-            <input
-              id="fecha-reserva"
-              type="date"
-              [(ngModel)]="fechaSeleccionada"
-              [min]="minDate"
-              (change)="calcularTotal()"
-              class="input-styled"
-            />
-          </div>
-          <div class="form-group">
-            <label for="duracion-reserva">
-              <span class="material-icons">schedule</span>
-              Duración
-            </label>
-            <div class="filtro-duracion" [class.activo]="dropdownDuracionAbierto">
-              <button type="button" class="btn-dropdown-duracion" [class.activo]="dropdownDuracionAbierto" (click)="toggleDropdownDuracion()">
+            <div class="filtro-duracion" [class.activo]="dropdownDiasAbierto">
+              <button type="button" class="btn-dropdown-duracion" [class.activo]="dropdownDiasAbierto" (click)="toggleDropdownDias()">
                 <span class="dropdown-current">
-                  <i class="fas fa-clock"></i>
-                  <span>{{ duracionTexto }}</span>
+                  <i class="fas fa-calendar-day"></i>
+                  <span>{{ diaTexto }}</span>
                 </span>
                 <i class="fas fa-chevron-down"></i>
               </button>
-              @if (dropdownDuracionAbierto) {
+              @if (dropdownDiasAbierto) {
                 <div class="dropdown-menu-duracion">
-                  @for (opcion of opcionesDuracion; track opcion.valor) {
-                    <button type="button" class="dropdown-item-duracion" [class.seleccionado]="duracionSeleccionada === opcion.valor" (click)="seleccionarDuracion(opcion)">
-                      <i class="fas fa-clock"></i>
+                  @for (opcion of diasDisponibles; track opcion.valor) {
+                    <button type="button" class="dropdown-item-duracion" [class.seleccionado]="diaSeleccionado === opcion.valor" (click)="seleccionarDia(opcion)">
+                      <i class="fas fa-calendar-day"></i>
                       <span class="opcion-label">{{ opcion.texto }}</span>
-                      @if (duracionSeleccionada === opcion.valor) {
+                      @if (diaSeleccionado === opcion.valor) {
                         <i class="fas fa-check check-icon"></i>
                       }
                     </button>
@@ -168,17 +166,24 @@
             <span class="material-icons">access_time</span>
             Horarios Disponibles
           </h3>
-          <div class="horarios-grid">
-            <button *ngFor="let h of horariosDisponibles"
-                    class="horario-btn"
-                    [class.disabled]="h.reservado"
-                    [class.selected]="h === horarioSeleccionado"
-                    [disabled]="h.reservado"
-                    (click)="seleccionarHorario(h)">
-              <span class="material-icons">{{ h.reservado ? 'block' : 'check_circle' }}</span>
-              {{ h.hora }}
-            </button>
-          </div>
+          @if (diaSeleccionado !== null && horariosDelDia.length > 0) {
+            <div class="horarios-grid">
+              <button *ngFor="let h of horariosDelDia"
+                      class="horario-btn"
+                      [class.disabled]="h.reservado"
+                      [class.selected]="h === horarioSeleccionado"
+                      [disabled]="h.reservado"
+                      (click)="seleccionarHorario(h)">
+                <span class="material-icons">{{ h.reservado ? 'block' : 'check_circle' }}</span>
+                {{ h.hora_inicio }} - {{ h.hora_fin }}
+              </button>
+            </div>
+          } @else {
+            <div class="sin-horarios">
+              <span class="material-icons">event_busy</span>
+              <p>Selecciona un día para ver los horarios disponibles</p>
+            </div>
+          }
           <div class="horario-leyenda">
             <div class="leyenda-item">
               <div class="dot disponible"></div>
@@ -195,6 +200,68 @@
           </div>
         </div>
 
+        <!-- Selector de Tipo de Pago -->
+        <div class="tipo-pago-section">
+          <h3>
+            <span class="material-icons">payment</span>
+            Método de Pago
+          </h3>
+          <div class="tipo-pago-opciones">
+            <label class="tipo-pago-item" [class.seleccionado]="tipoPagoSeleccionado === 'efectivo'">
+              <input type="radio" name="tipoPago" value="efectivo" [(ngModel)]="tipoPagoSeleccionado" (change)="cambiarTipoPago('efectivo')">
+              <div class="tipo-pago-contenido">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Pago en Efectivo</span>
+                <small>Paga directamente en la sede</small>
+              </div>
+            </label>
+            <label class="tipo-pago-item" [class.seleccionado]="tipoPagoSeleccionado === 'virtual'">
+              <input type="radio" name="tipoPago" value="virtual" [(ngModel)]="tipoPagoSeleccionado" (change)="cambiarTipoPago('virtual')">
+              <div class="tipo-pago-contenido">
+                <i class="fas fa-credit-card"></i>
+                <span>Pago Virtual</span>
+                <small>Paga con tarjeta ahora</small>
+              </div>
+            </label>
+          </div>
+
+          <!-- Selector de Método de Pago (solo si es virtual) -->
+          @if (tipoPagoSeleccionado === 'virtual') {
+            <div class="metodos-pago-selector">
+              @if (cargandoMetodosPago) {
+                <div class="cargando-metodos">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <span>Cargando métodos de pago...</span>
+                </div>
+              } @else if (metodosPago.length === 0) {
+                <div class="sin-metodos">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <p>No tienes métodos de pago registrados</p>
+                  <a [routerLink]="['/client/profile/metodos-pago']" class="btn-agregar-metodo">
+                    <i class="fas fa-plus"></i>
+                    Agregar Método de Pago
+                  </a>
+                </div>
+              } @else {
+                <div class="form-group">
+                  <label for="metodo-pago">
+                    <span class="material-icons">credit_card</span>
+                    Selecciona tu tarjeta
+                  </label>
+                  <select id="metodo-pago" class="select-metodo-pago" [(ngModel)]="metodoPagoSeleccionado">
+                    <option [value]="null">-- Selecciona una tarjeta --</option>
+                    @for (metodo of metodosPago; track metodo.id_metodo_pago) {
+                      <option [value]="metodo.id_metodo_pago">
+                        {{ metodo.banco }} - {{ metodo.tipo_tarjeta }} {{ metodo.numero_tarjeta }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         <div class="resumen-reserva">
           <div class="resumen-detalle">
             <div class="resumen-row">
@@ -203,7 +270,7 @@
             </div>
             <div class="resumen-row">
               <span class="resumen-label">Duración:</span>
-              <span class="resumen-value">{{ duracionSeleccionada }} {{ duracionSeleccionada === 1 ? 'hora' : 'horas' }}</span>
+              <span class="resumen-value">1 hora</span>
             </div>
             <div class="resumen-row total">
               <span class="resumen-label">Total a pagar:</span>
@@ -211,7 +278,7 @@
             </div>
           </div>
           <button class="btn-confirmar-reserva"
-                  [disabled]="!horarioSeleccionado || !fechaSeleccionada"
+                  [disabled]="!horarioSeleccionado || !fechaSeleccionada || diaSeleccionado === null || (tipoPagoSeleccionado === 'virtual' && !metodoPagoSeleccionado)"
                   (click)="confirmarReserva()">
             <span class="material-icons">event_available</span>
             Confirmar Reserva

@@ -2,85 +2,115 @@
 
   <!-- Stats Grid -->
   <div class="stats-grid">
-    @for (stat of stats; track stat.label) {
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">{{ stat.label }}</span>
-          <div class="stat-icon" [ngClass]="stat.colorClass">
-            @switch (stat.iconType) {
-              @case ('calendar') {
-                <span class="material-icons">calendar_today</span>
+    @if (cargando) {
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton skeleton-stat"></div>
+      }
+    } @else {
+      @for (stat of stats; track stat.label) {
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">{{ stat.label }}</span>
+            <div class="stat-icon" [ngClass]="stat.colorClass">
+              @switch (stat.iconType) {
+                @case ('calendar') {
+                  <span class="material-icons">calendar_today</span>
+                }
+                @case ('users') {
+                  <span class="material-icons">group</span>
+                }
+                @case ('trending') {
+                  <span class="material-icons">trending_up</span>
+                }
+                @case ('star') {
+                  <span class="material-icons">star</span>
+                }
               }
-              @case ('users') {
-                <span class="material-icons">group</span>
-              }
-              @case ('trending') {
-                <span class="material-icons">trending_up</span>
-              }
-              @case ('star') {
-                <span class="material-icons">star</span>
-              }
-            }
+            </div>
           </div>
+          <div class="stat-value">{{ stat.value }}</div>
         </div>
-        <div class="stat-value">{{ stat.value }}</div>
-        <span class="stat-change" [ngClass]="stat.isPositive ? 'positive' : 'negative'">
-          {{ stat.change }}
-        </span>
-      </div>
+      }
     }
   </div>
 
   <!-- Charts Section -->
   <div class="charts-section">
-    <div class="chart-card">
-      <div class="chart-header">
-        <h3 class="chart-title">Reservas por Mes</h3>
-        <span class="chart-badge">2024</span>
-      </div>
-      <div class="bar-chart">
-        @for (value of monthlyData; track $index) {
-          <div class="bar-item">
-            <div
-              class="bar"
-              [ngClass]="isCurrentMonth($index) ? 'active' : 'inactive'"
-              [style.height]="getBarHeight(value)"
-            ></div>
-            <span class="bar-label">{{ months[$index] }}</span>
-          </div>
-        }
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-header">
-        <h3 class="chart-title">Por Deporte</h3>
-      </div>
-      <div class="sport-list">
-        @for (sport of sportsData; track sport.name) {
-          <div class="sport-item">
-            <div class="sport-header">
-              <span class="sport-name">{{ sport.name }}</span>
-              <span class="sport-percent">{{ sport.percent }}%</span>
-            </div>
-            <div class="sport-bar-bg">
+    @if (cargando) {
+      <div class="skeleton skeleton-chart"></div>
+      <div class="skeleton skeleton-chart"></div>
+    } @else {
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Reservas por Mes</h3>
+          <span class="chart-badge">2025</span>
+        </div>
+        <div class="bar-chart">
+          @for (value of monthlyData; track $index) {
+            <div class="bar-item">
               <div
-                class="sport-bar-fill"
-                [style.width.%]="sport.percent"
-                [style.backgroundColor]="sport.color"
+                class="bar"
+                [ngClass]="isCurrentMonth($index) ? 'active' : 'inactive'"
+                [style.height]="getBarHeight(value)"
               ></div>
+              <span class="bar-label">{{ months[$index] }}</span>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
-    </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Por Deporte</h3>
+        </div>
+        <div class="sport-list">
+          @for (sport of sportsData; track sport.name) {
+            <div class="sport-item">
+              <div class="sport-header">
+                <span class="sport-name">{{ sport.name }}</span>
+                <span class="sport-percent">{{ sport.percent }}%</span>
+              </div>
+              <div class="sport-bar-bg">
+                <div
+                  class="sport-bar-fill"
+                  [style.width.%]="sport.percent"
+                  [style.backgroundColor]="sport.color"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Bottom Section -->
   <div class="bottom-section">
-    <div class="reservations-card">
-      <div class="reservations-header">
-        <h3 class="chart-title">Últimas Reservas</h3>
+    @if (cargando) {
+      <div class="reservations-card">
+        <div class="reservations-header">
+          <h3 class="chart-title">Últimas Reservas</h3>
+        </div>
+        <div class="reservations-list">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton skeleton-list-item"></div>
+          }
+        </div>
+      </div>
+      <div class="courts-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Canchas Populares</h3>
+        </div>
+        <div class="court-list">
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="skeleton skeleton-court-item"></div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="reservations-card">
+        <div class="reservations-header">
+          <h3 class="chart-title">Últimas Reservas</h3>
         <button class="view-all-btn">Ver todas →</button>
       </div>
       <div class="reservation-list">
@@ -109,7 +139,13 @@
         <h3 class="chart-title">Canchas Populares</h3>
       </div>
       <div class="court-list">
-        @for (court of courts; track court.name; let i = $index) {
+        @if (courts.length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">sports</span>
+            <p>No hay datos de canchas disponibles</p>
+          </div>
+        }
+        @for (court of courts; track court.name + court.rating; let i = $index) {
           <div class="court-item">
             <div class="court-rank">#{{ i + 1 }}</div>
             <div class="court-info">
@@ -127,5 +163,6 @@
         }
       </div>
     </div>
+    }
   </div>
 </div>

@@ -1,0 +1,293 @@
+<div class="crear-reserva-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" routerLink="/admin/reservas">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+      <h1>Nueva Reserva</h1>
+      <p class="subtitle">Crea una reserva de cancha para un usuario</p>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="reservaForm" (ngSubmit)="crearReserva()" class="reserva-form">
+    <div class="form-grid">
+
+      <!-- Sección: Selección de Cancha -->
+      <div class="form-section">
+        <h3>📍 Selección de Cancha</h3>
+
+        <div class="form-group">
+          <label for="cancha">Cancha *</label>
+          <select
+            id="cancha"
+            class="form-control"
+            formControlName="id_cancha"
+            [class.is-invalid]="reservaForm.get('id_cancha')?.invalid && reservaForm.get('id_cancha')?.touched"
+          >
+            <option value="">Selecciona una cancha</option>
+            @for (cancha of canchas(); track cancha.id_cancha) {
+              <option [value]="cancha.id_cancha">
+                {{ cancha.nombre_cancha }} ({{ formatearMoneda(cancha.tarifa) }}/hora)
+              </option>
+            }
+          </select>
+          @if (reservaForm.get('id_cancha')?.invalid && reservaForm.get('id_cancha')?.touched) {
+            <small class="error-text">Selecciona una cancha</small>
+          }
+        </div>
+
+        @if (canchaSeleccionada) {
+          <div class="cancha-info">
+            <div class="info-item">
+              <span class="label">Superficie:</span>
+              <span class="value">{{ canchaSeleccionada.tipo_superficie }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dimensiones:</span>
+              <span class="value">{{ canchaSeleccionada.largo }}m x {{ canchaSeleccionada.ancho }}m</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Tarifa:</span>
+              <span class="value">{{ formatearMoneda(canchaSeleccionada.tarifa) }}/hora</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Sección: Usuario -->
+      <div class="form-section">
+        <h3>👤 Usuario</h3>
+
+        <div class="form-group">
+          <label for="usuario">Usuario *</label>
+          <select
+            id="usuario"
+            class="form-control"
+            formControlName="id_usuario"
+            [class.is-invalid]="reservaForm.get('id_usuario')?.invalid && reservaForm.get('id_usuario')?.touched"
+          >
+            <option value="">Selecciona un usuario</option>
+            @for (usuario of usuarios(); track usuario.uid) {
+              <option [value]="usuario.uid">
+                {{ usuario.nombre }} - {{ usuario.email }}
+              </option>
+            }
+          </select>
+          @if (reservaForm.get('id_usuario')?.invalid && reservaForm.get('id_usuario')?.touched) {
+            <small class="error-text">Selecciona un usuario</small>
+          }
+        </div>
+      </div>
+
+      <!-- Sección: Fecha y Horario -->
+      <div class="form-section">
+        <h3>📅 Fecha y Horario</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fecha">Fecha de Reserva *</label>
+            <input
+              type="date"
+              id="fecha"
+              class="form-control"
+              formControlName="fecha_reserva"
+              [min]="fechaMinima"
+              [class.is-invalid]="reservaForm.get('fecha_reserva')?.invalid && reservaForm.get('fecha_reserva')?.touched"
+            />
+            @if (reservaForm.get('fecha_reserva')?.invalid && reservaForm.get('fecha_reserva')?.touched) {
+              <small class="error-text">Selecciona una fecha</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="hora">Hora de Inicio *</label>
+            <select
+              id="hora"
+              class="form-control"
+              formControlName="hora_inicio"
+              [class.is-invalid]="reservaForm.get('hora_inicio')?.invalid && reservaForm.get('hora_inicio')?.touched"
+            >
+              <option value="">Selecciona una hora</option>
+              @for (hora of horariosDisponibles(); track hora) {
+                <option [value]="hora">{{ hora }}</option>
+              }
+            </select>
+            @if (reservaForm.get('hora_inicio')?.invalid && reservaForm.get('hora_inicio')?.touched) {
+              <small class="error-text">Selecciona una hora</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="duracion">Duración *</label>
+            <select
+              id="duracion"
+              class="form-control"
+              formControlName="duracion_minutos"
+            >
+              @for (opcion of opcionesDuracion; track opcion.valor) {
+                <option [value]="opcion.valor">{{ opcion.texto }}</option>
+              }
+            </select>
+          </div>
+
+          @if (horaFin) {
+            <div class="form-group">
+              <label>Hora de Fin</label>
+              <input
+                type="text"
+                class="form-control"
+                [value]="horaFin"
+                readonly
+                style="background: #f5f5f5;"
+              />
+            </div>
+          }
+        </div>
+
+        <!-- Botón verificar disponibilidad -->
+        <button
+          type="button"
+          class="btn btn-secondary btn-block"
+          (click)="verificarDisponibilidad()"
+          [disabled]="verificandoDisponibilidad()"
+        >
+          @if (verificandoDisponibilidad()) {
+            <i class="fas fa-spinner fa-spin"></i> Verificando...
+          } @else {
+            <i class="fas fa-check-circle"></i> Verificar Disponibilidad
+          }
+        </button>
+      </div>
+
+      <!-- Sección: Método de Pago -->
+      <div class="form-section">
+        <h3>💳 Método de Pago</h3>
+
+        <div class="form-group">
+          <label>Tipo de Pago *</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" formControlName="tipo_pago" value="efectivo" />
+              <span class="radio-label">
+                <i class="fas fa-money-bill"></i> Efectivo
+              </span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="tipo_pago" value="transferencia" />
+              <span class="radio-label">
+                <i class="fas fa-exchange-alt"></i> Transferencia
+              </span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="tipo_pago" value="virtual" />
+              <span class="radio-label">
+                <i class="fas fa-credit-card"></i> Tarjeta
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Método de pago virtual -->
+        @if (reservaForm.get('tipo_pago')?.value === 'virtual') {
+          <div class="form-group">
+            <label for="metodo">Tarjeta *</label>
+            <select
+              id="metodo"
+              class="form-control"
+              formControlName="id_metodo_pago"
+              [class.is-invalid]="reservaForm.get('id_metodo_pago')?.invalid && reservaForm.get('id_metodo_pago')?.touched"
+            >
+              <option value="">Selecciona una tarjeta</option>
+              @for (metodo of metodosPago(); track metodo.id_metodo_pago) {
+                <option [value]="metodo.id_metodo_pago">
+                  {{ metodo.tipo_tarjeta }} {{ metodo.banco }} - {{ metodo.numero_tarjeta }}
+                </option>
+              }
+            </select>
+            @if (reservaForm.get('id_metodo_pago')?.invalid && reservaForm.get('id_metodo_pago')?.touched) {
+              <small class="error-text">Selecciona un método de pago</small>
+            }
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="estado">Estado de Pago *</label>
+          <select id="estado" class="form-control" formControlName="estado_pago">
+            <option value="pendiente">Pendiente</option>
+            <option value="pagado">Pagado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Sección: Notas Adicionales -->
+      <div class="form-section full-width">
+        <h3>📝 Notas Adicionales</h3>
+
+        <div class="form-group">
+          <label for="notas">Observaciones</label>
+          <textarea
+            id="notas"
+            class="form-control"
+            formControlName="notas"
+            rows="3"
+            placeholder="Escribe cualquier observación relevante..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen y Acciones -->
+    <div class="form-footer">
+      <div class="resumen-card">
+        <h3>Resumen de Reserva</h3>
+        <div class="resumen-content">
+          <div class="resumen-item">
+            <span class="label">Cancha:</span>
+            <span class="value">{{ canchaSeleccionada?.nombre_cancha || '-' }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Fecha:</span>
+            <span class="value">{{ reservaForm.get('fecha_reserva')?.value || '-' }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Horario:</span>
+            <span class="value">
+              {{ reservaForm.get('hora_inicio')?.value || '-' }}
+              @if (horaFin) { - {{ horaFin }} }
+            </span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Duración:</span>
+            <span class="value">{{ reservaForm.get('duracion_minutos')?.value / 60 }} hora(s)</span>
+          </div>
+          <div class="resumen-item total">
+            <span class="label">Total a Pagar:</span>
+            <span class="value">{{ formatearMoneda(montoTotal) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" class="btn btn-secondary" (click)="cancelar()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="reservaForm.invalid || cargando()"
+        >
+          @if (cargando()) {
+            <i class="fas fa-spinner fa-spin"></i> Creando...
+          } @else {
+            <i class="fas fa-check"></i> Crear Reserva
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+

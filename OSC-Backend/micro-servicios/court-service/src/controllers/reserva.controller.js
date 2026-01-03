@@ -9,6 +9,15 @@ export const getAllReservas = async (req, res) => {
     }
 };
 
+export const getAllReservasComplete = async (req, res) => {
+    try {
+        const reservas = await service.getAllComplete();
+        res.json(reservas);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const getReservaById = async (req, res) => {
     try {
         const reserva = await service.getById(req.params.id);
@@ -66,6 +75,21 @@ export const deleteReserva = async (req, res) => {
         } else {
             res.status(404).json({ message: 'Reserva not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const verificarDisponibilidad = async (req, res) => {
+    try {
+        const { id_cancha, fecha_reserva, hora_inicio, duracion_minutos } = req.query;
+        const disponible = await service.verificarDisponibilidad(
+            id_cancha,
+            fecha_reserva,
+            hora_inicio,
+            parseInt(duracion_minutos)
+        );
+        res.json({ disponible });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

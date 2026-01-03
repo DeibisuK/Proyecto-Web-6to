@@ -81,4 +81,26 @@ export class AdminController {
       });
     }
   }
+
+  /**
+   * GET /admin/estadisticas
+   * Obtiene estadísticas generales del dashboard
+   */
+  static async getEstadisticas(req, res) {
+    try {
+      const estadisticas = await adminService.getEstadisticasDashboard();
+      
+      res.status(200).json({
+        success: true,
+        data: estadisticas
+      });
+    } catch (error) {
+      console.error('Error en getEstadisticas:', error);
+      res.status(500).json({
+        success: false,
+        error: 'internal_error',
+        message: error.message || String(error)
+      });
+    }
+  }
 }

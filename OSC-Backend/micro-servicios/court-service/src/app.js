@@ -22,7 +22,7 @@ app.use(express.json());
 app.use("/client", sedeCliente);
 app.use("/client", canchaCliente);
 app.use("/client", authenticate(), torneoCliente);
-app.use("/client", authenticate(), authorizeRole(2), reservaCliente);
+app.use("/client", authenticate(), reservaCliente);
 
 // RATINGS ROUTES (públicas para lectura, autenticadas para escritura)
 app.use("/ratings", ratingRoutes);

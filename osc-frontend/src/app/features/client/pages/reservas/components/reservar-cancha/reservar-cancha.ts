@@ -68,17 +68,31 @@ export class ReservarCancha implements OnInit {
     this.isLoading.set(true);
     this.canchaService.getCanchas().subscribe({
       next: (data) => {
-        this.canchas.set(data);
-        console.log('Canchas cargadas:', this.canchas());
-        this.errorMessage = '';
-        this.isLoading.set(false);
+        // Filtrar solo canchas que tienen horarios disponibles
+        const canchasConHorarios: Cancha[] = [];
 
-        // Cargar ratings para cada cancha
-        data.forEach(cancha => {
+        data.forEach(async cancha => {
           if (cancha.id_cancha) {
-            this.cargarRatingsCancha(cancha.id_cancha);
+            // Verificar si tiene horarios disponibles
+            this.canchaService.getHorariosDisponibles(cancha.id_cancha).subscribe({
+              next: (horarios) => {
+                if (horarios && horarios.length > 0) {
+                  canchasConHorarios.push(cancha);
+                  this.canchas.set([...canchasConHorarios]);
+
+                  // Cargar ratings
+                  this.cargarRatingsCancha(cancha.id_cancha!);
+                }
+              },
+              error: () => {
+                // Cancha sin horarios, no la mostramos
+              }
+            });
           }
         });
+
+        this.errorMessage = '';
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar las canchas:', err);

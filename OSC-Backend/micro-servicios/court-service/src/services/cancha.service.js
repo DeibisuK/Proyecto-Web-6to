@@ -94,3 +94,35 @@ export const remove = async (id) => {
   await eliminarImagenCloudinary(cancha.imagen_url);
   return await model.remove(id);
 };
+
+export const guardarHorariosDisponibles = async (idCancha, configuracion) => {
+  const { dias_habilitados, horarios, duracion_minima, cancelaciones_anticipadas } = configuracion;
+
+  // Validaciones
+  if (!dias_habilitados || dias_habilitados.length === 0) {
+    throw new Error('Debe seleccionar al menos un día habilitado');
+  }
+
+  if (!horarios || horarios.length === 0) {
+    throw new Error('Debe agregar al menos un horario disponible');
+  }
+
+  // Verificar que la cancha existe
+  const cancha = await model.findById(idCancha);
+  if (!cancha) {
+    throw new Error('Cancha no encontrada');
+  }
+
+  console.log('💾 Guardando horarios disponibles para cancha:', idCancha);
+  
+  return await model.guardarHorariosDisponibles(idCancha, {
+    dias_habilitados,
+    horarios,
+    duracion_minima: duracion_minima || 60,
+    cancelaciones_anticipadas: cancelaciones_anticipadas || 24
+  });
+};
+
+export const getHorariosDisponibles = async (idCancha) => {
+  return await model.getHorariosDisponibles(idCancha);
+};

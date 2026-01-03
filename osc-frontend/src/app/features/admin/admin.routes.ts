@@ -12,6 +12,8 @@ import { ListTorneos } from "./pages/torneos/list-torneos/list-torneos";
 import { CrearTorneo } from "./pages/torneos/crear-torneo/crear-torneo";
 import { Reportes } from "./pages/reportes/reportes";
 import { ListReservas } from "./pages/reservas/list-reservas/list-reservas";
+import { CrearReservasCliente } from "./pages/reservas/crear-reserva-cliente/crear-reservas-cliente";
+import { ConfigurarHorarios } from "./pages/reservas/configurar-horarios/configurar-horarios";
 import { Historial } from "./pages/historial/historial";
 import { Partidos } from "./pages/partidos/partidos";
 import { ListPedidos } from "./pages/comercio/list-pedidos/list-pedidos";
@@ -37,6 +39,16 @@ export const adminRoutes: Routes = [
     path: 'reservas',
     component: ListReservas,
     title: 'OSC Reservas'
+  },
+  {
+    path: 'crear-reserva-cliente',
+    component: CrearReservasCliente,
+    title: 'Crear Reserva Cliente'
+  },
+  {
+    path: 'configurar-horarios',
+    component: ConfigurarHorarios,
+    title: 'Configurar Horarios'
   },
   {
     path: 'productos',

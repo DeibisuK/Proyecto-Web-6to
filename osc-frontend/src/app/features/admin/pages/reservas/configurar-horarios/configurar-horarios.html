@@ -1,0 +1,254 @@
+<div class="configurar-horarios-container">
+  <!-- Header con botón volver -->
+  <div class="header-section">
+    <button class="btn-back" routerLink="/admin/reservas">
+      <span class="material-icons">arrow_back</span>
+      Volver a Reservas
+    </button>
+    <h1 class="page-title">Configurar Horarios Disponibles</h1>
+  </div>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando canchas...</p>
+    </div>
+  } @else {
+    <form [formGroup]="configuracionForm" (ngSubmit)="guardarConfiguracion()">
+
+      <!-- Selección de Cancha -->
+      <div class="config-section">
+        <div class="section-header">
+          <span class="material-icons">sports_soccer</span>
+          <h2>Selecciona la Cancha</h2>
+        </div>
+
+        <div class="cancha-selector">
+          <select
+            class="form-control"
+            formControlName="id_cancha"
+            (change)="onCanchaChange()"
+            [class.is-invalid]="configuracionForm.get('id_cancha')?.invalid && configuracionForm.get('id_cancha')?.touched"
+          >
+            <option value="">Selecciona una cancha</option>
+            @for (cancha of canchas(); track cancha.id_cancha) {
+              <option [value]="cancha.id_cancha">
+                {{ cancha.nombre_cancha }} - {{ cancha.tipo_superficie }}
+              </option>
+            }
+          </select>
+          @if (configuracionForm.get('id_cancha')?.invalid && configuracionForm.get('id_cancha')?.touched) {
+            <small class="error-text">Selecciona una cancha</small>
+          }
+        </div>
+
+        <!-- Info de la cancha seleccionada -->
+        @if (canchaSeleccionada()) {
+          <div class="cancha-info-card">
+            <div class="info-row">
+              <span class="label">Superficie:</span>
+              <span class="value">{{ canchaSeleccionada()!.tipo_superficie }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Dimensiones:</span>
+              <span class="value">{{ canchaSeleccionada()!.largo }}m x {{ canchaSeleccionada()!.ancho }}m</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Tarifa Actual:</span>
+              <span class="value price">{{ formatearMoneda(canchaSeleccionada()!.tarifa) }}/hora</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (canchaSeleccionada()) {
+      <!-- Días Habilitados -->
+      <div class="config-section">
+        <div class="section-header">
+          <span class="material-icons">event</span>
+          <h2>Días Disponibles para Reservas</h2>
+        </div>
+
+          <div class="dias-grid">
+            @for (dia of diasSemana; track dia.valor) {
+              <button
+                type="button"
+                class="dia-btn"
+                [class.activo]="isDiaHabilitado(dia.valor)"
+                (click)="toggleDia(dia.valor)"
+              >
+                <span class="dia-icono">{{ dia.icono }}</span>
+                <span class="dia-nombre">{{ dia.nombre }}</span>
+                @if (isDiaHabilitado(dia.valor)) {
+                  <span class="material-icons check-icon">check_circle</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Horarios Disponibles -->
+        <div class="config-section">
+          <div class="section-header">
+            <span class="material-icons">schedule</span>
+            <h2>Horarios Disponibles</h2>
+          </div>
+
+          <!-- Horarios Personalizados -->
+          <div class="horarios-personalizados">
+            <div class="horarios-header">
+              <div class="plantillas-grid">
+                <button
+                  type="button"
+                  class="btn-plantilla btn-manana"
+                  [class.seleccionado]="plantillaSeleccionada() === 'mañana'"
+                  (click)="aplicarPlantilla('mañana')"
+                  title="6:00 - 12:00 (6 horarios)"
+                >
+                  <span class="material-icons">wb_sunny</span>
+                  <span>Mañana</span>
+                  <small>6:00-12:00</small>
+                </button>
+                <button
+                  type="button"
+                  class="btn-plantilla btn-tarde"
+                  [class.seleccionado]="plantillaSeleccionada() === 'tarde'"
+                  (click)="aplicarPlantilla('tarde')"
+                  title="12:00 - 18:00 (6 horarios)"
+                >
+                  <span class="material-icons">wb_twilight</span>
+                  <span>Tarde</span>
+                  <small>12:00-18:00</small>
+                </button>
+                <button
+                  type="button"
+                  class="btn-plantilla btn-noche"
+                  [class.seleccionado]="plantillaSeleccionada() === 'noche'"
+                  (click)="aplicarPlantilla('noche')"
+                  title="18:00 - 00:00 (6 horarios)"
+                >
+                  <span class="material-icons">nights_stay</span>
+                  <span>Noche</span>
+                  <small>18:00-00:00</small>
+                </button>
+                <button
+                  type="button"
+                  class="btn-plantilla btn-completo"
+                  [class.seleccionado]="plantillaSeleccionada() === 'completo'"
+                  (click)="aplicarPlantilla('completo')"
+                  title="6:00 - 00:00 (18 horarios)"
+                >
+                  <span class="material-icons">schedule</span>
+                  <span>Día Completo</span>
+                  <small>6:00-00:00</small>
+                </button>
+              </div>
+            </div>
+
+            <div class="horarios-header">
+              <p class="section-subtitle">O agrega horarios personalizados:</p>
+              <button
+                type="button"
+                class="btn-add-horario"
+                (click)="agregarHorario()"
+              >
+                <span class="material-icons">add</span>
+                Agregar Horario
+              </button>
+            </div>
+
+            @if (horariosArray.length === 0) {
+              <div class="empty-horarios">
+                <span class="material-icons">schedule</span>
+                <p>No hay horarios configurados. Usa una plantilla o agrega uno personalizado.</p>
+              </div>
+            } @else {
+              <div class="horarios-list" formArrayName="horarios">
+                @for (horario of horariosArray.controls; track $index; let i = $index) {
+                  <div class="horario-item" [formGroupName]="i">
+                    <div class="horario-inputs">
+                      <div class="input-group">
+                        <label>Hora Inicio</label>
+                        <input
+                          type="time"
+                          class="form-control"
+                          formControlName="hora_inicio"
+                        />
+                      </div>
+                      <span class="separator">→</span>
+                      <div class="input-group">
+                        <label>Hora Fin</label>
+                        <input
+                          type="time"
+                          class="form-control"
+                          formControlName="hora_fin"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-delete-horario"
+                      (click)="eliminarHorario(i)"
+                      title="Eliminar horario"
+                    >
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Vista Previa -->
+        <div class="config-section preview-section">
+          <div class="section-header">
+            <span class="material-icons">visibility</span>
+            <h2>Vista Previa</h2>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-item">
+              <span class="preview-label">Cancha:</span>
+              <span class="preview-value">{{ canchaSeleccionada()!.nombre_cancha }}</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Disponibilidad:</span>
+              <span class="preview-value">{{ generarVistaPrevia() }}</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Slots por semana:</span>
+              <span class="preview-value highlight">~{{ calcularSlotsTotales() }} horas disponibles</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="actions-section">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            routerLink="/admin/reservas"
+            [disabled]="guardando()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="configuracionForm.invalid || guardando()"
+          >
+            @if (guardando()) {
+              <span class="material-icons spinning">sync</span>
+              Guardando...
+            } @else {
+              <span class="material-icons">save</span>
+              Guardar Configuración
+            }
+          </button>
+        </div>
+      }
+    </form>
+  }
+</div>

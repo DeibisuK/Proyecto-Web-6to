@@ -1,13 +1,16 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { CanchaService } from '@shared/services/index';
 import { SedeService } from '@shared/services/index';
+import { ReservaService } from '@shared/services/reserva.service';
 import { RatingService } from '@shared/services/rating.service';
+import { MetodoPagoService } from '@shared/services/metodo-pago.service';
 import { AuthService } from '@core/services/auth.service';
 import { NotificationService } from '@core/services/notification.service';
 import { Sedes } from '@shared/models/index';
 import { Cancha } from '@shared/models/index';
 import { Rating, RatingEstadisticas } from '@shared/models/rating.model';
+import { MetodoPago } from '@shared/models/metodo-pago.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import QRCode from 'qrcode';
@@ -22,27 +25,28 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
   @ViewChild('qrCanvas', { static: false }) qrCanvas!: ElementRef<HTMLCanvasElement>;
 
-  private ratingService = inject(RatingService);
-  private authService = inject(AuthService);
-  private notificationService = inject(NotificationService);
-
   cancha?: Cancha;
   sede?: Sedes;
 
   fechaSeleccionada: string = '';
   minDate: string = '';
-  duracionSeleccionada: number = 1;
-  duracionTexto: string = '1 Hora';
-  dropdownDuracionAbierto: boolean = false;
-  opcionesDuracion = [
-    { valor: 1, texto: '1 Hora' },
-    { valor: 1.5, texto: '1.5 Horas' },
-    { valor: 2, texto: '2 Horas' },
-    { valor: 3, texto: '3 Horas' }
-  ];
-  horariosDisponibles: { hora: string, reservado: boolean }[] = [];
+
+  // Días y horarios
+  diasDisponibles: { valor: number, texto: string }[] = [];
+  diaSeleccionado: number | null = null;
+  dropdownDiasAbierto: boolean = false;
+  diaTexto: string = 'Selecciona un día';
+
+  todosLosHorarios: { dia_semana: number, hora_inicio: string, hora_fin: string }[] = [];
+  horariosDelDia: { hora_inicio: string, hora_fin: string, reservado: boolean }[] = [];
   horarioSeleccionado: any = null;
   totalPagar: number = 0;
+
+  // Métodos de pago
+  tipoPagoSeleccionado: 'efectivo' | 'virtual' = 'efectivo';
+  metodosPago: MetodoPago[] = [];
+  metodoPagoSeleccionado: number | null = null;
+  cargandoMetodosPago: boolean = false;
 
   // Ratings
   comentarios: Rating[] = [];
@@ -66,8 +70,14 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private canchaService: CanchaService,
-    private sedeService: SedeService
+    private sedeService: SedeService,
+    private reservaService: ReservaService,
+    private ratingService: RatingService,
+    private metodoPagoService: MetodoPagoService,
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -78,23 +88,9 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.cargarCancha(id);
+      this.cargarHorariosDisponibles(id);
       this.cargarRatings(id);
     }
-
-    // Cargar horarios de ejemplo (simulación temporal)
-    this.horariosDisponibles = [
-      { hora: '09:00', reservado: false },
-      { hora: '10:00', reservado: false },
-      { hora: '11:00', reservado: true },
-      { hora: '12:00', reservado: false },
-      { hora: '13:00', reservado: false },
-      { hora: '14:00', reservado: true },
-      { hora: '17:00', reservado: false },
-      { hora: '18:00', reservado: false },
-      { hora: '19:00', reservado: false },
-      { hora: '20:00', reservado: false },
-      { hora: '21:00', reservado: false },
-    ];
   }
 
   ngAfterViewInit(): void {
@@ -140,24 +136,140 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
     }
   }
 
-  /** Calcula el total a pagar según duración y tarifa */
+  /** Calcula el total a pagar (tarifa fija de 1 hora por horario) */
   calcularTotal(): void {
-    if (this.cancha) {
-      this.totalPagar = this.cancha.tarifa * this.duracionSeleccionada;
+    if (this.cancha && this.horarioSeleccionado) {
+      this.totalPagar = this.cancha.tarifa;
+    } else {
+      this.totalPagar = 0;
     }
   }
 
-  /** Toggle dropdown de duración */
-  toggleDropdownDuracion(): void {
-    this.dropdownDuracionAbierto = !this.dropdownDuracionAbierto;
+  /** Carga los horarios disponibles reales de la cancha */
+  cargarHorariosDisponibles(idCancha: number): void {
+    this.canchaService.getHorariosDisponibles(idCancha).subscribe({
+      next: (horarios) => {
+        this.todosLosHorarios = horarios;
+
+        // Obtener días únicos
+        const diasUnicos = [...new Set(horarios.map(h => h.dia_semana))];
+        const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+        this.diasDisponibles = diasUnicos.map(dia => ({
+          valor: dia,
+          texto: nombresDias[dia]
+        })).sort((a, b) => a.valor - b.valor);
+
+        // Si hay días disponibles, seleccionar el primero
+        if (this.diasDisponibles.length > 0) {
+          this.seleccionarDia(this.diasDisponibles[0]);
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar horarios disponibles:', err);
+        this.todosLosHorarios = [];
+        this.diasDisponibles = [];
+      }
+    });
   }
 
-  /** Seleccionar duración del dropdown */
-  seleccionarDuracion(opcion: { valor: number, texto: string }): void {
-    this.duracionSeleccionada = opcion.valor;
-    this.duracionTexto = opcion.texto;
-    this.dropdownDuracionAbierto = false;
+  /** Toggle dropdown de días */
+  toggleDropdownDias(): void {
+    this.dropdownDiasAbierto = !this.dropdownDiasAbierto;
+  }
+
+  /** Seleccionar día del dropdown */
+  seleccionarDia(opcion: { valor: number, texto: string }): void {
+    this.diaSeleccionado = opcion.valor;
+    this.diaTexto = opcion.texto;
+    this.dropdownDiasAbierto = false;
+    this.horarioSeleccionado = null;
+
+    // Calcular la fecha automáticamente basada en el día seleccionado
+    this.fechaSeleccionada = this.calcularProximaFechaPorDia(opcion.valor);
+
+    // Filtrar horarios del día seleccionado
+    this.horariosDelDia = this.todosLosHorarios
+      .filter(h => h.dia_semana === this.diaSeleccionado)
+      .map(h => ({
+        hora_inicio: h.hora_inicio.substring(0, 5),
+        hora_fin: h.hora_fin.substring(0, 5),
+        reservado: false // TODO: verificar con reservas existentes
+      }));
+
     this.calcularTotal();
+  }
+
+  /** Calcula la próxima fecha que corresponde al día de la semana seleccionado */
+  calcularProximaFechaPorDia(diaSemana: number): string {
+    const hoy = new Date();
+    const diaActual = hoy.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+
+    let diasHastaProximo = diaSemana - diaActual;
+
+    // Si el día ya pasó esta semana, calcular para la próxima semana
+    if (diasHastaProximo <= 0) {
+      diasHastaProximo += 7;
+    }
+
+    const proximaFecha = new Date(hoy);
+    proximaFecha.setDate(hoy.getDate() + diasHastaProximo);
+
+    return proximaFecha.toISOString().split('T')[0];
+  }
+
+  /** Obtiene texto legible de la fecha seleccionada */
+  obtenerTextoFecha(): string {
+    if (!this.fechaSeleccionada) return '';
+
+    const fecha = new Date(this.fechaSeleccionada + 'T00:00:00');
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    return fecha.toLocaleDateString('es-ES', opciones);
+  }
+
+  /** Cambia el tipo de pago seleccionado */
+  cambiarTipoPago(tipo: 'efectivo' | 'virtual'): void {
+    this.tipoPagoSeleccionado = tipo;
+    this.metodoPagoSeleccionado = null;
+
+    // Si se selecciona virtual, cargar métodos de pago del usuario
+    if (tipo === 'virtual') {
+      this.cargarMetodosPago();
+    }
+  }
+
+  /** Carga los métodos de pago del usuario */
+  cargarMetodosPago(): void {
+    const usuario = this.authService.currentUser;
+    if (!usuario || !usuario.uid) {
+      this.notificationService.error('Debes iniciar sesión');
+      return;
+    }
+
+    this.cargandoMetodosPago = true;
+    this.metodoPagoService.getMetodosPagoByUser(usuario.uid).subscribe({
+      next: (metodos) => {
+        this.metodosPago = metodos;
+        this.cargandoMetodosPago = false;
+
+        // Si no hay métodos de pago, notificar al usuario
+        if (metodos.length === 0) {
+          this.notificationService.error('No tienes métodos de pago registrados. Agrega uno en tu perfil.');
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar métodos de pago:', err);
+        this.cargandoMetodosPago = false;
+        this.metodosPago = [];
+        this.notificationService.error('Error al cargar métodos de pago');
+      }
+    });
   }
 
   /** Carga los ratings de la cancha */
@@ -215,15 +327,59 @@ export class DetalleReservarCancha implements OnInit, AfterViewInit {
     return `Hace ${Math.floor(diffDias / 365)} años`;
   }
 
-  /** Simula la confirmación de reserva */
+  /** Confirma y crea la reserva */
   confirmarReserva(): void {
     if (!this.cancha || !this.horarioSeleccionado || !this.fechaSeleccionada) {
-      alert('Por favor selecciona fecha y horario antes de confirmar.');
+      this.notificationService.error('Por favor selecciona fecha y horario antes de confirmar.');
       return;
     }
 
-    alert(`Reserva confirmada para la cancha "${this.cancha.nombre_cancha}"
-el día ${this.fechaSeleccionada} a las ${this.horarioSeleccionado.hora}.`);
+    // Validar que si es pago virtual, se haya seleccionado un método de pago
+    if (this.tipoPagoSeleccionado === 'virtual') {
+      if (!this.metodoPagoSeleccionado) {
+        this.notificationService.error('Por favor selecciona un método de pago.');
+        return;
+      }
+      if (this.metodosPago.length === 0) {
+        this.notificationService.error('No tienes métodos de pago registrados. Agrega uno en tu perfil.');
+        return;
+      }
+    }
+
+    const usuario = this.authService.currentUser;
+    if (!usuario || !usuario.uid) {
+      this.notificationService.error('Debes iniciar sesión para reservar');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    const reserva: any = {
+      id_cancha: this.cancha.id_cancha!,
+      id_usuario: usuario.uid,
+      fecha_reserva: this.fechaSeleccionada,
+      hora_inicio: this.horarioSeleccionado.hora_inicio,
+      duracion_minutos: 60,
+      monto_total: this.totalPagar,
+      tipo_pago: this.tipoPagoSeleccionado,
+      estado_pago: this.tipoPagoSeleccionado === 'virtual' ? 'pagado' : 'pendiente',
+      notas: ''
+    };
+
+    // Si es pago virtual, agregar el id del método de pago
+    if (this.tipoPagoSeleccionado === 'virtual' && this.metodoPagoSeleccionado) {
+      reserva.id_metodo_pago = this.metodoPagoSeleccionado;
+    }
+
+    this.reservaService.createReservaCliente(reserva).subscribe({
+      next: (response) => {
+        this.notificationService.success(`Reserva creada exitosamente para ${this.cancha!.nombre_cancha}`);
+        this.router.navigate(['/client/tienda/mis-reservas']);
+      },
+      error: (error) => {
+        console.error('Error al crear reserva:', error);
+        this.notificationService.error(error.error?.message || 'Error al crear la reserva');
+      }
+    });
   }
 
   /** Genera la URL para el código QR */

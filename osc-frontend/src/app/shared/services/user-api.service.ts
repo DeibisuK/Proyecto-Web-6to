@@ -71,4 +71,52 @@ export class UserApiService {
   deleteUser(uid: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/u/users/${uid}`);
   }
+
+  // Get dashboard statistics
+  getEstadisticasDashboard(): Observable<EstadisticasDashboard> {
+    return this.http.get<EstadisticasDashboard>(`${environment.apiUrl}/u/admin/estadisticas`);
+  }
+}
+
+export interface EstadisticasDashboard {
+  success: boolean;
+  data: {
+    usuariosActivos: number;
+    ingresosMes: string;
+    satisfaccion: string;
+    totalRatings: number;
+    reservasHoy: number;
+    topCanchas: TopCancha[];
+    reservasPorMes: number[];
+    porDeporte: DeporteStats[];
+    ultimasReservas: UltimaReserva[];
+  };
+}
+
+export interface TopCancha {
+  id_cancha: number;
+  nombre: string;
+  deporte: string;
+  rating: string;
+  totalRatings: number;
+  imagen_url?: string;
+}
+
+export interface DeporteStats {
+  nombre: string;
+  total: number;
+  porcentaje: number;
+}
+
+export interface UltimaReserva {
+  id: number;
+  fecha: string;
+  hora: string;
+  duracion: number;
+  monto: number;
+  estado: string;
+  cancha: string;
+  deporte: string;
+  usuario: string;
+  fechaRegistro: string;
 }

@@ -42,4 +42,17 @@ router.get(
   AdminController.getArbitros
 );
 
+/**
+ * GET /admin/estadisticas
+ * Obtiene estadísticas generales del sistema para el dashboard
+ * Retorna: usuarios totales, ingresos del mes, satisfacción promedio, top 5 canchas
+ * Requiere: Autenticación + Rol de Admin (id_rol = 1)
+ */
+router.get(
+  "/estadisticas",
+  authenticate(),
+  authorizeRole(1),
+  AdminController.getEstadisticas
+);
+
 export default router;

@@ -111,3 +111,92 @@ export const remove = async (id) => {
   return result.rows[0];
 };
 
+export const guardarHorariosDisponibles = async (idCancha, configuracion) => {
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    // Eliminar horarios existentes de esta cancha
+    await client.query(
+      'DELETE FROM horarios_disponibles WHERE id_cancha = $1',
+      [idCancha]
+    );
+    
+    console.log('🗑️ Horarios anteriores eliminados para cancha:', idCancha);
+    
+    // Mapeo de días a números
+    const diasMap = {
+      'lunes': 1,
+      'martes': 2,
+      'miercoles': 3,
+      'jueves': 4,
+      'viernes': 5,
+      'sabado': 6,
+      'domingo': 0
+    };
+    
+    const { dias_habilitados, horarios } = configuracion;
+    const horariosInsertados = [];
+    
+    // Preparar horarios para JSON (convertir 00:00 a 24:00)
+    const horariosJSON = horarios.map(h => ({
+      hora_inicio: h.hora_inicio,
+      hora_fin: (h.hora_fin === '00:00' || h.hora_fin === '00:00:00') ? '24:00' : h.hora_fin
+    }));
+    
+    // Insertar UNA fila por día con todos los horarios en JSON
+    for (const dia of dias_habilitados) {
+      const diaNumero = diasMap[dia];
+      
+      const result = await client.query(
+        `INSERT INTO horarios_disponibles 
+        (id_cancha, dia_semana, horarios, activo)
+        VALUES ($1, $2, $3, true)
+        RETURNING *`,
+        [idCancha, diaNumero, JSON.stringify(horariosJSON)]
+      );
+      horariosInsertados.push(result.rows[0]);
+    }
+    
+    await client.query('COMMIT');
+    
+    const totalHorarios = dias_habilitados.length * horarios.length;
+    console.log(`✅ ${horariosInsertados.length} días configurados con ${horarios.length} horarios cada uno (total: ${totalHorarios} slots)`);
+    
+    return {
+      id_cancha: idCancha,
+      total_dias: horariosInsertados.length,
+      total_horarios: totalHorarios,
+      dias: horariosInsertados
+    };
+    
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('❌ Error en transacción de horarios disponibles:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const getHorariosDisponibles = async (idCancha) => {
+  const result = await pool.query(
+    `SELECT 
+      id_horario,
+      id_cancha,
+      dia_semana,
+      horario->>'hora_inicio' as hora_inicio,
+      CASE 
+        WHEN horario->>'hora_fin' = '24:00' THEN '00:00'
+        ELSE horario->>'hora_fin'
+      END as hora_fin,
+      activo
+    FROM horarios_disponibles, 
+         jsonb_array_elements(horarios) as horario
+    WHERE id_cancha = $1 AND activo = true
+    ORDER BY dia_semana, hora_inicio`,
+    [idCancha]
+  );
+  return result.rows;
+};
