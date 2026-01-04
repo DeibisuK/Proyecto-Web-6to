@@ -217,7 +217,8 @@ export class MisPedidosPage implements OnInit, OnDestroy {
   descargarFactura(pedido: Order, event: Event): void {
     event.stopPropagation(); // Evita que se active el click del card
 
-    this.notificationService.loading('Generando factura...');
+    const loadingKey = `factura-pedido-${Date.now()}`;
+    this.notificationService.loading('Generando factura...', loadingKey);
 
     const qrUrl = `${window.location.origin}/mis-pedidos/${pedido.id_pedido}`;
 
@@ -233,16 +234,16 @@ export class MisPedidosPage implements OnInit, OnDestroy {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        // Dismiss loading toast
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.success('Factura descargada correctamente');
         }, 100);
       },
       error: (error) => {
         console.error('Error al descargar factura:', error);
-        // Dismiss loading toast
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.error('Error al generar la factura');
         }, 100);

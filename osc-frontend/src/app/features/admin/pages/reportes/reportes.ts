@@ -265,16 +265,16 @@ export class Reportes implements OnInit {
           option: optionId
         });
 
-        // Dismiss loading toast y mostrar success
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico y mostrar success
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.success(`Reporte ${formatLabel} generado exitosamente`);
         }, 100);
       },
       error: (error) => {
         console.error('Error generando reporte:', error);
-        // Dismiss loading toast y mostrar error
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico y mostrar error
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.error('Error al generar el reporte. Por favor intente nuevamente.');
         }, 100);

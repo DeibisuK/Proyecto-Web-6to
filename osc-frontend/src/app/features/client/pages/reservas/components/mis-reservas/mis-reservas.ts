@@ -161,7 +161,8 @@ export class MisReservasComponent implements OnInit {
   descargarFactura(reserva: Reserva, event: Event): void {
     event.stopPropagation();
 
-    this.notificationService.loading('Generando factura...');
+    const loadingKey = `factura-reserva-${Date.now()}`;
+    this.notificationService.loading('Generando factura...', loadingKey);
 
     const qrUrl = `${window.location.origin}/mis-reservas/${reserva.id_reserva}`;
 
@@ -174,16 +175,16 @@ export class MisReservasComponent implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
 
-        // Dismiss loading toast
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.success('Factura descargada exitosamente');
         }, 100);
       },
       error: (error) => {
         console.error('Error al generar factura:', error);
-        // Dismiss loading toast
-        this.notificationService.dismiss();
+        // Dismiss loading toast específico
+        this.notificationService.dismiss(loadingKey);
         setTimeout(() => {
           this.notificationService.error('Error al generar la factura');
         }, 100);

@@ -150,7 +150,6 @@ export const getEstadisticasDashboard = async () => {
     const canchasDisponibles = await db.query(`
       SELECT COUNT(*) as total FROM canchas WHERE estado = 'Disponible'
     `);
-    console.log('📊 Canchas disponibles:', canchasDisponibles.rows[0].total);
 
     const topCanchasRes = await db.query(`
       SELECT 
@@ -168,9 +167,6 @@ export const getEstadisticasDashboard = async () => {
       LIMIT 5
     `);
 
-    console.log('📊 Rows devueltas por query:', topCanchasRes.rows.length);
-    console.log('📊 Primera fila:', JSON.stringify(topCanchasRes.rows[0], null, 2));
-
     const topCanchas = topCanchasRes.rows.map(row => ({
       id_cancha: row.id_cancha,
       nombre: row.nombre_cancha,
@@ -179,9 +175,6 @@ export const getEstadisticasDashboard = async () => {
       totalRatings: parseInt(row.total_ratings),
       imagen_url: row.imagen_url
     }));
-
-    console.log('📊 Top Canchas:', topCanchas.length, 'encontradas');
-    console.log('📊 Canchas:', JSON.stringify(topCanchas, null, 2));
 
     // 6. Reservas por mes del año actual (2026)
     const reservasPorMesRes = await db.query(`

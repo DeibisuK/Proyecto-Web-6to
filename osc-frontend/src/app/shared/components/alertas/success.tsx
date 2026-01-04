@@ -1,17 +1,31 @@
 import { Toaster, toast } from 'sonner';
 import React, { useEffect } from 'react';
 
-type ToastType = 'success' | 'error' | 'default' | 'loading' | 'custom';
+type ToastType = 'success' | 'error' | 'default' | 'loading' | 'dismiss' | 'custom';
 
 interface SuccessToasterProps {
   message?: string;
   type?: ToastType;
-  // optional key to force effect when same message repeats
-  key?: string | number;
+  toastKey?: string | number;
 }
 
-const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'default' }) => {
+const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'default', toastKey }) => {
+  const toastIds = React.useRef<Map<string | number, string | number>>(new Map());
+
   useEffect(() => {
+    // Manejar dismiss incluso sin mensaje
+    if (type === 'dismiss') {
+      if (toastKey && toastIds.current.has(toastKey)) {
+        const id = toastIds.current.get(toastKey);
+        toast.dismiss(id);
+        toastIds.current.delete(toastKey);
+      } else {
+        toast.dismiss();
+      }
+      return;
+    }
+
+    // Para otros tipos, necesitamos un mensaje
     if (!message) return;
 
     switch (type) {
@@ -22,17 +36,20 @@ const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'defaul
         toast.error(message);
         break;
       case 'loading':
-        toast.loading(message);
+        const loadingToastId = toast.loading(message);
+        if (toastKey) {
+          toastIds.current.set(toastKey, loadingToastId);
+        }
         break;
       default:
         toast(message);
     }
-  }, [message, type]);
+  }, [message, type, toastKey]);
 
   // Listen for custom events from Angular components
   useEffect(() => {
     const handleToastEvent = (event: CustomEvent) => {
-      const { message, type } = event.detail;
+      const { message, type, toastKey } = event.detail;
 
       switch (type) {
         case 'success':
@@ -42,10 +59,19 @@ const SuccessToaster: React.FC<SuccessToasterProps> = ({ message, type = 'defaul
           toast.error(message);
           break;
         case 'loading':
-          toast.loading(message);
+          const toastId = toast.loading(message);
+          if (toastKey) {
+            toastIds.current.set(toastKey, toastId);
+          }
           break;
         case 'dismiss':
-          toast.dismiss();
+          if (toastKey && toastIds.current.has(toastKey)) {
+            const id = toastIds.current.get(toastKey);
+            toast.dismiss(id);
+            toastIds.current.delete(toastKey);
+          } else {
+            toast.dismiss();
+          }
           break;
         default:
           toast(message);

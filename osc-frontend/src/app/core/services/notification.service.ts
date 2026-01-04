@@ -6,7 +6,7 @@ export type NotificationType = 'success' | 'error' | 'default' | 'loading' | 'di
 export interface NotificationPayload {
   message: string;
   type?: NotificationType;
-  key?: string | number;
+  toastKey?: string | number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -25,12 +25,12 @@ export class NotificationService {
     this.notify({ message, type: 'error' });
   }
 
-  loading(message: string, key?: string | number) {
-    this.notify({ message, type: 'loading', key });
+  loading(message: string, toastKey?: string | number) {
+    this.notify({ message, type: 'loading', toastKey });
   }
 
-  dismiss() {
-    this.notify({ message: '', type: 'dismiss' });
+  dismiss(toastKey?: string | number) {
+    this.notify({ message: '', type: 'dismiss', toastKey });
   }
 
   onNotify(): Observable<NotificationPayload> {

@@ -25,7 +25,7 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.sub = this.notificationService.onNotify().subscribe((p: NotificationPayload) => {
-      this.toasterProps = { message: p.message, type: p.type || 'default'};
+      this.toasterProps = { message: p.message, type: p.type || 'default', toastKey: p.toastKey };
     });
   }
 
