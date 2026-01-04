@@ -5,28 +5,32 @@ import compression from "compression";
 
 const app = express();
 const corsOptions = {
-  origin: ["https://osc.dkun.dev", "http://localhost:4200"], // Permitir solo a tu frontend
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
-  allowedHeaders: ["Content-Type", "Authorization"], // Headers permitidos
+  origin: ["https://osc.dkun.dev", "http://localhost:4200"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-no-compression"], // Agregué x-no-compression por si acaso
+  credentials: true // A veces necesario si usas cookies/tokens
 };
 
-// Middleware de compresión Brotli/Gzip (debe ir ANTES de las rutas)
 app.use(compression({
-  level: 6, // Nivel de compresión (0-9, 6 es balance entre velocidad/compresión)
-  threshold: 1024, // Solo comprimir si es > 1KB
+  level: 6,
+  threshold: 1024,
   filter: (req, res) => {
-    // No comprimir si el cliente no acepta compresión
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    // Usar el filtro por defecto de compression
+    if (req.headers['x-no-compression']) return false;
     return compression.filter(req, res);
   }
 }));
 
-// Aplicar el middleware
+// 1. Aplicar CORS
 app.use(cors(corsOptions));
+
+// 2. IMPORTANTE: Manejar explícitamente las peticiones OPTIONS aquí
+// Esto evita que el proxy intente manejar el preflight check
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
+
+// Verificar que las URLs existan antes de iniciar (para debugging)
+if (!process.env.USER_SERVICE_URL) console.warn("⚠️ CUIDADO: USER_SERVICE_URL no está definida");
 
 // Rutas de microservicios
 app.use("/p", proxy(process.env.PRODUCT_SERVICE_URL || ""));
