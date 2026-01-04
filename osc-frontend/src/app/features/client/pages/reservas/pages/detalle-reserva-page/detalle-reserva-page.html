@@ -48,7 +48,7 @@
             <span class="material-icons">label</span>
             <div class="info-details">
               <strong>Cancha</strong>
-              <p>{{ reserva()!.nombre_cancha }}</p>
+              <p>{{ reserva()!.nombre_cancha || 'Cancha #' + reserva()!.id_cancha }}</p>
             </div>
           </div>
 
@@ -56,7 +56,7 @@
             <span class="material-icons">category</span>
             <div class="info-details">
               <strong>Tipo</strong>
-              <p>{{ reserva()!.tipo_deporte }}</p>
+              <p>{{ reserva()!.tipo_deporte || 'Fútbol' }}</p>
             </div>
           </div>
 
@@ -64,7 +64,7 @@
             <span class="material-icons">location_on</span>
             <div class="info-details">
               <strong>Sede</strong>
-              <p>{{ reserva()!.nombre_sede }}</p>
+              <p>{{ reserva()!.nombre_sede || 'Sede principal' }}</p>
             </div>
           </div>
         </div>
@@ -170,10 +170,6 @@
 
     <!-- Acciones -->
     <div class="acciones-container">
-      <button class="btn-volver" (click)="volver()">
-        <span class="material-icons">arrow_back</span>
-        Volver
-      </button>
 
       <button class="btn-descargar-factura" (click)="descargarFactura()">
         <span class="material-icons">receipt</span>

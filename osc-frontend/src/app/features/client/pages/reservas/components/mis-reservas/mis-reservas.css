@@ -390,6 +390,8 @@
 
   .page-header {
     margin-top: 3rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .page-title {
@@ -400,16 +402,279 @@
     font-size: 2rem;
   }
 
-  .reservas-grid {
-    grid-template-columns: 1fr;
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .filtros-container {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filtros-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .filtros-buttons {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .filtro-btn {
     width: 100%;
     justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .reservas-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .reserva-card {
+    overflow: visible;
+  }
+
+  .reserva-header {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .reserva-estado {
+    align-self: flex-start;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .reserva-body {
+    padding: 1rem;
+  }
+
+  .reserva-detalles {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .detalle-item {
+    gap: 0.75rem;
+  }
+
+  .detalle-item .material-icons {
+    font-size: 1.25rem;
+  }
+
+  .detalle-label {
+    font-size: 0.75rem;
+  }
+
+  .detalle-valor {
+    font-size: 0.9rem;
+  }
+
+  .reserva-total {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .reserva-total strong {
+    font-size: 1.1rem;
+  }
+
+  .reserva-footer {
+    padding: 0.75rem;
+    gap: 0.5rem;
+    flex-direction: column;
+  }
+
+  .btn-ver-detalle,
+  .btn-descargar-factura {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+    width: 100%;
+  }
+
+  .btn-ver-detalle .btn-text,
+  .btn-descargar-factura .btn-text {
+    display: none;
+  }
+
+  .btn-ver-detalle,
+  .btn-descargar-factura {
+    justify-content: center;
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+/* Responsive - Móviles (480px and below) */
+@media (max-width: 480px) {
+  .mis-reservas-wrapper {
+    padding: 0 0.75rem;
+  }
+
+  .page-header {
+    margin-top: 2rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-title .material-icons {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .filtros-container {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .filtros-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .filtro-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .filtro-btn .material-icons {
+    font-size: 0.95rem;
+  }
+
+  .filtros-buttons {
+    gap: 0.4rem;
+  }
+
+  .reservas-grid {
+    gap: 0.75rem;
+  }
+
+  .reserva-card {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .reserva-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .reserva-header {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .reserva-cancha {
+    font-size: 1.05rem;
+  }
+
+  .reserva-sede {
+    font-size: 0.8rem;
+  }
+
+  .reserva-estado {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .reserva-estado .material-icons {
+    font-size: 0.95rem;
+  }
+
+  .reserva-body {
+    padding: 0.75rem;
+  }
+
+  .reserva-detalles {
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .detalle-item {
+    gap: 0.5rem;
+  }
+
+  .detalle-item .material-icons {
+    font-size: 1.1rem;
+    min-width: 1.1rem;
+  }
+
+  .detalle-info {
+    gap: 0.1rem;
+  }
+
+  .detalle-label {
+    font-size: 0.7rem;
+  }
+
+  .detalle-valor {
+    font-size: 0.85rem;
+  }
+
+  .reserva-total {
+    padding: 0.6rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    margin: 0.5rem 0 0 0;
+  }
+
+  .reserva-total strong {
+    font-size: 1rem;
+  }
+
+  .reserva-footer {
+    padding: 0.5rem;
+    gap: 0.4rem;
+    flex-direction: row;
+  }
+
+  .btn-ver-detalle,
+  .btn-descargar-factura {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .btn-ver-detalle .material-icons,
+  .btn-descargar-factura .material-icons {
+    font-size: 1rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .empty-state .material-icons {
+    font-size: 4rem;
+  }
+
+  .empty-state h3 {
+    font-size: 1.2rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9rem;
+  }
+
+  .btn-ir-reservar {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .loading-container p {
+    font-size: 0.9rem;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
   }
 }

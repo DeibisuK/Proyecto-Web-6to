@@ -48,18 +48,19 @@
 }
 
 .back-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  color: #1F2937;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: background 0.3s ease;
-  margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
 }
 
 .back-btn:hover {
@@ -254,7 +255,6 @@
 
 .progress-step.active .step-label {
   color: #2ECC71;
-  font-size: 1.1rem;
 }
 
 .step-line {
@@ -617,27 +617,145 @@
     height: 80px;
   }
 
+  /* Progress bar horizontal en móvil */
   .progress-bar-wrapper {
-    flex-direction: column;
-    gap: 2rem;
-    padding: 0;
+    flex-direction: row;
+    gap: 0;
+    padding: 0 1rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    justify-content: space-between;
+    -webkit-overflow-scrolling: touch;
   }
 
+  .progress-step {
+    min-width: 90px;
+    flex: 1 0 90px;
+    max-width: 120px;
+  }
+
+
   .step-line {
-    display: none;
+    display: block;
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    height: 4px;
+    width: calc(100% - 70px);
+    margin-left: 35px;
+    transform: none;
   }
 
   .step-circle {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
   }
 
   .step-circle .material-icons {
-    font-size: 2.5rem;
+    font-size: 2rem;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
+    margin-top: 0.75rem;
+    max-width: 80px;
+    word-wrap: break-word;
   }
 
   .progress-container {
     padding: 1.5rem;
+  }
+
+  .estado-mensaje {
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .mensaje-entregado,
+  .mensaje-progreso {
+    padding: 1rem;
+  }
+
+  .mensaje-entregado .material-icons,
+  .mensaje-progreso .material-icons {
+    font-size: 2.5rem;
+  }
+
+  .mensaje-entregado strong,
+  .mensaje-progreso strong {
+    font-size: 1.1rem;
+  }
+
+  .mensaje-entregado p,
+  .mensaje-progreso p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Móvil pequeño - Progress bar compacto */
+@media (max-width: 480px) {
+  .progress-container {
+    padding: 1rem;
+  }
+
+  .progress-bar-wrapper {
+    padding: 0 0.75rem;
+    gap: 0;
+  }
+
+  .progress-step {
+    min-width: 75px;
+    flex: 1 0 75px;
+    max-width: 100px;
+  }
+
+  .step-circle {
+    width: 55px;
+    height: 55px;
+  }
+
+  .step-circle .material-icons {
+    font-size: 1.3rem;
+  }
+
+  .step-line {
+    height: 3px;
+    width: calc(100% - 55px);
+    top: 27px;
+    left: 50%;
+    margin-left: 27.5px;
+  }
+
+  .step-label {
+    font-size: 0.65rem;
+    margin-top: 0.5rem;
+    max-width: 70px;
+  }
+
+  .estado-mensaje {
+    padding: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .mensaje-entregado,
+  .mensaje-progreso {
+    padding: 0.75rem;
+  }
+
+  .mensaje-entregado .material-icons,
+  .mensaje-progreso .material-icons {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mensaje-entregado strong,
+  .mensaje-progreso strong {
+    font-size: 1rem;
+  }
+
+  .mensaje-entregado p,
+  .mensaje-progreso p {
+    font-size: 0.8rem;
   }
 }
 

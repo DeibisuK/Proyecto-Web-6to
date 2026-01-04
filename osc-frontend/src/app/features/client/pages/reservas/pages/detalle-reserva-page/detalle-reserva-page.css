@@ -272,17 +272,6 @@
   transition: all 0.3s ease;
 }
 
-.btn-volver {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-volver:hover {
-  background: #7f8c8d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
-}
-
 .btn-descargar-factura {
   background: #e74c3c;
   color: white;
