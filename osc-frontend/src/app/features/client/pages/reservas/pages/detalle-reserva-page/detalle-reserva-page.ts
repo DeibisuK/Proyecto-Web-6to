@@ -37,18 +37,11 @@ export class DetalleReservaPage implements OnInit {
   cargarDetalleReserva(idReserva: number): void {
     this.isLoading.set(true);
 
-    this.reservaService.getMisReservas().subscribe({
-      next: (reservas) => {
-        const reservaEncontrada = reservas.find(r => r.id_reserva === idReserva);
-
-        if (reservaEncontrada) {
-          this.reserva.set(reservaEncontrada);
-          this.generarQR(idReserva);
-        } else {
-          this.notificationService.error('Reserva no encontrada');
-          this.router.navigate(['/mis-reservas']);
-        }
-
+    // Llamar directamente a getReservaById para permitir acceso público (QR)
+    this.reservaService.getReservaById(idReserva).subscribe({
+      next: (reserva) => {
+        this.reserva.set(reserva);
+        this.generarQR(idReserva);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -66,15 +59,22 @@ export class DetalleReservaPage implements OnInit {
   generarQR(idReserva: number): void {
     const qrData = `${window.location.origin}/mis-reservas/${idReserva}`;
 
+    // Limpiar QR anterior si existe
+    this.qrCodeUrl.set(null);
+
     QRCode.toDataURL(qrData, {
-      width: 200,
+      width: 250,
       margin: 2,
+      errorCorrectionLevel: 'M',
       color: {
         dark: '#000000',
         light: '#FFFFFF'
       }
     }).then((url) => {
-      this.qrCodeUrl.set(url);
+      // Usar setTimeout para asegurar que se actualiza correctamente
+      setTimeout(() => {
+        this.qrCodeUrl.set(url);
+      }, 100);
     }).catch((error) => {
       console.error('Error generando QR:', error);
     });
@@ -146,7 +146,8 @@ export class DetalleReservaPage implements OnInit {
     const reservaData = this.reserva();
     if (!reservaData) return;
 
-    this.notificationService.loading('Generando factura...');
+    const loadingKey = `factura-reserva-detalle-${Date.now()}`;
+    this.notificationService.loading('Generando factura...', loadingKey);
 
     const qrUrl = `${window.location.origin}/mis-reservas/${reservaData.id_reserva}`;
 
@@ -159,11 +160,17 @@ export class DetalleReservaPage implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
 
-        this.notificationService.success('Factura descargada exitosamente');
+        this.notificationService.dismiss(loadingKey);
+        setTimeout(() => {
+          this.notificationService.success('Factura descargada exitosamente');
+        }, 100);
       },
       error: (error) => {
         console.error('Error al generar factura:', error);
-        this.notificationService.error('Error al generar la factura');
+        this.notificationService.dismiss(loadingKey);
+        setTimeout(() => {
+          this.notificationService.error('Error al generar la factura');
+        }, 100);
       }
     });
   }

@@ -67,10 +67,10 @@ export class ReservaService {
   }
 
   /**
-   * Obtiene una reserva por ID
+   * Obtiene una reserva por ID (público - para QR)
    */
   getReservaById(id: number): Observable<Reserva> {
-    return this.http.get<Reserva>(`${this.adminUrl}/${id}`);
+    return this.http.get<Reserva>(`${this.clientUrl}/${id}`);
   }
 
   /**

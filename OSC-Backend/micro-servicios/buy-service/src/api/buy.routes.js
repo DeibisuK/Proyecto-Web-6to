@@ -14,24 +14,27 @@ import {
     getAllPedidos,
     getVentasStats
 } from '../controllers/pedidos.controller.js';
+import authenticate from '../../../../middleware/authenticate.js';
 
 const router = Router();
 
-// Rutas del carrito (cliente)
-router.get('/client/cart/:uid', getCart);
-router.post('/client/cart/:uid/items', addItemToCart);
-router.put('/client/cart/items/:id_item', updateItemInCart);
-router.delete('/client/cart/items/:id_item', removeItemFromCart);
-router.delete('/client/cart/:uid', clearCart);
-
-// Rutas de pedidos (cliente)
-router.post('/client/orders/user/:uid', createOrderFromCart);
-router.get('/client/orders/user/:uid', getOrders);
+// Rutas públicas (acceso vía QR)
 router.get('/client/orders/:id_pedido', getOrder);
-router.put('/client/orders/:id_pedido/status', updateOrderStatus);
 
-// Rutas de pedidos (admin)
-router.get('/admin/pedidos', getAllPedidos);
-router.get('/admin/ventas/stats', getVentasStats);
+// Rutas del carrito (cliente - requieren autenticación)
+router.get('/client/cart/:uid', authenticate(), getCart);
+router.post('/client/cart/:uid/items', authenticate(), addItemToCart);
+router.put('/client/cart/items/:id_item', authenticate(), updateItemInCart);
+router.delete('/client/cart/items/:id_item', authenticate(), removeItemFromCart);
+router.delete('/client/cart/:uid', authenticate(), clearCart);
+
+// Rutas de pedidos (cliente - requieren autenticación)
+router.post('/client/orders/user/:uid', authenticate(), createOrderFromCart);
+router.get('/client/orders/user/:uid', authenticate(), getOrders);
+router.put('/client/orders/:id_pedido/status', authenticate(), updateOrderStatus);
+
+// Rutas de pedidos (admin - requieren autenticación)
+router.get('/admin/pedidos', authenticate(), getAllPedidos);
+router.get('/admin/ventas/stats', authenticate(), getVentasStats);
 
 export default router;

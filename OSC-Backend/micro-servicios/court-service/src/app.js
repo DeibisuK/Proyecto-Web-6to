@@ -21,8 +21,8 @@ app.use(express.json());
 //CLIENT ROUTES
 app.use("/client", sedeCliente);
 app.use("/client", canchaCliente);
-app.use("/client", authenticate(), torneoCliente);
-app.use("/client", authenticate(), reservaCliente);
+app.use("/client", torneoCliente);  // Sin authenticate() para permitir acceso público
+app.use("/client", reservaCliente);  // Sin authenticate() para permitir acceso público vía QR
 
 // RATINGS ROUTES (públicas para lectura, autenticadas para escritura)
 app.use("/ratings", ratingRoutes);

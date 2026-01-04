@@ -9,7 +9,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
   // Rutas públicas que no requieren autenticación
-  const publicRoutes = ['/u/contacto', '/c/sedes', '/c/canchas'];
+  const publicRoutes = [
+    '/u/contacto',
+    '/c/sedes',
+    '/c/canchas',
+    '/c/client/reservas/',  // Permite acceso público a reservas individuales (QR)
+    '/c/client/pedidos/'    // Permite acceso público a pedidos individuales (QR)
+  ];
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
 
   if (isPublicRoute) {
